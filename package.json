@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "metanode-dapps",
   "private": true,
   "scripts": {
     "build": "turbo run build",
