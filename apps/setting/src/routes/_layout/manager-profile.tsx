@@ -1,9 +1,9 @@
+import { ItemHidenLoginProfile } from '@/features/profiles'
 import ButtonBack from '@/shared/components/button-back'
-import ItemProfile from '@/shared/components/item-profile'
 import { TypographyH1 } from '@/shared/components/typography'
 import { Button } from '@/shared/components/ui/button'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { HatGlasses, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 export const Route = createFileRoute('/_layout/manager-profile')({
   component: RouteComponent
@@ -27,11 +27,7 @@ function RouteComponent() {
       </div>
       <div className="grid gap-2">
         <h3 className="font-semibold">Other Profiles</h3>
-        <ItemProfile
-          AvatarIcon={HatGlasses}
-          name="Login with hidden profile"
-          className="background-card h-16 rounded-2xl"
-        />
+        <ItemHidenLoginProfile />
       </div>
       <ButtonBack />
     </div>
