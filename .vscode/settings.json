@@ -1,7 +1,56 @@
 {
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "[\\s\\S]*class[\\s\\S]*"],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  },
+  "tailwindCSS.emmetCompletions": true,
   "eslint.workingDirectories": [
     {
       "mode": "auto"
     }
-  ]
+  ],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "html",
+    "css",
+    "scss",
+    "less",
+    "json"
+  ],
+  "eslint.alwaysShowStatus": true,
+  "prettier.requireConfig": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.autoSave": "off",
+  "files.autoSaveDelay": 1000,
+  "auto-close-tag.enable": true,
+  "auto-close-tag.activeMacrodn": true,
+  "editor.quickSuggestions": {
+    "strings": true,
+    "other": true,
+    "comments": false
+  },
+  "editor.suggestSelection": "first",
+  "editor.tabCompletion": "on",
+  "git.enableSmartCommit": true,
+  "git.autorefresh": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "jest.runAllTestsFirst": true,
+  "jest.autoRun": "onSave",
+  "tailwindCSS.lint.enable": true,
+  "tailwindCSS.lint.invalidScreen": "ignore",
+  "tailwindCSS.colorFormat": "hex",
+  "editor.fontFamily": "'Fira Code', monospace",
+  "editor.fontSize": 14,
+  "editor.lineHeight": 22,
+  "editor.renderWhitespace": "all",
+  "liveServer.settings.port": 5503
 }
