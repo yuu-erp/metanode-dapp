@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutManagerProfileRouteImport } from './routes/_layout/manager-profile'
+import { Route as LayoutCreateProfileIndexRouteImport } from './routes/_layout/create-profile/index'
 import { Route as LayoutProfileIdRouteImport } from './routes/_layout/profile.$id'
 
 const LayoutRoute = LayoutRouteImport.update({
@@ -28,6 +29,11 @@ const LayoutManagerProfileRoute = LayoutManagerProfileRouteImport.update({
   path: '/manager-profile',
   getParentRoute: () => LayoutRoute
 } as any)
+const LayoutCreateProfileIndexRoute = LayoutCreateProfileIndexRouteImport.update({
+  id: '/create-profile/',
+  path: '/create-profile/',
+  getParentRoute: () => LayoutRoute
+} as any)
 const LayoutProfileIdRoute = LayoutProfileIdRouteImport.update({
   id: '/profile/$id',
   path: '/profile/$id',
@@ -38,11 +44,13 @@ export interface FileRoutesByFullPath {
   '/manager-profile': typeof LayoutManagerProfileRoute
   '/': typeof LayoutIndexRoute
   '/profile/$id': typeof LayoutProfileIdRoute
+  '/create-profile': typeof LayoutCreateProfileIndexRoute
 }
 export interface FileRoutesByTo {
   '/manager-profile': typeof LayoutManagerProfileRoute
   '/': typeof LayoutIndexRoute
   '/profile/$id': typeof LayoutProfileIdRoute
+  '/create-profile': typeof LayoutCreateProfileIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -50,13 +58,20 @@ export interface FileRoutesById {
   '/_layout/manager-profile': typeof LayoutManagerProfileRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/profile/$id': typeof LayoutProfileIdRoute
+  '/_layout/create-profile/': typeof LayoutCreateProfileIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/manager-profile' | '/' | '/profile/$id'
+  fullPaths: '/manager-profile' | '/' | '/profile/$id' | '/create-profile'
   fileRoutesByTo: FileRoutesByTo
-  to: '/manager-profile' | '/' | '/profile/$id'
-  id: '__root__' | '/_layout' | '/_layout/manager-profile' | '/_layout/' | '/_layout/profile/$id'
+  to: '/manager-profile' | '/' | '/profile/$id' | '/create-profile'
+  id:
+    | '__root__'
+    | '/_layout'
+    | '/_layout/manager-profile'
+    | '/_layout/'
+    | '/_layout/profile/$id'
+    | '/_layout/create-profile/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +101,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutManagerProfileRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/create-profile/': {
+      id: '/_layout/create-profile/'
+      path: '/create-profile'
+      fullPath: '/create-profile'
+      preLoaderRoute: typeof LayoutCreateProfileIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/profile/$id': {
       id: '/_layout/profile/$id'
       path: '/profile/$id'
@@ -100,12 +122,14 @@ interface LayoutRouteChildren {
   LayoutManagerProfileRoute: typeof LayoutManagerProfileRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
   LayoutProfileIdRoute: typeof LayoutProfileIdRoute
+  LayoutCreateProfileIndexRoute: typeof LayoutCreateProfileIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutManagerProfileRoute: LayoutManagerProfileRoute,
   LayoutIndexRoute: LayoutIndexRoute,
-  LayoutProfileIdRoute: LayoutProfileIdRoute
+  LayoutProfileIdRoute: LayoutProfileIdRoute,
+  LayoutCreateProfileIndexRoute: LayoutCreateProfileIndexRoute
 }
 
 const LayoutRouteWithChildren = LayoutRoute._addFileChildren(LayoutRouteChildren)
