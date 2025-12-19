@@ -1,0 +1,65 @@
+{
+  "menu": {
+    "general": {
+      "title": "Cài đặt chung",
+      "content": "Chế độ và ngôn ngữ"
+    },
+    "node": {
+      "title": "Node",
+      "content": "Node, mạng và thông báo"
+    },
+    "sharedDapps": {
+      "title": "D-Apps chia sẻ",
+      "content": "Tổng số D-Apps"
+    },
+    "sharedWallets": {
+      "title": "Ví chia sẻ",
+      "content": "Tổng số ví"
+    },
+    "wallpaper": {
+      "title": "Hình nền",
+      "content": "Tùy chỉnh hình nền"
+    },
+    "notification": {
+      "title": "Thông báo",
+      "content": "Tùy chỉnh thông báo"
+    },
+    "security": {
+      "title": "Bảo mật",
+      "content": "Face ID, Touch ID và mã PIN"
+    },
+    "backupRestore": {
+      "title": "Sao lưu & khôi phục",
+      "content": "Tạo file sao lưu"
+    },
+    "meAI": {
+      "title": "Me AI",
+      "content": "AI & tìm kiếm"
+    }
+  },
+  "settings": "Cài đặt",
+  "manageProfile": "Quản lý hồ sơ",
+  "signedIn": "Đã đăng nhập",
+  "chooseYourProfile": "Chọn hồ sơ của bạn",
+  "otherProfiles": "Hồ sơ khác",
+  "switchProfile": "Chuyển đổi hồ sơ",
+  "loginWithHiddenProfile": "Đăng nhập bằng hồ sơ ẩn",
+  "label": {
+    "password": "Mật khẩu",
+    "enterPassword": "Nhập mật khẩu",
+    "confirmPassword": "Xác nhận mật khẩu",
+    "username": "Tên đăng nhập",
+    "enterUsername": "Nhập tên đăng nhập"
+  },
+  "btn": {
+    "login": "Đăng nhập",
+    "loginContent": "Tên đăng nhập, mật khẩu",
+    "hide": "Ẩn",
+    "hideContent": "Ẩn hồ sơ",
+    "unHide": "Bỏ ẩn",
+    "unHideContent": "Bỏ ẩn hồ sơ",
+    "delete": "Xóa",
+    "deleteContent": "Xóa hồ sơ",
+    "continue": "Tiếp tục"
+  }
+}

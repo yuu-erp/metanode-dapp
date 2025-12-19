@@ -11,3 +11,6 @@ export function getAvatarFallback(name?: string, max = 2): string {
     .join('')
     .toUpperCase()
 }
+
+export const isVisibleProfile = (p: { isHidden: number | boolean }) =>
+  p.isHidden === 0 || p.isHidden === false

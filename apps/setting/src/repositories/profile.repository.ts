@@ -1,5 +1,5 @@
 import type { Profile } from '@/interfaces'
-import { getAllProfiles, sendCommand } from '@metanodejs/system-core'
+import { getAllProfiles, loginProfile, sendCommand, updatePassword } from '@metanodejs/system-core'
 
 export class ProfileRepository {
   createProfile() {}
@@ -8,6 +8,12 @@ export class ProfileRepository {
   }
   async getCurrentProfile(): Promise<Profile> {
     return await sendCommand('getCurrentProfile')
+  }
+  async updatePassword(payload: { id: number; password: string; passwordConfirm: string }) {
+    return await updatePassword(payload)
+  }
+  async loginProfile(payload: { id: number; password: string }) {
+    return await loginProfile(payload)
   }
 }
 export const profileRepository = new ProfileRepository()

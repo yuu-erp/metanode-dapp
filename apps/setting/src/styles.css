@@ -144,7 +144,7 @@
     @apply px-3;
   }
   .background-card {
-    @apply bg-white/50 backdrop-blur-2xl;
+    @apply bg-white/80 backdrop-blur-2xl;
   }
   .border-app {
     box-shadow:

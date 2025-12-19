@@ -8,6 +8,7 @@ import { Label } from './ui/label'
 import { Button } from './ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { getAvatarFallback } from '../utils'
+import { useI18N } from '../hooks'
 
 interface DrawerEnterPasswordProps {
   open: boolean
@@ -28,6 +29,7 @@ function DrawerEnterPassword({
   avatarURL,
   name
 }: DrawerEnterPasswordProps) {
+  const { t } = useI18N()
   const {
     register,
     handleSubmit,
@@ -62,14 +64,14 @@ function DrawerEnterPassword({
         <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="password" className="text-black/60 font-semibold">
-              Password
+              {t('label.password')}
             </Label>
             <Input
               id="password"
               type="password"
-              className="bg-white border-px border-black/60 text-black/60"
+              className="bg-white border-px border-black/60 text-black/60 rounded-xl"
               autoFocus
-              placeholder="Enter password"
+              placeholder={t('label.enterPassword')}
               {...register('password', {
                 required: 'Password is required',
                 minLength: {
@@ -83,10 +85,10 @@ function DrawerEnterPassword({
 
           <Button
             type="submit"
-            className="w-full h-12 bg-white text-black/60 font-bold text-md uppercase"
+            className="w-full h-12 bg-white text-black/60 font-bold text-md uppercase rounded-xl"
             disabled={isSubmitting}
           >
-            Login
+            {t('btn.login')}
           </Button>
         </form>
       </DrawerContent>

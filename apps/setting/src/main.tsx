@@ -4,11 +4,14 @@ import ReactDOM from 'react-dom/client'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
+import '@/shared/lib/i18n'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { DeleteProfileProvider } from './contexts/delete-profile.context.tsx'
+import { HideProfileProvider } from './contexts/hide-profile.context.tsx'
+import { LoginProfileProvider } from './contexts/login-profile.context.tsx'
 import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query/index.ts'
 import './styles.css'
-import { LoginProfileProvider } from './contexts/login-profile.context.tsx'
 
 // Create a new router instance
 const router = createRouter({
@@ -39,7 +42,11 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <QueryClientProvider client={queryClient}>
       <LoginProfileProvider>
-        <App />
+        <HideProfileProvider>
+          <DeleteProfileProvider>
+            <App />
+          </DeleteProfileProvider>
+        </HideProfileProvider>
       </LoginProfileProvider>
     </QueryClientProvider>
   )

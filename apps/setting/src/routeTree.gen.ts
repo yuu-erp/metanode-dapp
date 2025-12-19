@@ -11,9 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as LayoutProfileDetailRouteImport } from './routes/_layout/profile-detail'
 import { Route as LayoutManagerProfileRouteImport } from './routes/_layout/manager-profile'
-import { Route as LayoutCreateProfileIndexRouteImport } from './routes/_layout/create-profile/index'
-import { Route as LayoutProfileIdRouteImport } from './routes/_layout/profile.$id'
+import { Route as LayoutNewProfileIndexRouteImport } from './routes/_layout/new-profile/index'
+import { Route as LayoutNewProfileCreateIndexRouteImport } from './routes/_layout/new-profile/create/index'
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
@@ -24,54 +25,63 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute
 } as any)
+const LayoutProfileDetailRoute = LayoutProfileDetailRouteImport.update({
+  id: '/profile-detail',
+  path: '/profile-detail',
+  getParentRoute: () => LayoutRoute
+} as any)
 const LayoutManagerProfileRoute = LayoutManagerProfileRouteImport.update({
   id: '/manager-profile',
   path: '/manager-profile',
   getParentRoute: () => LayoutRoute
 } as any)
-const LayoutCreateProfileIndexRoute = LayoutCreateProfileIndexRouteImport.update({
-  id: '/create-profile/',
-  path: '/create-profile/',
+const LayoutNewProfileIndexRoute = LayoutNewProfileIndexRouteImport.update({
+  id: '/new-profile/',
+  path: '/new-profile/',
   getParentRoute: () => LayoutRoute
 } as any)
-const LayoutProfileIdRoute = LayoutProfileIdRouteImport.update({
-  id: '/profile/$id',
-  path: '/profile/$id',
+const LayoutNewProfileCreateIndexRoute = LayoutNewProfileCreateIndexRouteImport.update({
+  id: '/new-profile/create/',
+  path: '/new-profile/create/',
   getParentRoute: () => LayoutRoute
 } as any)
 
 export interface FileRoutesByFullPath {
   '/manager-profile': typeof LayoutManagerProfileRoute
+  '/profile-detail': typeof LayoutProfileDetailRoute
   '/': typeof LayoutIndexRoute
-  '/profile/$id': typeof LayoutProfileIdRoute
-  '/create-profile': typeof LayoutCreateProfileIndexRoute
+  '/new-profile': typeof LayoutNewProfileIndexRoute
+  '/new-profile/create': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRoutesByTo {
   '/manager-profile': typeof LayoutManagerProfileRoute
+  '/profile-detail': typeof LayoutProfileDetailRoute
   '/': typeof LayoutIndexRoute
-  '/profile/$id': typeof LayoutProfileIdRoute
-  '/create-profile': typeof LayoutCreateProfileIndexRoute
+  '/new-profile': typeof LayoutNewProfileIndexRoute
+  '/new-profile/create': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
   '/_layout/manager-profile': typeof LayoutManagerProfileRoute
+  '/_layout/profile-detail': typeof LayoutProfileDetailRoute
   '/_layout/': typeof LayoutIndexRoute
-  '/_layout/profile/$id': typeof LayoutProfileIdRoute
-  '/_layout/create-profile/': typeof LayoutCreateProfileIndexRoute
+  '/_layout/new-profile/': typeof LayoutNewProfileIndexRoute
+  '/_layout/new-profile/create/': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/manager-profile' | '/' | '/profile/$id' | '/create-profile'
+  fullPaths: '/manager-profile' | '/profile-detail' | '/' | '/new-profile' | '/new-profile/create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/manager-profile' | '/' | '/profile/$id' | '/create-profile'
+  to: '/manager-profile' | '/profile-detail' | '/' | '/new-profile' | '/new-profile/create'
   id:
     | '__root__'
     | '/_layout'
     | '/_layout/manager-profile'
+    | '/_layout/profile-detail'
     | '/_layout/'
-    | '/_layout/profile/$id'
-    | '/_layout/create-profile/'
+    | '/_layout/new-profile/'
+    | '/_layout/new-profile/create/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +104,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/profile-detail': {
+      id: '/_layout/profile-detail'
+      path: '/profile-detail'
+      fullPath: '/profile-detail'
+      preLoaderRoute: typeof LayoutProfileDetailRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/manager-profile': {
       id: '/_layout/manager-profile'
       path: '/manager-profile'
@@ -101,18 +118,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutManagerProfileRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/create-profile/': {
-      id: '/_layout/create-profile/'
-      path: '/create-profile'
-      fullPath: '/create-profile'
-      preLoaderRoute: typeof LayoutCreateProfileIndexRouteImport
+    '/_layout/new-profile/': {
+      id: '/_layout/new-profile/'
+      path: '/new-profile'
+      fullPath: '/new-profile'
+      preLoaderRoute: typeof LayoutNewProfileIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/profile/$id': {
-      id: '/_layout/profile/$id'
-      path: '/profile/$id'
-      fullPath: '/profile/$id'
-      preLoaderRoute: typeof LayoutProfileIdRouteImport
+    '/_layout/new-profile/create/': {
+      id: '/_layout/new-profile/create/'
+      path: '/new-profile/create'
+      fullPath: '/new-profile/create'
+      preLoaderRoute: typeof LayoutNewProfileCreateIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
   }
@@ -120,16 +137,18 @@ declare module '@tanstack/react-router' {
 
 interface LayoutRouteChildren {
   LayoutManagerProfileRoute: typeof LayoutManagerProfileRoute
+  LayoutProfileDetailRoute: typeof LayoutProfileDetailRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
-  LayoutProfileIdRoute: typeof LayoutProfileIdRoute
-  LayoutCreateProfileIndexRoute: typeof LayoutCreateProfileIndexRoute
+  LayoutNewProfileIndexRoute: typeof LayoutNewProfileIndexRoute
+  LayoutNewProfileCreateIndexRoute: typeof LayoutNewProfileCreateIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutManagerProfileRoute: LayoutManagerProfileRoute,
+  LayoutProfileDetailRoute: LayoutProfileDetailRoute,
   LayoutIndexRoute: LayoutIndexRoute,
-  LayoutProfileIdRoute: LayoutProfileIdRoute,
-  LayoutCreateProfileIndexRoute: LayoutCreateProfileIndexRoute
+  LayoutNewProfileIndexRoute: LayoutNewProfileIndexRoute,
+  LayoutNewProfileCreateIndexRoute: LayoutNewProfileCreateIndexRoute
 }
 
 const LayoutRouteWithChildren = LayoutRoute._addFileChildren(LayoutRouteChildren)
