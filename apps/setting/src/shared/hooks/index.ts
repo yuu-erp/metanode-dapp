@@ -7,5 +7,6 @@ export * from './use-set-password-profile'
 export * from './use-update-profile-username'
 export * from './use-update-profile-is-hidden'
 export * from './use-delete-profile-by-id'
+export * from './use-get-dApp-to-share'
 
 export * from './useI18N'

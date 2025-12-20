@@ -11,9 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as LayoutWallpaperRouteImport } from './routes/_layout/wallpaper'
+import { Route as LayoutSecurityRouteImport } from './routes/_layout/security'
 import { Route as LayoutProfileDetailRouteImport } from './routes/_layout/profile-detail'
+import { Route as LayoutNodeRouteImport } from './routes/_layout/node'
 import { Route as LayoutManagerProfileRouteImport } from './routes/_layout/manager-profile'
+import { Route as LayoutGeneralRouteImport } from './routes/_layout/general'
+import { Route as LayoutSharedWalletsIndexRouteImport } from './routes/_layout/shared-wallets/index'
+import { Route as LayoutSharedDappsIndexRouteImport } from './routes/_layout/shared-dapps/index'
 import { Route as LayoutNewProfileIndexRouteImport } from './routes/_layout/new-profile/index'
+import { Route as LayoutSharedWalletsAddRouteImport } from './routes/_layout/shared-wallets/add'
+import { Route as LayoutSharedDappsAddRouteImport } from './routes/_layout/shared-dapps/add'
 import { Route as LayoutNewProfileCreateIndexRouteImport } from './routes/_layout/new-profile/create/index'
 
 const LayoutRoute = LayoutRouteImport.update({
@@ -25,9 +33,24 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
   path: '/',
   getParentRoute: () => LayoutRoute
 } as any)
+const LayoutWallpaperRoute = LayoutWallpaperRouteImport.update({
+  id: '/wallpaper',
+  path: '/wallpaper',
+  getParentRoute: () => LayoutRoute
+} as any)
+const LayoutSecurityRoute = LayoutSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => LayoutRoute
+} as any)
 const LayoutProfileDetailRoute = LayoutProfileDetailRouteImport.update({
   id: '/profile-detail',
   path: '/profile-detail',
+  getParentRoute: () => LayoutRoute
+} as any)
+const LayoutNodeRoute = LayoutNodeRouteImport.update({
+  id: '/node',
+  path: '/node',
   getParentRoute: () => LayoutRoute
 } as any)
 const LayoutManagerProfileRoute = LayoutManagerProfileRouteImport.update({
@@ -35,9 +58,34 @@ const LayoutManagerProfileRoute = LayoutManagerProfileRouteImport.update({
   path: '/manager-profile',
   getParentRoute: () => LayoutRoute
 } as any)
+const LayoutGeneralRoute = LayoutGeneralRouteImport.update({
+  id: '/general',
+  path: '/general',
+  getParentRoute: () => LayoutRoute
+} as any)
+const LayoutSharedWalletsIndexRoute = LayoutSharedWalletsIndexRouteImport.update({
+  id: '/shared-wallets/',
+  path: '/shared-wallets/',
+  getParentRoute: () => LayoutRoute
+} as any)
+const LayoutSharedDappsIndexRoute = LayoutSharedDappsIndexRouteImport.update({
+  id: '/shared-dapps/',
+  path: '/shared-dapps/',
+  getParentRoute: () => LayoutRoute
+} as any)
 const LayoutNewProfileIndexRoute = LayoutNewProfileIndexRouteImport.update({
   id: '/new-profile/',
   path: '/new-profile/',
+  getParentRoute: () => LayoutRoute
+} as any)
+const LayoutSharedWalletsAddRoute = LayoutSharedWalletsAddRouteImport.update({
+  id: '/shared-wallets/add',
+  path: '/shared-wallets/add',
+  getParentRoute: () => LayoutRoute
+} as any)
+const LayoutSharedDappsAddRoute = LayoutSharedDappsAddRouteImport.update({
+  id: '/shared-dapps/add',
+  path: '/shared-dapps/add',
   getParentRoute: () => LayoutRoute
 } as any)
 const LayoutNewProfileCreateIndexRoute = LayoutNewProfileCreateIndexRouteImport.update({
@@ -47,40 +95,98 @@ const LayoutNewProfileCreateIndexRoute = LayoutNewProfileCreateIndexRouteImport.
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/general': typeof LayoutGeneralRoute
   '/manager-profile': typeof LayoutManagerProfileRoute
+  '/node': typeof LayoutNodeRoute
   '/profile-detail': typeof LayoutProfileDetailRoute
+  '/security': typeof LayoutSecurityRoute
+  '/wallpaper': typeof LayoutWallpaperRoute
   '/': typeof LayoutIndexRoute
+  '/shared-dapps/add': typeof LayoutSharedDappsAddRoute
+  '/shared-wallets/add': typeof LayoutSharedWalletsAddRoute
   '/new-profile': typeof LayoutNewProfileIndexRoute
+  '/shared-dapps': typeof LayoutSharedDappsIndexRoute
+  '/shared-wallets': typeof LayoutSharedWalletsIndexRoute
   '/new-profile/create': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRoutesByTo {
+  '/general': typeof LayoutGeneralRoute
   '/manager-profile': typeof LayoutManagerProfileRoute
+  '/node': typeof LayoutNodeRoute
   '/profile-detail': typeof LayoutProfileDetailRoute
+  '/security': typeof LayoutSecurityRoute
+  '/wallpaper': typeof LayoutWallpaperRoute
   '/': typeof LayoutIndexRoute
+  '/shared-dapps/add': typeof LayoutSharedDappsAddRoute
+  '/shared-wallets/add': typeof LayoutSharedWalletsAddRoute
   '/new-profile': typeof LayoutNewProfileIndexRoute
+  '/shared-dapps': typeof LayoutSharedDappsIndexRoute
+  '/shared-wallets': typeof LayoutSharedWalletsIndexRoute
   '/new-profile/create': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_layout': typeof LayoutRouteWithChildren
+  '/_layout/general': typeof LayoutGeneralRoute
   '/_layout/manager-profile': typeof LayoutManagerProfileRoute
+  '/_layout/node': typeof LayoutNodeRoute
   '/_layout/profile-detail': typeof LayoutProfileDetailRoute
+  '/_layout/security': typeof LayoutSecurityRoute
+  '/_layout/wallpaper': typeof LayoutWallpaperRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/shared-dapps/add': typeof LayoutSharedDappsAddRoute
+  '/_layout/shared-wallets/add': typeof LayoutSharedWalletsAddRoute
   '/_layout/new-profile/': typeof LayoutNewProfileIndexRoute
+  '/_layout/shared-dapps/': typeof LayoutSharedDappsIndexRoute
+  '/_layout/shared-wallets/': typeof LayoutSharedWalletsIndexRoute
   '/_layout/new-profile/create/': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/manager-profile' | '/profile-detail' | '/' | '/new-profile' | '/new-profile/create'
+  fullPaths:
+    | '/general'
+    | '/manager-profile'
+    | '/node'
+    | '/profile-detail'
+    | '/security'
+    | '/wallpaper'
+    | '/'
+    | '/shared-dapps/add'
+    | '/shared-wallets/add'
+    | '/new-profile'
+    | '/shared-dapps'
+    | '/shared-wallets'
+    | '/new-profile/create'
   fileRoutesByTo: FileRoutesByTo
-  to: '/manager-profile' | '/profile-detail' | '/' | '/new-profile' | '/new-profile/create'
+  to:
+    | '/general'
+    | '/manager-profile'
+    | '/node'
+    | '/profile-detail'
+    | '/security'
+    | '/wallpaper'
+    | '/'
+    | '/shared-dapps/add'
+    | '/shared-wallets/add'
+    | '/new-profile'
+    | '/shared-dapps'
+    | '/shared-wallets'
+    | '/new-profile/create'
   id:
     | '__root__'
     | '/_layout'
+    | '/_layout/general'
     | '/_layout/manager-profile'
+    | '/_layout/node'
     | '/_layout/profile-detail'
+    | '/_layout/security'
+    | '/_layout/wallpaper'
     | '/_layout/'
+    | '/_layout/shared-dapps/add'
+    | '/_layout/shared-wallets/add'
     | '/_layout/new-profile/'
+    | '/_layout/shared-dapps/'
+    | '/_layout/shared-wallets/'
     | '/_layout/new-profile/create/'
   fileRoutesById: FileRoutesById
 }
@@ -104,11 +210,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/wallpaper': {
+      id: '/_layout/wallpaper'
+      path: '/wallpaper'
+      fullPath: '/wallpaper'
+      preLoaderRoute: typeof LayoutWallpaperRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/security': {
+      id: '/_layout/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof LayoutSecurityRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/profile-detail': {
       id: '/_layout/profile-detail'
       path: '/profile-detail'
       fullPath: '/profile-detail'
       preLoaderRoute: typeof LayoutProfileDetailRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/node': {
+      id: '/_layout/node'
+      path: '/node'
+      fullPath: '/node'
+      preLoaderRoute: typeof LayoutNodeRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/manager-profile': {
@@ -118,11 +245,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutManagerProfileRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/general': {
+      id: '/_layout/general'
+      path: '/general'
+      fullPath: '/general'
+      preLoaderRoute: typeof LayoutGeneralRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/shared-wallets/': {
+      id: '/_layout/shared-wallets/'
+      path: '/shared-wallets'
+      fullPath: '/shared-wallets'
+      preLoaderRoute: typeof LayoutSharedWalletsIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/shared-dapps/': {
+      id: '/_layout/shared-dapps/'
+      path: '/shared-dapps'
+      fullPath: '/shared-dapps'
+      preLoaderRoute: typeof LayoutSharedDappsIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/new-profile/': {
       id: '/_layout/new-profile/'
       path: '/new-profile'
       fullPath: '/new-profile'
       preLoaderRoute: typeof LayoutNewProfileIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/shared-wallets/add': {
+      id: '/_layout/shared-wallets/add'
+      path: '/shared-wallets/add'
+      fullPath: '/shared-wallets/add'
+      preLoaderRoute: typeof LayoutSharedWalletsAddRouteImport
+      parentRoute: typeof LayoutRoute
+    }
+    '/_layout/shared-dapps/add': {
+      id: '/_layout/shared-dapps/add'
+      path: '/shared-dapps/add'
+      fullPath: '/shared-dapps/add'
+      preLoaderRoute: typeof LayoutSharedDappsAddRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/new-profile/create/': {
@@ -136,18 +298,34 @@ declare module '@tanstack/react-router' {
 }
 
 interface LayoutRouteChildren {
+  LayoutGeneralRoute: typeof LayoutGeneralRoute
   LayoutManagerProfileRoute: typeof LayoutManagerProfileRoute
+  LayoutNodeRoute: typeof LayoutNodeRoute
   LayoutProfileDetailRoute: typeof LayoutProfileDetailRoute
+  LayoutSecurityRoute: typeof LayoutSecurityRoute
+  LayoutWallpaperRoute: typeof LayoutWallpaperRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutSharedDappsAddRoute: typeof LayoutSharedDappsAddRoute
+  LayoutSharedWalletsAddRoute: typeof LayoutSharedWalletsAddRoute
   LayoutNewProfileIndexRoute: typeof LayoutNewProfileIndexRoute
+  LayoutSharedDappsIndexRoute: typeof LayoutSharedDappsIndexRoute
+  LayoutSharedWalletsIndexRoute: typeof LayoutSharedWalletsIndexRoute
   LayoutNewProfileCreateIndexRoute: typeof LayoutNewProfileCreateIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
+  LayoutGeneralRoute: LayoutGeneralRoute,
   LayoutManagerProfileRoute: LayoutManagerProfileRoute,
+  LayoutNodeRoute: LayoutNodeRoute,
   LayoutProfileDetailRoute: LayoutProfileDetailRoute,
+  LayoutSecurityRoute: LayoutSecurityRoute,
+  LayoutWallpaperRoute: LayoutWallpaperRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutSharedDappsAddRoute: LayoutSharedDappsAddRoute,
+  LayoutSharedWalletsAddRoute: LayoutSharedWalletsAddRoute,
   LayoutNewProfileIndexRoute: LayoutNewProfileIndexRoute,
+  LayoutSharedDappsIndexRoute: LayoutSharedDappsIndexRoute,
+  LayoutSharedWalletsIndexRoute: LayoutSharedWalletsIndexRoute,
   LayoutNewProfileCreateIndexRoute: LayoutNewProfileCreateIndexRoute
 }
 

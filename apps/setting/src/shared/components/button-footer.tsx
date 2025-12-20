@@ -17,10 +17,10 @@ function ButtonFooter({ btnContent = 'next', onBack, onNext }: ButtonFooterProps
             className="h-full aspect-square border-app bg-white/70 rounded-l-2xl rounded-r-none"
             onClick={onBack}
           >
-            <ChevronLeft className="size-5 text-white" />
+            <ChevronLeft className="size-5 text-black/60" />
           </Button>
           <Button
-            className="h-full flex-1 rounded-r-2xl rounded-l-none border-app bg-white/70 text-lg font-bold uppercase text-white"
+            className="h-full flex-1 rounded-r-2xl rounded-l-none border-app bg-white/70 text-lg font-bold uppercase text-black/60"
             onClick={onNext}
           >
             {btnContent}
