@@ -17,7 +17,7 @@ function RouteComponent() {
         <div className="w-full text-center">
           <h1 className="font-bold text-3xl">{t('title.connectMainWallet')}</h1>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 py-14">
           <ListWallet wallets={data} />
         </div>
         <ButtonGroupMobile />

@@ -1,50 +1,76 @@
 'use client'
 
 import * as React from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react'
-import { Pagination } from 'swiper/modules'
+import { motion } from 'framer-motion'
 import 'swiper/css'
 import 'swiper/css/pagination'
+import { Swiper, SwiperSlide, type SwiperProps } from 'swiper/react'
+import { EffectCoverflow, Keyboard, Mousewheel } from 'swiper/modules'
 
 import type { Wallet } from '@metanodejs/system-core'
 import CardWallet from './card-wallet'
 
-interface WalletListSliderProps {
+interface WalletListSliderProps extends SwiperProps {
   wallets: Wallet[]
 }
 
-function ListWallet({ wallets }: WalletListSliderProps) {
+function ListWallet({ wallets, ...props }: WalletListSliderProps) {
   if (!wallets?.length) return null
 
   return (
-    <div className="w-full h-full">
+    <div className="relative w-full h-full flex flex-col items-stretch relative shrink-0 basis-auto">
       <Swiper
-        modules={[Pagination]}
-        spaceBetween={16}
-        slidesPerView={1.3}
-        centeredSlides
-        pagination={{ clickable: true }}
-        className="w-full max-w-[420px] px-4 pb-6 flex items-center justify-center"
-        breakpoints={{
-          640: {
-            slidesPerView: 2
-          },
-          768: {
-            slidesPerView: 2
-          }
+        slidesPerView={1.2}
+        spaceBetween={-50}
+        centeredSlides={true}
+        className="w-full h-full !flex !items-center !justify-center overflow-visible"
+        keyboard={{ enabled: true }}
+        mousewheel={{ forceToAxis: false, thresholdDelta: 10, sensitivity: 1 }}
+        effect="coverflow"
+        coverflowEffect={{
+          rotate: 0,
+          stretch: 0,
+          depth: 100,
+          modifier: 2,
+          slideShadows: false
         }}
+        modules={[Mousewheel, Keyboard, EffectCoverflow]}
+        {...props}
       >
-        {wallets.map((wallet) => (
-          <SwiperSlide key={wallet.id} className="flex justify-center items-center w-full h-full">
-            <CardWallet
-              name={wallet.name}
-              address={wallet.address}
-              totalBalanceString={wallet.totalBalanceString}
-              decimals={15}
-              symbol="MTN"
-              backgroundImage={wallet.backgroundImage}
-              className="h-full max-h-[440px] w-full"
-            />
+        {wallets.map((wallet, idx) => (
+          <SwiperSlide key={wallet.address} className="w-[320px] h-full overflow-hidden">
+            {({ isActive }) => {
+              return (
+                <motion.div
+                  variants={{
+                    enter: {
+                      opacity: 1,
+                      scale: 1,
+                      speed: 300
+                    },
+                    exit: {
+                      opacity: 0.2,
+                      scale: 0.92
+                    }
+                  }}
+                  className="w-full h-full flex items-center justify-center"
+                  animate={isActive ? 'enter' : 'exit'}
+                >
+                  <div className="border-app relative flex h-full w-full flex-col gap-3 overflow-hidden rounded-3xl bg-black/40 px-6 lg:px-12 pt-3 lg:pt-6 pb-6 lg:pb-12 text-white">
+                    <p className="text-center text-2xl font-bold">Wallet {idx + 1}</p>
+                    <CardWallet
+                      name={wallet.name}
+                      address={wallet.address}
+                      totalBalanceString={wallet.totalBalanceString}
+                      decimals={15}
+                      symbol="MTD"
+                      backgroundImage={wallet.backgroundImage}
+                      className="h-full w-full"
+                    />
+                  </div>
+                </motion.div>
+              )
+            }}
           </SwiperSlide>
         ))}
       </Swiper>
