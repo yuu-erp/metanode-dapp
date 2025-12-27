@@ -1,0 +1,10 @@
+{
+  "btn": {
+    "importWallet": "Import Wallet",
+    "createWallet": "Create Wallet",
+    "connectWallet": "Connect Wallet"
+  },
+  "title": {
+    "connectMainWallet": "Connect Main Wallet"
+  }
+}

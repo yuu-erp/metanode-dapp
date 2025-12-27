@@ -131,7 +131,7 @@ code {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-white;
   }
 
   header {
@@ -153,5 +153,32 @@ code {
 @layer components {
   .shadow-inset {
     box-shadow: 2px 2px 6px 0px #0000004d inset;
+  }
+
+  .text-color {
+    background: linear-gradient(
+      245.29deg,
+      #6dc1dc 13.32%,
+      #a690fc 28.55%,
+      #fc96bb 55.55%,
+      #ffc397 84.12%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .border-app {
+    box-shadow:
+      0px 0px 3px 0px #f2f2f2 inset,
+      0px 0px 0px 0px #999999 inset,
+      0px 0px 0px 0px #ffffff26 inset,
+      0px 0px 1px 0px #ffffffbf inset,
+      0px 0px 1.69px -0.85px #ffffffbf inset,
+      -5.07px -5.07px 0.85px -5.07px #ffffffcc inset,
+      5.07px 5.07px 0.85px -5.07px #ffffffbf inset,
+      0px 1.69px 13.52px 0px #0000001f,
+      0px 0px 3.38px 0px #0000001a;
+    backdrop-filter: blur(20.280595779418945px);
+    -webkit-backdrop-filter: blur(20.280595779418945px);
   }
 }

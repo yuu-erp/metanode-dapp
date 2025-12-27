@@ -1,0 +1,10 @@
+{
+  "btn": {
+    "importWallet": "Nhập ví hiện có",
+    "createWallet": "Tạo ví mới",
+    "connectWallet": "Kết nối ví"
+  },
+  "title": {
+    "connectMainWallet": "Kết nối ví chính"
+  }
+}
