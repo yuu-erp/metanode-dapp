@@ -1,5 +1,5 @@
 import { initPrivateFeature } from '@/bootstrap/session/app-session'
-import { BackgroundSyncProvider } from '@/shared/background-sync'
+import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { queryClient } from '@/shared/lib/react-query'
@@ -29,8 +29,10 @@ function RouteComponent() {
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
     <BackgroundSyncProvider>
-      <Outlet />
-      {showNavbar && <NavbarMenu />}
+      <AppSessionProvider>
+        <Outlet />
+        {showNavbar && <NavbarMenu />}
+      </AppSessionProvider>
     </BackgroundSyncProvider>
   )
 }
