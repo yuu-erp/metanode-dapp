@@ -2,7 +2,7 @@
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { ACCOUNT_QUERY_KEY } from '../lib/react-query'
-import { factoryContract } from '@/services/contracts'
+import { getSession } from '@/bootstrap'
 
 export function createCheckUserContractQueryOptions(
   address?: string
@@ -16,10 +16,8 @@ export function createCheckUserContractQueryOptions(
   return {
     queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(safeAddress),
     queryFn: async (): Promise<boolean> => {
-      return await factoryContract.checkUserContract({
-        from: safeAddress,
-        inputData: { user: safeAddress }
-      })
+      const { factoryBlockchain } = getSession()
+      return await factoryBlockchain.factoryContractService.checkUserContract(safeAddress)
     },
 
     enabled: !!address

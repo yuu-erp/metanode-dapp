@@ -1,5 +1,12 @@
 import { images } from '@/assets/images'
 
+export const fulfilledPromises = <T extends Promise<any>>(promises: T[]) =>
+  Promise.allSettled(promises).then((results) =>
+    results
+      .filter((result) => result.status === 'fulfilled')
+      .map((result) => (result as PromiseFulfilledResult<Awaited<T>>).value)
+  )
+
 export function handleBackgroundWallet(string: string) {
   if (string.startsWith('linear-gradient')) {
     return string

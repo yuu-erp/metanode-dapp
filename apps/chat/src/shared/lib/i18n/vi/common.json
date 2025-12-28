@@ -6,5 +6,9 @@
   },
   "title": {
     "connectMainWallet": "Kết nối ví chính"
+  },
+  "status": {
+    "updating": "Đang cập nhập",
+    "connecting": "Đang kết nối"
   }
 }

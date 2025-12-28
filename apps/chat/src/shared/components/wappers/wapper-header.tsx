@@ -3,10 +3,12 @@
 import * as React from 'react'
 import { cn } from '@/shared/lib'
 
-interface Props extends React.HTMLAttributes<HTMLElement> {}
+interface Props extends React.HTMLAttributes<HTMLElement> {
+  alwaysScrolled?: boolean
+}
 
 export const WapperHeader = React.forwardRef<HTMLElement, Props>(
-  ({ className, children, ...props }, ref) => {
+  ({ className, children, alwaysScrolled = false, ...props }, ref) => {
     const localRef = React.useRef<HTMLElement>(null)
 
     React.useImperativeHandle(ref, () => localRef.current!)
@@ -31,14 +33,18 @@ export const WapperHeader = React.forwardRef<HTMLElement, Props>(
     // --- set data-scroll attribute ---
     React.useEffect(() => {
       const updateScroll = () => {
-        document.documentElement.setAttribute('data-scroll', window.scrollY === 0 ? '0' : '1')
+        if (alwaysScrolled) {
+          document.documentElement.setAttribute('data-scroll', '1')
+        } else {
+          document.documentElement.setAttribute('data-scroll', window.scrollY === 0 ? '0' : '1')
+        }
       }
 
       updateScroll()
       window.addEventListener('scroll', updateScroll, { passive: true })
 
       return () => window.removeEventListener('scroll', updateScroll)
-    }, [])
+    }, [alwaysScrolled])
 
     return (
       <header

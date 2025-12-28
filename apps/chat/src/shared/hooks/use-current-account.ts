@@ -1,11 +1,11 @@
 'use client'
 
-import type { Account } from '@/interfaces'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { ACCOUNT_QUERY_KEY } from '../lib/react-query'
-import { accountService } from '@/services/account'
+import type { Account } from '@/services/account/domain'
+import { getSession } from '@/bootstrap'
 
-export type CurrentAccountData = Account | null
+export type CurrentAccountData = Account
 
 export function createCurrentAccountQueryOptions(): UseQueryOptions<
   CurrentAccountData,
@@ -16,8 +16,9 @@ export function createCurrentAccountQueryOptions(): UseQueryOptions<
   return {
     queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT,
     queryFn: async (): Promise<CurrentAccountData> => {
-      const currentAccount = await accountService.getCurrentAccount()
-      if (!currentAccount) return null
+      const { account } = getSession()
+      const currentAccount = await account.accountService.getCurrentAccount()
+      if (!currentAccount) throw new Error('No logged in account')
       return currentAccount
     }
   }

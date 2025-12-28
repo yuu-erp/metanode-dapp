@@ -1,4 +1,4 @@
-import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { RouterProvider, createHashHistory, createRouter } from '@tanstack/react-router'
 import ReactDOM from 'react-dom/client'
 
 // Import the generated route tree
@@ -9,6 +9,7 @@ import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
 import '@/shared/lib/i18n'
+import { initApp } from './bootstrap/index.ts'
 
 // Create a new router instance
 const router = createRouter({
@@ -17,7 +18,8 @@ const router = createRouter({
   defaultPreload: 'intent',
   scrollRestoration: true,
   defaultStructuralSharing: true,
-  defaultPreloadStaleTime: 0
+  defaultPreloadStaleTime: 0,
+  history: createHashHistory()
 })
 
 // Register the router instance for type safety
@@ -31,6 +33,7 @@ declare module '@tanstack/react-router' {
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
+  initApp() // ⬅️ BẮT BUỘC
   root.render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />

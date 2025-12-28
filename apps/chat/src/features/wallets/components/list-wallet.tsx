@@ -7,7 +7,7 @@ import 'swiper/css/pagination'
 import { Swiper, SwiperSlide, type SwiperProps } from 'swiper/react'
 import { EffectCoverflow, Keyboard, Mousewheel } from 'swiper/modules'
 
-import type { Wallet } from '@metanodejs/system-core'
+import type { Wallet } from '@/services/wallets'
 import CardWallet from './card-wallet'
 
 interface WalletListSliderProps extends SwiperProps {

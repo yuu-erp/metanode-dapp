@@ -1,0 +1,33 @@
+import { MtnContract } from '@metanodejs/mtn-contract'
+import type { TransactionPayload } from '../type'
+import type { GetFullInboxOutput, UserProfileOutput } from './types'
+import { userAbi } from './abis'
+import type { UserConversationContract } from './user-conversation.contract'
+
+export class MtnUserConversationContract extends MtnContract implements UserConversationContract {
+  constructor(to: string) {
+    super({ to })
+  }
+
+  userProfile(payload: TransactionPayload): Promise<UserProfileOutput> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'userProfile',
+      abiData: userAbi.userProfile,
+      feeType: 'read'
+    })
+  }
+
+  getFullInbox(payload: TransactionPayload): Promise<GetFullInboxOutput[]> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getFullInbox',
+      abiData: userAbi.getFullInbox,
+      feeType: 'read'
+    })
+  }
+}

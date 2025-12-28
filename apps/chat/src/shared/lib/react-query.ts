@@ -25,3 +25,7 @@ export const ACCOUNT_QUERY_KEY = {
   GET_CURRENT_ACCOUNT: ['getCurrentAccount'] as const,
   CHECK_USER_CONTRACT: (address: string) => ['checkUserContract', address] as const
 }
+
+export const CONVERSATION_QUERY_KEY = {
+  CONVERSATIONS: ['conversations'] as const
+}

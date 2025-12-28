@@ -1,8 +1,9 @@
 'use client'
 
-import { getAllWallets, type Wallet } from '@metanodejs/system-core'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { SHARED_QUERY_KEY } from '../lib/react-query'
+import type { Wallet } from '@/services/wallets'
+import { getSession } from '@/bootstrap'
 
 export function createGetAllWalletsQueryOptions(): UseQueryOptions<
   Wallet[],
@@ -13,7 +14,8 @@ export function createGetAllWalletsQueryOptions(): UseQueryOptions<
   return {
     queryKey: SHARED_QUERY_KEY.GET_ALL_WALLETS,
     queryFn: async (): Promise<Wallet[]> => {
-      return await getAllWallets()
+      const { wallet } = getSession()
+      return await wallet.walletService.getAllWallets()
     }
   }
 }

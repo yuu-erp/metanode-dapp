@@ -6,5 +6,9 @@
   },
   "title": {
     "connectMainWallet": "Connect Main Wallet"
+  },
+  "status": {
+    "updating": "Updating",
+    "connecting": "Connecting"
   }
 }
