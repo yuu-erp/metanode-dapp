@@ -3,7 +3,7 @@ import type { MessageStatus } from '@/services/message/domain'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
 import { formatUpdatedAt, getAvatarFallback, getTelegramGradient } from '@/shared/helpers'
 import { cn } from '@/shared/lib'
-import { Check, CheckCheck, ClockIcon } from 'lucide-react'
+import { Check, CheckCheck, ClockIcon, Pin } from 'lucide-react'
 import * as React from 'react'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -45,9 +45,14 @@ function ItemConversation({
               <span>{formatUpdatedAt(updatedAt)}</span>
             </div>
           </div>
-          <div className="flex-1 w-full line-clamp-2 text-xs break-all">
-            Hôm nay của bạn thế nào Hôm nay của bạn thế nào Hôm nay của bạn thế nào Hôm nay của bạn
-            thế nào Hôm nay của bạn thế nào
+          <div className="w-full flex items-center justify-between gap-3">
+            <div className="flex-1 w-full line-clamp-2 text-xs break-all">
+              Hôm nay của bạn thế nào Hôm nay của bạn thế nào Hôm nay của bạn thế nào Hôm nay của
+              bạn thế nào Hôm nay của bạn thế nào
+            </div>
+            <div>
+              <Pin className="size-4" />
+            </div>
           </div>
         </div>
       </div>
