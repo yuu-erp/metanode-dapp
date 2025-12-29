@@ -18,7 +18,8 @@ export const queryClient = new QueryClient({
 })
 
 export const SHARED_QUERY_KEY = {
-  GET_ALL_WALLETS: ['getAllWallets'] as const
+  GET_ALL_WALLETS: ['getAllWallets'] as const,
+  INIT_PRIVATE_FEATURE: ['initPrivateFeature'] as const
 }
 
 export const ACCOUNT_QUERY_KEY = {

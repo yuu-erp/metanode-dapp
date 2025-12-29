@@ -16,6 +16,7 @@ export function createGetConversationsQueryOptions(): UseQueryOptions<
     queryFn: async (): Promise<Conversation[]> => {
       const { conversation } = getSession()
       if (!conversation) return []
+      console.log('FEATCH LẠI CONVERSATIONS')
       return await conversation?.service.loadInitial()
     }
   }

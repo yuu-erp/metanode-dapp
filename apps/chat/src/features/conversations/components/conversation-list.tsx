@@ -14,7 +14,7 @@ function ConversationList() {
           <ItemConversation
             key={idx}
             name={item.name}
-            avatar={item.avatar}
+            // avatar={item.avatar}
             updatedAt={item.updatedAt}
             latestMessageContent={item.latestMessageContent}
             onClick={() =>

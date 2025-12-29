@@ -45,39 +45,11 @@ export async function initPrivateFeature() {
     return
   }
 
-  // const abi = [
-  //   'event MessageReceived(address sender, address recipient, bytes32 messageId, string encryptedContent, address dataStoreAddress, uint256 messageNonce)'
-  // ]
-
-  // // const provider = new ethers.WebSocketProvider('wss://rpc-proxy-sequoia.iqnb.com:8446')
-  // const provider = new ReconnectingWebSocketProvider('wss://rpc-proxy-sequoia.iqnb.com:8446', {
-  //   debug: true
-  // })
-
-  // const contract = new ethers.Contract(`0x${currentAccount.contractAddress}`, abi, provider)
-
-  // contract.on(
-  //   'MessageReceived',
-  //   (sender, recipient, messageId, encryptedContent, dataStoreAddress, messageNonce, event) => {
-  //     console.log({
-  //       sender,
-  //       recipient,
-  //       messageId,
-  //       encryptedContent,
-  //       dataStoreAddress,
-  //       messageNonce: messageNonce.toString(),
-  //       txHash: event.log.transactionHash,
-  //       blockNumber: event.log.blockNumber
-  //     })
-  //   }
-  // )
-
   session.conversation = bootstrapConversationFeature({
     account: currentAccount,
     userConversationService: session.userBlockchain.userContractService,
     securityService: session.security?.securityService
   })
-  console.log('session', session)
 }
 
 export function getSession() {
