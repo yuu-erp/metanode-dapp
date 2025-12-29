@@ -5,7 +5,7 @@ export function mapToConversation(raw: any): Conversation {
   return {
     // Identity
     conversationId: raw.conversationId,
-
+    publicKey: raw.publicKey,
     // UI snapshot
     name: [raw.firstName, raw.lastName].filter(Boolean).join(' '),
 

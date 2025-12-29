@@ -8,7 +8,7 @@ import { useBackgroundTask } from '@/shared/background-sync/use-background-task'
 export function useConversationSyncTask(syncService?: ConversationSyncService) {
   useBackgroundTask({
     id: 'conversation-sync',
-    interval: 5 * 60_000, // demo
+    interval: 60_000, // demo
     // interval: 3_000, // demo
     enabled: () => !!syncService,
     run: async () => {

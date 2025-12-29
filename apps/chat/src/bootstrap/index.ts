@@ -1,1 +1,1 @@
-export { initApp, getSession } from './session/app-session'
+export { initApp, getSession, initPrivateFeature } from './session/app-session'

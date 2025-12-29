@@ -1,4 +1,5 @@
-import { initPrivateFeature } from '@/bootstrap/session/app-session'
+import { initPrivateFeature } from '@/bootstrap'
+import { MessageReceivedProvider, Web3ProviderProvider } from '@/contexts'
 import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
@@ -28,11 +29,15 @@ function RouteComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
-    <BackgroundSyncProvider>
-      <AppSessionProvider>
-        <Outlet />
-        {showNavbar && <NavbarMenu />}
-      </AppSessionProvider>
-    </BackgroundSyncProvider>
+    <Web3ProviderProvider wsUrl="wss://rpc-proxy-sequoia.iqnb.com:8446" options={{ debug: true }}>
+      <MessageReceivedProvider>
+        <BackgroundSyncProvider>
+          <AppSessionProvider>
+            <Outlet />
+            {showNavbar && <NavbarMenu />}
+          </AppSessionProvider>
+        </BackgroundSyncProvider>
+      </MessageReceivedProvider>
+    </Web3ProviderProvider>
   )
 }

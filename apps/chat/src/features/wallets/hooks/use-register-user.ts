@@ -25,6 +25,10 @@ export function useRegisterUser() {
       })
       navigate({ to: '/' })
     },
-    onError: (error) => toast.error(error.message || 'Connect wallet fail!')
+    onError: (error) => {
+      // @ts-ignore
+      const messageError = error.message || error.description || 'Connect wallet fail!'
+      toast.error(messageError)
+    }
   })
 }

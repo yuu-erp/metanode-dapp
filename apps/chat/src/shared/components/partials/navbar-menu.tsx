@@ -2,8 +2,10 @@
 import * as React from 'react'
 import { Button } from '../ui/button'
 import { CircleUserRound, MessageCircle, Phone, Settings } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 
 function NavbarMenu() {
+  const navigate = useNavigate()
   return (
     <React.Fragment>
       <div
@@ -41,6 +43,7 @@ function NavbarMenu() {
               style={{
                 boxShadow: `2px 2px 6px 0px #0000004D inset`
               }}
+              onClick={() => navigate({ to: '/' })}
             >
               <MessageCircle className="size-5" />
             </Button>
@@ -52,6 +55,7 @@ function NavbarMenu() {
               style={{
                 boxShadow: `2px 2px 6px 0px #0000004D inset`
               }}
+              onClick={() => navigate({ to: '/settings' })}
             >
               <Settings className="size-5" />
             </Button>

@@ -10,21 +10,23 @@ function hashCode(str: string): number {
 
 // Gradient giống Telegram, đầy đủ màu
 const telegramGradients: [string, string][] = [
-  ['#2AABEE', '#0077FF'], // xanh dương
-  ['#00C851', '#007E33'], // xanh lá
-  ['#FFBB33', '#FF8800'], // vàng → cam sáng
-  ['#9933CC', '#660099'], // tím
-  ['#FF4444', '#CC0000'], // đỏ
-  ['#FF8800', '#FF5500'], // cam
-  ['#FF66CC', '#FF3399'] // hồng
+  ['#ff516a', '#ff885e'], // Đỏ
+  ['#ffa85c', '#ffcd6a'], // Cam
+  ['#665fff', '#82b1ff'], // Xanh dương
+  ['#54cb68', '#a0de7e'], // Xanh lá
+  ['#4acccd', '#00ffab'], // Lục lam (Cyan)
+  ['#2a9ef1', '#72d5fd'], // Xanh biển sáng
+  ['#d669ed', '#e0a2f3'] // Hồng/Tím
 ]
 
-export function getTelegramGradient(name: string): string {
-  if (!name) return 'linear-gradient(45deg, #ccc, #eee)'
+export function getTelegramGradient(id: string | number): string {
+  if (!id) return 'linear-gradient(135deg, #efeff4, #dad9e0)'
 
-  const hash = hashCode(name)
-  const index = hash % telegramGradients.length
+  // Telegram thường dùng ID người dùng để lấy index thay vì hash tên
+  const idNum = typeof id === 'number' ? id : hashCode(id.toString())
+  const index = Math.abs(idNum) % telegramGradients.length
   const [color1, color2] = telegramGradients[index]
 
+  // Telegram sử dụng góc 135 độ cho gradient ảnh đại diện
   return `linear-gradient(135deg, ${color1}, ${color2})`
 }

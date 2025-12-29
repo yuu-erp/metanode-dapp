@@ -1,3 +1,5 @@
+'use client'
+
 import {
   ConversationBackgroundSync,
   ConversationList,
@@ -6,7 +8,7 @@ import {
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { cn } from '@/shared/lib'
 import { createFileRoute } from '@tanstack/react-router'
-import { CirclePlus } from 'lucide-react'
+import { SquarePen } from 'lucide-react'
 
 export const Route = createFileRoute('/_authenticated/')({
   component: RouteComponent
@@ -21,12 +23,13 @@ function RouteComponent() {
           <ConversationBackgroundSync />
           <div>
             <button>
-              <CirclePlus className="size-6" />
+              <SquarePen className="size-6" />
             </button>
           </div>
         </div>
         <SearchConversation />
       </WapperHeader>
+
       <div className="flex flex-col w-full pt-[90px]">
         <ConversationList />
       </div>

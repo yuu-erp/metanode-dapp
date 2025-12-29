@@ -1,4 +1,5 @@
-import type { GetFullInboxOutput, UserProfileOutput } from './types'
+import type { TransactionPayload } from '../type'
+import type { GetFullInboxOutput, GetProcessedP2PMessagesInput, UserProfileOutput } from './types'
 import type { UserConversationContract } from './user-conversation.contract'
 
 export class UserConversationService {
@@ -18,5 +19,16 @@ export class UserConversationService {
       from: walletAddress,
       to: contractAddress
     })
+  }
+
+  async publicKey(walletAddress: string, contractAddress: string): Promise<string> {
+    return await this.userConversationContract.publicKey({
+      from: walletAddress,
+      to: contractAddress
+    })
+  }
+
+  async getProcessedP2PMessages(payload: TransactionPayload<GetProcessedP2PMessagesInput>) {
+    return await this.userConversationContract.getProcessedP2PMessages(payload)
   }
 }

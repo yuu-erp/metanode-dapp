@@ -3,6 +3,6 @@ export interface EventLogData {
   payload: any
 }
 export interface IEventLogRepository {
-  registerEvent(from: string, to: string): Promise<void>
-  on(eventName: string, handler: (data: EventLogData) => void): () => void
+  registerEvent(from: string, to: string[]): Promise<void>
+  onEventLog(callback: (data: EventLogData) => void): () => void
 }

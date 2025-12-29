@@ -8,7 +8,7 @@ interface IAbiItemBase {
   indexed?: boolean // Optional, as not all inputs are indexed
 }
 
-interface IAbiEvent {
+export interface IAbiEvent {
   inputs: IAbiItemBase[]
   name: string
   type: 'event' // Restrict to event type
@@ -47,6 +47,7 @@ export class ManageAbiEvent {
         nonIndexedInputs: abi.inputs.filter((i) => !i.indexed)
       })
     }
+    console.log('LIST ABI REGISTER LISTEN EVENTLOGS ----', this.abiEvents)
   }
 
   /**
@@ -68,7 +69,6 @@ export class ManageAbiEvent {
     })
 
     const signature = `${abi.name}(${types.join(',')})`
-
     // Check cache first
     if (hashCache.has(signature)) {
       return hashCache.get(signature)!

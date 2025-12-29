@@ -10,8 +10,9 @@ import type { Account } from '@/services/account/domain'
 export function bootstrapConversationFeature(params: {
   account: Account
   userConversationService: any
+  securityService: any
 }) {
-  const { account, userConversationService } = params
+  const { account, userConversationService, securityService } = params
   const db = new ConversationDexieDB(`conversation_db_${account.address}`)
 
   const repository = new DexieConversationRepository(db)
@@ -19,8 +20,8 @@ export function bootstrapConversationFeature(params: {
   const conversationService = new ConversationService(repository)
   const provider = new BlockchainConversationProvider(
     userConversationService,
-    account.address,
-    account.contractAddress
+    account,
+    securityService
   )
 
   const syncService = new ConversationSyncService(repository, provider)

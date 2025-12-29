@@ -1,6 +1,11 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
 import type { TransactionPayload } from '../type'
-import type { GetFullInboxOutput, UserProfileOutput } from './types'
+import type {
+  GetFullInboxOutput,
+  GetProcessedP2PMessagesInput,
+  GetProcessedP2PMessagesOutput,
+  UserProfileOutput
+} from './types'
 import { userAbi } from './abis'
 import type { UserConversationContract } from './user-conversation.contract'
 
@@ -27,6 +32,31 @@ export class MtnUserConversationContract extends MtnContract implements UserConv
       to,
       functionName: 'getFullInbox',
       abiData: userAbi.getFullInbox,
+      feeType: 'read'
+    })
+  }
+
+  publicKey(payload: TransactionPayload): Promise<string> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'publicKey',
+      abiData: userAbi.publicKey,
+      feeType: 'read'
+    })
+  }
+
+  getProcessedP2PMessages(
+    payload: TransactionPayload<GetProcessedP2PMessagesInput>
+  ): Promise<GetProcessedP2PMessagesOutput[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getProcessedP2PMessages',
+      abiData: userAbi.getProcessedP2PMessages,
+      inputData,
       feeType: 'read'
     })
   }

@@ -1,76 +1,86 @@
-import { subscribeToAddress, SystemCore } from '@metanodejs/system-core'
-import type { IDecodeAbiRepository } from './decode-abi.repository'
-import type { EventLogData, IEventLogRepository } from './event-log.repository'
+import { SystemCore, subscribeToAddress } from '@metanodejs/system-core'
+import type { IDecodeAbiRepository } from '../decode-abi/decode-abi.repository'
 
+import type { EventLogData, IEventLogRepository } from './event-log.repository'
+import type { IAbiEvent } from './manage-abi-event'
+// Định nghĩa kiểu cho log sự kiện
 interface EventLogPayload {
   topics: { [key: string]: string }
   data: string
 }
 
-type EventHandler = (payload: EventLogData) => void
-
 export class EventLog implements IEventLogRepository {
-  private handlers: Record<string, EventHandler[]> = {}
-  private pendingEvents: EventLogData[] = []
-  private timer?: NodeJS.Timeout
+  constructor(private readonly decodeAbiPort: IDecodeAbiRepository) {}
 
-  constructor(private readonly decodeAbiPort: IDecodeAbiRepository) {
-    this.initGlobalListener()
-  }
-
-  /** Đăng ký lắng nghe 1 địa chỉ */
-  async registerEvent(from: string, to: string): Promise<void> {
-    if (!from || !to) throw new Error('Chưa đăng nhập, không thể lắng nghe event!')
-    await subscribeToAddress({ fromAddress: from, toAddress: to })
-  }
-
-  /** Đăng ký handler cho event riêng */
-  on(eventName: string, handler: EventHandler): () => void {
-    if (!this.handlers[eventName]) this.handlers[eventName] = []
-    this.handlers[eventName].push(handler)
-
-    // Return function để hủy đăng ký
-    return () => {
-      this.handlers[eventName] = this.handlers[eventName].filter((h) => h !== handler)
-    }
-  }
-
-  /** Global listener decode log và batch dispatch */
-  private initGlobalListener() {
-    SystemCore.on('EventLogs', async (data: unknown) => {
-      try {
-        const logs: EventLogPayload[] = Array.isArray(data)
-          ? (data as EventLogPayload[])
-          : (data as { data: EventLogPayload[] }).data || []
-
-        for (const logData of logs) {
-          if (!logData?.topics?.['0'] || !logData.data) continue
-
-          const decoded = await this.decodeAbiPort.decodeAbi(logData.topics['0'], logData.data)
-
-          this.queueEvent({ type: decoded.event, payload: decoded.decodedData })
-        }
-      } catch (err) {
-        console.error('EventLog processing error:', (err as Error).message)
+  /**
+   * Đăng ký một sự kiện từ địa chỉ `from` đến `to`.
+   * @param from Địa chỉ nguồn
+   * @param to Địa chỉ đích
+   * @throws Error nếu chưa được triển khai
+   */
+  async registerEvent(from: string, to: string[]): Promise<void> {
+    try {
+      console.log('REGISTER EVENT LOGS ---- ', to)
+      if (!from || !to) throw new Error('Ban chưa đăng nhập nên chưa thể lắng nghe!')
+      const abis: IAbiEvent[] = []
+      await this.decodeAbiPort.registerAbi(abis)
+      for (const toAddress of to) {
+        await subscribeToAddress({ fromAddress: from, toAddress })
       }
-    })
+    } catch (error) {
+      console.warn(
+        'Lỗi khi bắt đầu lắng nghe tin nhắn:',
+        error instanceof Error ? error.message : error
+      )
+    }
   }
 
-  /** Gom event trước khi dispatch */
-  private queueEvent(event: EventLogData) {
-    this.pendingEvents.push(event)
+  /**
+   * Lắng nghe sự kiện log và giải mã dữ liệu.
+   * @param callback Hàm gọi lại khi nhận được sự kiện đã giải mã
+   * @returns Hàm để hủy đăng ký lắng nghe
+   */
+  onEventLog(callback: (data: EventLogData) => void): () => void {
+    const handler = async (data: unknown) => {
+      try {
+        // Kiểm tra cấu trúc dữ liệu
+        // const logData = Array.isArray(data)
+        //   ? (data[0] as EventLogPayload)
+        //   : (data as { data: EventLogPayload[] }).data?.[0]
 
-    if (!this.timer) {
-      this.timer = setTimeout(() => {
-        const batch = [...this.pendingEvents]
-        this.pendingEvents = []
-        this.timer = undefined
+        // if (!logData || !logData.topics?.['0'] || !logData.data) {
+        //   console.warn('Invalid event log data:', data)
+        //   return
+        // }
 
-        // Dispatch đến handler tương ứng
-        batch.forEach((e) => {
-          this.handlers[e.type]?.forEach((h) => h(e))
-        })
-      }, 50) // debounce 50ms
+        // const resultDecodeAbi = await this.decodeAbiPort.decodeAbi(
+        //   logData.topics['0'],
+        //   logData.data
+        // )
+        // callback({ type: resultDecodeAbi.event, payload: resultDecodeAbi.decodedData })
+
+        // ép kiểu array để đồng bộ
+        console.log('LISTEN EVENT LOGS ------ ', data)
+        const events = Array.isArray(data) ? data : (data as { data: EventLogPayload[] }).data
+        if (!Array.isArray(events)) return
+
+        for (const result of events) {
+          if (!result || !result.topics?.['0'] || !result.data) {
+            console.warn('Invalid event log data:', data)
+            return
+          }
+          const resultDecodeAbi = await this.decodeAbiPort.decodeAbi(
+            result.topics['0'],
+            result.data
+          )
+          callback({ type: resultDecodeAbi.event, payload: resultDecodeAbi.decodedData })
+        }
+      } catch (error) {
+        console.error('Error processing event log:', (error as Error).message)
+      }
     }
+    // decodedData: Record<string, unknown>, event: string
+    SystemCore.on('EventLogs', handler)
+    return () => SystemCore.removeEventListener('EventLogs', handler)
   }
 }

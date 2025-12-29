@@ -1,4 +1,4 @@
 export const contractConfig = {
-  factory: import.meta.env.VITE_FACTORY || '0x87Aa9780447C749bcE71B6B2E856338ba664Ca60',
-  user: import.meta.env.VITE_USER || '0xA88f024C0a175A5b0e99E262bD7dA2354543FDDf'
+  factory: import.meta.env.VITE_FACTORY || '0xc0d76B3778951E085937b2B5Cc63632cd39babb4',
+  user: import.meta.env.VITE_USER || '0x0462243A0e59D87AaB5ffe22CF4a48bf8f5d9A72'
 }

@@ -17,3 +17,19 @@ export interface GetFullInboxOutput {
   unreadCount: string
   conversationType: string
 }
+
+export interface GetProcessedP2PMessagesInput {
+  partnerContractAddress: string
+  page: number
+  limit: number
+}
+export interface GetProcessedP2PMessagesOutput {
+  messageId: string
+  sender: string
+  recipient: string
+  finalContent: string
+  timestamp: string
+  isDeleted: boolean
+  reactionSummary: string
+  isRead: boolean
+}
