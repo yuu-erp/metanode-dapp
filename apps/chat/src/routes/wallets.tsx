@@ -1,9 +1,10 @@
-import { ButtonGroup, ListWallet, useRegisterUser } from '@/features/wallets'
-import { createCurrentAccountQueryOptions, useGetAllWallets, useI18N } from '@/shared/hooks'
+import { ButtonGroup, ListWallet, useGetAllWallets, useRegisterUser } from '@/features/wallets'
+import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { queryClient } from '@/shared/lib/react-query'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useCallback, useMemo, useState } from 'react'
+import { Trans } from 'react-i18next'
 import type { SwiperClass, SwiperProps } from 'swiper/react'
 
 export const Route = createFileRoute('/wallets')({
@@ -23,8 +24,6 @@ export const Route = createFileRoute('/wallets')({
 })
 
 function RouteComponent() {
-  const { t } = useI18N()
-
   const { data = [] } = useGetAllWallets()
 
   const { mutateAsync, isPending } = useRegisterUser()
@@ -46,7 +45,14 @@ function RouteComponent() {
     <div className={cn('w-full h-screen flex flex-col', window.isHasNotch ? 'pt-14' : 'pt-5')}>
       <div className="w-full h-full flex flex-col">
         <div className="w-full text-center">
-          <h1 className="font-bold text-3xl">{t('title.connectMainWallet')}</h1>
+          <Trans
+            parent="h1"
+            className="font-bold text-3xl"
+            i18nKey="title.connectMainWallet"
+            components={{
+              1: <span className="text-color" />
+            }}
+          />
         </div>
         <div className="flex-1 py-14">
           <ListWallet wallets={data} onSlideChange={onChangeWallet} />

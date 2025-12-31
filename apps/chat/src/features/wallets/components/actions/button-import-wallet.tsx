@@ -19,7 +19,7 @@ function ButtonImportWallet({ className, ...props }: Props) {
       disabled={isPending}
       onClick={handleImportWallet}
       className={cn(
-        'border-app h-14 rounded-xl font-bold uppercase bg-white/10 disabled:opacity-60 disabled:pointer-events-none',
+        'border-app h-14 rounded-2xl font-bold uppercase bg-white/10 disabled:opacity-60 disabled:pointer-events-none',
         className
       )}
       aria-busy={isPending}

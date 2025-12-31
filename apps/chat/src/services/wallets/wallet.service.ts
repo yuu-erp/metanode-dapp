@@ -32,3 +32,5 @@ export class WalletService {
     return (await getEncryptedPublicKey(address)).encryptedPublicKey
   }
 }
+
+export const walletService = new WalletService()

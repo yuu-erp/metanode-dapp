@@ -5,7 +5,7 @@
     "connectWallet": "Kết nối ví"
   },
   "title": {
-    "connectMainWallet": "Kết nối ví chính"
+    "connectMainWallet": "Kết nối <1>ví chính</1>"
   },
   "status": {
     "updating": "Đang cập nhập",

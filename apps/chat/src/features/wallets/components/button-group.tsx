@@ -18,7 +18,7 @@ function ButtonGroup({ onConnectWallet, isLoading }: ButtonGroupProps) {
       <Button
         type="button"
         disabled={isLoading}
-        className="border-app h-14 col-span-2 rounded-xl font-bold uppercase bg-black/20 disabled:opacity-60 disabled:pointer-events-none"
+        className="border-app h-14 col-span-2 rounded-2xl font-bold uppercase bg-black/20 disabled:opacity-60 disabled:pointer-events-none"
         onClick={onConnectWallet}
         aria-busy={isLoading}
         aria-label={t('btn.connectWallet')}

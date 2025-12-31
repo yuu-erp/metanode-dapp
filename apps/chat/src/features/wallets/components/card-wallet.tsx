@@ -2,8 +2,8 @@
 
 import { cn } from '@/shared/lib'
 import { handleBackgroundWallet } from '@/shared/utils'
-import * as React from 'react'
 import { formatUnits } from 'ethers'
+import * as React from 'react'
 
 interface CardWalletProps extends React.HTMLAttributes<HTMLDivElement> {
   backgroundImage?: string
@@ -40,18 +40,24 @@ function CardWallet({
   return (
     <div className={cn(className)} {...props}>
       <div
-        className="w-full h-full flex items-center relative rounded-2xl overflow-hidden"
+        className="w-full h-full flex items-center relative rounded-4xl overflow-hidden"
         style={{
           background: handleBackgroundWallet(backgroundImage)
         }}
       >
         <div className="flex w-full h-full flex-col justify-between p-5 gap-3">
           <div className="flex flex-col gap-2">
-            {name && <p className="font-bold text-[1.5em]">{name}</p>}
-            {address && <p className="text-[1em] line-clamp-2 break-all font-medium">{address}</p>}
+            {name && (
+              <p className="font-bold text-xl [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)]">{name}</p>
+            )}
+            {address && (
+              <p className="line-clamp-2 break-all font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)]">
+                0x{address}
+              </p>
+            )}
           </div>
 
-          <div className="px-3 py-2 rounded-full max-w-[60%] max-sm:max-w-full w-full border-app line-clamp-1 font-bold">
+          <div className="px-3 py-2 rounded-full max-w-[60%] max-sm:max-w-full w-full border-app line-clamp-1 font-bold [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)]">
             {displayBalance} {symbol}
           </div>
         </div>
