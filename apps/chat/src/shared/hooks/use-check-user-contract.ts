@@ -2,7 +2,6 @@
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { ACCOUNT_QUERY_KEY } from '../lib/react-query'
-import { getSession } from '@/bootstrap'
 
 export function createCheckUserContractQueryOptions(
   address?: string
@@ -16,8 +15,8 @@ export function createCheckUserContractQueryOptions(
   return {
     queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(safeAddress),
     queryFn: async (): Promise<boolean> => {
-      const { account } = getSession()
-      return await account.accountOnboardingService.isRegister(safeAddress)
+      // check register
+      return false
     },
 
     enabled: !!address

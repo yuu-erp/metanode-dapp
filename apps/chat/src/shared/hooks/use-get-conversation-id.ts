@@ -1,6 +1,5 @@
 'use client'
 
-import { getSession } from '@/bootstrap'
 import type { Conversation } from '@/services/conversations/domain'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { CONVERSATION_QUERY_KEY } from '../lib/react-query'
@@ -16,11 +15,7 @@ export function createGetConversationIdQueryOptions(
   return {
     queryKey: CONVERSATION_QUERY_KEY.CONVERSATION(conversationId),
     queryFn: async (): Promise<Conversation | null> => {
-      const { conversation } = getSession()
-      if (!conversation) return null
-      const conversationUser = await conversation?.service.getConversation(conversationId)
-      if (!conversationUser) return null
-      return conversationUser
+      throw new Error('Method not implement')
     },
     enabled: !!conversationId
   }

@@ -1,6 +1,5 @@
 'use client'
 
-import { getSession } from '@/bootstrap'
 import { type Wallet } from '@/services/wallets'
 import { ACCOUNT_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { useMutation } from '@tanstack/react-query'
@@ -12,8 +11,7 @@ export function useRegisterUser() {
   return useMutation({
     mutationFn: async (wallet: Wallet) => {
       if (!wallet || !wallet.address) throw new Error('Wallet not found!')
-      const { account } = getSession()
-      await account.accountOnboardingService.registerOrLogin(wallet)
+      // Register user
       return wallet.address
     },
     onSuccess: (address) => {

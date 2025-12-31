@@ -4,7 +4,6 @@ import { createContext, useContext } from 'react'
 import { useWeb3Provider } from '.'
 import { useCurrentAccount } from '@/shared/hooks'
 import { Contract, ethers } from 'ethers'
-import { getSession } from '@/bootstrap'
 
 export interface MessageReceivedState {}
 
@@ -17,7 +16,6 @@ const MESSAGE_RECEIVED_ABI = [
 ] as const
 
 export function MessageReceivedProvider({ children }: MessageReceivedProviderProps) {
-  const { security, userBlockchain } = getSession()
   const { provider } = useWeb3Provider()
   const { data: currentAccount } = useCurrentAccount()
 
@@ -63,19 +61,6 @@ export function MessageReceivedProvider({ children }: MessageReceivedProviderPro
         blockNumber: event.log?.blockNumber
       })
       if (!currentAccount) return
-
-      const publicKey = await userBlockchain.userContractService.publicKey(
-        currentAccount.address,
-        sender
-      )
-
-      const data = await security?.securityService.decryptAesECDH(
-        publicKey,
-        currentAccount.address,
-        encryptedContent
-      )
-      console.log('Decrypt message received: ', data)
-
       // TODO: Cập nhật UI (thêm tin nhắn mới, cập nhật conversation list, etc.)
     }
 
