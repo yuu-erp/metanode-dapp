@@ -16,8 +16,8 @@ export function createCheckUserContractQueryOptions(
   return {
     queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(safeAddress),
     queryFn: async (): Promise<boolean> => {
-      const { factoryBlockchain } = getSession()
-      return await factoryBlockchain.factoryContractService.checkUserContract(safeAddress)
+      const { account } = getSession()
+      return await account.accountOnboardingService.isRegister(safeAddress)
     },
 
     enabled: !!address

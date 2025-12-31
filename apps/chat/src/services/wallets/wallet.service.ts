@@ -1,22 +1,34 @@
 import type { Wallet } from '@/services/wallets'
-import type { WalletRepository } from './wallet.repository'
+import {
+  getAllWallets,
+  getDAppByBundleId,
+  getEncryptedPublicKey,
+  openDapp
+} from '@metanodejs/system-core'
 
+const WALLET_BUNDLE_ID = 'meta.wallet'
 export class WalletService {
-  constructor(private readonly walletRepository: WalletRepository) {}
-
-  async openCreateWallet() {
-    return this.walletRepository.openCreateWallet()
+  private async openWalletDApp(urlSuffix: string) {
+    const dapp = await getDAppByBundleId(WALLET_BUNDLE_ID)
+    return openDapp({
+      ...dapp,
+      urlSuffix
+    })
   }
 
-  async openImportWallet() {
-    return this.walletRepository.openImportWallet()
+  openCreateWallet() {
+    return this.openWalletDApp('/#/wallet/add?from=dapp&type=create')
   }
 
-  async getAllWallets(): Promise<Wallet[]> {
-    return await this.walletRepository.getAllWallets()
+  openImportWallet() {
+    return this.openWalletDApp('/#/wallet/add?from=dapp&type=import')
+  }
+
+  getAllWallets(): Promise<Wallet[]> {
+    return getAllWallets()
   }
 
   async getEncryptedPublicKey(address: string): Promise<string> {
-    return (await this.walletRepository.getEncryptedPublicKey(address)).encryptedPublicKey
+    return (await getEncryptedPublicKey(address)).encryptedPublicKey
   }
 }

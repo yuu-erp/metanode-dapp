@@ -86,4 +86,9 @@ export class AccountOnboardingService {
 
     return account
   }
+
+  async isRegister(address: string): Promise<boolean> {
+    const isRegistered = await this.factoryContractService.checkUserContract(address)
+    return isRegistered
+  }
 }

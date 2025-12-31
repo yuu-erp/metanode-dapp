@@ -19,7 +19,6 @@ export function createGetConversationIdQueryOptions(
       const { conversation } = getSession()
       if (!conversation) return null
       const conversationUser = await conversation?.service.getConversation(conversationId)
-      console.log('conversationUser', conversationUser)
       if (!conversationUser) return null
       return conversationUser
     },
