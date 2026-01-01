@@ -24,12 +24,12 @@ const MAX_USERNAME_ATTEMPTS = 5
 export async function generateAvailableUsername(
   walletName: string,
   address: string,
-  isUsernameTaken: (address: string, username: string) => Promise<boolean>
+  isUsernameTaken: (payload: { from: string; inputData: { _username: string } }) => Promise<boolean>
 ): Promise<string> {
   for (let attempt = 0; attempt < MAX_USERNAME_ATTEMPTS; attempt++) {
     const username = generateUsernameFromWalletName(walletName)
 
-    const exists = await isUsernameTaken(address, username)
+    const exists = await isUsernameTaken({ from: address, inputData: { _username: username } })
     if (!exists) {
       return username
     }

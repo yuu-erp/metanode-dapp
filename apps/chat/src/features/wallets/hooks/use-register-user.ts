@@ -1,6 +1,7 @@
 'use client'
 
-import { type Wallet } from '@/services/wallets'
+import { container } from '@/container'
+import type { Wallet } from '@/modules/wallet'
 import { ACCOUNT_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
@@ -12,7 +13,9 @@ export function useRegisterUser() {
     mutationFn: async (wallet: Wallet) => {
       if (!wallet || !wallet.address) throw new Error('Wallet not found!')
       // Register user
-      return wallet.address
+      const accountService = container.accountService
+      const account = await accountService.registerUser(wallet)
+      return account.address
     },
     onSuccess: (address) => {
       queryClient.removeQueries({

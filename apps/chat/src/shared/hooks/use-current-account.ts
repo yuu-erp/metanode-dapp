@@ -2,9 +2,10 @@
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { ACCOUNT_QUERY_KEY } from '../lib/react-query'
-import type { Account } from '@/services/account/domain'
+import type { Account } from '@/modules/account'
+import { container } from '@/container'
 
-export type CurrentAccountData = Account
+export type CurrentAccountData = Account | undefined
 
 export function createCurrentAccountQueryOptions(): UseQueryOptions<
   CurrentAccountData,
@@ -15,7 +16,12 @@ export function createCurrentAccountQueryOptions(): UseQueryOptions<
   return {
     queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT,
     queryFn: async (): Promise<CurrentAccountData> => {
-      throw new Error('Method not implement')
+      const accountService = container.accountService
+      const account = await accountService.getCurrentAccount()
+      if (!account) {
+        throw new Error('No account found')
+      }
+      return account
     }
   }
 }

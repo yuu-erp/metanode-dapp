@@ -1,6 +1,7 @@
 'use client'
 
-import type { Conversation } from '@/services/conversations/domain'
+import { container } from '@/container'
+import type { Conversation } from '@/modules/conversation'
 import { CONVERSATION_QUERY_KEY } from '@/shared/lib/react-query'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 
@@ -13,8 +14,8 @@ export function createGetConversationsQueryOptions(): UseQueryOptions<
   return {
     queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS,
     queryFn: async (): Promise<Conversation[]> => {
-      console.log('FEATCH LẠI CONVERSATIONS')
-      return []
+      const conversationService = container.conversationService
+      return await conversationService.loadInitial()
     }
   }
 }

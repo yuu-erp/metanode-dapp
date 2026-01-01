@@ -7,6 +7,8 @@ import { useGetConversations } from '..'
 function ConversationList() {
   const navigate = useNavigate()
   const { data: conversations = [] } = useGetConversations()
+
+  console.log('[CHAT] - DEBUG - CONVERSATIONS: ', conversations)
   return (
     <React.Fragment>
       <div className="flex flex-col gap-3 pb-[120px]">
