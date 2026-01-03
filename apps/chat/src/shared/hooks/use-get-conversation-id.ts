@@ -1,8 +1,10 @@
 'use client'
 
-import type { Conversation } from '@/services/conversations/domain'
+import { container } from '@/container'
+import type { Account } from '@/modules/account'
+import type { Conversation } from '@/modules/conversation'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
-import { CONVERSATION_QUERY_KEY } from '../lib/react-query'
+import { ACCOUNT_QUERY_KEY, CONVERSATION_QUERY_KEY, queryClient } from '../lib/react-query'
 
 export function createGetConversationIdQueryOptions(
   conversationId: string
@@ -15,7 +17,17 @@ export function createGetConversationIdQueryOptions(
   return {
     queryKey: CONVERSATION_QUERY_KEY.CONVERSATION(conversationId),
     queryFn: async (): Promise<Conversation | null> => {
-      throw new Error('Method not implement')
+      const currentAccount = queryClient.getQueryData<Account>(
+        ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
+      )
+      if (!currentAccount) return null
+      const conversationService = container.conversationService
+      const conversation = await conversationService.getConversationById(
+        currentAccount.address,
+        conversationId
+      )
+      if (!conversation) return null
+      return conversation
     },
     enabled: !!conversationId
   }

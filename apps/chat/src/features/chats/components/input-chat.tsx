@@ -6,7 +6,7 @@ function InputChat() {
   return (
     <React.Fragment>
       <div className="fixed bottom-0 left-0 right-0 banner__overlay--down">
-        <div className="w-full h-[66px] flex items-start px-3 gap-1.5">
+        <div className="w-full h-[72px] flex items-start px-3 gap-1.5">
           <button
             className="size-12 bg-black/40 rounded-full flex items-center justify-center"
             style={{

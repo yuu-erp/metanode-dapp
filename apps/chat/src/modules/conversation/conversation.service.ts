@@ -1,4 +1,4 @@
-import type { Account } from '../account/account.types'
+import type { Account } from '../account'
 import type { UserContract } from '../blockchain'
 import type { WalletService } from '../wallet'
 import { mapperToConversation } from './conversation.mapper'
@@ -8,57 +8,85 @@ import type { Conversation } from './conversation.type'
 export class ConversationService {
   constructor(
     private readonly repository: ConversationRepository,
-    private readonly useContract: UserContract,
+    private readonly userContract: UserContract,
     private readonly walletService: WalletService
   ) {}
 
+  // ------------------------------------------------------------------
+  // Private helpers
+  // ------------------------------------------------------------------
   private async decryptLatestMessageContent(
     account: Account,
-    message: string,
-    publicKeyConversation: string
-  ) {
+    encryptedMessage: string,
+    conversationPublicKey: string
+  ): Promise<string> {
     try {
       return await this.walletService.decryptMessage(
-        publicKeyConversation,
+        conversationPublicKey,
         account.address,
-        message
+        encryptedMessage
       )
-    } catch (error) {
-      return await this.walletService.decryptMessage(account.publicKey, account.address, message)
+    } catch {
+      return await this.walletService.decryptMessage(
+        account.publicKey,
+        account.address,
+        encryptedMessage
+      )
     }
   }
 
-  async fetchConversationSync(account: Account): Promise<Conversation[]> {
-    const raw = await this.useContract.getFullInbox({
+  // ------------------------------------------------------------------
+  // SYNC from blockchain → local DB (account-scoped)
+  // ------------------------------------------------------------------
+  async syncByAccount(account: Account): Promise<void> {
+    const inbox = await this.userContract.getFullInbox({
       from: account.address,
       to: account.contractAddress
     })
 
-    return Promise.all(
-      raw.map(async (item) => {
-        const publicKey = await this.useContract.publicKey({
+    const conversations = await Promise.all(
+      inbox.map(async (item) => {
+        const conversationPublicKey = await this.userContract.publicKey({
           from: account.address,
           to: item.conversationId
         })
+
         const latestMessageContent = await this.decryptLatestMessageContent(
           account,
           item.latestMessageContent,
-          publicKey
+          conversationPublicKey
         )
+
         return mapperToConversation({
           ...item,
-          publicKey,
+          accountId: account.address,
+          publicKey: conversationPublicKey,
           latestMessageContent: JSON.stringify(latestMessageContent)
         })
       })
     )
+    console.log('conversations', conversations)
+    await this.repository.bulkUpsert(conversations)
   }
 
-  async getConversation(conversationId: string): Promise<Conversation | undefined> {
-    return this.repository.getById(conversationId)
+  // ------------------------------------------------------------------
+  // READ
+  // ------------------------------------------------------------------
+  async getConversationById(
+    accountId: string,
+    conversationId: string
+  ): Promise<Conversation | undefined> {
+    return this.repository.getById(accountId, conversationId)
   }
 
-  async loadInitial(): Promise<Conversation[]> {
-    return this.repository.getAllSorted()
+  async getConversationList(accountId: string): Promise<Conversation[]> {
+    return this.repository.getSortedByAccount(accountId)
+  }
+
+  // ------------------------------------------------------------------
+  // CLEAR (logout / switch account)
+  // ------------------------------------------------------------------
+  async clearAccountData(accountId: string): Promise<void> {
+    await this.repository.clearByAccount(accountId)
   }
 }

@@ -88,4 +88,8 @@ export class AccountService {
     await this.repository.setActive(address)
     return account
   }
+
+  async logout(): Promise<void> {
+    await this.repository.clearActive()
+  }
 }

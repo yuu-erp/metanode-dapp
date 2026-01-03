@@ -13,7 +13,10 @@ function RouteComponent() {
   console.log('CONVERSATION ID: ', conversation)
   return (
     <div className={cn('w-full h-full flex flex-col')}>
-      <ChatHeader avatar={conversation?.avatar} name={conversation?.name} />
+      <ChatHeader
+        // avatar={conversation?.avatar}
+        name={conversation?.name}
+      />
       <InputChat />
     </div>
   )

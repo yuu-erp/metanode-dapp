@@ -28,10 +28,8 @@ class AppContainer {
   /* ================================
    * Application services
    * ================================ */
-
   // AccountService: xử lý business logic account
   private readonly _accountService: AccountService
-
   // ConversationService: xử lý business chat ( conversations )
   private readonly _conversationService: ConversationService
 
@@ -47,7 +45,7 @@ class AppContainer {
 
     // 5️⃣ Application Service (AccountService)
     // → phụ thuộc WalletService, AccountRepository, FactoryContract, UserConract
-    const dbAccount = new AccountDexieDB(`accounts_db`)
+    const dbAccount = new AccountDexieDB(`accounts`)
     const accountRepository = new DexieAccountRepository(dbAccount)
     this._accountService = new AccountService(
       this._walletService,
@@ -58,7 +56,7 @@ class AppContainer {
 
     // 5️⃣ Application Service (ConversationService)
     // → phụ thuộc WalletService, AccountRepository, FactoryContract, UserConract
-    const dbConversation = new ConversationDexieDB(`conversations_db`)
+    const dbConversation = new ConversationDexieDB(`conversations`)
     const conversationRepository = new DexieConversationRepository(dbConversation)
     this._conversationService = new ConversationService(
       conversationRepository,

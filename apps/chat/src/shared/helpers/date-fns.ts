@@ -31,5 +31,5 @@ export function formatUpdatedAt(date: Date | string) {
   }
 
   // khác năm → dd/MM/yyyy
-  return d.format('DD/MM/YYYY')
+  return d.format('DD/MM/YY')
 }

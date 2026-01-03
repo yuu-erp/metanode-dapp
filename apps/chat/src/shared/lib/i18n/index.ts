@@ -9,8 +9,8 @@ i18n
   .init({
     resources,
     defaultNS: 'common',
-    lng: 'en', // 👈 ép mặc định
-    fallbackLng: 'en', // dùng nếu không detect được
+    // lng: 'en', // 👈 ép mặc định
+    fallbackLng: 'vi', // dùng nếu không detect được
     debug: true,
     interpolation: {
       escapeValue: false

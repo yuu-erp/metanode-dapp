@@ -1,5 +1,5 @@
 'use client'
-
+import * as React from 'react'
 import {
   ConversationBackgroundSync,
   ConversationList,
@@ -15,23 +15,23 @@ export const Route = createFileRoute('/_authenticated/')({
 })
 
 function RouteComponent() {
+  const [keyword, setKeyword] = React.useState('')
+
   return (
     <div className={cn('w-full h-screen flex flex-col', window.isHasNotch ? 'pt-14' : 'pt-5')}>
       <WapperHeader>
         <div className="flex items-center justify-between gap-3 relative">
           <h1 className="text-xl font-bold">Chats</h1>
           <ConversationBackgroundSync />
-          <div>
-            <button>
-              <SquarePen className="size-6" />
-            </button>
-          </div>
+          <button>
+            <SquarePen className="size-6" />
+          </button>
         </div>
-        <SearchConversation />
+        {/* Search nằm trong header nhưng controlled từ Route */}
+        <SearchConversation value={keyword} onChange={(e) => setKeyword(e.target.value)} />
       </WapperHeader>
-
       <div className="flex flex-col w-full pt-[90px]">
-        <ConversationList />
+        <ConversationList searchKeyword={keyword} />
       </div>
     </div>
   )

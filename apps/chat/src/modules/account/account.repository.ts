@@ -11,6 +11,8 @@ export interface AccountRepository {
 
   setActive(address: string): Promise<void>
 
+  clearActive(): Promise<void> // 👈 thêm hàm này
+
   delete(address: string): Promise<void>
 
   clear(): Promise<void>

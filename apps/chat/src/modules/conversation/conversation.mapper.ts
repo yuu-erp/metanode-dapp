@@ -4,6 +4,7 @@ export function mapperToConversation(raw: any): Conversation {
   return {
     conversationId: raw.conversationId,
     publicKey: raw.publicKey,
+    accountId: raw.accountId,
     // UI snapshot
     name: [raw.firstName, raw.lastName].filter(Boolean).join(' '),
     avatar: raw.avatar ?? undefined,

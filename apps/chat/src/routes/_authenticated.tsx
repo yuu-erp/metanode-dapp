@@ -1,10 +1,7 @@
 import { MessageReceivedProvider, Web3ProviderProvider } from '@/contexts'
 import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
-import {
-  createCurrentAccountQueryOptions,
-  createInitPrivateFeatureQueryOptions
-} from '@/shared/hooks'
+import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { queryClient } from '@/shared/lib/react-query'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
 
@@ -15,7 +12,6 @@ export const Route = createFileRoute('/_authenticated')({
       if (!currentAccount || !currentAccount.isActive) {
         throw redirect({ to: '/wallets' })
       }
-      await queryClient.ensureQueryData(createInitPrivateFeatureQueryOptions())
       return {}
     } catch (error) {
       console.error(error)

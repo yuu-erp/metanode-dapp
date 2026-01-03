@@ -2,30 +2,46 @@
 import { useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import ItemConversation from './item-conversation'
-import { useGetConversations } from '..'
+import { useGetConversations } from '../hooks'
+import { useCurrentAccount } from '@/shared/hooks'
+type ConversationListProps = {
+  searchKeyword: string
+}
 
-function ConversationList() {
+function ConversationList({ searchKeyword }: ConversationListProps) {
   const navigate = useNavigate()
-  const { data: conversations = [] } = useGetConversations()
+  const { data: currentAccount } = useCurrentAccount()
 
-  console.log('[CHAT] - DEBUG - CONVERSATIONS: ', conversations)
+  const { data: conversations = [] } = useGetConversations(currentAccount?.address)
+
+  const filteredConversations = React.useMemo(() => {
+    const keyword = searchKeyword.trim().toLowerCase()
+    if (!keyword) return conversations
+
+    return conversations.filter(
+      (c) =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.latestMessageContent.toLowerCase().includes(keyword)
+    )
+  }, [conversations, searchKeyword])
+
   return (
-    <React.Fragment>
-      <div className="flex flex-col gap-3 pb-[120px]">
-        {[...conversations, ...conversations].map((item, idx) => (
-          <ItemConversation
-            key={idx}
-            name={item.name}
-            // avatar={item.avatar}
-            updatedAt={item.updatedAt}
-            latestMessageContent={item.latestMessageContent}
-            onClick={() =>
-              navigate({ to: '/conversation/$id', params: { id: item.conversationId } })
-            }
-          />
-        ))}
-      </div>
-    </React.Fragment>
+    <div className="flex flex-col gap-3 pb-[120px]">
+      {filteredConversations.map((item) => (
+        <ItemConversation
+          key={item.conversationId}
+          name={item.name}
+          updatedAt={item.updatedAt}
+          latestMessageContent={item.latestMessageContent}
+          onClick={() =>
+            navigate({
+              to: '/conversation/$id',
+              params: { id: item.conversationId }
+            })
+          }
+        />
+      ))}
+    </div>
   )
 }
 

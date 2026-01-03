@@ -44,6 +44,11 @@ export class DexieAccountRepository implements AccountRepository {
     await this.db.accounts.put({ ...dbAccount, isActive: 1 })
   }
 
+  // ✅ BỔ SUNG HÀM NÀY
+  async clearActive(): Promise<void> {
+    await this.db.accounts.where('isActive').equals(1).modify({ isActive: 0 })
+  }
+
   async delete(address: string) {
     return this.db.accounts.delete(address)
   }
