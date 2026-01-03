@@ -190,4 +190,8 @@
       rgba(0, 0, 0, 0.6)
     );
   }
+
+  footer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

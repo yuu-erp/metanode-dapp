@@ -2,13 +2,14 @@
 import { ChartPie, Mic, Paperclip } from 'lucide-react'
 import * as React from 'react'
 
-function InputChat() {
+interface InputChatProps extends React.HTMLAttributes<HTMLDivElement> {}
+const InputChat = React.forwardRef<HTMLInputElement, InputChatProps>((props, ref) => {
   return (
     <React.Fragment>
-      <div className="fixed bottom-0 left-0 right-0 banner__overlay--down">
+      <div className="fixed bottom-0 left-0 right-0 banner__overlay--down" {...props}>
         <div className="w-full h-[72px] flex items-start px-3 gap-1.5">
           <button
-            className="size-12 bg-black/40 rounded-full flex items-center justify-center"
+            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl"
             style={{
               boxShadow: `2px 2px 6px 0px #0000004D inset`
             }}
@@ -16,12 +17,13 @@ function InputChat() {
             <Paperclip className="text-white/80" />
           </button>
           <div
-            className="h-12 flex-1 bg-black/40 rounded-4xl flex items-center px-3"
+            className="h-12 flex-1 bg-black/40 rounded-4xl flex items-center px-3 backdrop-blur-2xl"
             style={{
               boxShadow: `2px 2px 6px 0px #0000004D inset`
             }}
           >
             <input
+              ref={ref}
               type="text"
               placeholder="Tin nhắn"
               className="w-full h-full bg-transparent outline-none border-none placeholder:text-white/60"
@@ -29,7 +31,7 @@ function InputChat() {
             <ChartPie className="text-white/80" />
           </div>
           <button
-            className="size-12 bg-black/40 rounded-full flex items-center justify-center"
+            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl"
             style={{
               boxShadow: `2px 2px 6px 0px #0000004D inset`
             }}
@@ -40,6 +42,6 @@ function InputChat() {
       </div>
     </React.Fragment>
   )
-}
+})
 
 export default React.memo(InputChat)
