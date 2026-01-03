@@ -1,6 +1,5 @@
 'use client'
 
-import { useWeb3Provider } from '@/contexts/web3-provider.context'
 import { useBackgroundTaskStatus } from '@/shared/background-sync'
 import { useI18N } from '@/shared/hooks'
 import { LoaderCircle } from 'lucide-react'
@@ -10,8 +9,6 @@ function ConversationBackgroundSync() {
   const { t } = useI18N()
   const backgroundStatus = useBackgroundTaskStatus('conversation-sync')
   console.log('backgroundStatus: ', backgroundStatus)
-  const { isConnecting: isWsConnecting } = useWeb3Provider()
-  console.log('isWsConnecting: ', isWsConnecting)
   // Xác định trạng thái nào sẽ hiển thị (ưu tiên background sync)
   let displayStatus: 'updating' | 'connecting' | null = null
   let displayTextKey: string | null = null
@@ -19,9 +16,6 @@ function ConversationBackgroundSync() {
   if (backgroundStatus === 'updating' || backgroundStatus === 'connecting') {
     displayStatus = backgroundStatus
     displayTextKey = `status.${backgroundStatus}`
-  } else if (isWsConnecting) {
-    displayStatus = 'connecting'
-    displayTextKey = 'status.connecting' // hoặc 'status.websocket_connecting' nếu bạn muốn phân biệt
   }
   console.log('displayStatus', displayStatus)
   // Chỉ render khi có trạng thái cần hiển thị

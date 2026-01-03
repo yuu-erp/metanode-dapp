@@ -89,4 +89,22 @@ export class ConversationService {
   async clearAccountData(accountId: string): Promise<void> {
     await this.repository.clearByAccount(accountId)
   }
+
+  async updateConversation(account: Account, conversationId: string, encryptedContent: string) {
+    // 1. Lấy conversation hiện tại
+    const current = await this.repository.getById(account.address, conversationId)
+    if (!current) return
+    const decryptMessage = await this.walletService.decryptMessage(
+      current.publicKey,
+      account.address,
+      encryptedContent
+    )
+
+    await this.repository.upsert({
+      ...current,
+      latestMessageContent: JSON.stringify(decryptMessage),
+      updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
+    })
+    console.log('decryptMessage', decryptMessage)
+  }
 }

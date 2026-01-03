@@ -1,0 +1,46 @@
+'use client'
+import { container } from '@/container'
+import { useCurrentAccount } from '@/shared/hooks'
+import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
+import * as React from 'react'
+import { createContext, useContext } from 'react'
+
+export interface EventLogState {}
+
+const EventLogContext = createContext<EventLogState | undefined>(undefined)
+
+interface EventLogProviderProps extends React.PropsWithChildren {}
+
+export function EventLogProvider({ children }: EventLogProviderProps) {
+  const { data: currentAccount } = useCurrentAccount()
+  React.useEffect(() => {
+    if (!currentAccount) return
+    const eventLog = container.eventLog
+    eventLog.registerEvent(currentAccount.address, [currentAccount.contractAddress])
+    const unsubscribe = eventLog.onEventLog(async (data: any) => {
+      console.log('[EVENT LOG] DATA', data)
+      if (data.type === 'MessageReceived') {
+        const payload = data.payload
+        const conversationService = container.conversationService
+        await conversationService.updateConversation(
+          currentAccount,
+          payload.sender,
+          payload.encryptedContent
+        )
+        queryClient.invalidateQueries({
+          queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(currentAccount.address)
+        })
+      }
+    })
+    return () => unsubscribe()
+  }, [currentAccount])
+  return <EventLogContext.Provider value={{}}>{children}</EventLogContext.Provider>
+}
+
+export function useEventLog() {
+  const context = useContext(EventLogContext)
+  if (context === undefined) {
+    throw new Error('useEventLog must be used within an EventLogProvider')
+  }
+  return context
+}

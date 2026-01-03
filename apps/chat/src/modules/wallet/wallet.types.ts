@@ -15,5 +15,5 @@ export interface WalletAdapter {
     value: string
     publicKeyLocal: string
   }>
-  decryptMessage(publicKey: string, address: string, message: string): Promise<string>
+  decryptMessage<T = unknown>(publicKey: string, address: string, message: string): Promise<T>
 }

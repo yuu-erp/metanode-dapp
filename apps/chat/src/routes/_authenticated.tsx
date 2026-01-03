@@ -1,5 +1,4 @@
-import { MessageReceivedProvider, Web3ProviderProvider } from '@/contexts'
-import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
+import { EventLogProvider } from '@/contexts/event-log.context'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { queryClient } from '@/shared/lib/react-query'
@@ -27,15 +26,9 @@ function RouteComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
-    <Web3ProviderProvider wsUrl="wss://rpc-proxy-sequoia.iqnb.com:8446" options={{ debug: true }}>
-      <MessageReceivedProvider>
-        <BackgroundSyncProvider>
-          <AppSessionProvider>
-            <Outlet />
-            {showNavbar && <NavbarMenu />}
-          </AppSessionProvider>
-        </BackgroundSyncProvider>
-      </MessageReceivedProvider>
-    </Web3ProviderProvider>
+    <EventLogProvider>
+      <Outlet />
+      {showNavbar && <NavbarMenu />}
+    </EventLogProvider>
   )
 }

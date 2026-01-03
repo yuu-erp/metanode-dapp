@@ -6,6 +6,7 @@ import {
   ConversationService,
   DexieConversationRepository
 } from '@/modules/conversation'
+import { DecodeAbi, EventLog } from './modules/eventlogs'
 
 /**
  * AppContainer
@@ -25,6 +26,8 @@ class AppContainer {
   private readonly _factoryContract: FactoryContract
   // Blockchain contract (User)
   private readonly _userContract: UserContract
+  // event log
+  private readonly _eventLog: EventLog
   /* ================================
    * Application services
    * ================================ */
@@ -63,6 +66,9 @@ class AppContainer {
       this._userContract,
       this._walletService
     )
+    // Event logs
+    const decodeAbi = new DecodeAbi()
+    this._eventLog = new EventLog(decodeAbi)
   }
 
   /* ================================
@@ -83,6 +89,10 @@ class AppContainer {
 
   get conversationService(): ConversationService {
     return this._conversationService
+  }
+
+  get eventLog(): EventLog {
+    return this._eventLog
   }
 }
 

@@ -45,7 +45,12 @@ export class NativeWalletAdapter implements WalletAdapter {
     return encryptAesECDH(publicKey, address, message)
   }
 
-  async decryptMessage(publicKey: string, address: string, message: string): Promise<string> {
-    return decryptAesECDH(publicKey, address, message)
+  async decryptMessage<T = unknown>(
+    publicKey: string,
+    address: string,
+    message: string
+  ): Promise<T> {
+    const decryptAesECDHData = await decryptAesECDH(publicKey, address, message)
+    return decryptAesECDHData.value
   }
 }
