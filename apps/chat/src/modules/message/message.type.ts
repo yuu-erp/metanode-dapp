@@ -4,10 +4,14 @@ export type MessageType = 'text' | 'sticker'
 
 export interface BaseMessage {
   id: string // unique message id (có thể từ XMTP id hoặc tx hash)
+  accountId: string // account id
   type: MessageType
   sender: string // wallet address hoặc ENS
+  recipient: string
   timestamp: number // Unix timestamp (ms)
   conversationId?: string // optional - cho group chat hoặc channel
+  isEdited?: boolean
+  isDeleted?: boolean
   status?: 'sent' | 'delivered' | 'read' | 'failed'
 }
 
