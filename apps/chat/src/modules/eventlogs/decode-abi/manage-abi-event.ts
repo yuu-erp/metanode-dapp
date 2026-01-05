@@ -31,7 +31,7 @@ export class ManageAbiEvent {
    * @param abiEvents Array of ABI event definitions
    * @throws Error if an ABI is invalid or already registered
    */
-  async registerAbi(abiEvents: IAbiEvent[]): Promise<void> {
+  public async registerAbi(abiEvents: IAbiEvent[]): Promise<void> {
     for (const abi of abiEvents) {
       if (abi.type !== 'event') {
         throw new Error(`Invalid ABI type: ${abi.type}. Expected 'event'.`)
