@@ -7,7 +7,7 @@ import { cn } from '../lib'
 export function BaseLayout() {
   return (
     <React.Fragment>
-      <main className={cn('w-full h-full min-h-full flex-1')}>
+      <main className={cn('w-full h-full min-h-screen flex-1')}>
         <Outlet />
       </main>
       <Background />

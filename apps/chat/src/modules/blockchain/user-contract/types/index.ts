@@ -33,3 +33,18 @@ export interface GetProcessedP2PMessagesOutput {
   reactionSummary: string
   isRead: boolean
 }
+
+export interface SendMessageInput {
+  _recipientContractAddress: string
+  _encryptedContentForRecipient: string
+  _encryptedContentForSelf: string
+}
+
+export interface SendMessageOutput {
+  sender: string
+  recipient: string
+  messageId: string
+  encryptedContent: string
+  dataStoreAddress: string
+  messageNonce: number
+}

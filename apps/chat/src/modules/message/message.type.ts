@@ -1,14 +1,16 @@
-// Phân biệt rõ ràng bằng union type + discriminant ('type')
-
 export type MessageType = 'text' | 'sticker'
+
+export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed'
 
 export interface BaseMessage {
   id: string // unique message id (có thể từ XMTP id hoặc tx hash)
   type: MessageType
   sender: string // wallet address hoặc ENS
-  timestamp: number // Unix timestamp (ms)
   conversationId?: string // optional - cho group chat hoặc channel
-  status?: 'sent' | 'delivered' | 'read' | 'failed'
+  timestamp: number // Unix timestamp (ms)
+  isEdited?: boolean
+  isDeleted?: boolean
+  status?: MessageStatus
 }
 
 // Text message

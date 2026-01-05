@@ -2,8 +2,8 @@
 import { ChartPie, Mic, Paperclip } from 'lucide-react'
 import * as React from 'react'
 
-interface InputChatProps extends React.HTMLAttributes<HTMLDivElement> {}
-const InputChat = React.forwardRef<HTMLInputElement, InputChatProps>((props, ref) => {
+interface InputMessageProps extends React.HTMLAttributes<HTMLDivElement> {}
+const InputMessage = React.forwardRef<HTMLInputElement, InputMessageProps>((props, ref) => {
   return (
     <React.Fragment>
       <div className="fixed bottom-0 left-0 right-0 banner__overlay--down" {...props}>
@@ -44,4 +44,4 @@ const InputChat = React.forwardRef<HTMLInputElement, InputChatProps>((props, ref
   )
 })
 
-export default React.memo(InputChat)
+export default React.memo(InputMessage)

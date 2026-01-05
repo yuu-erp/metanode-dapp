@@ -83,6 +83,10 @@ class AppContainer {
     return this._factoryContract
   }
 
+  get userContract(): UserContract {
+    return this._userContract
+  }
+
   get accountService(): AccountService {
     return this._accountService
   }

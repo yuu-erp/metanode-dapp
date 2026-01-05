@@ -4,6 +4,8 @@ import type {
   GetFullInboxOutput,
   GetProcessedP2PMessagesInput,
   GetProcessedP2PMessagesOutput,
+  SendMessageInput,
+  SendMessageOutput,
   UserProfileOutput
 } from './types'
 import { userAbi } from './abis'
@@ -58,6 +60,17 @@ export class UserContract extends MtnContract {
       abiData: userAbi.getProcessedP2PMessages,
       inputData,
       feeType: 'read'
+    })
+  }
+
+  sendMessage(payload: TransactionPayload<SendMessageInput>): Promise<SendMessageOutput> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      functionName: 'sendMessage',
+      abiData: userAbi.sendMessage,
+      inputData,
+      feeType: 'sc'
     })
   }
 }
