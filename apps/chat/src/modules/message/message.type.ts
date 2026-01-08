@@ -4,13 +4,15 @@ export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed'
 
 export interface BaseMessage {
   id: string // unique message id (có thể từ XMTP id hoặc tx hash)
+  accountId: string // account id
   type: MessageType
   sender: string // wallet address hoặc ENS
-  conversationId?: string // optional - cho group chat hoặc channel
+  recipient: string
   timestamp: number // Unix timestamp (ms)
+  conversationId?: string // optional - cho group chat hoặc channel
   isEdited?: boolean
   isDeleted?: boolean
-  status?: MessageStatus
+  status?: 'sent' | 'delivered' | 'read' | 'failed'
 }
 
 // Text message
