@@ -14,7 +14,9 @@ export function useRegisterUser() {
       if (!wallet || !wallet.address) throw new Error('Wallet not found!')
       // Register user
       const accountService = container.accountService
+      const conversationService = container.conversationService
       const account = await accountService.registerUser(wallet)
+      await conversationService.createPrivateConversation(account)
       return account.address
     },
     onSuccess: (address) => {

@@ -1,5 +1,7 @@
 'use client'
+import { BookmarkIcon } from '@/shared/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
+import { Badge } from '@/shared/components/ui/badge'
 import { formatUpdatedAt, getAvatarFallback, getTelegramGradient } from '@/shared/helpers'
 import { cn } from '@/shared/lib'
 import { Check, CheckCheck, ClockIcon, Pin } from 'lucide-react'
@@ -12,6 +14,8 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   lastMessageStatus?: 'sending' | 'sent' | 'delivered' | 'read'
   latestMessageContent?: string
   isPin?: boolean
+  isPrivateKey?: boolean
+  unreadCount?: number
 }
 function ItemConversation({
   name,
@@ -20,21 +24,29 @@ function ItemConversation({
   lastMessageStatus,
   latestMessageContent,
   isPin,
+  isPrivateKey,
+  unreadCount = 0,
   className,
   ...props
 }: ItemConversationProps) {
   return (
     <div className={cn('w-full flex items-center min-h-[56px] h-full', className)} {...props}>
       <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full">
-        <Avatar className="size-16 rounded-full">
+        <Avatar className="size-15 rounded-full">
           <AvatarImage src={avatar} alt={`@${name}`} />
           <AvatarFallback
             className="rounded-full text-white text-2xl font-bold"
             style={{
-              background: getTelegramGradient(name)
+              background: isPrivateKey
+                ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
+                : getTelegramGradient(name)
             }}
           >
-            {getAvatarFallback(name)}
+            {isPrivateKey ? (
+              <BookmarkIcon className="size-8 text-white" />
+            ) : (
+              getAvatarFallback(name)
+            )}
           </AvatarFallback>
         </Avatar>
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
@@ -45,15 +57,21 @@ function ItemConversation({
               {lastMessageStatus === 'sent' && <Check className="text-gray-500 size-4" />}
               {lastMessageStatus === 'delivered' && <CheckCheck className="text-gray-500 size-4" />}
               {lastMessageStatus === 'read' && <CheckCheck className="text-green-500 size-4" />}
-              <span>{formatUpdatedAt(updatedAt)}</span>
+              <span className="font-semibold">{formatUpdatedAt(updatedAt)}</span>
             </div>
           </div>
           <div className="w-full flex items-center justify-between gap-3">
-            <div className="flex-1 w-full line-clamp-2 text-xs break-all text-white/80">
-              {latestMessageContent} Hiểu 👍 Bạn không muốn over-engineering, chỉ cần service
-              message đơn giản, đúng mục đích encode + gửi qua SMC, vẫn giữ 3 layer nhưng ít file –
-              dễ đọc – dễ maintain.
+            <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium">
+              {latestMessageContent}
             </div>
+            {unreadCount > 0 && (
+              <Badge
+                className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
+                variant="secondary"
+              >
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </Badge>
+            )}
             {isPin && <Pin className="size-4" />}
           </div>
         </div>

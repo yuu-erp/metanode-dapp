@@ -14,7 +14,10 @@ function RouteComponent() {
   return (
     <div className="w-full h-screen flex flex-col">
       {/* Header */}
-      <ChatHeader name={conversation?.name} />
+      <ChatHeader
+        name={conversation?.name}
+        isPrivate={conversation?.conversationType === 'private'}
+      />
       <ListMessage />
       {/* Input chat - luôn dính bottom */}
       <InputMessage />

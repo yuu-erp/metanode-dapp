@@ -39,13 +39,13 @@ export class ConversationService {
   // SYNC from blockchain → local DB (account-scoped)
   // ------------------------------------------------------------------
   async syncByAccount(account: Account): Promise<void> {
-    const inbox = await this.userContract.getFullInbox({
+    const inboxs = await this.userContract.getFullInbox({
       from: account.address,
       to: account.contractAddress
     })
 
     const conversations = await Promise.all(
-      inbox.map(async (item) => {
+      inboxs.map(async (item) => {
         const conversationPublicKey = await this.userContract.publicKey({
           from: account.address,
           to: item.conversationId
@@ -57,16 +57,33 @@ export class ConversationService {
           conversationPublicKey
         )
 
+        const existed = await this.repository.getById(account.address, item.conversationId)
+
+        if (existed?.conversationType === 'private') {
+          return {
+            ...item,
+            name: 'Saved Messages',
+            avatar: '',
+            conversationType: 'private',
+            accountId: account.address,
+            publicKey: conversationPublicKey,
+            unreadCount: 0,
+            // @ts-ignore
+            latestMessageContent: latestMessageContent.text
+          }
+        }
+
         return mapperToConversation({
           ...item,
           accountId: account.address,
           publicKey: conversationPublicKey,
-          latestMessageContent: JSON.stringify(latestMessageContent)
+          // @ts-ignore
+          latestMessageContent: latestMessageContent.text
         })
       })
     )
-    console.log('conversations', conversations)
-    await this.repository.bulkUpsert(conversations)
+
+    await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
   }
 
   // ------------------------------------------------------------------
@@ -102,9 +119,25 @@ export class ConversationService {
 
     await this.repository.upsert({
       ...current,
-      latestMessageContent: JSON.stringify(decryptMessage),
+      unreadCount: (current.unreadCount ?? 0) + 1,
+      // @ts-ignore
+      latestMessageContent: decryptMessage.text,
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
     })
-    console.log('decryptMessage', decryptMessage)
+  }
+
+  async createPrivateConversation(account: Account) {
+    const current = await this.repository.getById(account.address, account.contractAddress)
+    if (current) return
+    await this.repository.upsert({
+      conversationId: account.contractAddress,
+      publicKey: account.publicKey,
+      accountId: account.address,
+      name: 'Saved Messages',
+      avatar: '',
+      conversationType: 'private',
+      latestMessageContent: '',
+      updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
+    })
   }
 }

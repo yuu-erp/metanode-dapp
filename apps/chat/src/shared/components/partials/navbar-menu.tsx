@@ -24,7 +24,7 @@ function NavbarMenu() {
             >
               <CircleUserRound className="size-5" />
             </Button>
-            <span className="text-xs font-semibold">Danh bạ</span>
+            {/* <span className="text-xs font-semibold">Danh bạ</span> */}
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
@@ -35,7 +35,7 @@ function NavbarMenu() {
             >
               <Phone className="size-5" />
             </Button>
-            <span className="text-xs font-semibold">Cuộc gọi</span>
+            {/* <span className="text-xs font-semibold">Cuộc gọi</span> */}
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
@@ -47,7 +47,7 @@ function NavbarMenu() {
             >
               <MessageCircle className="size-5" />
             </Button>
-            <span className="text-xs font-semibold">Chat</span>
+            {/* <span className="text-xs font-semibold">Chat</span> */}
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
@@ -59,7 +59,7 @@ function NavbarMenu() {
             >
               <Settings className="size-5" />
             </Button>
-            <span className="text-xs font-semibold">Cài đặt</span>
+            {/* <span className="text-xs font-semibold">Cài đặt</span> */}
           </div>
         </div>
       </div>

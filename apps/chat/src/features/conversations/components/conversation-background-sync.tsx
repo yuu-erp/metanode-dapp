@@ -8,7 +8,6 @@ import * as React from 'react'
 function ConversationBackgroundSync() {
   const { t } = useI18N()
   const backgroundStatus = useBackgroundTaskStatus('conversation-sync')
-  console.log('backgroundStatus: ', backgroundStatus)
   // Xác định trạng thái nào sẽ hiển thị (ưu tiên background sync)
   let displayStatus: 'updating' | 'connecting' | null = null
   let displayTextKey: string | null = null
@@ -17,7 +16,6 @@ function ConversationBackgroundSync() {
     displayStatus = backgroundStatus
     displayTextKey = `status.${backgroundStatus}`
   }
-  console.log('displayStatus', displayStatus)
   // Chỉ render khi có trạng thái cần hiển thị
   if (!displayStatus) return null
 

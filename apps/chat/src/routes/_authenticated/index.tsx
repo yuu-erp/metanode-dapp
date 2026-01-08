@@ -1,5 +1,9 @@
 'use client'
-import { ConversationList, SearchConversation } from '@/features/conversations'
+import {
+  ConversationBackgroundSync,
+  ConversationList,
+  SearchConversation
+} from '@/features/conversations'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { cn } from '@/shared/lib'
 import { createFileRoute } from '@tanstack/react-router'
@@ -18,7 +22,7 @@ function RouteComponent() {
       <WapperHeader>
         <div className="flex items-center justify-between gap-3 relative">
           <h1 className="text-xl font-bold">Chats</h1>
-          {/* <ConversationBackgroundSync /> */}
+          <ConversationBackgroundSync />
           <button>
             <SquarePen className="size-6" />
           </button>

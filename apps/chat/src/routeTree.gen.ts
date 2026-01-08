@@ -18,27 +18,29 @@ import { Route as AuthenticatedConversationIdRouteImport } from './routes/_authe
 const WalletsRoute = WalletsRouteImport.update({
   id: '/wallets',
   path: '/wallets',
-  getParentRoute: () => rootRouteImport
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRoute
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedSettingsIndexRoute = AuthenticatedSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => AuthenticatedRoute
-} as any)
-const AuthenticatedConversationIdRoute = AuthenticatedConversationIdRouteImport.update({
-  id: '/conversation/$id',
-  path: '/conversation/$id',
-  getParentRoute: () => AuthenticatedRoute
-} as any)
+const AuthenticatedSettingsIndexRoute =
+  AuthenticatedSettingsIndexRouteImport.update({
+    id: '/settings/',
+    path: '/settings/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedConversationIdRoute =
+  AuthenticatedConversationIdRouteImport.update({
+    id: '/conversation/$id',
+    path: '/conversation/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/wallets': typeof WalletsRoute
@@ -128,16 +130,16 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedConversationIdRoute: AuthenticatedConversationIdRoute,
-  AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute
+  AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
-  AuthenticatedRouteChildren
+  AuthenticatedRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  WalletsRoute: WalletsRoute
+  WalletsRoute: WalletsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

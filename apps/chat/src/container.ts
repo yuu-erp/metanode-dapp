@@ -1,12 +1,12 @@
-import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
-import { FactoryContract, UserContract } from '@/modules/blockchain'
 import { AccountDexieDB, AccountService, DexieAccountRepository } from '@/modules/account'
+import { FactoryContract, UserContract } from '@/modules/blockchain'
 import {
   ConversationDexieDB,
   ConversationService,
   DexieConversationRepository
 } from '@/modules/conversation'
-import { DecodeAbi, EventLog } from './modules/eventlogs'
+import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
+import { EventLogContainer } from './modules/eventlogs'
 
 /**
  * AppContainer
@@ -19,35 +19,24 @@ class AppContainer {
   /* ================================
    * Infra / Low-level services
    * ================================ */
-
-  // Wallet service core (dùng NativeWalletAdapter)
   private readonly _walletService: WalletService
-  // Blockchain contract (Factory)
   private readonly _factoryContract: FactoryContract
-  // Blockchain contract (User)
   private readonly _userContract: UserContract
-  // event log
-  private readonly _eventLog: EventLog
+  private readonly _eventLogContainer: EventLogContainer
   /* ================================
    * Application services
    * ================================ */
-  // AccountService: xử lý business logic account
   private readonly _accountService: AccountService
-  // ConversationService: xử lý business chat ( conversations )
   private readonly _conversationService: ConversationService
 
   constructor() {
-    // 1️⃣ Adapter implementing WalletAdapter interface (cổng giao tiếp với native wallet)
     const nativeWalletAdapter = new NativeWalletAdapter()
-    // 2️⃣ Infra / Service core: xử lý tất cả logic liên quan wallet
     this._walletService = new WalletService(nativeWalletAdapter)
-    // 3️⃣ Infra / Blockchain contract
     this._factoryContract = new FactoryContract()
-    // 3️⃣ Infra / Blockchain contract
     this._userContract = new UserContract()
+    this._eventLogContainer = new EventLogContainer()
 
     // 5️⃣ Application Service (AccountService)
-    // → phụ thuộc WalletService, AccountRepository, FactoryContract, UserConract
     const dbAccount = new AccountDexieDB(`accounts`)
     const accountRepository = new DexieAccountRepository(dbAccount)
     this._accountService = new AccountService(
@@ -58,7 +47,6 @@ class AppContainer {
     )
 
     // 5️⃣ Application Service (ConversationService)
-    // → phụ thuộc WalletService, AccountRepository, FactoryContract, UserConract
     const dbConversation = new ConversationDexieDB(`conversations`)
     const conversationRepository = new DexieConversationRepository(dbConversation)
     this._conversationService = new ConversationService(
@@ -66,9 +54,6 @@ class AppContainer {
       this._userContract,
       this._walletService
     )
-    // Event logs
-    const decodeAbi = new DecodeAbi()
-    this._eventLog = new EventLog(decodeAbi)
   }
 
   /* ================================
@@ -95,8 +80,8 @@ class AppContainer {
     return this._conversationService
   }
 
-  get eventLog(): EventLog {
-    return this._eventLog
+  get eventLogContainer(): EventLogContainer {
+    return this._eventLogContainer
   }
 }
 

@@ -1,4 +1,5 @@
 import { EventLogProvider } from '@/contexts/event-log.context'
+import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { queryClient } from '@/shared/lib/react-query'
@@ -27,8 +28,12 @@ function RouteComponent() {
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
     <EventLogProvider>
-      <Outlet />
-      {showNavbar && <NavbarMenu />}
+      <BackgroundSyncProvider>
+        <AppSessionProvider>
+          <Outlet />
+          {showNavbar && <NavbarMenu />}
+        </AppSessionProvider>
+      </BackgroundSyncProvider>
     </EventLogProvider>
   )
 }

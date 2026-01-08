@@ -15,22 +15,18 @@ export function EventLogProvider({ children }: EventLogProviderProps) {
   const { data: currentAccount } = useCurrentAccount()
   React.useEffect(() => {
     if (!currentAccount) return
-    const eventLog = container.eventLog
+    const eventLog = container.eventLogContainer.eventLog
     eventLog.registerEvent(currentAccount.address, [currentAccount.contractAddress])
-    const unsubscribe = eventLog.onEventLog(async (data: any) => {
-      console.log('[EVENT LOG] DATA', data)
-      if (data.type === 'MessageReceived') {
-        const payload = data.payload
-        const conversationService = container.conversationService
-        await conversationService.updateConversation(
-          currentAccount,
-          payload.sender,
-          payload.encryptedContent
-        )
-        queryClient.invalidateQueries({
-          queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(currentAccount.address)
-        })
-      }
+    const unsubscribe = eventLog.on('MessageReceived', async (data) => {
+      const conversationService = container.conversationService
+      await conversationService.updateConversation(
+        currentAccount,
+        data.sender,
+        data.encryptedContent
+      )
+      queryClient.invalidateQueries({
+        queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(currentAccount.address)
+      })
     })
     return () => unsubscribe()
   }, [currentAccount])

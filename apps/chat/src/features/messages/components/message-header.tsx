@@ -1,5 +1,5 @@
 'use client'
-import { PhoneIcon, VideoIcon } from '@/shared/components/icons'
+import { BookmarkIcon, PhoneIcon, VideoIcon } from '@/shared/components/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { getAvatarFallback, getTelegramGradient } from '@/shared/helpers'
@@ -10,8 +10,9 @@ import * as React from 'react'
 interface ChatHeaderProps {
   avatar?: string
   name?: string
+  isPrivate?: boolean
 }
-function ChatHeader({ avatar = '', name = '' }: ChatHeaderProps) {
+function ChatHeader({ avatar = '', name = '', isPrivate }: ChatHeaderProps) {
   const router = useRouter()
   return (
     <WapperHeader alwaysScrolled>
@@ -20,15 +21,17 @@ function ChatHeader({ avatar = '', name = '' }: ChatHeaderProps) {
           <ChevronLeft />
         </button>
         <div className="flex flex-1 items-center gap-2 text-left text-sm h-full">
-          <Avatar className="size-10 rounded-full">
+          <Avatar className="size-11 rounded-full">
             <AvatarImage src={avatar} alt={`@${name}`} />
             <AvatarFallback
               className="rounded-full text-white text-lg font-bold"
               style={{
-                background: getTelegramGradient(name)
+                background: isPrivate
+                  ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
+                  : getTelegramGradient(name)
               }}
             >
-              {getAvatarFallback(name)}
+              {isPrivate ? <BookmarkIcon className="size-6 text-white" /> : getAvatarFallback(name)}
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight h-full">
