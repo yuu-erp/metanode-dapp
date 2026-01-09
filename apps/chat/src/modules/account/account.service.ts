@@ -92,4 +92,11 @@ export class AccountService {
   async logout(): Promise<void> {
     await this.repository.clearActive()
   }
+
+  async checkUserContract(address: string): Promise<boolean> {
+    return await this.factoryContract.checkUserContract({
+      from: address,
+      inputData: { user: address }
+    })
+  }
 }

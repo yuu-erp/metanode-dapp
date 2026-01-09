@@ -8,7 +8,22 @@
     "connectMainWallet": "Kết nối <1>ví chính</1>"
   },
   "status": {
-    "updating": "Đang cập nhập",
-    "connecting": "Đang kết nối"
+    "connecting": "Đang kết nối…",
+    "updating": "Đang đồng bộ…",
+    "error": "Mất kết nối. Đang thử lại…"
+  },
+  "accountActivationNotice": {
+    "title": "Xác nhận kích hoạt tài khoản",
+    "description": "Việc kích hoạt tài khoản sẽ triển khai lại hợp đồng (contract) mới cho bạn. Do đó, toàn bộ dữ liệu hiện tại liên kết với contract cũ có thể không còn khả dụng.",
+    "warning": "Hành động này không thể hoàn tác.",
+    "note": "Vui lòng đảm bảo bạn đã sao lưu hoặc không còn dữ liệu quan trọng trước khi tiếp tục.",
+    "btn": {
+      "confirm": "Tôi hiểu và tiếp tục",
+      "cancel": "Huỷ",
+      "activateNow": "Kích hoạt ngay"
+    }
+  },
+  "conversationSearch": {
+    "placeholder": "Tìm kiếm cuộc trò chuyện..."
   }
 }

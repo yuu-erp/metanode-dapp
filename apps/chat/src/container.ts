@@ -5,8 +5,9 @@ import {
   ConversationService,
   DexieConversationRepository
 } from '@/modules/conversation'
+import { EventLogContainer } from '@/modules/eventlogs'
+import { DexieMessageRepository, MessageDexieDB, MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
-import { EventLogContainer } from './modules/eventlogs'
 
 /**
  * AppContainer
@@ -28,6 +29,7 @@ class AppContainer {
    * ================================ */
   private readonly _accountService: AccountService
   private readonly _conversationService: ConversationService
+  private readonly _messageService: MessageService
 
   constructor() {
     const nativeWalletAdapter = new NativeWalletAdapter()
@@ -51,6 +53,15 @@ class AppContainer {
     const conversationRepository = new DexieConversationRepository(dbConversation)
     this._conversationService = new ConversationService(
       conversationRepository,
+      this._userContract,
+      this._walletService
+    )
+
+    // 5️⃣ Application Service (MessageService)
+    const dbMessage = new MessageDexieDB(`messages`)
+    const messageRepository = new DexieMessageRepository(dbMessage)
+    this._messageService = new MessageService(
+      messageRepository,
       this._userContract,
       this._walletService
     )
@@ -78,6 +89,10 @@ class AppContainer {
 
   get conversationService(): ConversationService {
     return this._conversationService
+  }
+
+  get messageService(): MessageService {
+    return this._messageService
   }
 
   get eventLogContainer(): EventLogContainer {

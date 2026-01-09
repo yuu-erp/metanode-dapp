@@ -35,7 +35,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           // avatar={item.avatar}
           unreadCount={item.unreadCount}
           latestMessageContent={item.latestMessageContent}
-          isPrivateKey={item.conversationType === 'private'}
+          type={item.conversationType === 'private' ? 'PRIVATE' : 'USER'}
           onClick={() =>
             navigate({
               to: '/conversation/$id',

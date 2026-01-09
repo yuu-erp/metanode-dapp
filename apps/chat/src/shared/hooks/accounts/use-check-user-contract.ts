@@ -1,7 +1,8 @@
 'use client'
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
-import { ACCOUNT_QUERY_KEY } from '../lib/react-query'
+import { ACCOUNT_QUERY_KEY } from '../../lib/react-query'
+import { container } from '@/container'
 
 export function createCheckUserContractQueryOptions(
   address?: string
@@ -15,10 +16,11 @@ export function createCheckUserContractQueryOptions(
   return {
     queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(safeAddress),
     queryFn: async (): Promise<boolean> => {
-      // check register
-      return false
+      const accountService = container.accountService
+      const isRegister = await accountService.checkUserContract(safeAddress)
+      console.log({ isRegister })
+      return isRegister
     },
-
     enabled: !!address
   }
 }

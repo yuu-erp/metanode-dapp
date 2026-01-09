@@ -2,18 +2,29 @@ import { Dexie, type Table } from 'dexie'
 import type { Message } from '../../message.type'
 
 export interface MessageDB {
-  messages: Table<Message>
+  messages: Table<Message, string>
 }
 
 export class MessageDexieDB extends Dexie implements MessageDB {
-  messages!: Table<Message>
+  messages!: Table<Message, string>
 
-  constructor(dbName = 'messages_db') {
+  constructor(dbName = 'message_db') {
     super(dbName)
 
     this.version(1).stores({
-      // Primary key + indexes
-      conversations: 'conversationId, updatedAt, conversationType'
+      messages: `
+        id,
+        accountId,
+        conversationId,
+        timestamp,
+        status,
+        type,
+        sender,
+        recipient,
+        [accountId+conversationId],
+        [accountId+conversationId+timestamp],
+        [accountId+id]
+      `
     })
   }
 }

@@ -10,15 +10,16 @@ export const Route = createFileRoute('/_authenticated/conversation/$id')({
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/conversation/$id' })
   const { data: conversation } = useGetConversationId(id)
-
+  // @ts-ignore
   return (
     <div className="w-full h-screen flex flex-col">
       {/* Header */}
       <ChatHeader
         name={conversation?.name}
-        isPrivate={conversation?.conversationType === 'private'}
+        type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}
       />
-      <ListMessage />
+      {/* @ts-ignore */}
+      <ListMessage conversation={conversation} />
       {/* Input chat - luôn dính bottom */}
       <InputMessage />
     </div>

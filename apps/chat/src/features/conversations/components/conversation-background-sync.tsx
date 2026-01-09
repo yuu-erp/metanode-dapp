@@ -9,10 +9,14 @@ function ConversationBackgroundSync() {
   const { t } = useI18N()
   const backgroundStatus = useBackgroundTaskStatus('conversation-sync')
   // Xác định trạng thái nào sẽ hiển thị (ưu tiên background sync)
-  let displayStatus: 'updating' | 'connecting' | null = null
+  let displayStatus: 'updating' | 'connecting' | 'error' | null = null
   let displayTextKey: string | null = null
 
-  if (backgroundStatus === 'updating' || backgroundStatus === 'connecting') {
+  if (
+    backgroundStatus === 'updating' ||
+    backgroundStatus === 'connecting' ||
+    backgroundStatus === 'error'
+  ) {
     displayStatus = backgroundStatus
     displayTextKey = `status.${backgroundStatus}`
   }
@@ -23,7 +27,9 @@ function ConversationBackgroundSync() {
     <React.Fragment>
       <div className="flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 gap-1">
         <LoaderCircle className="size-4 animate-spin" />
-        <span className="font-semibold flex items-center">{t(displayTextKey)}</span>
+        <span className="font-semibold flex items-center whitespace-nowrap">
+          {t(displayTextKey)}
+        </span>
       </div>
     </React.Fragment>
   )

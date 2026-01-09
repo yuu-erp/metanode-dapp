@@ -8,7 +8,22 @@
     "connectMainWallet": "Connect main <1>wallet</1>"
   },
   "status": {
-    "updating": "Updating",
-    "connecting": "Connecting"
+    "connecting": "Connecting…",
+    "updating": "Syncing…",
+    "error": "Unable to sync. Retrying…"
+  },
+  "accountActivationNotice": {
+    "title": "Confirm account activation",
+    "description": "Activating your account will deploy a new contract address. As a result, all data associated with the previous contract may no longer be accessible.",
+    "warning": "This action cannot be undone.",
+    "note": "Please make sure you have backed up or no longer need any important data before proceeding.",
+    "btn": {
+      "confirm": "I understand and continue",
+      "cancel": "Cancel",
+      "activateNow": "Activate now"
+    }
+  },
+  "conversationSearch": {
+    "placeholder": "Search conversations..."
   }
 }

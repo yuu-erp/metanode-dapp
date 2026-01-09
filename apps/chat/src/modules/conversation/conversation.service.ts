@@ -110,7 +110,12 @@ export class ConversationService {
   async updateConversation(account: Account, conversationId: string, encryptedContent: string) {
     // 1. Lấy conversation hiện tại
     const current = await this.repository.getById(account.address, conversationId)
-    if (!current) return
+
+    if (!current) {
+      // Chưa có hàm lấy thông tin của user bằng contract address nên tạm thời fetch lại toàn bộ danh sách nhắn tin
+      await this.syncByAccount(account)
+      return
+    }
     const decryptMessage = await this.walletService.decryptMessage(
       current.publicKey,
       account.address,

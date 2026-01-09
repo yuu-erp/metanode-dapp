@@ -1,10 +1,10 @@
 'use client'
-import { BookmarkIcon } from '@/shared/components/icons'
-import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar'
+import AvatarUser from '@/shared/components/avatar-user'
+import { PinIcon } from '@/shared/components/icons'
 import { Badge } from '@/shared/components/ui/badge'
-import { formatUpdatedAt, getAvatarFallback, getTelegramGradient } from '@/shared/helpers'
+import { formatUpdatedAt } from '@/shared/helpers'
 import { cn } from '@/shared/lib'
-import { Check, CheckCheck, ClockIcon, Pin } from 'lucide-react'
+import { Check, CheckCheck, ClockIcon } from 'lucide-react'
 import * as React from 'react'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -14,7 +14,7 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   lastMessageStatus?: 'sending' | 'sent' | 'delivered' | 'read'
   latestMessageContent?: string
   isPin?: boolean
-  isPrivateKey?: boolean
+  type?: 'USER' | 'PRIVATE' | 'GROUP'
   unreadCount?: number
 }
 function ItemConversation({
@@ -24,7 +24,7 @@ function ItemConversation({
   lastMessageStatus,
   latestMessageContent,
   isPin,
-  isPrivateKey,
+  type = 'USER',
   unreadCount = 0,
   className,
   ...props
@@ -32,23 +32,7 @@ function ItemConversation({
   return (
     <div className={cn('w-full flex items-center min-h-[56px] h-full', className)} {...props}>
       <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full">
-        <Avatar className="size-15 rounded-full">
-          <AvatarImage src={avatar} alt={`@${name}`} />
-          <AvatarFallback
-            className="rounded-full text-white text-2xl font-bold"
-            style={{
-              background: isPrivateKey
-                ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
-                : getTelegramGradient(name)
-            }}
-          >
-            {isPrivateKey ? (
-              <BookmarkIcon className="size-8 text-white" />
-            ) : (
-              getAvatarFallback(name)
-            )}
-          </AvatarFallback>
-        </Avatar>
+        <AvatarUser name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="w-full flex items-center justify-between gap-3">
             <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">{name}</div>
@@ -57,7 +41,7 @@ function ItemConversation({
               {lastMessageStatus === 'sent' && <Check className="text-gray-500 size-4" />}
               {lastMessageStatus === 'delivered' && <CheckCheck className="text-gray-500 size-4" />}
               {lastMessageStatus === 'read' && <CheckCheck className="text-green-500 size-4" />}
-              <span className="font-semibold">{formatUpdatedAt(updatedAt)}</span>
+              <span>{formatUpdatedAt(updatedAt)}</span>
             </div>
           </div>
           <div className="w-full flex items-center justify-between gap-3">
@@ -72,7 +56,7 @@ function ItemConversation({
                 {unreadCount > 99 ? '99+' : unreadCount}
               </Badge>
             )}
-            {isPin && <Pin className="size-4" />}
+            {isPin && <PinIcon className="size-4" />}
           </div>
         </div>
       </div>

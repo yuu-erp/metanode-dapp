@@ -10,7 +10,7 @@ function SearchConversation({
   ...props
 }: SearchConversationProps) {
   return (
-    <div className="w-full pt-1">
+    <div className="w-full pt-3">
       <SearchInput placeholder={placeholder} {...props} className={className} />
     </div>
   )

@@ -60,6 +60,11 @@ export const getProcessedP2PMessages = [
             internalType: 'bool',
             name: 'isRead',
             type: 'bool'
+          },
+          {
+            internalType: 'bool',
+            name: 'isEdited',
+            type: 'bool'
           }
         ],
         internalType: 'struct UserContractV3.ProcessedP2PMessage[]',
