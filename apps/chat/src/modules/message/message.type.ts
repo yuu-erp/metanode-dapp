@@ -3,7 +3,8 @@ export type MessageType = 'text' | 'sticker'
 export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed'
 
 export interface BaseMessage {
-  id: string // unique message id (có thể từ XMTP id hoặc tx hash)
+  id?: string // unique message id (có thể từ XMTP id hoặc tx hash)
+  clientId: string
   accountId: string // account id
   type: MessageType
   sender: string // wallet address hoặc ENS

@@ -34,7 +34,8 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'getFullInbox',
       abiData: userAbi.getFullInbox,
-      feeType: 'read'
+      feeType: 'read',
+      gas: '30000000'
     })
   }
 

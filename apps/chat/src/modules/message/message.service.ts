@@ -1,10 +1,11 @@
 import type { Account } from '@/modules/account'
-import type { MessageRepository } from './message.repository'
-import type { UserContract } from '../blockchain'
-import type { WalletService } from '../wallet'
 import type { Message } from '.'
+import type { UserContract } from '../blockchain'
 import type { Conversation } from '../conversation'
-import { mapperToMessage } from './message.mapper'
+import type { WalletService } from '../wallet'
+import { createOptimisticMessage } from './message.entity'
+import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
+import type { MessageRepository } from './message.repository'
 
 export class MessageService {
   constructor(
@@ -51,5 +52,62 @@ export class MessageService {
     console.log('[MessageService] - getProcessedP2PMessages - messages:', messages)
     await this.repository.upsertMany(messages)
     return messages
+  }
+
+  async sendMessage(
+    account: Account,
+    conversation: Conversation,
+    payload: { type: 'text'; content: string } | { type: 'sticker'; stickerId: string }
+  ): Promise<string> {
+    const clientId = crypto.randomUUID()
+
+    const optimisticMessage = createOptimisticMessage(
+      {
+        clientId,
+        accountId: account.address,
+        conversationId: conversation.conversationId,
+        sender: account.contractAddress,
+        recipient: conversation.conversationId,
+        timestamp: Date.now()
+      },
+      payload
+    )
+
+    await this.repository.upsert(optimisticMessage)
+
+    try {
+      const messageOnChain = mapperMessageToOnChain(optimisticMessage)
+      const stringifyMessage = JSON.stringify(messageOnChain)
+      const encryptedForRecipient = await this.walletService.encryptMessage(
+        conversation.publicKey,
+        account.address,
+        stringifyMessage
+      )
+
+      const encryptedForSelf = await this.walletService.encryptMessage(
+        account.publicKey,
+        account.address,
+        stringifyMessage
+      )
+      const result = await this.userContract.sendMessage({
+        from: account.address,
+        to: conversation.conversationId,
+        inputData: {
+          _recipientContractAddress: conversation.conversationId,
+          _encryptedContentForSelf: encryptedForSelf,
+          _encryptedContentForRecipient: encryptedForRecipient
+        }
+      })
+      await this.repository.updateByClientId(account.address, clientId, {
+        id: result.messageId, // bytes32
+        status: 'sent'
+      })
+      return result.messageId
+    } catch (error) {
+      await this.repository.updateByClientId(account.address, clientId, {
+        status: 'failed'
+      })
+      throw error
+    }
   }
 }

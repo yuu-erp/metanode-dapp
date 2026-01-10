@@ -113,6 +113,18 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer utilities {
+  .bg-background-gradient {
+    background:
+      radial-gradient(
+        120% 60% at 50% 30%,
+        rgba(255, 220, 170, 0.35) 0%,
+        rgba(255, 220, 170, 0) 60%
+      ),
+      linear-gradient(180deg, #e9e4d9 0%, #efe4c8 25%, #d8b19a 45%, #9b857c 65%, #6f737a 100%);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

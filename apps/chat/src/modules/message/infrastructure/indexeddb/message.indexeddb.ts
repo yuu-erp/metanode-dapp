@@ -14,16 +14,15 @@ export class MessageDexieDB extends Dexie implements MessageDB {
     this.version(1).stores({
       messages: `
         id,
+        clientId,
         accountId,
         conversationId,
-        timestamp,
         status,
-        type,
-        sender,
-        recipient,
-        [accountId+conversationId],
+        timestamp,
+        [accountId+id],
+        [accountId+clientId],
         [accountId+conversationId+timestamp],
-        [accountId+id]
+        [accountId+conversationId+status]
       `
     })
   }

@@ -1,11 +1,12 @@
 'use client'
-
-import { useBackgroundTaskStatus } from '@/shared/background-sync'
-import { useI18N } from '@/shared/hooks'
-import { LoaderCircle } from 'lucide-react'
 import * as React from 'react'
+import { useI18N } from '../hooks'
+import { useBackgroundTaskStatus } from '../background-sync'
+import { cn } from '../lib'
+import { LoaderCircle } from 'lucide-react'
 
-function ConversationBackgroundSync() {
+interface StatusSyncProps extends React.HTMLAttributes<HTMLDivElement> {}
+function StatusSync({ className, ...props }: StatusSyncProps) {
   const { t } = useI18N()
   const backgroundStatus = useBackgroundTaskStatus('conversation-sync')
   // Xác định trạng thái nào sẽ hiển thị (ưu tiên background sync)
@@ -22,10 +23,9 @@ function ConversationBackgroundSync() {
   }
   // Chỉ render khi có trạng thái cần hiển thị
   if (!displayStatus) return null
-
   return (
     <React.Fragment>
-      <div className="flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 gap-1">
+      <div className={cn('flex items-center gap-1', className)} {...props}>
         <LoaderCircle className="size-4 animate-spin" />
         <span className="font-semibold flex items-center whitespace-nowrap">
           {t(displayTextKey)}
@@ -35,4 +35,4 @@ function ConversationBackgroundSync() {
   )
 }
 
-export default React.memo(ConversationBackgroundSync)
+export default React.memo(StatusSync)

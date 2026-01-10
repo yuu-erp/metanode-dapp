@@ -1,7 +1,7 @@
 'use client'
 import { container } from '@/container'
 import { useCurrentAccount } from '@/shared/hooks'
-import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
+import { CONVERSATION_QUERY_KEY, MESSAGE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import * as React from 'react'
 import { createContext, useContext } from 'react'
 
@@ -26,6 +26,9 @@ export function EventLogProvider({ children }: EventLogProviderProps) {
       )
       queryClient.invalidateQueries({
         queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(currentAccount.address)
+      })
+      queryClient.invalidateQueries({
+        queryKey: MESSAGE_QUERY_KEY.MESSAGES(currentAccount.address, data.sender)
       })
     })
     return () => unsubscribe()

@@ -112,6 +112,19 @@ export class DexieMessageRepository implements MessageRepository {
       })
   }
 
+  async updateByClientId(
+    accountId: string,
+    clientId: string,
+    patch: Partial<Message>
+  ): Promise<void> {
+    await this.db.messages
+      .where('[accountId+clientId]')
+      .equals([accountId, clientId])
+      .modify((msg) => {
+        Object.assign(msg, patch)
+      })
+  }
+
   async editMessage(accountId: string, messageId: string, newContent: string): Promise<void> {
     await this.db.messages
       .where('[accountId+id]')

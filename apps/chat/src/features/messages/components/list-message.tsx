@@ -6,6 +6,7 @@ import { useInfiniteMessages } from '../hooks'
 import MessageItem from './message-item'
 import { useCurrentAccount } from '@/shared/hooks'
 import type { Conversation } from '@/modules/conversation'
+import { LoaderCircle } from 'lucide-react'
 
 interface ListMessageProps {
   conversation?: Conversation
@@ -48,7 +49,7 @@ function ListMessage({ conversation }: ListMessageProps) {
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-gray-500">Đang tải tin nhắn...</p>
+        <LoaderCircle className="size-8 animate-spin" />
       </div>
     )
   }
@@ -64,7 +65,7 @@ function ListMessage({ conversation }: ListMessageProps) {
   if (!currentAccount || !conversation) {
     return (
       <div className="flex h-full items-center justify-center">
-        <p className="text-gray-500">Chọn một cuộc trò chuyện để bắt đầu</p>
+        <p className="text-sm text-white/60 font-medium">Chọn một cuộc trò chuyện để bắt đầu</p>
       </div>
     )
   }
@@ -87,16 +88,22 @@ function ListMessage({ conversation }: ListMessageProps) {
           paddingTop: 'calc(var(--header-height) + 30px)'
         }}
       >
-        {isFetchingNextPage && <p className="text-sm text-gray-500">Đang tải tin nhắn cũ hơn...</p>}
+        {isFetchingNextPage && (
+          <div className="w-full flex items-center justify-center">
+            <LoaderCircle className="size-8 animate-spin" />
+          </div>
+        )}
         {!hasNextPage && messages.length > 0 && (
-          <p className="text-sm text-gray-400">Đã tải hết tin nhắn</p>
+          <p className="text-sm text-white/60 font-medium">Đã tải hết tin nhắn</p>
         )}
       </div>
 
       {/* Nếu chưa có tin nhắn nào */}
       {messages.length === 0 && !isFetchingNextPage && (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-gray-500">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</p>
+          <p className="text-sm text-white/60 font-medium">
+            Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!
+          </p>
         </div>
       )}
     </div>
