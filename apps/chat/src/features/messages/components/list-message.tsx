@@ -79,7 +79,6 @@ function ListMessage({ conversation }: ListMessageProps) {
       {messages.map((message, idx) => (
         <MessageItem key={message.id} message={message} isMine={idx % 2 === 0} />
       ))}
-
       {/* Trigger load more khi scroll lên đầu */}
       <div
         ref={loadMoreRef}

@@ -10,7 +10,6 @@ export const Route = createFileRoute('/_authenticated/conversation/$id')({
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/conversation/$id' })
   const { data: conversation } = useGetConversationId(id)
-  // @ts-ignore
   return (
     <div className="w-full h-screen flex flex-col">
       {/* Header */}
