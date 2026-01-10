@@ -51,6 +51,11 @@ export class ConversationService {
           to: item.conversationId
         })
 
+        const userProfile = await this.userContract.userProfile({
+          to: item.conversationId,
+          from: account.address
+        })
+
         const latestMessageContent = await this.decryptLatestMessageContent(
           account,
           item.latestMessageContent,
@@ -64,6 +69,7 @@ export class ConversationService {
             ...item,
             name: 'Saved Messages',
             avatar: '',
+            username: userProfile.userName,
             conversationType: 'private',
             accountId: account.address,
             publicKey: conversationPublicKey,
@@ -75,6 +81,7 @@ export class ConversationService {
 
         return mapperToConversation({
           ...item,
+          userName: userProfile.userName,
           accountId: account.address,
           publicKey: conversationPublicKey,
           // @ts-ignore
@@ -140,6 +147,7 @@ export class ConversationService {
       accountId: account.address,
       name: 'Saved Messages',
       avatar: '',
+      username: account.username,
       conversationType: 'private',
       latestMessageContent: '',
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)

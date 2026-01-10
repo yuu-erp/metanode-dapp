@@ -53,7 +53,7 @@ function ItemConversation({
                 className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
                 variant="secondary"
               >
-                {unreadCount > 99 ? '99+' : unreadCount}
+                {unreadCount > 999 ? '999+' : unreadCount}
               </Badge>
             )}
             {isPin && <PinIcon className="size-4" />}

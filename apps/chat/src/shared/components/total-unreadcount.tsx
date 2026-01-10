@@ -20,7 +20,7 @@ function TotalUnreadcount({ className, ...props }: TotalUnreadcountProps) {
         className={cn('h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums', className)}
         {...props}
       >
-        {totalUnread > 99 ? '99+' : totalUnread}
+        {totalUnread > 999 ? '999+' : totalUnread}
       </Badge>
     </React.Fragment>
   )

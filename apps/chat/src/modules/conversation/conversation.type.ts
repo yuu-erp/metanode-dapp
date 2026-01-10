@@ -8,6 +8,7 @@ export interface Conversation {
   // UI display (snapshot)
   name: string
   avatar?: string
+  username: string
   // Last message snapshot (cho hiển thị nhanh trong list)
   latestMessageContent: string
   // State

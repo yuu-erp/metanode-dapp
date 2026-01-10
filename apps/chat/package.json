@@ -9,9 +9,9 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@metanodejs/event-log": "/Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/event-log",
-    "@metanodejs/mtn-contract": "/Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/mtn-contract",
-    "@metanodejs/system-core": "/Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core",
+    "@metanodejs/event-log": "/Users/yuu/Documents/CONG_TY/metanode-packages/packages/event-log",
+    "@metanodejs/mtn-contract": "/Users/yuu/Documents/CONG_TY/metanode-packages/packages/mtn-contract",
+    "@metanodejs/system-core": "/Users/yuu/Documents/CONG_TY/metanode-packages/packages/system-core",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/vite": "^4.0.6",

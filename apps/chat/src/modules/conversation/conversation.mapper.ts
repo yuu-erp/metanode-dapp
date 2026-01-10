@@ -8,6 +8,7 @@ export function mapperToConversation(raw: any): Conversation {
     // UI snapshot
     name: [raw.firstName, raw.lastName].filter(Boolean).join(' '),
     avatar: raw.avatar ?? undefined,
+    username: raw.userName,
     // Last message
     latestMessageContent: raw.latestMessageContent ?? '',
     // State

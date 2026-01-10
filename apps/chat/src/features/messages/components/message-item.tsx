@@ -1,16 +1,16 @@
 'use client'
 
-import * as React from 'react'
 import type { Message } from '@/modules/message'
+import { formatMessageTime } from '@/shared/helpers/date-fns'
+import { CheckCheck } from 'lucide-react'
+import * as React from 'react'
 
 interface MessageItemProps {
   message: Message
-  currentAccountId?: string // address của người dùng hiện tại
+  isMine?: boolean
 }
 
-function MessageItem({ message, currentAccountId }: MessageItemProps) {
-  const isMine = message.sender === currentAccountId
-
+function MessageItem({ message, isMine }: MessageItemProps) {
   // Xử lý các loại tin nhắn khác nhau
   const renderContent = () => {
     switch (message.type) {
@@ -24,7 +24,7 @@ function MessageItem({ message, currentAccountId }: MessageItemProps) {
   return (
     <div className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-4`}>
       <div
-        className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+        className={`max-w-[90%] min-w-[100px] rounded-2xl px-4 pt-2 pb-4 relative ${
           isMine
             ? 'bg-blue-600 text-white rounded-br-none'
             : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-none'
@@ -35,14 +35,15 @@ function MessageItem({ message, currentAccountId }: MessageItemProps) {
 
         <div className="text-base">{renderContent()}</div>
 
-        <div className={`text-xs mt-1 ${isMine ? 'text-blue-200' : 'text-gray-500'}`}>
-          <span>{message.timestamp}</span>
+        <div
+          className={`text-[11px] flex items-center absolute bottom-1 right-3 ${isMine ? 'text-blue-200' : 'text-gray-500'}`}
+        >
+          <span>{formatMessageTime(message.timestamp)}</span>
           {isMine && (
-            <span className="ml-2">
-              {message.status === 'read' && '✓✓'}
-              {message.status === 'delivered' && '✓✓'}
-              {message.status === 'sent' && '✓'}
-              {message.status === 'failed' && '!'}
+            <span className="ml-1">
+              {message.status === 'sent' && <CheckCheck className="text-white size-3.5" />}
+              {message.status === 'delivered' && <CheckCheck className="text-white size-3.5" />}
+              {message.status === 'read' && <CheckCheck className="text-green-500 size-3.5" />}
             </span>
           )}
         </div>

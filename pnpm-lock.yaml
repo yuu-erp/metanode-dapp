@@ -38,13 +38,13 @@ importers:
   apps/chat:
     dependencies:
       '@metanodejs/event-log':
-        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/event-log
+        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/event-log
         version: link:../../../metanode-packages/packages/event-log
       '@metanodejs/mtn-contract':
-        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/mtn-contract
+        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/mtn-contract
         version: link:../../../metanode-packages/packages/mtn-contract
       '@metanodejs/system-core':
-        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core
+        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/system-core
         version: link:../../../metanode-packages/packages/system-core
       '@radix-ui/react-avatar':
         specifier: ^1.1.11

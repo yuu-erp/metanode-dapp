@@ -17,6 +17,7 @@ function RouteComponent() {
       <ChatHeader
         name={conversation?.name}
         type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}
+        username={conversation?.username}
       />
       {/* @ts-ignore */}
       <ListMessage conversation={conversation} />

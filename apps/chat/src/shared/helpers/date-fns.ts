@@ -33,3 +33,12 @@ export function formatUpdatedAt(date: Date | string) {
   // khác năm → dd/MM/yyyy
   return d.format('DD/MM/YY')
 }
+
+export function formatMessageTime(date: Date | string | number) {
+  if (typeof date === 'number') {
+    // nếu < 10^12 thì coi là seconds
+    return dayjs(date < 1e12 ? date * 1000 : date).format('HH:mm')
+  }
+
+  return dayjs(date).format('HH:mm')
+}

@@ -72,19 +72,21 @@ function ListMessage({ conversation }: ListMessageProps) {
   return (
     <div
       className="flex h-full flex-col-reverse overflow-y-auto"
-      style={{ paddingBottom: 'var(--header-height)', marginTop: 'var(--header-height)' }}
+      style={{ paddingBottom: 'var(--header-height)' }}
     >
       {/* Danh sách tin nhắn - hiển thị từ cũ → mới (do flex-col-reverse) */}
-      {messages.map((message) => (
-        <MessageItem
-          key={message.id}
-          message={message}
-          currentAccountId={currentAccount?.address}
-        />
+      {messages.map((message, idx) => (
+        <MessageItem key={message.id} message={message} isMine={idx % 2 === 0} />
       ))}
 
       {/* Trigger load more khi scroll lên đầu */}
-      <div ref={loadMoreRef} className="py-4 text-center">
+      <div
+        ref={loadMoreRef}
+        className="py-4 text-center"
+        style={{
+          paddingTop: 'calc(var(--header-height) + 30px)'
+        }}
+      >
         {isFetchingNextPage && <p className="text-sm text-gray-500">Đang tải tin nhắn cũ hơn...</p>}
         {!hasNextPage && messages.length > 0 && (
           <p className="text-sm text-gray-400">Đã tải hết tin nhắn</p>
