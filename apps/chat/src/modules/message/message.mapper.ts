@@ -30,14 +30,14 @@ export function mapperToMessage(raw: any): Message {
     return {
       ...base,
       type: 'sticker',
-      stickerId: raw.stickerId ?? raw.content ?? 'unknown-sticker'
+      stickerId: raw.stickerId ?? raw.content ?? raw.text ?? 'unknown-sticker'
     } satisfies StickerMessage
   }
 
   return {
     ...base,
     type: 'text',
-    content: raw.content ?? raw.text ?? ''
+    content: raw.content ?? raw.text ?? raw.value ?? ''
   } satisfies TextMessage
 }
 

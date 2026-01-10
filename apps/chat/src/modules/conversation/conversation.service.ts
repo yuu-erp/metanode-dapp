@@ -1,3 +1,4 @@
+import { fulfilledPromises } from '@/shared/utils'
 import type { Account } from '../account'
 import type { UserContract } from '../blockchain'
 import type { WalletService } from '../wallet'
@@ -43,49 +44,52 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
-
-    const conversations = await Promise.all(
+    console.log('[CONVERSATION SERVICE] - INDEXS', inboxs)
+    const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
-        const conversationPublicKey = await this.userContract.publicKey({
-          from: account.address,
-          to: item.conversationId
-        })
-
-        const userProfile = await this.userContract.userProfile({
-          to: item.conversationId,
-          from: account.address
-        })
+        const [conversationPublicKey, userProfile] = await Promise.all([
+          this.userContract.publicKey({
+            from: account.address,
+            to: item.conversationId
+          }),
+          this.userContract.userProfile({
+            to: item.conversationId,
+            from: account.address
+          })
+        ])
 
         const latestMessageContent = await this.decryptLatestMessageContent(
           account,
           item.latestMessageContent,
           conversationPublicKey
         )
-
         const existed = await this.repository.getById(account.address, item.conversationId)
 
         if (existed?.conversationType === 'private') {
           return {
             ...item,
+            accountId: account.address,
             name: 'Saved Messages',
             avatar: '',
             username: userProfile.userName,
             conversationType: 'private',
-            accountId: account.address,
             publicKey: conversationPublicKey,
             unreadCount: 0,
             // @ts-ignore
-            latestMessageContent: latestMessageContent.text
+            latestMessageContent: latestMessageContent.text ?? latestMessageContent.value
           }
         }
 
         return mapperToConversation({
           ...item,
-          userName: userProfile.userName,
           accountId: account.address,
+          firstName: userProfile.firstName,
+          lastName: userProfile.lastName,
+          userName: userProfile.userName,
+          avatar: userProfile.avatar,
           publicKey: conversationPublicKey,
           // @ts-ignore
-          latestMessageContent: latestMessageContent.text
+          latestMessageContent: latestMessageContent.text ?? latestMessageContent.value
         })
       })
     )
@@ -100,7 +104,25 @@ export class ConversationService {
     accountId: string,
     conversationId: string
   ): Promise<Conversation | undefined> {
-    return this.repository.getById(accountId, conversationId)
+    const conversationLocal = await this.repository.getById(accountId, conversationId)
+    if (conversationLocal) return conversationLocal
+    const userProfile = await this.userContract.userProfile({
+      from: accountId,
+      to: conversationId
+    })
+    const publicKey = await this.userContract.publicKey({
+      from: accountId,
+      to: conversationId
+    })
+    const conversation = mapperToConversation({
+      conversationId,
+      accountId,
+      publicKey,
+      ...userProfile,
+      conversationType: 'p2p'
+    })
+    await this.repository.upsert(conversation)
+    return conversation
   }
 
   async getConversationList(accountId: string): Promise<Conversation[]> {

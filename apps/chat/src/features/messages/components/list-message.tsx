@@ -1,22 +1,22 @@
 'use client'
 
+import type { Account } from '@/modules/account'
+import type { Conversation } from '@/modules/conversation'
+import { ChevronDown, LoaderCircle } from 'lucide-react'
 import * as React from 'react'
-import { useRef, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useInfiniteMessages } from '../hooks'
 import MessageItem from './message-item'
-import { useCurrentAccount } from '@/shared/hooks'
-import type { Conversation } from '@/modules/conversation'
-import { LoaderCircle } from 'lucide-react'
 
 interface ListMessageProps {
   conversation?: Conversation
+  account?: Account
 }
 
-function ListMessage({ conversation }: ListMessageProps) {
-  const { data: currentAccount } = useCurrentAccount()
+function ListMessage({ conversation, account }: ListMessageProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useInfiniteMessages({
-      account: currentAccount,
+      account: account,
       conversation,
       pageSize: 30
     })
@@ -24,6 +24,16 @@ function ListMessage({ conversation }: ListMessageProps) {
   // Ref để gắn vào phần tử trigger load more (khi scroll lên trên)
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const [showScrollBottom, setShowScrollBottom] = React.useState(false)
+
+  const scrollToBottom = React.useCallback(() => {
+    scrollRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }, [])
   // IntersectionObserver để detect khi người dùng scroll gần đầu danh sách
   useEffect(() => {
     if (!loadMoreRef.current) return
@@ -42,6 +52,12 @@ function ListMessage({ conversation }: ListMessageProps) {
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
+  const handleScroll = React.useCallback((event: React.UIEvent<HTMLDivElement>) => {
+    const el = event.currentTarget
+    // cách bottom bao xa
+    const distanceFromBottom = el.scrollTop
+    setShowScrollBottom(distanceFromBottom < -200)
+  }, [])
   // Flatten tất cả pages thành một mảng tin nhắn duy nhất
   // Tin nhắn mới nhất ở dưới (cuối mảng)
   const messages = data?.pages.flat() ?? []
@@ -62,7 +78,7 @@ function ListMessage({ conversation }: ListMessageProps) {
     )
   }
 
-  if (!currentAccount || !conversation) {
+  if (!account || !conversation) {
     return (
       <div className="flex h-full items-center justify-center">
         <p className="text-sm text-white/60 font-medium">Chọn một cuộc trò chuyện để bắt đầu</p>
@@ -72,13 +88,31 @@ function ListMessage({ conversation }: ListMessageProps) {
 
   return (
     <div
-      className="flex h-full flex-col-reverse overflow-y-auto"
+      ref={scrollRef}
+      onScroll={handleScroll}
+      className="flex h-full flex-col-reverse overflow-y-auto relative"
       style={{ paddingBottom: 'var(--header-height)' }}
     >
       {/* Danh sách tin nhắn - hiển thị từ cũ → mới (do flex-col-reverse) */}
-      {messages.map((message, idx) => (
-        <MessageItem key={message.id} message={message} isMine={idx % 2 === 0} />
+      {messages.map((message) => (
+        <MessageItem
+          key={message.id ?? message.clientId}
+          message={message}
+          isMine={message.sender === account.contractAddress}
+        />
       ))}
+      {/* Button scroll to bottom */}
+      {showScrollBottom && (
+        <button
+          className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl fixed right-3 bottom-24 z-10"
+          style={{
+            boxShadow: `2px 2px 6px 0px #0000004D inset`
+          }}
+          onClick={scrollToBottom}
+        >
+          <ChevronDown className="size-5" />
+        </button>
+      )}
       {/* Trigger load more khi scroll lên đầu */}
       <div
         ref={loadMoreRef}

@@ -36,7 +36,6 @@ export function useInfiniteMessages({
       if (!account || !conversation) return []
 
       const messageService = container.messageService
-      console.log({ pageParam, pageSize })
       // Gọi service với beforeTimestamp để lấy tin nhắn cũ hơn
       return await messageService.getProcessedP2PMessages(account, conversation, {
         limit: pageSize,
@@ -44,11 +43,9 @@ export function useInfiniteMessages({
       })
     },
     initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      // Nếu trang vừa load có ít hơn pageSize → hết dữ liệu
-      if (lastPage.length < pageSize) return undefined
-      // Trang tiếp theo = trang hiện tại + 1
-      return allPages.length + 1
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (lastPage.length === 0) return undefined
+      return (lastPageParam ?? 1) + 1
     },
     getPreviousPageParam: () => undefined, // không hỗ trợ load newer ở đây (dùng refetch riêng)
     enabled: !!account && !!conversation,

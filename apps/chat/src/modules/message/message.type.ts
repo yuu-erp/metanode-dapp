@@ -10,7 +10,7 @@ export interface BaseMessage {
   sender: string // wallet address hoặc ENS
   recipient: string
   timestamp: number // Unix timestamp (ms)
-  conversationId?: string // optional - cho group chat hoặc channel
+  conversationId: string // optional - cho group chat hoặc channel
   isEdited?: boolean
   isDeleted?: boolean
   status?: 'sent' | 'delivered' | 'read' | 'failed'

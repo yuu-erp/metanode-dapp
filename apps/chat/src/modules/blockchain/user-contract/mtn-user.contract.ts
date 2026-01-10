@@ -65,9 +65,10 @@ export class UserContract extends MtnContract {
   }
 
   sendMessage(payload: TransactionPayload<SendMessageInput>): Promise<SendMessageOutput> {
-    const { from, inputData } = payload
+    const { from, to, inputData } = payload
     return this.sendTransaction({
       from,
+      to,
       functionName: 'sendMessage',
       abiData: userAbi.sendMessage,
       inputData,

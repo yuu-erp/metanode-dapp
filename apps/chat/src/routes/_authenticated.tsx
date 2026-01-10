@@ -1,4 +1,4 @@
-import { EventLogProvider } from '@/contexts/event-log.context'
+import { EventBusSendMessageProvider, EventLogProvider } from '@/contexts'
 import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
@@ -28,12 +28,14 @@ function RouteComponent() {
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
     <EventLogProvider>
-      <BackgroundSyncProvider>
-        <AppSessionProvider>
-          <Outlet />
-          {showNavbar && <NavbarMenu />}
-        </AppSessionProvider>
-      </BackgroundSyncProvider>
+      <EventBusSendMessageProvider>
+        <BackgroundSyncProvider>
+          <AppSessionProvider>
+            <Outlet />
+            {showNavbar && <NavbarMenu />}
+          </AppSessionProvider>
+        </BackgroundSyncProvider>
+      </EventBusSendMessageProvider>
     </EventLogProvider>
   )
 }

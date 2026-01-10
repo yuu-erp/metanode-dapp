@@ -1,6 +1,6 @@
 'use client'
 import { ChatHeader, InputMessage, ListMessage } from '@/features/messages'
-import { useGetConversationId } from '@/shared/hooks'
+import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({
@@ -9,6 +9,7 @@ export const Route = createFileRoute('/_authenticated/conversation/$id')({
 
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/conversation/$id' })
+  const { data: account } = useCurrentAccount()
   const { data: conversation } = useGetConversationId(id)
   return (
     <div className="w-full h-screen flex flex-col">
@@ -19,9 +20,10 @@ function RouteComponent() {
         username={conversation?.username}
       />
       {/* @ts-ignore */}
-      <ListMessage conversation={conversation} />
+      <ListMessage conversation={conversation} account={account} />
       {/* Input chat - luôn dính bottom */}
-      <InputMessage />
+      {/* @ts-ignore */}
+      <InputMessage conversation={conversation} account={account} />
     </div>
   )
 }

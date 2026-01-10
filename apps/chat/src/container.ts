@@ -6,8 +6,10 @@ import {
   DexieConversationRepository
 } from '@/modules/conversation'
 import { EventLogContainer } from '@/modules/eventlogs'
-import { DexieMessageRepository, MessageDexieDB, MessageService } from '@/modules/message'
+import { MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
+import { MittEventBus, type EventBusPort } from './modules/event'
+import type { AppEvents } from './types/app-events'
 
 /**
  * AppContainer
@@ -24,6 +26,7 @@ class AppContainer {
   private readonly _factoryContract: FactoryContract
   private readonly _userContract: UserContract
   private readonly _eventLogContainer: EventLogContainer
+  private readonly _eventBus: EventBusPort<AppEvents>
   /* ================================
    * Application services
    * ================================ */
@@ -37,7 +40,7 @@ class AppContainer {
     this._factoryContract = new FactoryContract()
     this._userContract = new UserContract()
     this._eventLogContainer = new EventLogContainer()
-
+    this._eventBus = new MittEventBus<AppEvents>()
     // 5️⃣ Application Service (AccountService)
     const dbAccount = new AccountDexieDB(`accounts`)
     const accountRepository = new DexieAccountRepository(dbAccount)
@@ -58,12 +61,10 @@ class AppContainer {
     )
 
     // 5️⃣ Application Service (MessageService)
-    const dbMessage = new MessageDexieDB(`messages`)
-    const messageRepository = new DexieMessageRepository(dbMessage)
     this._messageService = new MessageService(
-      messageRepository,
       this._userContract,
-      this._walletService
+      this._walletService,
+      this._eventBus
     )
   }
 
@@ -97,6 +98,10 @@ class AppContainer {
 
   get eventLogContainer(): EventLogContainer {
     return this._eventLogContainer
+  }
+
+  get eventBus(): EventBusPort<AppEvents> {
+    return this._eventBus
   }
 }
 
