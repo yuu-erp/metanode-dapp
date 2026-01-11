@@ -13,6 +13,7 @@
     "@metanodejs/mtn-contract": "/Users/yuu/Documents/CONG_TY/metanode-packages/packages/mtn-contract",
     "@metanodejs/system-core": "/Users/yuu/Documents/CONG_TY/metanode-packages/packages/system-core",
     "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-context-menu": "^2.2.16",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-devtools": "^0.7.0",

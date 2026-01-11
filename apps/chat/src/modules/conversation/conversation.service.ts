@@ -69,7 +69,7 @@ export class ConversationService {
           return {
             ...item,
             accountId: account.address,
-            name: 'Saved Messages',
+            name: 'savedMessages',
             avatar: '',
             username: userProfile.userName,
             conversationType: 'private',
@@ -167,7 +167,7 @@ export class ConversationService {
       conversationId: account.contractAddress,
       publicKey: account.publicKey,
       accountId: account.address,
-      name: 'Saved Messages',
+      name: 'savedMessages',
       avatar: '',
       username: account.username,
       conversationType: 'private',

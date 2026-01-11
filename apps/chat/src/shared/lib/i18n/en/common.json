@@ -25,5 +25,7 @@
   },
   "conversationSearch": {
     "placeholder": "Search conversations..."
-  }
+  },
+  "pinnedMessage": "Pinned Message",
+  "savedMessages": "Saved Messages"
 }

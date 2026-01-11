@@ -3,7 +3,9 @@ import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
 import { Badge } from '@/shared/components/ui/badge'
 import { formatUpdatedAt } from '@/shared/helpers'
+import { useI18N, useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
+import { sendCommand } from '@metanodejs/system-core'
 import { Check, CheckCheck, ClockIcon } from 'lucide-react'
 import * as React from 'react'
 
@@ -29,13 +31,37 @@ function ItemConversation({
   className,
   ...props
 }: ItemConversationProps) {
+  const { t } = useI18N()
+  const { handlers, isLongPressActive } = useLongPress({
+    threshold: 300,
+    shouldPreventDefault: true,
+    movementThreshold: 12,
+    onLongPressStart: () => {
+      console.log('Long press start')
+    },
+    onLongPressEnd: () => {
+      sendCommand('vibrate')
+      // Thêm logic focus/select ở đây nếu cần
+    }
+    // KHÔNG cần onClick ở đây nữa
+  })
+
   return (
-    <div className={cn('w-full flex items-center min-h-[56px] h-full', className)} {...props}>
+    <div
+      {...handlers}
+      className={cn(
+        'w-full flex items-center min-h-[56px] h-full',
+        'transition-all duration-300 ease-out',
+        isLongPressActive && 'scale-94',
+        className
+      )}
+      {...props}
+    >
       <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full">
         <AvatarUser name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="w-full flex items-center justify-between gap-3">
-            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">{name}</div>
+            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">{t(name)}</div>
             <div className="flex items-center gap-1">
               {lastMessageStatus === 'sending' && <ClockIcon className="size-4" />}
               {lastMessageStatus === 'sent' && <Check className="text-gray-500 size-4" />}

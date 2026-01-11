@@ -1,5 +1,5 @@
 'use client'
-import { ConversationList, SearchConversation } from '@/features/conversations'
+import { SearchConversation, ConversationList } from '@/features/conversations'
 import AccountActivationNotice from '@/shared/components/account-activation-notice'
 import { EditIcon } from '@/shared/components/icons'
 import StatusSync from '@/shared/components/status-sync'

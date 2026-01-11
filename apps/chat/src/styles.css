@@ -211,6 +211,13 @@
     );
   }
 
+  .blurApp {
+    backdrop-filter: blur(20.280595779418945px);
+    -webkit-backdrop-filter: blur(20.280595779418945px);
+    transform: translateZ(0); /* tạo layer riêng */
+    will-change: transform; /* hint cho browser optimize animation */
+  }
+
   @keyframes slideRightBack {
     0% {
       transform: translateX(0);

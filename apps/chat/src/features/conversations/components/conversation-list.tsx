@@ -26,7 +26,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
   }, [conversations, searchKeyword])
 
   return (
-    <div className="flex flex-col gap-3 pb-[120px]">
+    <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (
         <ItemConversation
           key={item.conversationId}

@@ -25,5 +25,7 @@
   },
   "conversationSearch": {
     "placeholder": "Tìm kiếm cuộc trò chuyện..."
-  }
+  },
+  "pinnedMessage": "Tin nhắn được ghim",
+  "savedMessages": "Tin nhắn đã lưu"
 }
