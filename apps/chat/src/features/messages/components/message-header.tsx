@@ -6,7 +6,6 @@ import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronLeft } from 'lucide-react'
 import * as React from 'react'
-import PinMessages from './pin-messages'
 
 interface ChatHeaderProps {
   avatar?: string
@@ -48,7 +47,7 @@ function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
           </div>
         </div>
       </WapperHeader>
-      <PinMessages />
+      {/* <PinMessages /> */}
     </React.Fragment>
   )
 }

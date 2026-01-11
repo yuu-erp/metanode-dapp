@@ -1,5 +1,6 @@
 'use client'
 import { ChatHeader, InputMessage, ListMessage } from '@/features/messages'
+import PinMessages from '@/features/messages/components/pin-messages'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 
@@ -19,6 +20,7 @@ function RouteComponent() {
         type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}
         username={conversation?.username}
       />
+      <PinMessages />
       {/* @ts-ignore */}
       <ListMessage conversation={conversation} account={account} />
       {/* Input chat - luôn dính bottom */}

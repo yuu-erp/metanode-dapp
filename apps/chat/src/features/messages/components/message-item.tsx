@@ -45,12 +45,12 @@ function MessageItem({ message, isMine }: MessageItemProps) {
   }
 
   return (
-    <div className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-4`}>
+    <div className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}>
       <div
         className={cn(
-          'max-w-[90%] min-w-[100px] rounded-2xl px-4 pt-2 pb-6 relative',
+          'max-w-[90%] min-w-[100px] rounded-2xl px-3 pt-2 pb-5 relative',
           isMine
-            ? 'bg-blue-600 text-white rounded-br-none'
+            ? 'bg-blue-600 text-white rounded-br-xs'
             : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-none',
           isFailed && 'bg-red-50 text-red-700 border border-red-300'
         )}

@@ -6,7 +6,10 @@ export function detectNameFromWalletName(walletName?: string): {
     return { firstName: 'User', lastName: '' }
   }
 
-  const cleaned = walletName.replace(/[^a-zA-Z\s_-]/g, ' ').trim()
+  const cleaned = walletName
+    .normalize('NFC')
+    .replace(/[^\p{L}\s_-]/gu, ' ')
+    .trim()
 
   const parts = cleaned.split(/[\s_-]+/).filter(Boolean)
 

@@ -10,9 +10,10 @@ function NavbarMenu() {
   return (
     <React.Fragment>
       <div
-        className="h-[84px] fixed bottom-5 left-5 right-5 bg-black/20 border-app rounded-full"
+        className="h-[84px] fixed left-5 bottom-5 right-5 bg-black/20 border-app rounded-full"
         style={{
           boxShadow: '4px -4px 16px 0px #FFFFFF2E inset, 0px -2px 16px 0px #FFFFFF85 inset'
+          // bottom: 'env(safe-area-inset-bottom, 12px)'
         }}
       >
         <div className="h-full w-full flex items-center justify-around px-3">

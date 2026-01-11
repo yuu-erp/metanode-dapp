@@ -121,9 +121,6 @@ importers:
       tailwindcss:
         specifier: ^4.0.6
         version: 4.1.18
-      unique-names-generator:
-        specifier: ^4.7.1
-        version: 4.7.1
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -5654,13 +5651,6 @@ packages:
       }
     engines: { node: '>=18' }
 
-  unique-names-generator@4.7.1:
-    resolution:
-      {
-        integrity: sha512-lMx9dX+KRmG8sq6gulYYpKWZc9RlGsgBR6aoO8Qsm3qvkSJ+3rAymr+TnV8EDMrIrwuFJ4kruzMWM/OpYzPoow==
-      }
-    engines: { node: '>=8' }
-
   unplugin@2.3.11:
     resolution:
       {
@@ -9358,8 +9348,6 @@ snapshots:
   undici-types@6.21.0: {}
 
   unicorn-magic@0.1.0: {}
-
-  unique-names-generator@4.7.1: {}
 
   unplugin@2.3.11:
     dependencies:

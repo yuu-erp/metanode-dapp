@@ -1,22 +1,33 @@
-import { uniqueNamesGenerator, adjectives, animals } from 'unique-names-generator'
+function generateRandomAlphanumeric(length = 7) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+
+  return result
+}
 
 function normalizeWalletName(name: string) {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '')
-    .slice(0, 10)
+  return (
+    name
+      .toLowerCase()
+      // bỏ dấu tiếng Việt
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      // chỉ giữ a-z0-9
+      .replace(/[^a-z0-9]/g, '')
+      .slice(0, 10)
+  )
 }
 
 export function generateUsernameFromWalletName(walletName: string) {
   const base = normalizeWalletName(walletName) || 'user'
 
-  const randomPart = uniqueNamesGenerator({
-    dictionaries: [adjectives, animals],
-    separator: '',
-    length: 2
-  })
+  const randomPart = generateRandomAlphanumeric(7)
 
-  return `${base}_${randomPart}`.toLowerCase()
+  return `${base}_${randomPart}`
 }
 
 const MAX_USERNAME_ATTEMPTS = 5
