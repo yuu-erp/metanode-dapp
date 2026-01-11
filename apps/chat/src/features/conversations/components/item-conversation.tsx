@@ -52,12 +52,18 @@ function ItemConversation({
       className={cn(
         'w-full flex items-center min-h-[56px] h-full',
         'transition-all duration-300 ease-out',
-        isLongPressActive && 'scale-94',
+        isLongPressActive && 'bg-black/40',
         className
       )}
       {...props}
     >
-      <div className="flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full">
+      <div
+        className={cn(
+          'flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full',
+          'transition-all duration-300 ease-out',
+          isLongPressActive && 'scale-95'
+        )}
+      >
         <AvatarUser name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="w-full flex items-center justify-between gap-3">
