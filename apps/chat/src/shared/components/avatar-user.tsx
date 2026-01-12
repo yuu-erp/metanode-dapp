@@ -18,6 +18,7 @@ function AvatarUser({ name, url, type, className, ...props }: AvatarUserProps) {
         <AvatarFallback
           className="rounded-full text-white text-2xl font-bold"
           style={{
+            fontSize: 'clamp(18px, 42%, 26px)',
             background:
               type === 'PRIVATE'
                 ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'

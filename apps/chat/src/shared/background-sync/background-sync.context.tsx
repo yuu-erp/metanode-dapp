@@ -114,6 +114,7 @@ export function BackgroundSyncProvider({ children }: { children: React.ReactNode
 
     const execute = async (isRetry = false) => {
       // ❌ offline → không chạy, giữ connecting
+      console.log('onlineRef.current', onlineRef.current)
       if (!onlineRef.current) {
         setTaskStatus(task.id, 'connecting')
         return
@@ -128,8 +129,7 @@ export function BackgroundSyncProvider({ children }: { children: React.ReactNode
         stopTask(task.id)
         return
       }
-
-      setTaskStatus(task.id, currentRuns === 0 ? 'connecting' : 'updating')
+      setTaskStatus(task.id, 'updating')
 
       if (!isRetry) {
         runCounts.current.set(task.id, currentRuns + 1)

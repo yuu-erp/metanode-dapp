@@ -25,7 +25,8 @@ export const SHARED_QUERY_KEY = {
 export const ACCOUNT_QUERY_KEY = {
   GET_CURRENT_ACCOUNT: ['getCurrentAccount'] as const,
   CHECK_USER_CONTRACT: (address: string) => ['checkUserContract', address] as const,
-  LOAD_ACCOUNTS: ['loadAccounts'] as const
+  LOAD_ACCOUNTS: ['loadAccounts'] as const,
+  USER_PROFILE: (conversationId: string) => ['userProfile', conversationId]
 }
 
 export const CONVERSATION_QUERY_KEY = {

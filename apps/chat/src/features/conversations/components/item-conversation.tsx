@@ -41,9 +41,7 @@ function ItemConversation({
     },
     onLongPressEnd: () => {
       sendCommand('vibrate')
-      // Thêm logic focus/select ở đây nếu cần
     }
-    // KHÔNG cần onClick ở đây nữa
   })
 
   return (
@@ -67,7 +65,9 @@ function ItemConversation({
         <AvatarUser name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="w-full flex items-center justify-between gap-3">
-            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">{t(name)}</div>
+            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">
+              {type === 'PRIVATE' ? t(name) : name}
+            </div>
             <div className="flex items-center gap-1">
               {lastMessageStatus === 'sending' && <ClockIcon className="size-4" />}
               {lastMessageStatus === 'sent' && <Check className="text-gray-500 size-4" />}

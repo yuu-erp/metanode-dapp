@@ -44,7 +44,6 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
-    console.log('[CONVERSATION SERVICE] - INDEXS', inboxs)
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
         const [conversationPublicKey, userProfile] = await Promise.all([
@@ -106,6 +105,10 @@ export class ConversationService {
   ): Promise<Conversation | undefined> {
     const conversationLocal = await this.repository.getById(accountId, conversationId)
     if (conversationLocal) return conversationLocal
+    console.log('getConversationById', {
+      from: accountId,
+      to: conversationId
+    })
     const userProfile = await this.userContract.userProfile({
       from: accountId,
       to: conversationId

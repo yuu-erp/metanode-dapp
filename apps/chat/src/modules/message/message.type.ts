@@ -14,6 +14,17 @@ export interface BaseMessage {
   isEdited?: boolean
   isDeleted?: boolean
   status?: 'sent' | 'delivered' | 'read' | 'failed'
+  // ── Các trường liên quan đến REPLY ──
+  replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
+}
+
+// Optional: Tách riêng phần reference để dễ quản lý & tiết kiệm băng thông
+export interface ReplyReference {
+  messageId: string // bắt buộc - id của tin nhắn gốc
+  sender: string // wallet address hoặc ENS
+  type: MessageType // 'text' | 'sticker' - loại của tin nhắn gốc
+  textPreview?: string // chỉ có khi type === 'text' → 60–120 ký tự đầu, hoặc toàn bộ nếu ngắn
+  stickerPreview?: string // chỉ có khi type === 'sticker' → chính là stickerId, hoặc tên mô tả "cat-cry-03"
 }
 
 // Text message

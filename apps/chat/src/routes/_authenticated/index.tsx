@@ -1,7 +1,10 @@
 'use client'
-import { SearchConversation, ConversationList } from '@/features/conversations'
+import {
+  ConversationList,
+  DrawerNewConversation,
+  SearchConversation
+} from '@/features/conversations'
 import AccountActivationNotice from '@/shared/components/account-activation-notice'
-import { EditIcon } from '@/shared/components/icons'
 import StatusSync from '@/shared/components/status-sync'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
@@ -21,9 +24,7 @@ function RouteComponent() {
         <div className="flex items-center justify-between gap-3 relative">
           <h1 className="text-xl font-bold">Chats</h1>
           <StatusSync className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
-          <button>
-            <EditIcon className="size-7" />
-          </button>
+          <DrawerNewConversation />
         </div>
         {/* Search nằm trong header nhưng controlled từ Route */}
         <SearchConversation

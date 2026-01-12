@@ -2,17 +2,45 @@
 
 import type { Message } from '@/modules/message'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
-import { Check, CheckCheck, AlertTriangle, Clock } from 'lucide-react'
-import * as React from 'react'
+import { useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
+import { sendCommand } from '@metanodejs/system-core'
+import { motion, type HTMLMotionProps } from 'framer-motion'
+import { AlertTriangle, Check, CheckCheck, Clock } from 'lucide-react'
+import * as React from 'react'
+import ReplyMessage from './reply-message'
 
-interface MessageItemProps {
-  message: Message
+interface MessageItemProps<T> extends Omit<HTMLMotionProps<'div'>, 'children'> {
+  message: T
   isMine?: boolean
+  onSelectMessage?: (message: T) => void
+  layoutId?: string
 }
 
-function MessageItem({ message, isMine }: MessageItemProps) {
-  const isFailed = isMine && message.status === 'failed'
+function MessageItem({
+  message,
+  isMine,
+  onSelectMessage,
+  layoutId,
+  ...props
+}: MessageItemProps<Message>) {
+  const { handlers, isLongPressActive } = useLongPress({
+    threshold: 300,
+    shouldPreventDefault: true,
+    movementThreshold: 12,
+    onLongPressStart: () => {
+      console.log('Long press start')
+    },
+    onLongPressEnd: () => {
+      onSelectMessage?.(message)
+      sendCommand('vibrate')
+    }
+  })
+
+  const isFailed = React.useMemo(
+    () => isMine && message.status === 'failed',
+    [isMine, message.status]
+  )
 
   const renderContent = () => {
     switch (message.type) {
@@ -45,31 +73,41 @@ function MessageItem({ message, isMine }: MessageItemProps) {
   }
 
   return (
-    <div className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}>
+    <motion.div
+      layoutId={layoutId}
+      {...handlers}
+      className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}
+      {...props}
+    >
       <div
         className={cn(
-          'max-w-[90%] min-w-[100px] rounded-2xl px-3 pt-2 pb-5 relative',
+          'max-w-[90%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',
+          'transition-all duration-300 ease-out',
+          isLongPressActive && 'scale-90',
           isMine
             ? 'bg-blue-600 text-white rounded-br-xs'
             : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-none',
           isFailed && 'bg-red-50 text-red-700 border border-red-300'
         )}
       >
+        {message.replyTo && <ReplyMessage isMine={isMine} {...message.replyTo} />}
         <div className="text-base">{renderContent()}</div>
-
         {/* Failed label */}
-        <div
-          className={cn(
-            'text-[11px] flex items-center gap-1 absolute bottom-1 right-3',
-            isMine ? 'text-blue-200' : 'text-gray-500',
-            isFailed && 'text-red-500'
-          )}
-        >
-          <span>{formatMessageTime(message.timestamp)}</span>
-          {renderStatusIcon()}
+        <div className="w-full flex items-end justify-between gap-3">
+          <div className="flex items-center gap-1">{/* <ReactionMessage /> */}</div>
+          <div
+            className={cn(
+              'text-[11px] flex items-end gap-1',
+              isMine ? 'text-blue-200' : 'text-gray-500',
+              isFailed && 'text-red-500'
+            )}
+          >
+            <span>{formatMessageTime(message.timestamp)}</span>
+            {renderStatusIcon()}
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 

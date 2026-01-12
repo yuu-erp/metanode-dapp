@@ -7,6 +7,9 @@ import * as React from 'react'
 import { useEffect, useRef } from 'react'
 import { useInfiniteMessages } from '../hooks'
 import MessageItem from './message-item'
+import OverlayMessage from './overlay-message'
+import type { Message } from '@/modules/message'
+import { AnimatePresence } from 'framer-motion'
 
 interface ListMessageProps {
   conversation?: Conversation
@@ -23,10 +26,10 @@ function ListMessage({ conversation, account }: ListMessageProps) {
 
   // Ref để gắn vào phần tử trigger load more (khi scroll lên trên)
   const loadMoreRef = useRef<HTMLDivElement>(null)
-
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const [showScrollBottom, setShowScrollBottom] = React.useState(false)
+  const [messageSelect, setMessageSelect] = React.useState<Message | null>(null)
 
   const scrollToBottom = React.useCallback(() => {
     scrollRef.current?.scrollTo({
@@ -34,6 +37,11 @@ function ListMessage({ conversation, account }: ListMessageProps) {
       behavior: 'smooth'
     })
   }, [])
+
+  const handleSelectMessage = React.useCallback(
+    (message: Message | null) => setMessageSelect(message),
+    []
+  )
   // IntersectionObserver để detect khi người dùng scroll gần đầu danh sách
   useEffect(() => {
     if (!loadMoreRef.current) return
@@ -86,6 +94,8 @@ function ListMessage({ conversation, account }: ListMessageProps) {
     )
   }
 
+  console.log('[LIST MESSAGE COMPONENT] - MESSAGES ------ ', messages)
+
   return (
     <div
       ref={scrollRef}
@@ -99,6 +109,8 @@ function ListMessage({ conversation, account }: ListMessageProps) {
           key={message.id ?? message.clientId}
           message={message}
           isMine={message.sender === account.contractAddress}
+          onSelectMessage={handleSelectMessage}
+          layoutId={`message-${message.id ?? message.clientId}`}
         />
       ))}
       {/* Button scroll to bottom */}
@@ -107,7 +119,7 @@ function ListMessage({ conversation, account }: ListMessageProps) {
           className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl fixed right-2 bottom-24 z-10"
           style={{
             boxShadow: `2px 2px 6px 0px #0000004D inset`,
-            bottom: 'calc(var(--chat-input-height, 96px) + 12px)'
+            bottom: 'calc(var(--chat-input-height, 96px) + 5px)'
           }}
           onClick={scrollToBottom}
         >
@@ -140,6 +152,15 @@ function ListMessage({ conversation, account }: ListMessageProps) {
           </p>
         </div>
       )}
+      <AnimatePresence>
+        {messageSelect && (
+          <OverlayMessage
+            message={messageSelect}
+            isMine={messageSelect.sender === account.contractAddress}
+            onClose={() => handleSelectMessage(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

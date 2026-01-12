@@ -1,43 +1,48 @@
-import type { Message, MessageType, StickerMessage, TextMessage } from './message.type'
+import type {
+  BaseMessage,
+  Message,
+  MessageType,
+  ReplyReference,
+  StickerMessage,
+  TextMessage
+} from './message.type'
 
 /**
  * Mapper từ raw data (từ contract, XMTP, hoặc API) sang Message chuẩn
  */
 export function mapperToMessage(raw: any): Message {
-  const base = {
+  if (!raw || typeof raw !== 'object') {
+    throw new Error('Invalid raw message data')
+  }
+
+  const type: MessageType = raw.type === 'sticker' ? 'sticker' : 'text'
+
+  const base: Omit<BaseMessage, 'type'> = {
     id: raw.messageId ?? raw.id ?? String(raw.timestamp ?? Date.now()),
-
-    /**
-     * 🔑 clientId dùng cho optimistic message
-     * - Ưu tiên raw.clientId
-     * - Không tự sinh mới ở mapper (để tránh overwrite)
-     */
     clientId: raw.clientId,
-
     accountId: raw.accountId ?? raw.from ?? '',
     sender: raw.sender ?? raw.from ?? '',
     recipient: raw.recipient ?? raw.to ?? '',
     timestamp: Number(raw.timestamp ?? Date.now()),
-    conversationId: raw.conversationId ?? raw.topic ?? undefined,
+    conversationId: raw.conversationId ?? raw.topic ?? '',
     isEdited: Boolean(raw.isEdited ?? raw.editedAt),
     isDeleted: Boolean(raw.isDeleted ?? false),
-    status: mapStatus(raw.status ?? raw.isRead)
+    status: mapStatus(raw.status ?? raw.isRead),
+    replyTo: raw.replyTo // 🔑 đọc trực tiếp từ on-chain / API
   }
-
-  const type: MessageType = raw.type === 'sticker' ? 'sticker' : 'text'
 
   if (type === 'sticker') {
     return {
       ...base,
       type: 'sticker',
-      stickerId: raw.stickerId ?? raw.content ?? raw.text ?? 'unknown-sticker'
+      stickerId: String(raw.value ?? raw.stickerId ?? 'unknown-sticker')
     } satisfies StickerMessage
   }
 
   return {
     ...base,
     type: 'text',
-    content: raw.content ?? raw.text ?? raw.value ?? ''
+    content: String(raw.value ?? raw.text ?? '[Tin nhắn không hổ trợ]')
   } satisfies TextMessage
 }
 
@@ -63,29 +68,46 @@ export type OnChainMessagePayload =
   | {
       type: 'text'
       value: string
+      replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
     }
   | {
       type: 'sticker'
       value: string
+      replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
     }
 
 export function mapperMessageToOnChain(message: Message): OnChainMessagePayload {
-  switch (message.type) {
-    case 'text':
-      return {
-        type: 'text',
-        value: message.content
-      }
+  const payload: OnChainMessagePayload = {
+    type: message.type,
+    value: message.type === 'text' ? message.content.trim() : message.stickerId
+  }
 
-    case 'sticker':
-      return {
-        type: 'sticker',
-        value: message.stickerId
-      }
+  if (message.replyTo) {
+    payload.replyTo = message.replyTo
+  }
 
-    default: {
-      const _exhaustive: never = message
-      throw new Error('Unsupported message type')
+  return payload
+}
+
+export function messageToReplyReference(message: Message): ReplyReference {
+  const ref: ReplyReference = {
+    messageId: message.id!,
+    sender: message.sender,
+    type: message.type
+  }
+
+  if (message.type === 'text') {
+    const preview = message.content.trim()
+    if (preview) {
+      ref.textPreview = preview.slice(0, 120)
     }
   }
+
+  if (message.type === 'sticker') {
+    if (message.stickerId) {
+      ref.stickerPreview = message.stickerId
+    }
+  }
+
+  return ref
 }

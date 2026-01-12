@@ -5,6 +5,9 @@ import { StickerIcon } from '@/shared/components/icons'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { useSendMessage } from '../hooks'
+import { ReplyInputMessage } from './input-message-actions'
+import { useMessageAction } from '../contexts'
+import { messageToReplyReference } from '@/modules/message'
 
 interface InputMessageProps extends React.HTMLAttributes<HTMLDivElement> {
   conversation?: Conversation
@@ -13,6 +16,7 @@ interface InputMessageProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
   ({ account, conversation, ...props }, ref) => {
+    const { messageAction, setMessageAction } = useMessageAction()
     const [message, setMessage] = React.useState('')
     const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
     const containerRef = React.useRef<HTMLDivElement | null>(null)
@@ -52,17 +56,22 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
       const content = message.trim()
       if (!content || isPending) return
 
+      const replyTo =
+        messageAction?.type === 'REPLY' ? messageToReplyReference(messageAction.message) : undefined
+
       mutate({
         account,
         conversation,
         payload: {
           type: 'text',
-          content
+          content,
+          replyTo // 🔑 GỬI REPLY REFERENCE
         }
       })
 
       setMessage('')
-    }, [account, conversation, message, isPending, mutate])
+      setMessageAction(null) // 🔑 clear reply / edit state
+    }, [account, conversation, message, isPending, mutate, messageAction, setMessageAction])
 
     return (
       <div
@@ -87,38 +96,47 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
               />
 
               {/* CONTENT LAYER – SCROLL Ở ĐÂY */}
-              <div className="relative h-full py-2 px-1 flex items-end">
-                <div className="no-scrollbar min-h-8 max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
-                  <textarea
-                    ref={textareaRef}
-                    rows={1}
-                    placeholder="Tin nhắn"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSendText()
-                      }
-                    }}
-                    className="w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-white/60 text-white"
+              <div className="relative h-full py-2 px-1 flex flex-col gap-1">
+                {messageAction && (
+                  <ReplyInputMessage
+                    messageAction={messageAction}
+                    onClose={() => setMessageAction(null)}
                   />
-                </div>
+                )}
 
-                <div className="h-8 flex items-center gap-1">
-                  <button>
-                    <StickerIcon className="text-white/80" />
-                  </button>
+                <div className="w-full h-full flex items-end">
+                  <div className="no-scrollbar min-h-8 max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
+                    <textarea
+                      ref={textareaRef}
+                      rows={1}
+                      placeholder="Tin nhắn"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          handleSendText()
+                        }
+                      }}
+                      className="w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-white/60 text-white"
+                    />
+                  </div>
 
-                  {message.trim() && (
-                    <button
-                      disabled={isPending}
-                      onClick={handleSendText}
-                      className="h-10 w-12 bg-blue-500 rounded-full flex items-center justify-center disabled:opacity-50"
-                    >
-                      <Send className="text-white size-5" />
+                  <div className="h-8 flex items-center gap-1">
+                    <button>
+                      <StickerIcon className="text-white/80" />
                     </button>
-                  )}
+
+                    {message.trim() && (
+                      <button
+                        disabled={isPending}
+                        onClick={handleSendText}
+                        className="h-10 w-12 bg-blue-500 rounded-full flex items-center justify-center disabled:opacity-50"
+                      >
+                        <Send className="text-white size-5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

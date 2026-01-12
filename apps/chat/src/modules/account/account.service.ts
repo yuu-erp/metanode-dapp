@@ -99,4 +99,11 @@ export class AccountService {
       inputData: { user: address }
     })
   }
+
+  async useProfile(address: string, conversationId: string) {
+    return await this.userContract.userProfile({
+      from: address,
+      to: conversationId
+    })
+  }
 }

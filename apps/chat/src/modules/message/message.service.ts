@@ -32,17 +32,19 @@ export class MessageService {
         page
       }
     })
-    console.log('[MESSAGE SERVICE] - rawMessages', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map(async (item) => {
         try {
+          const publicKeyDecrypted =
+            item.sender === conversation.conversationId ? conversation.publicKey : account.publicKey
           const messageDescrypt = await this.walletService.decryptMessage<any>(
-            conversation.publicKey,
+            publicKeyDecrypted,
             account.address,
             item.finalContent
           )
           return mapperToMessage({
             accountId: account.address,
+            conversationId: conversation.conversationId,
             ...item,
             ...messageDescrypt
           })
@@ -63,7 +65,9 @@ export class MessageService {
   async sendMessage(
     account: Account,
     conversation: Conversation,
-    payload: { type: 'text'; content: string } | { type: 'sticker'; stickerId: string }
+    payload:
+      | { type: 'text'; content: string; replyTo?: Message['replyTo'] }
+      | { type: 'sticker'; stickerId: string; replyTo?: Message['replyTo'] }
   ): Promise<string> {
     const clientId = uuidv4()
 
@@ -74,17 +78,24 @@ export class MessageService {
         conversationId: conversation.conversationId,
         sender: account.contractAddress,
         recipient: conversation.conversationId,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        replyTo: payload.replyTo // 🔑 gắn reply
       },
       payload
     )
+
+    // optimistic update
     this.eventBus.emit('message.create', { message: optimisticMessage })
+
+    // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
     const stringifyMessage = JSON.stringify(messageOnChain)
+
     const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
       this.walletService.encryptMessage(conversation.publicKey, account.address, stringifyMessage),
       this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
     ])
+
     try {
       const result = await this.userContract.sendMessage({
         from: account.address,
@@ -95,12 +106,14 @@ export class MessageService {
           _encryptedContentForRecipient: encryptedForRecipient
         }
       })
+
       this.eventBus.emit('message.sent', {
         accountId: account.address,
         conversationId: conversation.conversationId,
         clientId,
         messageId: result.messageId
       })
+
       return result.messageId
     } catch (error) {
       this.eventBus.emit('message.status', {

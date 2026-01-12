@@ -148,6 +148,15 @@
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
   }
+
+  #app {
+    transition: border-radius 1.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  body[data-scroll-locked='1'] [vaul-drawer-wrapper]#app {
+    border-radius: 48px !important;
+  }
+
   header {
     transition:
       background-color 0.3s ease,
@@ -206,7 +215,7 @@
     background-image: linear-gradient(
       to bottom,
       transparent 10%,
-      rgba(0, 0, 0, 0.4),
+      rgba(0, 0, 0, 0.2),
       rgba(0, 0, 0, 0.8)
     );
   }

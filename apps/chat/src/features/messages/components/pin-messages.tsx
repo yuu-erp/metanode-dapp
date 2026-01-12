@@ -18,7 +18,7 @@ function PinMessages() {
           <div className="text-base font-bold flex-1 line-clamp-1 break-all">
             {t('pinnedMessage')}
           </div>
-          <div className="flex-1 text-sm font-medium break-all text-black/60 line-clamp-1">
+          <div className="flex-1 text-sm font-medium break-all text-black/60 line-clamp-1 break-all">
             We sent an AI agent to read the entire internet. Every release, every hot take, and
             every unreadable blog post from the past week. It's now standing by to build a
             presidential brief just for you. It barely survived. You (hopefully) will.
