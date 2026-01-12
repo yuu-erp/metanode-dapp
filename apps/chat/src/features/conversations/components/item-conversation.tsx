@@ -62,7 +62,7 @@ function ItemConversation({
           isLongPressActive && 'scale-95'
         )}
       >
-        <AvatarUser name={name} type={type} />
+        <AvatarUser size="lg" name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="w-full flex items-center justify-between gap-3">
             <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">

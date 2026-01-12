@@ -24,7 +24,7 @@ function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
             <TotalUnreadcount variant="secondary" />
           </button>
           <div className="flex flex-1 items-center gap-2 text-left text-sm h-full">
-            <AvatarUser url="" name={name} type={type} className="size-12" />
+            <AvatarUser size="md" url="" name={name} type={type} />
             <div className="grid flex-1 text-left text-sm leading-tight h-full">
               <div className="text-base font-bold flex-1 line-clamp-1 break-all">{name}</div>
               {username && (
