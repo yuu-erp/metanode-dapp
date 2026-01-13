@@ -10,7 +10,7 @@ function AccountActivationNotice() {
   const { data: isActive, isLoading } = useCheckUserContract(currentAccount?.address)
   if (isLoading) return null
   if (typeof isActive === 'undefined') return null
-  if (typeof isActive === 'boolean' && !isActive) return null
+  if (typeof isActive === 'boolean' && isActive) return null
   return (
     <div className="w-full pt-3">
       <div className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">

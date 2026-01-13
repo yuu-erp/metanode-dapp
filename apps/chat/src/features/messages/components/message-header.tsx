@@ -3,6 +3,7 @@ import AvatarUser from '@/shared/components/avatar-user'
 import { PhoneIcon, VideoIcon } from '@/shared/components/icons'
 import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
+import { useI18N } from '@/shared/hooks'
 import { useRouter } from '@tanstack/react-router'
 import { ChevronLeft } from 'lucide-react'
 import * as React from 'react'
@@ -14,6 +15,7 @@ interface ChatHeaderProps {
   type?: 'USER' | 'PRIVATE' | 'GROUP'
 }
 function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
+  const { t } = useI18N()
   const router = useRouter()
   return (
     <React.Fragment>
@@ -26,7 +28,9 @@ function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
           <div className="flex flex-1 items-center gap-2 text-left text-sm h-full">
             <AvatarUser size="md" url="" name={name} type={type} />
             <div className="grid flex-1 text-left text-sm leading-tight h-full">
-              <div className="text-base font-bold flex-1 line-clamp-1 break-all">{name}</div>
+              <div className="text-base font-bold flex-1 line-clamp-1 break-all">
+                {type === 'PRIVATE' ? t(name) : name}
+              </div>
               {username && (
                 <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">
                   @{username}

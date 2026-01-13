@@ -38,13 +38,13 @@ importers:
   apps/chat:
     dependencies:
       '@metanodejs/event-log':
-        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/event-log
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/event-log
         version: link:../../../metanode-packages/packages/event-log
       '@metanodejs/mtn-contract':
-        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/mtn-contract
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/mtn-contract
         version: link:../../../metanode-packages/packages/mtn-contract
       '@metanodejs/system-core':
-        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/system-core
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core
         version: link:../../../metanode-packages/packages/system-core
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
@@ -115,6 +115,9 @@ importers:
       react-i18next:
         specifier: ^16.5.0
         version: 16.5.1(i18next@25.7.4(typescript@5.9.2))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.2)
+      react-qrcode-logo:
+        specifier: ^4.0.0
+        version: 4.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -4972,6 +4975,12 @@ packages:
       }
     engines: { node: '>=6' }
 
+  qrcode-generator@2.0.4:
+    resolution:
+      {
+        integrity: sha512-mZSiP6RnbHl4xL2Ap5HfkjLnmxfKcPWpWe/c+5XxCuetEenqmNFf1FH/ftXPCtFG5/TDobjsjz6sSNL0Sr8Z9g==
+      }
+
   react-dom@19.2.3:
     resolution:
       {
@@ -5013,6 +5022,15 @@ packages:
       {
         integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
       }
+
+  react-qrcode-logo@4.0.0:
+    resolution:
+      {
+        integrity: sha512-TcDdsJQe7P0OY7uA7Do4Z0DfIIjjqx81RbBGQY+90T2Ba42pUCx/cSI2UTwPPoH9WwE0StLb8A98mFgKIAI4JQ==
+      }
+    peerDependencies:
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
 
   react-refresh@0.18.0:
     resolution:
@@ -9130,6 +9148,8 @@ snapshots:
 
   punycode@2.3.1: {}
 
+  qrcode-generator@2.0.4: {}
+
   react-dom@19.2.3(react@19.2.3):
     dependencies:
       react: 19.2.3
@@ -9151,6 +9171,12 @@ snapshots:
       typescript: 5.9.2
 
   react-is@17.0.2: {}
+
+  react-qrcode-logo@4.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      qrcode-generator: 2.0.4
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   react-refresh@0.18.0: {}
 

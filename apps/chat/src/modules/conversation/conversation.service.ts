@@ -153,12 +153,12 @@ export class ConversationService {
       account.address,
       encryptedContent
     )
-
+    console.log('[CONVERSATION SERVICE] - updateConversation - decryptMessage: ', decryptMessage)
     await this.repository.upsert({
       ...current,
-      unreadCount: (current.unreadCount ?? 0) + 1,
+      unreadCount: account.contractAddress === conversationId ? 0 : (current.unreadCount ?? 0) + 1,
       // @ts-ignore
-      latestMessageContent: decryptMessage.text,
+      latestMessageContent: decryptMessage.value ?? decryptMessage.content ?? decryptMessage.value,
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
     })
   }

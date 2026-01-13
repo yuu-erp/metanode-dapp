@@ -35,10 +35,14 @@ export class MessageService {
     const messages = await fulfilledPromises(
       rawMessages.map(async (item) => {
         try {
-          const publicKeyDecrypted =
-            item.sender === conversation.conversationId ? conversation.publicKey : account.publicKey
-          const messageDescrypt = await this.walletService.decryptMessage<any>(
-            publicKeyDecrypted,
+          const isIncoming = item.sender === conversation.conversationId
+
+          const decryptWithPublicKey = isIncoming
+            ? conversation.publicKey // 🔑 public key của người gửi
+            : account.publicKey // 🔑 public key của chính mình
+
+          const messageDecrypt = await this.walletService.decryptMessage<any>(
+            decryptWithPublicKey,
             account.address,
             item.finalContent
           )
@@ -46,7 +50,7 @@ export class MessageService {
             accountId: account.address,
             conversationId: conversation.conversationId,
             ...item,
-            ...messageDescrypt
+            ...messageDecrypt
           })
         } catch (error) {
           console.error(error)
@@ -96,6 +100,13 @@ export class MessageService {
       this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
     ])
 
+    console.log('[MESSAGE SERVICE] - DEBUG SEND MESSAGE:', {
+      encryptedForRecipient,
+      encryptedForSelf,
+      account,
+      conversation
+    })
+
     try {
       const result = await this.userContract.sendMessage({
         from: account.address,
@@ -111,7 +122,8 @@ export class MessageService {
         accountId: account.address,
         conversationId: conversation.conversationId,
         clientId,
-        messageId: result.messageId
+        messageId: result.messageId,
+        encryptContent: encryptedForRecipient
       })
 
       return result.messageId

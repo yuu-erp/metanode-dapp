@@ -2,7 +2,7 @@
 import { container } from '@/container'
 import type { Message, MessageStatus } from '@/modules/message'
 import { useCurrentAccount } from '@/shared/hooks'
-import { MESSAGE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
+import { CONVERSATION_QUERY_KEY, MESSAGE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import type { AppEvents } from '@/types/app-events'
 import type { InfiniteData } from '@tanstack/react-query'
 import * as React from 'react'
@@ -64,12 +64,23 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     })
   }, [])
 
-  const onMessageSent = React.useCallback((event: AppEvents['message.sent']) => {
+  const onMessageSent = React.useCallback(async (event: AppEvents['message.sent']) => {
+    console.log('[EVENT BUS] - ON MESSAGE SENT', event)
+    if (!account) return
     updateMessageInInfiniteCache(event.accountId, event.conversationId, event.clientId, (msg) => ({
       ...msg,
       messageId: event.messageId,
       status: 'delivered' as MessageStatus
     }))
+    const conversationService = container.conversationService
+    await conversationService.updateConversation(
+      account,
+      event.conversationId,
+      event.encryptContent
+    )
+    queryClient.invalidateQueries({
+      queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
+    })
   }, [])
 
   const onMessageStatus = React.useCallback((event: AppEvents['message.status']) => {

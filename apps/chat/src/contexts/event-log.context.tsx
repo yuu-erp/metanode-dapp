@@ -18,6 +18,8 @@ export function EventLogProvider({ children }: EventLogProviderProps) {
     const eventLog = container.eventLogContainer.eventLog
     eventLog.registerEvent(currentAccount.address, [currentAccount.contractAddress])
     const unsubscribe = eventLog.on('MessageReceived', async (data) => {
+      console.log('[EVENT LOG] - MessageReceived: ', data)
+      if (data.sender === currentAccount.contractAddress) return
       const conversationService = container.conversationService
       await conversationService.updateConversation(
         currentAccount,

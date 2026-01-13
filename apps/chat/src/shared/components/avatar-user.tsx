@@ -44,7 +44,7 @@ const bookmarkIconVariants = cva('text-white', {
   variants: {
     size: {
       sm: 'size-4',
-      md: 'size-5',
+      md: 'size-7',
       lg: 'size-8',
       xl: 'size-10',
       '2xl': 'size-12'

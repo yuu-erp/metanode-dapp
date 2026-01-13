@@ -19,7 +19,7 @@ function ReplyInputMessage({ messageAction, onClose }: ReplyInputMessageProps) {
   )
 
   return (
-    <div className="h-14 flex items-center gap-2 text-white p-2">
+    <div className="h-14 flex items-center gap-2 text-white px-2 py-1">
       <span className="h-full w-[3px] rounded-md bg-blue-500" />
 
       <div className="h-full flex-1 flex items-center gap-2">

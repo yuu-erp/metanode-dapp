@@ -25,7 +25,7 @@ function MessageItem({
   ...props
 }: MessageItemProps<Message>) {
   const { handlers, isLongPressActive } = useLongPress({
-    threshold: 300,
+    threshold: 250,
     shouldPreventDefault: true,
     movementThreshold: 12,
     onLongPressStart: () => {

@@ -13,6 +13,7 @@ export type AppEvents = {
     conversationId: string
     clientId: string
     messageId: string
+    encryptContent: string
   }
   'message.create': {
     message: Message
