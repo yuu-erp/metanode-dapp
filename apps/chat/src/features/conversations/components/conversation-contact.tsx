@@ -24,7 +24,7 @@ function ConversationContact({
         className={cn('flex flex-1 items-center gap-2 text-left text-sm h-full', className)}
         {...props}
       >
-        <AvatarUser size="md" url="" name={name} type={type} />
+        <AvatarUser size="lg" url="" name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="text-base font-bold flex-1 line-clamp-1 break-all">
             {type === 'PRIVATE' ? t(name) : name}

@@ -175,7 +175,7 @@ function DrawerNewConversation() {
                           })
                         }
                       />
-                      <div className="h-px bg-white/20 ml-14" />
+                      <div className="h-px bg-white/20 ml-18" />
                     </React.Fragment>
                   ))}
                 </div>
