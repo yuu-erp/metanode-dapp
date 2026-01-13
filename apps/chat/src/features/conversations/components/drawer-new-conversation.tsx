@@ -42,7 +42,7 @@ function DrawerNewConversation() {
               relative
               h-[90vh]
               rounded-t-[36px]
-              bg-white/40
+              bg-white/20
               backdrop-blur-xl
               border border-white/10
               shadow-[0_-20px_40px_rgba(0,0,0,0.8)]
@@ -126,7 +126,7 @@ function DrawerNewConversation() {
                     <span className="font-medium text-blue-500">New Group</span>
                   </button>
 
-                  <div className="h-px bg-black/10 ml-10" />
+                  <div className="h-px bg-white/20 ml-10" />
 
                   {/* New Contact */}
                   <button
@@ -141,7 +141,7 @@ function DrawerNewConversation() {
                     <span className="font-medium text-blue-500">New Contact</span>
                   </button>
 
-                  <div className="h-px bg-black/10 ml-10" />
+                  <div className="h-px bg-white/20 ml-10" />
 
                   {/* New Channel */}
                   <button
@@ -175,7 +175,7 @@ function DrawerNewConversation() {
                           })
                         }
                       />
-                      <div className="h-px bg-black/10 ml-14" />
+                      <div className="h-px bg-white/20 ml-14" />
                     </React.Fragment>
                   ))}
                 </div>
