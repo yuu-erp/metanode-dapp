@@ -7,8 +7,8 @@ import 'swiper/css/pagination'
 import { Swiper, SwiperSlide, type SwiperProps } from 'swiper/react'
 import { EffectCoverflow, Keyboard, Mousewheel } from 'swiper/modules'
 
-import type { Wallet } from '@/services/wallets'
 import CardWallet from './card-wallet'
+import type { Wallet } from '@/modules/wallet'
 
 interface WalletListSliderProps extends SwiperProps {
   wallets: Wallet[]
@@ -18,7 +18,7 @@ function ListWallet({ wallets, ...props }: WalletListSliderProps) {
   if (!wallets?.length) return null
 
   return (
-    <div className="relative w-full h-full flex flex-col items-stretch relative shrink-0 basis-auto">
+    <div className="relative w-full h-full flex flex-col items-stretch relative shrink-0 basis-auto md:hidden">
       <Swiper
         slidesPerView={1.2}
         spaceBetween={-50}
