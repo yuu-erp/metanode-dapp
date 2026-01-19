@@ -122,6 +122,11 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     [account]
   )
 
+  const onMessageReaction = React.useCallback(
+    (event: AppEvents['message:reaction']) => {},
+    [account]
+  )
+
   React.useEffect(() => {
     if (!account) return
     const eventBus = container.eventBus
@@ -129,13 +134,22 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     eventBus.on('message.sent', onMessageSent)
     eventBus.on('message.status', onMessageStatus)
     eventBus.on('message:received', onMessageReceived)
+    eventBus.on('message:reaction', onMessageReaction)
     return () => {
       eventBus.off('message.create', onMessageCreate)
       eventBus.off('message.sent', onMessageSent)
       eventBus.off('message.status', onMessageStatus)
       eventBus.off('message:received', onMessageReceived)
+      eventBus.off('message:reaction', onMessageReaction)
     }
-  }, [account, onMessageCreate, onMessageSent, onMessageStatus, onMessageReceived])
+  }, [
+    account,
+    onMessageCreate,
+    onMessageSent,
+    onMessageStatus,
+    onMessageReceived,
+    onMessageReaction
+  ])
   return (
     <EventBusSendMessageContext.Provider value={{}}>{children}</EventBusSendMessageContext.Provider>
   )

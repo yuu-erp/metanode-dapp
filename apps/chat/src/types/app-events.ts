@@ -19,4 +19,11 @@ export type AppEvents = {
     message: Message
   }
   'message:received': MessageReceived
+  'message:reaction': {
+    messageId: string
+    sender: string
+    recipient: string
+    reactor: string
+    reaction: string
+  }
 }

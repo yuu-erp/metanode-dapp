@@ -4,3 +4,4 @@ export { MessageDexieDB, DexieMessageRepository } from './infrastructure/indexed
 export { MessageService } from './message.service'
 
 export * from './message.mapper'
+export * from './utils'

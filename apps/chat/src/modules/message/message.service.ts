@@ -8,7 +8,7 @@ import type { Conversation } from '../conversation'
 import type { EventBusPort } from '../event'
 import type { WalletService } from '../wallet'
 import { createOptimisticMessage } from './message.entity'
-import { mapperMessageToOnChain, mapperToMessage, parseReactionSummary } from './message.mapper'
+import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
 
 export class MessageService {
@@ -33,7 +33,6 @@ export class MessageService {
         page
       }
     })
-    console.log('[MESSAGE SERVICE] ---- GET ALL MESSAGE --- RAW: ', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map(async (item) => {
         try {
@@ -48,12 +47,6 @@ export class MessageService {
             account.address,
             item.finalContent
           )
-          if (item.reactionSummary) {
-            console.log(
-              '[MESSAGE SERVICE] ---- GET ALL MESSAGE --- REACTIOS: ',
-              parseReactionSummary(item.reactionSummary)
-            )
-          }
           return mapperToMessage({
             accountId: account.address,
             conversationId: conversation.conversationId,

@@ -17,19 +17,27 @@ export function EventLogProvider({ children }: EventLogProviderProps) {
   React.useEffect(() => {
     if (!account) return
     const eventLog = container.eventLogContainer.eventLog
+    const eventBus = container.eventBus
     eventLog.registerEvent(account.address, [account.contractAddress])
-    const unsubscribe = eventLog.on('MessageReceived', async (data) => {
+    const unsubscribeMessageReceived = eventLog.on('MessageReceived', async (data) => {
       console.log('[EVENT LOG] - MessageReceived: ', data)
       if (data.sender === account.contractAddress) return
       const conversationService = container.conversationService
-      const eventBus = container.eventBus
       await conversationService.updateConversation(account, data.sender, data.encryptedContent)
       queryClient.invalidateQueries({
         queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
       })
       eventBus.emit('message:received', data)
     })
-    return () => unsubscribe()
+    const unsubscribePartnerMessageReacted = eventLog.on('PartnerMessageReacted', async (data) => {
+      console.log('[EVENT LOG] - PartnerMessageReacted: ', data)
+      if (data.sender === account.contractAddress) return
+      eventBus.emit('message:reaction', data)
+    })
+    return () => {
+      unsubscribeMessageReceived()
+      unsubscribePartnerMessageReacted()
+    }
   }, [account])
   return <EventLogContext.Provider value={{}}>{children}</EventLogContext.Provider>
 }

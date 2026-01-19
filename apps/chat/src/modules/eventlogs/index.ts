@@ -10,6 +10,13 @@ export type EventMap = {
     recipient: string
     sender: string
   }
+  PartnerMessageReacted: {
+    messageId: string
+    sender: string
+    recipient: string
+    reactor: string
+    reaction: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi
