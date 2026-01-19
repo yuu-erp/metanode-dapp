@@ -158,6 +158,8 @@ function ListMessage({ conversation, account }: ListMessageProps) {
             message={messageSelect}
             isMine={messageSelect.sender === account.contractAddress}
             onClose={() => handleSelectMessage(null)}
+            conversation={conversation}
+            account={account}
           />
         )}
       </AnimatePresence>

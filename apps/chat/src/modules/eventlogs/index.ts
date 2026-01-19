@@ -3,8 +3,12 @@ import abi from './abi.json'
 
 export type EventMap = {
   MessageReceived: {
-    sender: string
+    dataStoreAddress: string
     encryptedContent: string
+    messageId: string
+    messageNonce: string
+    recipient: string
+    sender: string
   }
 }
 export class EventLogContainer {

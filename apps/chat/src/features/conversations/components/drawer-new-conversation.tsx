@@ -42,10 +42,9 @@ function DrawerNewConversation() {
               relative
               h-[90vh]
               rounded-t-[36px]
-              bg-white/20
-              backdrop-blur-xl
+              bg-white/10
+              backdrop-blur-md
               border border-white/10
-              shadow-[0_-20px_40px_rgba(0,0,0,0.8)]
               flex flex-col
               overflow-hidden
             "

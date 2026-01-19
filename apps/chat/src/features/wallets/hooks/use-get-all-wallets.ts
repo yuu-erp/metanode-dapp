@@ -45,7 +45,7 @@ export function createGetAllWalletsQueryOptions(): UseQueryOptions<
   return {
     queryKey: SHARED_QUERY_KEY.GET_ALL_WALLETS,
     queryFn: async (): Promise<Wallet[]> => {
-      return mockWallets
+      // return mockWallets
       const walletService = container.walletService
       return await walletService.getAllWallets()
     }

@@ -4,6 +4,7 @@ import type {
   GetFullInboxOutput,
   GetProcessedP2PMessagesInput,
   GetProcessedP2PMessagesOutput,
+  ReactToMessageInput,
   SendMessageInput,
   SendMessageOutput,
   UserProfileOutput
@@ -71,6 +72,18 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'sendMessage',
       abiData: userAbi.sendMessage,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  reactToMessage(payload: TransactionPayload<ReactToMessageInput>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'reactToMessage',
+      abiData: userAbi.reactToMessage,
       inputData,
       feeType: 'sc'
     })

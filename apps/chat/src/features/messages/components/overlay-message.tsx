@@ -1,4 +1,6 @@
 'use client'
+import type { Account } from '@/modules/account'
+import type { Conversation } from '@/modules/conversation'
 import type { Message } from '@/modules/message'
 import {
   DropdownMenu,
@@ -9,14 +11,17 @@ import {
 import { motion } from 'framer-motion'
 import { SmilePlus } from 'lucide-react'
 import * as React from 'react'
+import { useCopyMessageAction, useMessageAction } from '../contexts'
+import { useReactToMessage } from '../hooks'
 import { CopyAction, DeleteAction, ForwardAction, ReplyAction } from './menu-context-actions'
 import MessageItem from './message-item'
-import { useCopyMessageAction, useMessageAction } from '../contexts'
 
 interface OverlayMessageProps {
   onClose: () => void
   message: Message
   isMine?: boolean
+  conversation?: Conversation
+  account?: Account
 }
 
 const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰'] // default Telegram
@@ -24,10 +29,14 @@ const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰'
 export default React.memo(function OverlayMessage({
   onClose,
   message,
-  isMine
+  isMine,
+  conversation,
+  account
 }: OverlayMessageProps) {
   const { setMessageAction } = useMessageAction()
   const { copyMessage } = useCopyMessageAction()
+
+  const { mutate } = useReactToMessage()
 
   const backdropRef = React.useRef<HTMLDivElement>(null)
 
@@ -43,10 +52,23 @@ export default React.memo(function OverlayMessage({
 
   const handleCloseAction = React.useCallback(() => onClose(), [])
 
-  const handleClickEmoji = React.useCallback((emoji: string) => {
-    console.log('HANDLE CLICK EMOJI ------', emoji)
-    onClose()
-  }, [])
+  const handleClickEmoji = React.useCallback(
+    (emoji: string) => {
+      console.log('HANDLE CLICK EMOJI ------', emoji)
+      if (!message || !message.id) return
+      if (!account || !conversation) return
+      mutate({
+        account,
+        conversation,
+        payload: {
+          messageId: message.id,
+          emoji
+        }
+      })
+      onClose()
+    },
+    [account, conversation, message]
+  )
 
   const handleReplyMessage = React.useCallback(() => {
     setMessageAction({

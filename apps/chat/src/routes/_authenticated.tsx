@@ -27,15 +27,15 @@ function RouteComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
-    <EventLogProvider>
-      <EventBusSendMessageProvider>
+    <EventBusSendMessageProvider>
+      <EventLogProvider>
         <BackgroundSyncProvider>
           <AppSessionProvider>
             <Outlet />
             {showNavbar && <NavbarMenu />}
           </AppSessionProvider>
         </BackgroundSyncProvider>
-      </EventBusSendMessageProvider>
-    </EventLogProvider>
+      </EventLogProvider>
+    </EventBusSendMessageProvider>
   )
 }

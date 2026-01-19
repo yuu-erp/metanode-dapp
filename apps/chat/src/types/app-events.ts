@@ -1,4 +1,4 @@
-import type { Message, MessageStatus } from '@/modules/message'
+import type { Message, MessageReceived, MessageStatus } from '@/modules/message'
 
 export type AppEvents = {
   'message.status': {
@@ -18,4 +18,5 @@ export type AppEvents = {
   'message.create': {
     message: Message
   }
+  'message:received': MessageReceived
 }

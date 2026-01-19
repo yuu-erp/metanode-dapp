@@ -12,26 +12,25 @@ const EventLogContext = createContext<EventLogState | undefined>(undefined)
 interface EventLogProviderProps extends React.PropsWithChildren {}
 
 export function EventLogProvider({ children }: EventLogProviderProps) {
-  const { data: currentAccount } = useCurrentAccount()
+  const { data: account } = useCurrentAccount()
+
   React.useEffect(() => {
-    if (!currentAccount) return
+    if (!account) return
     const eventLog = container.eventLogContainer.eventLog
-    eventLog.registerEvent(currentAccount.address, [currentAccount.contractAddress])
+    eventLog.registerEvent(account.address, [account.contractAddress])
     const unsubscribe = eventLog.on('MessageReceived', async (data) => {
       console.log('[EVENT LOG] - MessageReceived: ', data)
-      if (data.sender === currentAccount.contractAddress) return
+      if (data.sender === account.contractAddress) return
       const conversationService = container.conversationService
-      await conversationService.updateConversation(
-        currentAccount,
-        data.sender,
-        data.encryptedContent
-      )
+      const eventBus = container.eventBus
+      await conversationService.updateConversation(account, data.sender, data.encryptedContent)
       queryClient.invalidateQueries({
-        queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(currentAccount.address)
+        queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
       })
+      eventBus.emit('message:received', data)
     })
     return () => unsubscribe()
-  }, [currentAccount])
+  }, [account])
   return <EventLogContext.Provider value={{}}>{children}</EventLogContext.Provider>
 }
 

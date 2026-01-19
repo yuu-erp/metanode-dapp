@@ -1,11 +1,13 @@
 import type {
   BaseMessage,
   Message,
+  MessageReaction,
   MessageType,
   ReplyReference,
   StickerMessage,
   TextMessage
 } from './message.type'
+import { decodeBase64 } from './utils'
 
 /**
  * Mapper từ raw data (từ contract, XMTP, hoặc API) sang Message chuẩn
@@ -28,6 +30,7 @@ export function mapperToMessage(raw: any): Message {
     isEdited: Boolean(raw.isEdited ?? raw.editedAt),
     isDeleted: Boolean(raw.isDeleted ?? false),
     status: mapStatus(raw.status ?? raw.isRead),
+    reactions: parseReactionSummary(raw.reactionSummary) ?? [],
     replyTo: raw.replyTo // 🔑 đọc trực tiếp từ on-chain / API
   }
 
@@ -110,4 +113,33 @@ export function messageToReplyReference(message: Message): ReplyReference {
   }
 
   return ref
+}
+
+export function parseReactionSummary(summary?: string): MessageReaction[] | undefined {
+  if (!summary) return undefined
+
+  const map = new Map<string, { count: number; reactedByMe: boolean }>()
+
+  summary.split(',').forEach((item) => {
+    const [who, encodedEmoji] = item.split(':')
+    if (!encodedEmoji) return
+
+    const emoji = decodeBase64(encodedEmoji)
+
+    const entry = map.get(emoji) ?? {
+      count: 0,
+      reactedByMe: false
+    }
+
+    entry.count += 1
+    if (who === 'me') entry.reactedByMe = true
+
+    map.set(emoji, entry)
+  })
+
+  return Array.from(map.entries()).map(([emoji, meta]) => ({
+    emoji,
+    count: meta.count,
+    reactedByMe: meta.reactedByMe
+  }))
 }

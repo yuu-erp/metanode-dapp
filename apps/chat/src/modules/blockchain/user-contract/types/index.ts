@@ -48,3 +48,10 @@ export interface SendMessageOutput {
   dataStoreAddress: string
   messageNonce: number
 }
+
+export interface ReactToMessageInput {
+  partnerContract: string
+  _messageId: string
+  _reaction: string
+  _reactionToPartner: string
+}

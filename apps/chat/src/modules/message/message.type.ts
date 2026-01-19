@@ -2,6 +2,13 @@ export type MessageType = 'text' | 'sticker'
 
 export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed'
 
+export interface MessageReaction {
+  emoji: string // 😀 ❤️ 👍
+  count: number // tổng số
+  reactedByMe?: boolean // mình có reaction emoji này không
+  users?: string[] // optional: danh sách sender
+}
+
 export interface BaseMessage {
   id?: string // unique message id (có thể từ XMTP id hoặc tx hash)
   clientId: string
@@ -14,6 +21,7 @@ export interface BaseMessage {
   isEdited?: boolean
   isDeleted?: boolean
   status?: 'sent' | 'delivered' | 'read' | 'failed'
+  reactions?: MessageReaction[]
   // ── Các trường liên quan đến REPLY ──
   replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
 }
@@ -41,3 +49,12 @@ export interface StickerMessage extends BaseMessage {
 
 // Union type cho toàn bộ message
 export type Message = TextMessage | StickerMessage
+
+export type MessageReceived = {
+  dataStoreAddress: string
+  encryptedContent: string
+  messageId: string
+  messageNonce: string
+  recipient: string
+  sender: string
+}

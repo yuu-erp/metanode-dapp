@@ -158,7 +158,7 @@ export class ConversationService {
       ...current,
       unreadCount: account.contractAddress === conversationId ? 0 : (current.unreadCount ?? 0) + 1,
       // @ts-ignore
-      latestMessageContent: decryptMessage.value ?? decryptMessage.content ?? decryptMessage.value,
+      latestMessageContent: decryptMessage.value ?? decryptMessage.content ?? decryptMessage.text,
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
     })
   }

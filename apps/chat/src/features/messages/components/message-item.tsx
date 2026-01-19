@@ -9,6 +9,7 @@ import { motion, type HTMLMotionProps } from 'framer-motion'
 import { AlertTriangle, Check, CheckCheck, Clock } from 'lucide-react'
 import * as React from 'react'
 import ReplyMessage from './reply-message'
+import ReactionMessage from './reaction-message'
 
 interface MessageItemProps<T> extends Omit<HTMLMotionProps<'div'>, 'children'> {
   message: T
@@ -94,7 +95,9 @@ function MessageItem({
         <div className="text-base">{renderContent()}</div>
         {/* Failed label */}
         <div className="w-full flex items-end justify-between gap-3">
-          <div className="flex items-center gap-1">{/* <ReactionMessage /> */}</div>
+          <div className="flex items-center gap-1">
+            <ReactionMessage reactions={message?.reactions?.map((item) => item.emoji)} />
+          </div>
           <div
             className={cn(
               'text-[11px] flex items-end gap-1',

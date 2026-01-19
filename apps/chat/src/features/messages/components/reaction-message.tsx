@@ -1,15 +1,18 @@
 'use client'
-import AvatarUser from '@/shared/components/avatar-user'
 import * as React from 'react'
 
-function ReactionMessage() {
+interface ReactionMessageProps {
+  reactions?: string[]
+}
+function ReactionMessage({ reactions = [] }: ReactionMessageProps) {
+  if (!reactions.length) return null
   return (
     <React.Fragment>
-      <div className="h-6.5 px-1 bg-blue-500 rounded-full flex items-center justify-center">
-        <span>😍</span>
-        <div className="flex -space-x-3">
-          <AvatarUser name="Yuu" className="size-5" />
-          <AvatarUser name="Wallet" className="size-5" />
+      <div className="h-6 px-1 bg-blue-500 rounded-full flex items-center justify-center text-sm">
+        <div className="flex -space-x-2.5">
+          {reactions.map((reaction, idx) => (
+            <span key={idx}>{reaction}</span>
+          ))}
         </div>
       </div>
     </React.Fragment>

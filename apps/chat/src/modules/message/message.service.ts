@@ -2,13 +2,14 @@ import type { Account } from '@/modules/account'
 import { fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import { v4 as uuidv4 } from 'uuid'
-import type { Message } from '.'
+import type { Message, MessageReceived } from '.'
 import type { UserContract } from '../blockchain'
 import type { Conversation } from '../conversation'
 import type { EventBusPort } from '../event'
 import type { WalletService } from '../wallet'
 import { createOptimisticMessage } from './message.entity'
-import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
+import { mapperMessageToOnChain, mapperToMessage, parseReactionSummary } from './message.mapper'
+import { encodeBase64 } from './utils'
 
 export class MessageService {
   constructor(
@@ -32,6 +33,7 @@ export class MessageService {
         page
       }
     })
+    console.log('[MESSAGE SERVICE] ---- GET ALL MESSAGE --- RAW: ', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map(async (item) => {
         try {
@@ -46,6 +48,12 @@ export class MessageService {
             account.address,
             item.finalContent
           )
+          if (item.reactionSummary) {
+            console.log(
+              '[MESSAGE SERVICE] ---- GET ALL MESSAGE --- REACTIOS: ',
+              parseReactionSummary(item.reactionSummary)
+            )
+          }
           return mapperToMessage({
             accountId: account.address,
             conversationId: conversation.conversationId,
@@ -100,13 +108,6 @@ export class MessageService {
       this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
     ])
 
-    console.log('[MESSAGE SERVICE] - DEBUG SEND MESSAGE:', {
-      encryptedForRecipient,
-      encryptedForSelf,
-      account,
-      conversation
-    })
-
     try {
       const result = await this.userContract.sendMessage({
         from: account.address,
@@ -136,5 +137,49 @@ export class MessageService {
       })
       throw error
     }
+  }
+
+  async messageReceived(account: Account, data: MessageReceived): Promise<Message> {
+    const { encryptedContent, sender, messageId, recipient } = data
+    const publicKey = await this.userContract.publicKey({
+      from: account.address,
+      to: sender
+    })
+    const decryptMessage = await this.walletService.decryptMessage<any>(
+      publicKey,
+      account.address,
+      encryptedContent
+    )
+    return mapperToMessage({
+      ...decryptMessage,
+      messageId,
+      accountId: account.address,
+      conversationId: sender,
+      sender,
+      recipient
+    })
+  }
+
+  async reactToMessage(
+    account: Account,
+    conversation: Conversation,
+    payload: {
+      emoji: string
+      messageId: string
+    }
+  ): Promise<void> {
+    const { emoji, messageId } = payload
+    const encryptEmoji = encodeBase64(emoji)
+    await this.userContract.reactToMessage({
+      from: account.address,
+      to: account.contractAddress,
+      inputData: {
+        partnerContract: conversation.conversationId,
+        _messageId: messageId,
+        _reaction: encryptEmoji,
+        _reactionToPartner: encryptEmoji
+      }
+    })
+    console.log('[MESSAGE SERVICE] --- REACT TO MESSAGE -- encryptEmoji: ', encryptEmoji)
   }
 }

@@ -10,14 +10,18 @@ import type { SwiperClass, SwiperProps } from 'swiper/react'
 export const Route = createFileRoute('/wallets')({
   loader: async () => {
     try {
-      const currentAccount = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
-      if (currentAccount && currentAccount.isActive) {
-        return redirect({ to: '/' })
+      const account = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
+      if (account?.isActive) {
+        throw redirect({ to: '/' })
       }
-      return {}
-    } catch (error) {
-      console.error(error)
-      return {}
+      return null
+    } catch (err) {
+      // redirect throw error → tanstack router sẽ handle
+      // còn lỗi khác thì log và cho vào trang bình thường
+      if (!(err instanceof Error && 'statusCode' in err)) {
+        console.error('Failed to check current account:', err)
+      }
+      return null
     }
   },
   component: RouteComponent

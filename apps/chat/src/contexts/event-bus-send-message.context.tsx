@@ -91,18 +91,51 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     }))
   }, [])
 
+  const onMessageReceived = React.useCallback(
+    async (event: AppEvents['message:received']) => {
+      console.log('[onMessageReceived] event:', event)
+      if (!account) return
+
+      try {
+        const messageService = container.messageService
+
+        const message = await messageService.messageReceived(account, event)
+        console.log('[onMessageReceived] message:', message)
+
+        const queryKey = MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId)
+
+        queryClient.setQueryData<InfiniteData<Message[]>>(queryKey, (oldData) => {
+          if (!oldData) return oldData
+          return {
+            ...oldData,
+            pages: [[message, ...(oldData.pages[0] ?? [])], ...oldData.pages.slice(1)]
+          }
+        })
+
+        queryClient.invalidateQueries({
+          queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
+        })
+      } catch (error) {
+        console.error('[onMessageReceived] FAILED', error)
+      }
+    },
+    [account]
+  )
+
   React.useEffect(() => {
     if (!account) return
     const eventBus = container.eventBus
     eventBus.on('message.create', onMessageCreate)
     eventBus.on('message.sent', onMessageSent)
     eventBus.on('message.status', onMessageStatus)
+    eventBus.on('message:received', onMessageReceived)
     return () => {
       eventBus.off('message.create', onMessageCreate)
       eventBus.off('message.sent', onMessageSent)
       eventBus.off('message.status', onMessageStatus)
+      eventBus.off('message:received', onMessageReceived)
     }
-  }, [account, onMessageCreate, onMessageSent, onMessageStatus])
+  }, [account, onMessageCreate, onMessageSent, onMessageStatus, onMessageReceived])
   return (
     <EventBusSendMessageContext.Provider value={{}}>{children}</EventBusSendMessageContext.Provider>
   )
