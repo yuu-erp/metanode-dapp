@@ -34,7 +34,7 @@ function DrawerNewConversation() {
 
       <Drawer.Portal>
         {/* Overlay */}
-        <Drawer.Overlay className="fixed inset-0 bg-white/10" />
+        <Drawer.Overlay className="fixed inset-0 bg-black/50" />
 
         <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
           <div
@@ -42,7 +42,7 @@ function DrawerNewConversation() {
               relative
               h-[90vh]
               rounded-t-[36px]
-              bg-black/60
+              bg-black/30
               backdrop-blur-md
               border border-white/10
               flex flex-col
@@ -53,44 +53,42 @@ function DrawerNewConversation() {
 
             <div className="max-w-md mx-auto w-full flex flex-col overflow-hidden">
               {/* Header */}
-              <div className="w-full banner__overlay--up fixed left-0 right-0 top-0 py-6 flex items-center justify-center z-10">
-                <Drawer.Close asChild>
-                  <button
-                    className="
+              <div className="w-full banner__overlay--up fixed left-0 right-0 top-0 pt-6 pb-3 flex flex-col gap-5 z-10">
+                <div className="w-full h-full flex items-center justify-center">
+                  <Drawer.Close asChild>
+                    <button
+                      className="
                       absolute left-4
                       size-10 rounded-full
-                      bg-[#eee]
+                      bg-[#2c2c2e]
                       border border-white/10
                       shadow-lg
                       flex items-center justify-center
                       transition
                       active:scale-95
                     "
-                  >
-                    <X className="size-5 text-gray-800" />
-                  </button>
-                </Drawer.Close>
+                    >
+                      <X className="size-5 text-gray-100" />
+                    </button>
+                  </Drawer.Close>
 
-                <Drawer.Title className="text-gray-100 font-semibold text-lg">
-                  New Message
-                </Drawer.Title>
-              </div>
-              <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-18">
+                  <Drawer.Title className="text-gray-100 font-semibold text-lg">
+                    New Message
+                  </Drawer.Title>
+                </div>
                 {/* Search + QR */}
-                <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 px-4">
                   <input
                     type="text"
                     placeholder="Search address or username"
                     className="
                     flex-1 h-12 rounded-full px-4 text-sm
-                    bg-[#eee]
-                    text-gray-800
-                    placeholder:text-gray-500
+                    bg-[#2c2c2e]
+                    text-gray-100
+                    placeholder:text-gray-300
                     border border-white/10
                     outline-none
                     transition
-                    focus:bg-white/60
-                    focus:border-white/20
                   "
                   />
 
@@ -99,7 +97,7 @@ function DrawerNewConversation() {
                     onClick={handleClickScanQR}
                     className="
                     size-12 shrink-0 rounded-full
-                    bg-[#eee]
+                    bg-[#2c2c2e]
                     border border-white/10
                     shadow-lg
                     flex items-center justify-center
@@ -107,9 +105,11 @@ function DrawerNewConversation() {
                     active:scale-95
                   "
                   >
-                    <QrCode className="size-6 text-gray-800" />
+                    <QrCode className="size-6 text-gray-100" />
                   </button>
                 </div>
+              </div>
+              <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[130px]">
                 {/* Telegram Actions */}
                 <div className="flex flex-col">
                   {/* New Group */}
