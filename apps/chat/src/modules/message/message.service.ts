@@ -173,6 +173,5 @@ export class MessageService {
         _reactionToPartner: encryptEmoji
       }
     })
-    console.log('[MESSAGE SERVICE] --- REACT TO MESSAGE -- encryptEmoji: ', encryptEmoji)
   }
 }

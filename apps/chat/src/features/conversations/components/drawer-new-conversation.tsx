@@ -42,7 +42,7 @@ function DrawerNewConversation() {
               relative
               h-[90vh]
               rounded-t-[36px]
-              bg-white/10
+              bg-black/60
               backdrop-blur-md
               border border-white/10
               flex flex-col
@@ -71,7 +71,7 @@ function DrawerNewConversation() {
                   </button>
                 </Drawer.Close>
 
-                <Drawer.Title className="text-gray-800 font-semibold text-lg">
+                <Drawer.Title className="text-gray-100 font-semibold text-lg">
                   New Message
                 </Drawer.Title>
               </div>

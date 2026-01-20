@@ -1,6 +1,6 @@
 'use client'
 import { container } from '@/container'
-import type { Message, MessageStatus } from '@/modules/message'
+import { decodeBase64, encodeBase64, type Message, type MessageStatus } from '@/modules/message'
 import { useCurrentAccount } from '@/shared/hooks'
 import { CONVERSATION_QUERY_KEY, MESSAGE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import type { AppEvents } from '@/types/app-events'
@@ -17,7 +17,7 @@ interface EventBusSendMessageProviderProps extends React.PropsWithChildren {}
 function updateMessageInInfiniteCache(
   accountId: string,
   conversationId: string,
-  clientId: string,
+  messageId: string,
   updater: (msg: Message) => Message
 ) {
   const queryKey = MESSAGE_QUERY_KEY.MESSAGES(accountId, conversationId)
@@ -29,7 +29,7 @@ function updateMessageInInfiniteCache(
 
     const pages: Message[][] = oldData.pages.map((page) =>
       page.map((msg) => {
-        if (msg.clientId === clientId) {
+        if (msg.clientId === messageId || msg.id === messageId) {
           found = true
           return updater(msg)
         }
@@ -122,8 +122,50 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     [account]
   )
 
-  const onMessageReaction = React.useCallback(
-    (event: AppEvents['message:reaction']) => {},
+  const onMessageReactionReceived = React.useCallback(
+    (event: AppEvents['message.reaction.received']) => {
+      if (!account) return
+
+      const { messageId, reaction: emoji, reactor, sender, recipient } = event
+
+      // xác định conversationId
+      const conversationId = sender === account.contractAddress ? recipient : sender
+
+      updateMessageInInfiniteCache(account.address, conversationId, messageId, (msg) => {
+        const reactions = [...(msg.reactions ?? [])]
+        console.log('reactions: ', reactions)
+        const existingIndex = reactions.findIndex((r) => encodeBase64(r.emoji) === emoji)
+        console.log('existingIndex: ', existingIndex)
+        const isMe = reactor === account.contractAddress
+
+        if (existingIndex >= 0) {
+          const existing = reactions[existingIndex]
+
+          // tránh tăng trùng nếu đã tồn tại
+          const users = existing.users ?? []
+          const alreadyReacted = users.includes(reactor)
+
+          reactions[existingIndex] = {
+            ...existing,
+            count: alreadyReacted ? existing.count : existing.count + 1,
+            reactedByMe: existing.reactedByMe || isMe,
+            users: existing.users ? (alreadyReacted ? users : [...users, reactor]) : undefined
+          }
+        } else {
+          reactions.push({
+            emoji: decodeBase64(emoji),
+            count: 1,
+            reactedByMe: isMe,
+            users: [reactor]
+          })
+        }
+
+        return {
+          ...msg,
+          reactions
+        }
+      })
+    },
     [account]
   )
 
@@ -134,13 +176,13 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     eventBus.on('message.sent', onMessageSent)
     eventBus.on('message.status', onMessageStatus)
     eventBus.on('message:received', onMessageReceived)
-    eventBus.on('message:reaction', onMessageReaction)
+    eventBus.on('message.reaction.received', onMessageReactionReceived)
     return () => {
       eventBus.off('message.create', onMessageCreate)
       eventBus.off('message.sent', onMessageSent)
       eventBus.off('message.status', onMessageStatus)
       eventBus.off('message:received', onMessageReceived)
-      eventBus.off('message:reaction', onMessageReaction)
+      eventBus.off('message.reaction.received', onMessageReactionReceived)
     }
   }, [
     account,
@@ -148,7 +190,7 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
     onMessageSent,
     onMessageStatus,
     onMessageReceived,
-    onMessageReaction
+    onMessageReactionReceived
   ])
   return (
     <EventBusSendMessageContext.Provider value={{}}>{children}</EventBusSendMessageContext.Provider>

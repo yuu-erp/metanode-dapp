@@ -32,7 +32,7 @@ export function EventLogProvider({ children }: EventLogProviderProps) {
     const unsubscribePartnerMessageReacted = eventLog.on('PartnerMessageReacted', async (data) => {
       console.log('[EVENT LOG] - PartnerMessageReacted: ', data)
       if (data.sender === account.contractAddress) return
-      eventBus.emit('message:reaction', data)
+      eventBus.emit('message.reaction.received', data)
     })
     return () => {
       unsubscribeMessageReceived()

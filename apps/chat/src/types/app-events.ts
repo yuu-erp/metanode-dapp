@@ -19,7 +19,23 @@ export type AppEvents = {
     message: Message
   }
   'message:received': MessageReceived
-  'message:reaction': {
+  // REACTION
+  'message.reaction.create': {
+    accountId: string
+    conversationId: string
+    messageId: string
+    reaction: string
+  }
+
+  'message.reaction.status': {
+    accountId: string
+    conversationId: string
+    messageId: string
+    reaction: string
+    status: 'pending' | 'success' | 'failed'
+  }
+
+  'message.reaction.received': {
     messageId: string
     sender: string
     recipient: string

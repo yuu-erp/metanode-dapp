@@ -224,8 +224,8 @@
     background-image: linear-gradient(
       to top,
       transparent 0%,
-      rgba(255, 255, 255, 0.4),
-      rgba(255, 255, 255, 0.6)
+      rgba(0, 0, 0, 0.2),
+      rgba(0, 0, 0, 0.6)
     );
   }
 
