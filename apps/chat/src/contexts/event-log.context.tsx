@@ -1,7 +1,7 @@
 'use client'
+
 import { container } from '@/container'
 import { useCurrentAccount } from '@/shared/hooks'
-import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import * as React from 'react'
 import { createContext, useContext } from 'react'
 
@@ -9,43 +9,38 @@ export interface EventLogState {}
 
 const EventLogContext = createContext<EventLogState | undefined>(undefined)
 
-interface EventLogProviderProps extends React.PropsWithChildren {}
-
-export function EventLogProvider({ children }: EventLogProviderProps) {
+export function EventLogProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
   React.useEffect(() => {
-    if (!account) return
+    if (!account?.address || !account.contractAddress) return
+
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
+
     eventLog.registerEvent(account.address, [account.contractAddress])
-    const unsubscribeMessageReceived = eventLog.on('MessageReceived', async (data) => {
-      console.log('[EVENT LOG] - MessageReceived: ', data)
+
+    const offMessageReceived = eventLog.on('MessageReceived', (data) => {
       if (data.sender === account.contractAddress) return
-      const conversationService = container.conversationService
-      await conversationService.updateConversation(account, data.sender, data.encryptedContent)
-      queryClient.invalidateQueries({
-        queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
-      })
       eventBus.emit('message:received', data)
     })
-    const unsubscribePartnerMessageReacted = eventLog.on('PartnerMessageReacted', async (data) => {
-      console.log('[EVENT LOG] - PartnerMessageReacted: ', data)
+
+    const offReaction = eventLog.on('PartnerMessageReacted', (data) => {
       if (data.sender === account.contractAddress) return
       eventBus.emit('message.reaction.received', data)
     })
+
     return () => {
-      unsubscribeMessageReceived()
-      unsubscribePartnerMessageReacted()
+      offMessageReceived()
+      offReaction()
     }
-  }, [account])
+  }, [account?.address, account?.contractAddress])
+
   return <EventLogContext.Provider value={{}}>{children}</EventLogContext.Provider>
 }
 
 export function useEventLog() {
-  const context = useContext(EventLogContext)
-  if (context === undefined) {
-    throw new Error('useEventLog must be used within an EventLogProvider')
-  }
-  return context
+  const ctx = useContext(EventLogContext)
+  if (!ctx) throw new Error('useEventLog must be used within EventLogProvider')
+  return ctx
 }

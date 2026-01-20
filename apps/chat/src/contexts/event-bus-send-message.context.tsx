@@ -133,9 +133,7 @@ export function EventBusSendMessageProvider({ children }: EventBusSendMessagePro
 
       updateMessageInInfiniteCache(account.address, conversationId, messageId, (msg) => {
         const reactions = [...(msg.reactions ?? [])]
-        console.log('reactions: ', reactions)
         const existingIndex = reactions.findIndex((r) => encodeBase64(r.emoji) === emoji)
-        console.log('existingIndex: ', existingIndex)
         const isMe = reactor === account.contractAddress
 
         if (existingIndex >= 0) {
