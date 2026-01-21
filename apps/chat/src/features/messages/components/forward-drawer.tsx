@@ -1,16 +1,56 @@
 'use client'
 import { useGetConversations } from '@/features/conversations'
+import type { Conversation } from '@/modules/conversation'
+import { messageToForwartReference } from '@/modules/message'
 import ConversationContact from '@/shared/components/conversation-contact'
 import { useCurrentAccount } from '@/shared/hooks'
+import { useNavigate } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
+import type { MessageAction } from '../contexts'
+import { useSendMessage } from '../hooks'
 
-function ForwardDrawer() {
+interface ForwardDrawerProps {
+  open?: boolean
+  onClose?: () => void
+  messageAction: MessageAction | null
+}
+function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
+  const navigate = useNavigate()
   const { data: account } = useCurrentAccount()
   const { data: conversations = [] } = useGetConversations(account?.address)
+
+  const { mutate } = useSendMessage()
+
+  const handleForwardMessage = React.useCallback(
+    (conversation: Conversation) => async () => {
+      if (!account || !messageAction) return
+
+      const forwardFrom = messageToForwartReference(messageAction.message)
+
+      mutate({
+        account,
+        conversation,
+        payload: {
+          type: 'text',
+          content: '',
+          forwardFrom
+        }
+      })
+
+      navigate({
+        to: '/conversation/$id',
+        params: { id: conversation.conversationId }
+      })
+
+      onClose?.()
+    },
+    [account, messageAction, mutate, navigate, onClose]
+  )
+
   return (
-    <Drawer.Root shouldScaleBackground>
+    <Drawer.Root shouldScaleBackground open={open} onClose={onClose}>
       <Drawer.Portal>
         {/* Overlay */}
         <Drawer.Overlay className="fixed inset-0 bg-black/50" />
@@ -22,7 +62,7 @@ function ForwardDrawer() {
               h-[90vh]
               rounded-t-[36px]
               bg-black/30
-              backdrop-blur-md
+              backdrop-blur-lg
               border border-white/10
               flex flex-col
               overflow-hidden
@@ -85,6 +125,7 @@ function ForwardDrawer() {
                             ? 'PRIVATE'
                             : 'USER'
                         }
+                        onClick={handleForwardMessage(conversation)}
                       />
                       <div className="h-px bg-white/20 ml-18" />
                     </React.Fragment>

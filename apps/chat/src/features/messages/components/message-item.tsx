@@ -10,6 +10,7 @@ import { AlertTriangle, Check, CheckCheck, Clock } from 'lucide-react'
 import * as React from 'react'
 import ReplyMessage from './reply-message'
 import ReactionMessage from './reaction-message'
+import ForwardMessage from './forward-message'
 
 interface MessageItemProps<T> extends Omit<HTMLMotionProps<'div'>, 'children'> {
   message: T
@@ -92,6 +93,7 @@ function MessageItem({
         )}
       >
         {message.replyTo && <ReplyMessage isMine={isMine} {...message.replyTo} />}
+        {message.forwardFrom && <ForwardMessage isMine={isMine} {...message.forwardFrom} />}
         <div className="text-base">{renderContent()}</div>
         {/* Failed label */}
         <div className="w-full flex items-end justify-between gap-3">

@@ -214,24 +214,43 @@ export function applyReactionCreate(
 
       const myReaction = reactions.find((r) => r.reactedByMe)
 
-      // 🔁 click lại cùng emoji → noop
+      // 🔁 click lại đúng emoji mình đã reaction → noop
       if (myReaction?.emoji === params.emoji) {
         return msg
       }
 
-      // ❌ remove reaction cũ của mình
-      const others = reactions.filter((r) => !r.reactedByMe)
+      // ❌ bỏ reaction cũ của mình (nếu có)
+      let nextReactions = reactions
+        .map((r) => {
+          if (r.reactedByMe) {
+            // giảm count emoji cũ
+            if (r.count > 1) {
+              return { ...r, count: r.count - 1, reactedByMe: false }
+            }
+            return null
+          }
+          return r
+        })
+        .filter(Boolean) as MessageReaction[]
+
+      // ✅ thêm / tăng emoji mới
+      const existing = nextReactions.find((r) => r.emoji === params.emoji)
+
+      if (existing) {
+        nextReactions = nextReactions.map((r) =>
+          r.emoji === params.emoji ? { ...r, count: r.count + 1, reactedByMe: true } : r
+        )
+      } else {
+        nextReactions.push({
+          emoji: params.emoji,
+          count: 1,
+          reactedByMe: true
+        })
+      }
 
       return {
         ...msg,
-        reactions: [
-          ...others,
-          {
-            emoji: params.emoji,
-            reactedByMe: true,
-            count: 1
-          }
-        ]
+        reactions: nextReactions
       }
     })
   )

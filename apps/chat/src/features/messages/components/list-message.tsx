@@ -2,14 +2,15 @@
 
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
+import type { Message } from '@/modules/message'
+import { AnimatePresence } from 'framer-motion'
 import { ChevronDown, LoaderCircle } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 import { useInfiniteMessages } from '../hooks'
+import { useChatScroll } from '../hooks/use-chat-scroll'
 import MessageItem from './message-item'
 import OverlayMessage from './overlay-message'
-import type { Message } from '@/modules/message'
-import { AnimatePresence } from 'framer-motion'
 
 interface ListMessageProps {
   conversation?: Conversation
@@ -26,17 +27,10 @@ function ListMessage({ conversation, account }: ListMessageProps) {
 
   // Ref để gắn vào phần tử trigger load more (khi scroll lên trên)
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null!)
+  const { showScrollBottom, scrollToBottom, handleScroll } = useChatScroll(scrollRef)
 
-  const [showScrollBottom, setShowScrollBottom] = React.useState(false)
   const [messageSelect, setMessageSelect] = React.useState<Message | null>(null)
-
-  const scrollToBottom = React.useCallback(() => {
-    scrollRef.current?.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-  }, [])
 
   const handleSelectMessage = React.useCallback(
     (message: Message | null) => setMessageSelect(message),
@@ -60,15 +54,9 @@ function ListMessage({ conversation, account }: ListMessageProps) {
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const handleScroll = React.useCallback((event: React.UIEvent<HTMLDivElement>) => {
-    const el = event.currentTarget
-    // cách bottom bao xa
-    const distanceFromBottom = el.scrollTop
-    setShowScrollBottom(distanceFromBottom < -200)
-  }, [])
   // Flatten tất cả pages thành một mảng tin nhắn duy nhất
   // Tin nhắn mới nhất ở dưới (cuối mảng)
-  const messages = data?.pages.flat() ?? []
+  const messages = React.useMemo(() => data?.pages.flat() ?? [], [data])
 
   if (isLoading) {
     return (

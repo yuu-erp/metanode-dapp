@@ -72,8 +72,18 @@ export class MessageService {
     account: Account,
     conversation: Conversation,
     payload:
-      | { type: 'text'; content: string; replyTo?: Message['replyTo'] }
-      | { type: 'sticker'; stickerId: string; replyTo?: Message['replyTo'] }
+      | {
+          type: 'text'
+          content: string
+          replyTo?: Message['replyTo']
+          forwardFrom?: Message['replyTo']
+        }
+      | {
+          type: 'sticker'
+          stickerId: string
+          replyTo?: Message['replyTo']
+          forwardFrom?: Message['replyTo']
+        }
   ): Promise<string> {
     const clientId = uuidv4()
 
@@ -85,7 +95,8 @@ export class MessageService {
         sender: account.contractAddress,
         recipient: conversation.conversationId,
         timestamp: Date.now(),
-        replyTo: payload.replyTo // 🔑 gắn reply
+        replyTo: payload.replyTo, // 🔑 gắn reply
+        forwardFrom: payload.forwardFrom
       },
       payload
     )

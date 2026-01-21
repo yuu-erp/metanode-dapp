@@ -84,6 +84,14 @@ export default React.memo(function OverlayMessage({
     handleCloseAction()
   }, [message, handleCloseAction])
 
+  const handleForwardMessage = React.useCallback(() => {
+    setMessageAction({
+      type: 'FORWARD',
+      message
+    })
+    handleCloseAction()
+  }, [message, handleCloseAction])
+
   return (
     <motion.div
       className="fixed inset-0 z-50 bg-black/60 backdrop-filter-app"
@@ -153,7 +161,7 @@ export default React.memo(function OverlayMessage({
               <DropdownMenuSeparator className="bg-black/10" />
               <CopyAction onClose={handleCopyMessage} />
               <DropdownMenuSeparator className="bg-black/10" />
-              <ForwardAction onClose={handleCloseAction} />
+              <ForwardAction onClose={handleForwardMessage} />
               {isMine && <DeleteAction onClose={handleCloseAction} />}
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,5 +1,6 @@
 import type {
   BaseMessage,
+  ForwardReference,
   Message,
   MessageReaction,
   MessageType,
@@ -31,7 +32,8 @@ export function mapperToMessage(raw: any): Message {
     isDeleted: Boolean(raw.isDeleted ?? false),
     status: mapStatus(raw.status ?? raw.isRead),
     reactions: parseReactionSummary(raw.reactionSummary) ?? [],
-    replyTo: raw.replyTo // 🔑 đọc trực tiếp từ on-chain / API
+    replyTo: raw.replyTo, // 🔑 đọc trực tiếp từ on-chain / API
+    forwardFrom: raw.forwardFrom
   }
 
   if (type === 'sticker') {
@@ -72,11 +74,13 @@ export type OnChainMessagePayload =
       type: 'text'
       value: string
       replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
+      forwardFrom?: ForwardReference
     }
   | {
       type: 'sticker'
       value: string
       replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
+      forwardFrom?: ForwardReference
     }
 
 export function mapperMessageToOnChain(message: Message): OnChainMessagePayload {
@@ -87,6 +91,10 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
 
   if (message.replyTo) {
     payload.replyTo = message.replyTo
+  }
+
+  if (message.forwardFrom) {
+    payload.forwardFrom = message.forwardFrom
   }
 
   return payload
@@ -104,6 +112,26 @@ export function messageToReplyReference(message: Message): ReplyReference {
     if (preview) {
       ref.textPreview = preview.slice(0, 120)
     }
+  }
+
+  if (message.type === 'sticker') {
+    if (message.stickerId) {
+      ref.stickerPreview = message.stickerId
+    }
+  }
+
+  return ref
+}
+
+export function messageToForwartReference(message: Message): ForwardReference {
+  const ref: ForwardReference = {
+    messageId: message.id!,
+    sender: message.sender,
+    type: message.type
+  }
+
+  if (message.type === 'text') {
+    ref.textPreview = message.content
   }
 
   if (message.type === 'sticker') {

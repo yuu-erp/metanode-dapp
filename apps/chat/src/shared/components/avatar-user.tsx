@@ -1,4 +1,5 @@
 'use client'
+
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 
@@ -8,7 +9,7 @@ import { BookmarkIcon } from './icons'
 import { cn } from '../lib'
 
 /* ---------------------------------- */
-/* Avatar variants */
+/* Avatar variants (default sizes) */
 /* ---------------------------------- */
 const avatarVariants = cva('rounded-full shrink-0', {
   variants: {
@@ -17,7 +18,7 @@ const avatarVariants = cva('rounded-full shrink-0', {
       md: 'size-12', // 48px
       lg: 'size-15', // 60px
       xl: 'size-20', // 80px
-      '2xl': 'size-24'
+      '2xl': 'size-24' // 96px
     }
   },
   defaultVariants: {
@@ -63,30 +64,73 @@ interface AvatarUserProps
   name: string
   url?: string
   type?: 'USER' | 'PRIVATE' | 'GROUP'
+
+  /** Custom sizes (px) */
+  avatarSize?: number
+  textSize?: number
+  iconSize?: number
+}
+
+/* ---------------------------------- */
+/* Helpers */
+/* ---------------------------------- */
+function resolveSize(size?: number) {
+  if (!size) return undefined
+  return {
+    width: size,
+    height: size
+  }
 }
 
 /* ---------------------------------- */
 /* Component */
 /* ---------------------------------- */
-function AvatarUser({ name, url, type, size, className, ...props }: AvatarUserProps) {
+function AvatarUser({
+  name,
+  url,
+  type = 'USER',
+  size,
+  avatarSize,
+  textSize,
+  iconSize,
+  className,
+  ...props
+}: AvatarUserProps) {
+  const isCustomAvatarSize = typeof avatarSize === 'number'
+
   return (
-    <Avatar className={cn(avatarVariants({ size }), className)} {...props}>
+    <Avatar
+      className={cn(
+        'rounded-full shrink-0',
+        !isCustomAvatarSize && avatarVariants({ size }),
+        className
+      )}
+      style={resolveSize(avatarSize)}
+      {...props}
+    >
       <AvatarImage src={url} alt={`@${name}`} />
 
       <AvatarFallback
         className={cn(
           'rounded-full flex items-center justify-center',
-          fallbackTextVariants({ size })
+          !textSize && fallbackTextVariants({ size })
         )}
         style={{
           background:
             type === 'PRIVATE'
               ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
-              : getTelegramGradient(name)
+              : getTelegramGradient(name),
+          fontSize: textSize
         }}
       >
         {type === 'PRIVATE' ? (
-          <BookmarkIcon className={bookmarkIconVariants({ size })} />
+          <BookmarkIcon
+            className={cn(!iconSize && bookmarkIconVariants({ size }))}
+            style={{
+              width: iconSize,
+              height: iconSize
+            }}
+          />
         ) : (
           getAvatarFallback(name)
         )}

@@ -2,8 +2,9 @@
 import type { Message } from '@/modules/message'
 import * as React from 'react'
 import { createContext, useContext } from 'react'
+import ForwardDrawer from '../components/forward-drawer'
 
-export type MessageActionType = 'EDIT' | 'REPLY'
+export type MessageActionType = 'EDIT' | 'REPLY' | 'FORWARD'
 
 export interface MessageAction {
   type: MessageActionType
@@ -25,6 +26,11 @@ export function MessageActionProvider({ children }: MessageActionProviderProps) 
   return (
     <MessageActionContext.Provider value={{ messageAction, setMessageAction }}>
       {children}
+      <ForwardDrawer
+        open={messageAction?.type === 'FORWARD'}
+        onClose={() => setMessageAction(null)}
+        messageAction={messageAction}
+      />
     </MessageActionContext.Provider>
   )
 }
