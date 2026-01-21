@@ -8,6 +8,7 @@ import { useSendMessage } from '../hooks'
 import { ReplyInputMessage } from './input-message-actions'
 import { useMessageAction } from '../contexts'
 import { messageToReplyReference } from '@/modules/message'
+import { useFilePicker } from '@/shared/hooks'
 
 interface InputMessageProps extends React.HTMLAttributes<HTMLDivElement> {
   conversation?: Conversation
@@ -18,6 +19,14 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
   ({ account, conversation, ...props }, ref) => {
     const { messageAction, setMessageAction } = useMessageAction()
     const [message, setMessage] = React.useState('')
+    const { open: openFilePicker, FileInput } = useFilePicker({
+      accept: 'image/*,video/*,application/pdf',
+      multiple: true,
+      onSelect: (files) => {
+        console.log('Selected files:', files)
+        // 👉 gọi mutate upload / set state preview ở đây
+      }
+    })
     const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
     const containerRef = React.useRef<HTMLDivElement | null>(null)
 
@@ -82,9 +91,15 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
         <div style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
           <div className="w-full min-h-[72px] h-full flex items-end px-2 gap-1.5">
             {/* Attach */}
-            <button className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl">
+            <button
+              type="button"
+              onClick={openFilePicker}
+              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl"
+            >
               <Paperclip className="text-white/80" />
             </button>
+
+            {FileInput}
 
             {/* Input */}
             {/* Input */}

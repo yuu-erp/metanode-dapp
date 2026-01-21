@@ -3,3 +3,4 @@ export * from './use-get-conversation-id'
 
 export * from './useI18N'
 export * from './useLongPress'
+export * from './useFilePicker'
