@@ -132,7 +132,10 @@ export function parseReactionSummary(summary?: string): MessageReaction[] | unde
     }
 
     entry.count += 1
-    if (who === 'me') entry.reactedByMe = true
+
+    if (who === 'me') {
+      entry.reactedByMe = true
+    }
 
     map.set(emoji, entry)
   })

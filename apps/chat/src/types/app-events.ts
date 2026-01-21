@@ -1,6 +1,8 @@
-import type { Message, MessageReceived, MessageStatus } from '@/modules/message'
+import type { EventMap } from '@/modules/eventlogs'
+import type { Message, MessageStatus } from '@/modules/message'
 
 export type AppEvents = {
+  // MESSAGE
   'message.status': {
     accountId: string
     conversationId: string
@@ -13,33 +15,17 @@ export type AppEvents = {
     conversationId: string
     clientId: string
     messageId: string
-    encryptContent: string
   }
   'message.create': {
     message: Message
   }
-  'message:received': MessageReceived
-  // REACTION
-  'message.reaction.create': {
+  'message.received': EventMap['MessageReceived']
+  // REACTIONS
+  'reaction.create': {
     accountId: string
     conversationId: string
     messageId: string
-    reaction: string
+    emoji: string
   }
-
-  'message.reaction.status': {
-    accountId: string
-    conversationId: string
-    messageId: string
-    reaction: string
-    status: 'pending' | 'success' | 'failed'
-  }
-
-  'message.reaction.received': {
-    messageId: string
-    sender: string
-    recipient: string
-    reactor: string
-    reaction: string
-  }
+  'reaction.received': EventMap['PartnerMessageReacted']
 }

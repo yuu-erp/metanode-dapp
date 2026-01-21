@@ -3,10 +3,9 @@ export type MessageType = 'text' | 'sticker'
 export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed'
 
 export interface MessageReaction {
-  emoji: string // 😀 ❤️ 👍
-  count: number // tổng số
+  emoji: string // 😀 ❤️ 👍 đã được encodeBase64
+  count: number
   reactedByMe?: boolean // mình có reaction emoji này không
-  users?: string[] // optional: danh sách sender
 }
 
 export interface BaseMessage {
@@ -24,6 +23,7 @@ export interface BaseMessage {
   reactions?: MessageReaction[]
   // ── Các trường liên quan đến REPLY ──
   replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
+  forwardFrom?: ForwardReference
 }
 
 // Optional: Tách riêng phần reference để dễ quản lý & tiết kiệm băng thông
@@ -33,6 +33,14 @@ export interface ReplyReference {
   type: MessageType // 'text' | 'sticker' - loại của tin nhắn gốc
   textPreview?: string // chỉ có khi type === 'text' → 60–120 ký tự đầu, hoặc toàn bộ nếu ngắn
   stickerPreview?: string // chỉ có khi type === 'sticker' → chính là stickerId, hoặc tên mô tả "cat-cry-03"
+}
+
+export interface ForwardReference {
+  messageId: string
+  sender: string
+  type: MessageType
+  textPreview?: string
+  stickerPreview?: string
 }
 
 // Text message
@@ -49,12 +57,3 @@ export interface StickerMessage extends BaseMessage {
 
 // Union type cho toàn bộ message
 export type Message = TextMessage | StickerMessage
-
-export type MessageReceived = {
-  dataStoreAddress: string
-  encryptedContent: string
-  messageId: string
-  messageNonce: string
-  recipient: string
-  sender: string
-}

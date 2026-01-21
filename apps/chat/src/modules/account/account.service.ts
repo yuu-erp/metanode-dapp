@@ -1,10 +1,9 @@
 import type { FactoryContract, UserContract } from '@/modules/blockchain'
 import type { Wallet, WalletService } from '@/modules/wallet'
-import { detectNameFromWalletName } from '@/shared/helpers'
-import { generateAvailableUsername } from '@/shared/helpers/username-generator'
 import { activateAccount, createAccount } from './account.entity'
 import type { AccountRepository } from './account.repository'
 import type { Account } from './account.types'
+import { detectNameFromWalletName, generateAvailableUsername } from './utils'
 
 export class AccountService {
   constructor(

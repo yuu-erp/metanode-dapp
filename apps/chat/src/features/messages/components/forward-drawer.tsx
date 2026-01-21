@@ -1,37 +1,16 @@
 'use client'
-
-import { Megaphone, QrCode, X } from 'lucide-react'
+import { useGetConversations } from '@/features/conversations'
+import ConversationContact from '@/shared/components/conversation-contact'
+import { useCurrentAccount } from '@/shared/hooks'
+import { X } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
 
-import { EditIcon, UserAddIcon, UserGroupIcon } from '@/shared/components/icons'
-import { useCurrentAccount } from '@/shared/hooks'
-import { useNavigate } from '@tanstack/react-router'
-import { useGetConversations, useScanQrcodeProfile } from '../hooks'
-import ConversationContact from '@/shared/components/conversation-contact'
-
-function DrawerNewConversation() {
-  const navigate = useNavigate()
-
+function ForwardDrawer() {
   const { data: account } = useCurrentAccount()
   const { data: conversations = [] } = useGetConversations(account?.address)
-  const { mutate } = useScanQrcodeProfile()
-
-  const handleClickScanQR = React.useCallback(() => {
-    if (!account) return
-    mutate(account)
-  }, [account, mutate])
-
-  console.log('conversations: ', conversations)
-
   return (
     <Drawer.Root shouldScaleBackground>
-      <Drawer.Trigger asChild>
-        <button aria-label="New message">
-          <EditIcon className="size-7 text-white" />
-        </button>
-      </Drawer.Trigger>
-
       <Drawer.Portal>
         {/* Overlay */}
         <Drawer.Overlay className="fixed inset-0 bg-black/50" />
@@ -73,7 +52,7 @@ function DrawerNewConversation() {
                   </Drawer.Close>
 
                   <Drawer.Title className="text-gray-100 font-semibold text-lg">
-                    New Message
+                    Forward
                   </Drawer.Title>
                 </div>
                 {/* Search + QR */}
@@ -91,70 +70,9 @@ function DrawerNewConversation() {
                     transition
                   "
                   />
-
-                  <button
-                    type="button"
-                    onClick={handleClickScanQR}
-                    className="
-                    size-12 shrink-0 rounded-full
-                    bg-[#2c2c2e]
-                    border border-white/10
-                    shadow-lg
-                    flex items-center justify-center
-                    transition
-                    active:scale-95
-                  "
-                  >
-                    <QrCode className="size-6 text-gray-100" />
-                  </button>
                 </div>
               </div>
               <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[130px]">
-                {/* Telegram Actions */}
-                <div className="flex flex-col">
-                  {/* New Group */}
-                  <button
-                    className="
-                    w-full h-12
-                    flex items-center gap-4
-                    text-left
-                    transition
-                  "
-                  >
-                    <UserGroupIcon className="size-6 text-blue-500" />
-                    <span className="font-medium text-blue-500">New Group</span>
-                  </button>
-
-                  <div className="h-px bg-white/20 ml-10" />
-
-                  {/* New Contact */}
-                  <button
-                    className="
-                    w-full h-12
-                    flex items-center gap-4
-                    text-left
-                    transition
-                  "
-                  >
-                    <UserAddIcon className="size-6 text-blue-500" />
-                    <span className="font-medium text-blue-500">New Contact</span>
-                  </button>
-
-                  <div className="h-px bg-white/20 ml-10" />
-
-                  {/* New Channel */}
-                  <button
-                    className="
-                    w-full h-14
-                    flex items-center gap-4
-                    text-left
-                    transition
-                  "
-                  >
-                    <Megaphone className="size-5 text-blue-500" />
-                    <span className="font-medium text-blue-500">New Channel</span>
-                  </button>
-                </div>
                 {/* List conversation */}
                 <div className="flex flex-1 w-full flex-col gap-3 mt-3">
                   {conversations.map((conversation) => (
@@ -166,12 +84,6 @@ function DrawerNewConversation() {
                           account?.contractAddress === conversation.conversationId
                             ? 'PRIVATE'
                             : 'USER'
-                        }
-                        onClick={() =>
-                          navigate({
-                            to: '/conversation/$id',
-                            params: { id: conversation.conversationId }
-                          })
                         }
                       />
                       <div className="h-px bg-white/20 ml-18" />
@@ -187,4 +99,4 @@ function DrawerNewConversation() {
   )
 }
 
-export default React.memo(DrawerNewConversation)
+export default React.memo(ForwardDrawer)

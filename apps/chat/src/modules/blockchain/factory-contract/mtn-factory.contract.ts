@@ -1,13 +1,13 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
+import { CONTRACT_ADDRESSES } from '../config/contracts'
+import type { TransactionPayload } from '../types'
+import { factoryAbi } from './abis'
 import type {
   CheckUserContractInput,
   GetUserContractInput,
   IsUsernameTakenInput,
   RegisterUserInput
 } from './types'
-import { factoryAbi } from './abis'
-import { CONTRACT_ADDRESSES } from '../config/contracts'
-import type { TransactionPayload } from '../types'
 
 export class FactoryContract extends MtnContract {
   constructor() {

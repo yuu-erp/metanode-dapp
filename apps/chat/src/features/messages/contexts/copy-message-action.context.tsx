@@ -26,12 +26,9 @@ export function CopyMessageActionProvider({ children }: CopyMessageActionProvide
     } else {
       await copyClipboard(content)
     }
-
     setVisible(true)
-
     // clear timer cũ để tránh spam copy
     if (timerRef.current) clearTimeout(timerRef.current)
-
     timerRef.current = setTimeout(() => {
       setVisible(false)
     }, 3000)
@@ -40,7 +37,6 @@ export function CopyMessageActionProvider({ children }: CopyMessageActionProvide
   return (
     <CopyMessageActionContext.Provider value={{ copyMessage }}>
       {children}
-
       <AnimatePresence>
         {visible && (
           <motion.div

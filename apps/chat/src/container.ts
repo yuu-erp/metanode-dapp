@@ -8,7 +8,7 @@ import {
 import { EventLogContainer } from '@/modules/eventlogs'
 import { MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
-import { MittEventBus, type EventBusPort } from './modules/event'
+import { MittEventBus, type EventBusPort } from '@/modules/event'
 import type { AppEvents } from './types/app-events'
 
 /**

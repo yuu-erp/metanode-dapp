@@ -1,4 +1,6 @@
-import { EventBusSendMessageProvider, EventLogProvider } from '@/contexts'
+import { EventLogProvider } from '@/contexts'
+import { ConversationsProvider } from '@/features/conversations'
+import { MessageProvider } from '@/features/messages'
 import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
@@ -27,15 +29,17 @@ function RouteComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
   return (
-    <EventBusSendMessageProvider>
-      <EventLogProvider>
-        <BackgroundSyncProvider>
-          <AppSessionProvider>
-            <Outlet />
-            {showNavbar && <NavbarMenu />}
-          </AppSessionProvider>
-        </BackgroundSyncProvider>
-      </EventLogProvider>
-    </EventBusSendMessageProvider>
+    <EventLogProvider>
+      <ConversationsProvider>
+        <MessageProvider>
+          <BackgroundSyncProvider>
+            <AppSessionProvider>
+              <Outlet />
+              {showNavbar && <NavbarMenu />}
+            </AppSessionProvider>
+          </BackgroundSyncProvider>
+        </MessageProvider>
+      </ConversationsProvider>
+    </EventLogProvider>
   )
 }

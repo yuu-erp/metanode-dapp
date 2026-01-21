@@ -1,12 +1,13 @@
 import type { Account } from '@/modules/account'
+import type { UserContract } from '@/modules/blockchain'
+import type { Conversation } from '@/modules/conversation'
+import type { EventBusPort } from '@/modules/event'
+import type { EventMap } from '@/modules/eventlogs'
+import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import { v4 as uuidv4 } from 'uuid'
-import type { Message, MessageReceived } from '.'
-import type { UserContract } from '../blockchain'
-import type { Conversation } from '../conversation'
-import type { EventBusPort } from '../event'
-import type { WalletService } from '../wallet'
+import type { Message } from '.'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
@@ -88,7 +89,7 @@ export class MessageService {
       },
       payload
     )
-
+    console.log('[MESSAGE SERVICE] ---- sendMessage --- optimisticMessage', optimisticMessage)
     // optimistic update
     this.eventBus.emit('message.create', { message: optimisticMessage })
 
@@ -116,8 +117,7 @@ export class MessageService {
         accountId: account.address,
         conversationId: conversation.conversationId,
         clientId,
-        messageId: result.messageId,
-        encryptContent: encryptedForRecipient
+        messageId: result.messageId
       })
 
       return result.messageId
@@ -132,7 +132,7 @@ export class MessageService {
     }
   }
 
-  async messageReceived(account: Account, data: MessageReceived): Promise<Message> {
+  async messageReceived(account: Account, data: EventMap['MessageReceived']): Promise<Message> {
     const { encryptedContent, sender, messageId, recipient } = data
     const publicKey = await this.userContract.publicKey({
       from: account.address,
@@ -162,7 +162,17 @@ export class MessageService {
     }
   ): Promise<void> {
     const { emoji, messageId } = payload
+
+    // 🔥 optimistic UI
+    this.eventBus.emit('reaction.create', {
+      accountId: account.address,
+      conversationId: conversation.conversationId,
+      messageId,
+      emoji
+    })
+
     const encryptEmoji = encodeBase64(emoji)
+
     await this.userContract.reactToMessage({
       from: account.address,
       to: account.contractAddress,

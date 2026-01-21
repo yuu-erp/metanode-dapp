@@ -1,5 +1,7 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
+import { CONTRACT_ADDRESSES } from '../config/contracts'
 import type { TransactionPayload } from '../types'
+import { userAbi } from './abis'
 import type {
   GetFullInboxOutput,
   GetProcessedP2PMessagesInput,
@@ -9,8 +11,6 @@ import type {
   SendMessageOutput,
   UserProfileOutput
 } from './types'
-import { userAbi } from './abis'
-import { CONTRACT_ADDRESSES } from '../config/contracts'
 
 export class UserContract extends MtnContract {
   constructor() {

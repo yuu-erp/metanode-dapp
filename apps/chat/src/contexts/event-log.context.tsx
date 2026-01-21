@@ -14,7 +14,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
   React.useEffect(() => {
     if (!account?.address || !account.contractAddress) return
-
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
 
@@ -22,12 +21,12 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     const offMessageReceived = eventLog.on('MessageReceived', (data) => {
       if (data.sender === account.contractAddress) return
-      eventBus.emit('message:received', data)
+      eventBus.emit('message.received', data)
     })
 
     const offReaction = eventLog.on('PartnerMessageReacted', (data) => {
       if (data.sender === account.contractAddress) return
-      eventBus.emit('message.reaction.received', data)
+      eventBus.emit('reaction.received', data)
     })
 
     return () => {

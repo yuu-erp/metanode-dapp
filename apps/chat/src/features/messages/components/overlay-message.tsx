@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/shared/components/ui/dropdown-menu'
+import { cn } from '@/shared/lib'
 import { motion } from 'framer-motion'
 import { SmilePlus } from 'lucide-react'
 import * as React from 'react'
@@ -111,7 +112,10 @@ export default React.memo(function OverlayMessage({
             <DropdownMenuTrigger asChild>
               <div className="inline-block w-full relative">
                 <motion.div
-                  className="sticky left-1/8 top-20 w-fit bg-white/80 mb-3 backdrop-blur-md rounded-full px-2 py-1 flex gap-3 shadow-xl pointer-events-auto z-10"
+                  className={cn(
+                    'sticky top-20 w-fit bg-white/80 mb-3 backdrop-blur-md rounded-full px-2 py-1 flex gap-3 shadow-xl pointer-events-auto z-10',
+                    isMine ? 'ml-auto mr-2' : 'ml-2'
+                  )}
                   initial={{ scale: 0.6, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: 'spring', damping: 20 }}
@@ -138,8 +142,8 @@ export default React.memo(function OverlayMessage({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-              align="end"
-              className="w-64 mr-2 shadow-xl bg-white/80 backdrop-blur-md border-none rounded-2xl"
+              align={isMine ? 'end' : 'start'}
+              className="w-64 ml-2 mr-2 shadow-xl bg-white/80 backdrop-blur-md border-none rounded-2xl"
               // Ngăn click trong menu lan ra backdrop (tùy chọn, thường không cần)
               onClick={(e) => e.stopPropagation()}
               onCloseAutoFocus={(e) => e.preventDefault()} // ← Ngăn focus quay về trigger khi đóng

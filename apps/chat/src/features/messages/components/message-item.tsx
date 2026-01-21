@@ -96,7 +96,7 @@ function MessageItem({
         {/* Failed label */}
         <div className="w-full flex items-end justify-between gap-3">
           <div className="flex items-center gap-1">
-            <ReactionMessage reactions={message?.reactions?.map((item) => item.emoji)} />
+            <ReactionMessage reactions={message?.reactions} />
           </div>
           <div
             className={cn(
