@@ -7,7 +7,7 @@ import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import { v4 as uuidv4 } from 'uuid'
-import type { Message } from '.'
+import type { Message, SendPayload } from '.'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
@@ -71,19 +71,7 @@ export class MessageService {
   async sendMessage(
     account: Account,
     conversation: Conversation,
-    payload:
-      | {
-          type: 'text'
-          content: string
-          replyTo?: Message['replyTo']
-          forwardFrom?: Message['replyTo']
-        }
-      | {
-          type: 'sticker'
-          stickerId: string
-          replyTo?: Message['replyTo']
-          forwardFrom?: Message['replyTo']
-        }
+    payload: SendPayload
   ): Promise<string> {
     const clientId = uuidv4()
 
@@ -93,19 +81,19 @@ export class MessageService {
         accountId: account.address,
         conversationId: conversation.conversationId,
         sender: account.contractAddress,
-        recipient: conversation.conversationId,
+        recipient: account.contractAddress,
         timestamp: Date.now(),
-        replyTo: payload.replyTo, // 🔑 gắn reply
-        forwardFrom: payload.forwardFrom
+        ...(payload.replyTo && { replyTo: payload.replyTo }),
+        ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
       },
       payload
     )
     console.log('[MESSAGE SERVICE] ---- sendMessage --- optimisticMessage', optimisticMessage)
     // optimistic update
     this.eventBus.emit('message.create', { message: optimisticMessage })
-
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
+    console.log('[MESSAGE SERVICE] ---- sendMessage --- messageOnChain', messageOnChain)
     const stringifyMessage = JSON.stringify(messageOnChain)
 
     const [encryptedForRecipient, encryptedForSelf] = await Promise.all([

@@ -7,7 +7,6 @@ import * as React from 'react'
 import { useSendMessage } from '../hooks'
 import { ReplyInputMessage } from './input-message-actions'
 import { useMessageAction } from '../contexts'
-import { messageToReplyReference } from '@/modules/message'
 import { useFilePicker } from '@/shared/hooks'
 
 interface InputMessageProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -65,16 +64,16 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
       const content = message.trim()
       if (!content || isPending) return
 
-      const replyTo =
-        messageAction?.type === 'REPLY' ? messageToReplyReference(messageAction.message) : undefined
+      // const replyTo =
+      //   messageAction?.type === 'REPLY' ? messageToReplyReference(messageAction.message) : undefined
 
       mutate({
         account,
         conversation,
         payload: {
           type: 'text',
-          content,
-          replyTo // 🔑 GỬI REPLY REFERENCE
+          content
+          // replyTo // 🔑 GỬI REPLY REFERENCE
         }
       })
 

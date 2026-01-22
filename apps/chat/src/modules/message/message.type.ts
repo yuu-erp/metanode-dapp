@@ -1,59 +1,113 @@
-export type MessageType = 'text' | 'sticker'
+// ============================================================================
+// TYPES - MESSAGE SYSTEM (Type-safe discriminated union)
+// ============================================================================
 
-export type MessageStatus = 'sent' | 'delivered' | 'read' | 'failed'
+export type MessageType = 'text' | 'sticker' | 'file' | 'voice' | 'location'
+
+export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
 
 export interface MessageReaction {
-  emoji: string // 😀 ❤️ 👍 đã được encodeBase64
+  emoji: string
   count: number
-  reactedByMe?: boolean // mình có reaction emoji này không
+  reactedByMe?: boolean
+  users: string[]
 }
 
-export interface BaseMessage {
-  id?: string // unique message id (có thể từ XMTP id hoặc tx hash)
-  clientId: string
-  accountId: string // account id
-  type: MessageType
-  sender: string // wallet address hoặc ENS
-  recipient: string
-  timestamp: number // Unix timestamp (ms)
-  conversationId: string // optional - cho group chat hoặc channel
-  isEdited?: boolean
-  isDeleted?: boolean
-  status?: 'sent' | 'delivered' | 'read' | 'failed'
-  reactions?: MessageReaction[]
-  // ── Các trường liên quan đến REPLY ──
-  replyTo?: ReplyReference // (khuyến nghị) - chứa thông tin preview
-  forwardFrom?: ForwardReference
+// ============================================================================
+// PAYLOAD DEFINITIONS
+
+// ============================================================================
+
+export interface MessagePayloadMap {
+  text: { content: string }
+  sticker: { stickerId: string }
+  file: { fileId: string; fileName: string; mimeType: string; size: number }
+  voice: { fileId: string; duration: number; mimeType: string }
+  location: { latitude: number; longitude: number; address?: string }
 }
 
-// Optional: Tách riêng phần reference để dễ quản lý & tiết kiệm băng thông
-export interface ReplyReference {
-  messageId: string // bắt buộc - id của tin nhắn gốc
-  sender: string // wallet address hoặc ENS
-  type: MessageType // 'text' | 'sticker' - loại của tin nhắn gốc
-  textPreview?: string // chỉ có khi type === 'text' → 60–120 ký tự đầu, hoặc toàn bộ nếu ngắn
-  stickerPreview?: string // chỉ có khi type === 'sticker' → chính là stickerId, hoặc tên mô tả "cat-cry-03"
+// ============================================================================
+// REPLY PREVIEW (chỉ những thông tin cần thiết để hiển thị reply bar)
+// ============================================================================
+
+export type ReplyPreviewMap = {
+  [K in MessageType]: K extends 'text'
+    ? { content: string }
+    : K extends 'sticker'
+      ? { stickerId: string }
+      : K extends 'file'
+        ? { fileId: string; fileName: string; mimeType: string; size: number }
+        : K extends 'voice'
+          ? { fileId: string; duration: number; mimeType: string }
+          : K extends 'location'
+            ? { latitude: number; longitude: number; address?: string }
+            : never
 }
 
-export interface ForwardReference {
+export type ReplyReference<T extends MessageType = MessageType> = {
   messageId: string
   sender: string
+  type: T
+} & ReplyPreviewMap[T]
+
+// ============================================================================
+// BASE MESSAGE (các trường chung cho mọi loại message)
+// ============================================================================
+
+export interface BaseMessage {
+  id?: string // undefined khi là optimistic message (chưa gửi thành công)
+  clientId: string // unique id do client tạo (dùng để match khi server trả về)
+  accountId: string
   type: MessageType
-  textPreview?: string
-  stickerPreview?: string
+  sender: string
+  recipient: string
+  timestamp: number
+  conversationId: string
+  isEdited?: boolean
+  isDeleted?: boolean
+  status?: MessageStatus
+  reactions?: MessageReaction[]
+  replyTo?: ReplyReference
+  forwardFrom?: string
 }
 
-// Text message
-export interface TextMessage extends BaseMessage {
-  type: 'text'
-  content: string // plain text hoặc markdown string
+// ============================================================================
+// FINAL MESSAGE TYPE (union discriminated by .type)
+// ============================================================================
+
+export type Message =
+  | (BaseMessage & { type: 'text' } & MessagePayloadMap['text'])
+  | (BaseMessage & { type: 'sticker' } & MessagePayloadMap['sticker'])
+  | (BaseMessage & { type: 'file' } & MessagePayloadMap['file'])
+  | (BaseMessage & { type: 'voice' } & MessagePayloadMap['voice'])
+  | (BaseMessage & { type: 'location' } & MessagePayloadMap['location'])
+
+// Type alias cho message đã có id (dùng khi lưu trữ hoặc reply)
+export type PersistedMessage = Message & { id: string }
+
+// ============================================================================
+// SEND PAYLOAD (dùng khi gửi message từ client)
+// ============================================================================
+
+export interface BaseSendPayload {
+  replyTo?: ReplyReference
+  forwardFrom?: string
 }
 
-// Sticker message
-export interface StickerMessage extends BaseMessage {
-  type: 'sticker'
-  stickerId: string // ví dụ: "cat-cry-03", "heart-eyes"
-}
+export type SendPayload =
+  | (BaseSendPayload & { type: 'text' } & MessagePayloadMap['text'])
+  | (BaseSendPayload & { type: 'sticker' } & MessagePayloadMap['sticker'])
+  | (BaseSendPayload & { type: 'file' } & MessagePayloadMap['file'])
+  | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
+  | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])
 
-// Union type cho toàn bộ message
-export type Message = TextMessage | StickerMessage
+// ============================================================================
+// ON-CHAIN PAYLOAD (khi stringify và lưu lên smart contract)
+// ============================================================================
+
+export type OnChainMessagePayload =
+  | (BaseSendPayload & { type: 'text' } & MessagePayloadMap['text'])
+  | (BaseSendPayload & { type: 'sticker' } & MessagePayloadMap['sticker'])
+  | (BaseSendPayload & { type: 'file' } & MessagePayloadMap['file'])
+  | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
+  | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])

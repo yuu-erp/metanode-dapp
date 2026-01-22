@@ -1,7 +1,6 @@
 'use client'
 import { useGetConversations } from '@/features/conversations'
 import type { Conversation } from '@/modules/conversation'
-import { messageToForwartReference } from '@/modules/message'
 import ConversationContact from '@/shared/components/conversation-contact'
 import { useCurrentAccount } from '@/shared/hooks'
 import { useNavigate } from '@tanstack/react-router'
@@ -26,25 +25,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
   const handleForwardMessage = React.useCallback(
     (conversation: Conversation) => async () => {
       if (!account || !messageAction) return
-
-      const forwardFrom = messageToForwartReference(messageAction.message)
-
-      mutate({
-        account,
-        conversation,
-        payload: {
-          type: 'text',
-          content: '',
-          forwardFrom
-        }
-      })
-
-      navigate({
-        to: '/conversation/$id',
-        params: { id: conversation.conversationId }
-      })
-
-      onClose?.()
+      console.log('conversation', conversation)
     },
     [account, messageAction, mutate, navigate, onClose]
   )
