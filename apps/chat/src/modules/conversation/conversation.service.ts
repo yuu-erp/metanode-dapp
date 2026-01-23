@@ -62,7 +62,6 @@ export class ConversationService {
           item.latestMessageContent,
           conversationPublicKey
         )
-        console.log('latestMessageContent --- ', latestMessageContent)
         const existed = await this.repository.getById(account.address, item.conversationId)
 
         if (existed?.conversationType === 'private') {
@@ -77,8 +76,11 @@ export class ConversationService {
             unreadCount: 0,
             // @ts-ignore
             latestMessageContent:
+              // @ts-ignore
               latestMessageContent.text ??
+              // @ts-ignore
               latestMessageContent.value ??
+              // @ts-ignore
               latestMessageContent.content ??
               ''
           }
@@ -94,8 +96,11 @@ export class ConversationService {
           publicKey: conversationPublicKey,
           // @ts-ignore
           latestMessageContent:
+            // @ts-ignore
             latestMessageContent.text ??
+            // @ts-ignore
             latestMessageContent.value ??
+            // @ts-ignore
             latestMessageContent.content ??
             ''
         })

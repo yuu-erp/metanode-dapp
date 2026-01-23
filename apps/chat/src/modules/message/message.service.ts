@@ -48,6 +48,11 @@ export class MessageService {
             account.address,
             item.finalContent
           )
+          console.log(
+            '[MESSAGE SERVICE] ---- getProcessedP2PMessages --- messageDecrypt',
+            messageDecrypt
+          )
+
           return mapperToMessage({
             accountId: account.address,
             conversationId: conversation.conversationId,
@@ -88,12 +93,10 @@ export class MessageService {
       },
       payload
     )
-    console.log('[MESSAGE SERVICE] ---- sendMessage --- optimisticMessage', optimisticMessage)
     // optimistic update
     this.eventBus.emit('message.create', { message: optimisticMessage })
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
-    console.log('[MESSAGE SERVICE] ---- sendMessage --- messageOnChain', messageOnChain)
     const stringifyMessage = JSON.stringify(messageOnChain)
 
     const [encryptedForRecipient, encryptedForSelf] = await Promise.all([

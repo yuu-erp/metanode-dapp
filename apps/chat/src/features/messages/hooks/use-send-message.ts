@@ -1,21 +1,21 @@
 import { container } from '@/container'
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
-import type { ForwardReference, ReplyReference } from '@/modules/message'
+import type { ReplyReference } from '@/modules/message'
 import { useMutation } from '@tanstack/react-query'
 
 type SendTextPayload = {
   type: 'text'
   content: string
   replyTo?: ReplyReference
-  forwardFrom?: ForwardReference
+  forwardFrom?: string
 }
 
 type SendStickerPayload = {
   type: 'sticker'
   stickerId: string
   replyTo?: ReplyReference
-  forwardFrom?: ForwardReference
+  forwardFrom?: string
 }
 
 export type SendMessagePayload = SendTextPayload | SendStickerPayload

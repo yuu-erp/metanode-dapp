@@ -1,10 +1,10 @@
 'use client'
 
+import { ForwardIcon } from '@/shared/components/icons'
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
-import { Forward } from 'lucide-react'
 import * as React from 'react'
-import type { ActionProps } from './action.interface'
+import type { ActionProps } from '.'
 
 export interface ForwardActionProps extends ActionProps {}
 
@@ -17,7 +17,7 @@ function ForwardAction({ className, ...props }: ForwardActionProps) {
     >
       Chuyển tiếp
       <DropdownMenuShortcut>
-        <Forward className="size-5 text-black" />
+        <ForwardIcon className="size-5 text-black" />
       </DropdownMenuShortcut>
     </DropdownMenuItem>
   )

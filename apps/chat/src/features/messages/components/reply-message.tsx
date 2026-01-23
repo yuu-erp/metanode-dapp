@@ -2,16 +2,16 @@
 import { cn } from '@/shared/lib'
 import * as React from 'react'
 import { useReplyMeta } from '../hooks'
+import type { MessageType } from '@/modules/message'
 
 interface ReplyMessageProps {
   sender: string
-  type: 'text' | 'sticker'
-  textPreview?: string
-  stickerPreview?: string
+  type: MessageType
+  content?: string
   isMine?: boolean
 }
-function ReplyMessage({ sender, type, textPreview, isMine }: ReplyMessageProps) {
-  const { title, content } = useReplyMeta(sender, type, textPreview)
+function ReplyMessage({ sender, type, content, isMine }: ReplyMessageProps) {
+  const { title, content: contentMessage } = useReplyMeta(sender, type, content)
 
   return (
     <div
@@ -32,7 +32,7 @@ function ReplyMessage({ sender, type, textPreview, isMine }: ReplyMessageProps) 
               isMine ? 'text-blue-100' : 'text-black'
             )}
           >
-            {content}
+            {contentMessage}
           </div>
         </div>
       </div>

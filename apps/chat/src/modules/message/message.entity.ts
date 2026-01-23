@@ -102,6 +102,66 @@ export function createReplyReference(message: PersistedMessage): ReplyReference 
   }
 }
 
+export function createForwardPayload(message: PersistedMessage) {
+  if (!message.id) {
+    throw new Error('Cannot forward message without id')
+  }
+
+  const common = {
+    forwardFrom: message.id
+  }
+
+  switch (message.type) {
+    case 'text':
+      return {
+        ...common,
+        type: 'text',
+        content: message.content
+      }
+
+    case 'sticker':
+      return {
+        ...common,
+        type: 'sticker',
+        stickerId: message.stickerId
+      }
+
+    case 'file':
+      return {
+        ...common,
+        type: 'file',
+        fileId: message.fileId,
+        fileName: message.fileName,
+        mimeType: message.mimeType,
+        size: message.size
+      }
+
+    case 'voice':
+      return {
+        ...common,
+        type: 'voice',
+        fileId: message.fileId,
+        duration: message.duration,
+        mimeType: message.mimeType
+      }
+
+    case 'location':
+      return {
+        ...common,
+        type: 'location',
+        latitude: message.latitude,
+        longitude: message.longitude,
+        address: message.address
+      }
+
+    default: {
+      // đảm bảo exhaustiveness khi thêm MessageType mới
+      const _exhaustive: never = message
+      return _exhaustive
+    }
+  }
+}
+
 // ============================================================================
 // TYPE GUARDS (rất hữu ích khi xử lý runtime)
 // ============================================================================

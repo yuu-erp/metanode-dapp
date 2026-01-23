@@ -235,7 +235,8 @@ export function parseReactionSummary(summary?: string): MessageReaction[] {
   return Array.from(map, ([emoji, { count, reactedByMe }]) => ({
     emoji,
     count,
-    ...(reactedByMe && { reactedByMe: true })
+    ...(reactedByMe && { reactedByMe: true }),
+    users: []
   }))
 }
 

@@ -9,6 +9,7 @@ import PinMessages from '@/features/messages/components/pin-messages'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { ListMessage } from '@/features/messages/components/list-message/index'
+import type { Conversation } from '@/modules/conversation'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({
   component: RouteComponent
@@ -32,8 +33,7 @@ function RouteComponent() {
           {/* @ts-ignore */}
           <ListMessage conversation={conversation} account={account} />
           {/* Input chat - luôn dính bottom */}
-          {/* @ts-ignore */}
-          <InputMessage conversation={conversation} account={account} />
+          <InputMessage conversation={conversation as Conversation} account={account} />
         </div>
       </CopyMessageActionProvider>
     </MessageActionProvider>

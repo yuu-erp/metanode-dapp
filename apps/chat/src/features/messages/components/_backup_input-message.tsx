@@ -5,9 +5,9 @@ import { StickerIcon } from '@/shared/components/icons'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { useSendMessage } from '../hooks'
-import { ReplyInputMessage } from './input-message-actions'
 import { useMessageAction } from '../contexts'
 import { useFilePicker } from '@/shared/hooks'
+import { createReplyReference } from '@/modules/message/message.entity'
 
 interface InputMessageProps extends React.HTMLAttributes<HTMLDivElement> {
   conversation?: Conversation
@@ -63,17 +63,19 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
 
       const content = message.trim()
       if (!content || isPending) return
-
-      // const replyTo =
-      //   messageAction?.type === 'REPLY' ? messageToReplyReference(messageAction.message) : undefined
-
+      if (!messageAction || !messageAction.message || !messageAction.message.id) return
+      const replyTo =
+        messageAction?.type === 'REPLY'
+          ? createReplyReference({ ...messageAction.message, id: messageAction.message.id ?? '' })
+          : undefined
+      console.log({ replyTo })
       mutate({
         account,
         conversation,
         payload: {
           type: 'text',
-          content
-          // replyTo // 🔑 GỬI REPLY REFERENCE
+          content,
+          replyTo // 🔑 GỬI REPLY REFERENCE
         }
       })
 
@@ -111,13 +113,6 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
 
               {/* CONTENT LAYER – SCROLL Ở ĐÂY */}
               <div className="relative h-full py-2 px-1 flex flex-col gap-1">
-                {messageAction && (
-                  <ReplyInputMessage
-                    messageAction={messageAction}
-                    onClose={() => setMessageAction(null)}
-                  />
-                )}
-
                 <div className="w-full h-full flex items-end">
                   <div className="no-scrollbar min-h-8 max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
                     <textarea

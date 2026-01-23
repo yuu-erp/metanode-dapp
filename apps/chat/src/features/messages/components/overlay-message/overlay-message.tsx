@@ -52,6 +52,14 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
 
       onDelete: () => {
         handleClose()
+      },
+
+      onEdit: () => {
+        setMessageAction({
+          type: 'EDIT',
+          message
+        })
+        handleClose()
       }
     }),
     [account, conversation, message, mutate, setMessageAction, copyMessage, handleClose]

@@ -8,7 +8,7 @@ import {
 import { cn } from '@/shared/lib'
 import { Trash2 } from 'lucide-react'
 import * as React from 'react'
-import type { ActionProps } from './action.interface'
+import type { ActionProps } from '.'
 
 export interface DeleteActionProps extends ActionProps {}
 

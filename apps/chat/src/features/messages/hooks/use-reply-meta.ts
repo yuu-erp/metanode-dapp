@@ -1,6 +1,7 @@
+import type { MessageType } from '@/modules/message'
 import { useGetUserProfile } from '@/shared/hooks/accounts'
 
-export function useReplyMeta(sender: string, type: 'text' | 'sticker', text?: string) {
+export function useReplyMeta(sender: string, type: MessageType, text?: string) {
   const { data: profile, isLoading, isError } = useGetUserProfile(sender)
 
   let title = 'Reply'

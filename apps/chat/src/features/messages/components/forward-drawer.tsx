@@ -9,6 +9,7 @@ import * as React from 'react'
 import { Drawer } from 'vaul'
 import type { MessageAction } from '../contexts'
 import { useSendMessage } from '../hooks'
+import { createForwardPayload } from '@/modules/message'
 
 interface ForwardDrawerProps {
   open?: boolean
@@ -25,7 +26,12 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
   const handleForwardMessage = React.useCallback(
     (conversation: Conversation) => async () => {
       if (!account || !messageAction) return
-      console.log('conversation', conversation)
+      if (!messageAction || !messageAction.message || !messageAction.message.id) return
+      const forwardPayload = createForwardPayload({
+        ...messageAction.message,
+        id: messageAction.message.id
+      })
+      console.log('forwardPayload: ', forwardPayload)
     },
     [account, messageAction, mutate, navigate, onClose]
   )

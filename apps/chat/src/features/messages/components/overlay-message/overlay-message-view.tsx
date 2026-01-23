@@ -11,7 +11,7 @@ import {
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
 import MessageItem from '../message-item'
-import { CopyAction, DeleteAction, ForwardAction, ReplyAction } from '../menu-context-actions'
+import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction } from '.'
 import type { Message } from '@/modules/message'
 import type { OverlayMessageHandlers } from './overlay-message.types'
 
@@ -102,6 +102,8 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
               <ReplyAction onClose={handlers.onReply} />
               <DropdownMenuSeparator className="bg-black/10" />
               <CopyAction onClose={handlers.onCopy} />
+              <DropdownMenuSeparator className="bg-black/10" />
+              {isMine && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
               <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}
