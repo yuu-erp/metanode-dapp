@@ -1,6 +1,9 @@
 import * as React from 'react'
-export function useChatScroll(scrollRef: React.RefObject<HTMLDivElement>) {
+export function useChatScroll() {
+  const scrollRef = React.useRef<HTMLDivElement>(null!)
+
   const [showScrollBottom, setShowScrollBottom] = React.useState(false)
+
   const scrollToBottom = React.useCallback(() => {
     scrollRef.current?.scrollTo({
       top: 0,
@@ -16,6 +19,7 @@ export function useChatScroll(scrollRef: React.RefObject<HTMLDivElement>) {
   }, [])
 
   return {
+    scrollRef,
     showScrollBottom,
     scrollToBottom,
     handleScroll

@@ -13,7 +13,6 @@ function NavbarMenu() {
         className="h-[84px] fixed left-5 bottom-5 right-5 bg-black/20 border-app rounded-full"
         style={{
           boxShadow: '4px -4px 16px 0px #FFFFFF2E inset, 0px -2px 16px 0px #FFFFFF85 inset'
-          // bottom: 'env(safe-area-inset-bottom, 12px)'
         }}
       >
         <div className="h-full w-full flex items-center justify-around px-3">
@@ -26,7 +25,6 @@ function NavbarMenu() {
             >
               <UserIcon className="size-8" />
             </Button>
-            {/* <span className="text-xs font-semibold">Danh bạ</span> */}
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
@@ -37,7 +35,6 @@ function NavbarMenu() {
             >
               <PhoneIcon className="size-8" />
             </Button>
-            {/* <span className="text-xs font-semibold">Cuộc gọi</span> */}
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
@@ -50,7 +47,6 @@ function NavbarMenu() {
               <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" />
               <MessageIcon className="size-8" />
             </Button>
-            {/* <span className="text-xs font-semibold">Chat</span> */}
           </div>
           <div className="flex flex-col items-center justify-center gap-1">
             <Button
@@ -62,7 +58,6 @@ function NavbarMenu() {
             >
               <SettingsIcon className="size-8" />
             </Button>
-            {/* <span className="text-xs font-semibold">Cài đặt</span> */}
           </div>
         </div>
       </div>

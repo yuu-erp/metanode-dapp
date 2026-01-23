@@ -8,9 +8,9 @@ import { ChevronDown, LoaderCircle } from 'lucide-react'
 import * as React from 'react'
 import { useEffect, useRef } from 'react'
 import { useInfiniteMessages } from '../hooks'
-import { useChatScroll } from '../hooks/use-chat-scroll'
+import { useChatScroll } from './list-message/use-chat-scroll'
 import MessageItem from './message-item'
-import OverlayMessage from './overlay-message'
+import { OverlayMessage } from './overlay-message'
 
 interface ListMessageProps {
   conversation?: Conversation
@@ -27,8 +27,7 @@ function ListMessage({ conversation, account }: ListMessageProps) {
 
   // Ref để gắn vào phần tử trigger load more (khi scroll lên trên)
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  const scrollRef = useRef<HTMLDivElement>(null!)
-  const { showScrollBottom, scrollToBottom, handleScroll } = useChatScroll(scrollRef)
+  const { showScrollBottom, scrollToBottom, handleScroll, scrollRef } = useChatScroll()
 
   const [messageSelect, setMessageSelect] = React.useState<Message | null>(null)
 

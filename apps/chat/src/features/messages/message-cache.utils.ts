@@ -156,7 +156,8 @@ export function applyReactionReceived(
             {
               emoji,
               reactedByMe: true,
-              count: 2
+              count: 2,
+              users: []
             }
           ]
         }
@@ -168,14 +169,16 @@ export function applyReactionReceived(
       if (myReaction) {
         newReactions.push({
           ...myReaction,
-          count: 1
+          count: 1,
+          users: []
         })
       }
 
       newReactions.push({
         emoji,
         reactedByMe: false,
-        count: myReaction ? 1 : 1
+        count: myReaction ? 1 : 1,
+        users: []
       })
 
       return {
@@ -244,7 +247,8 @@ export function applyReactionCreate(
         nextReactions.push({
           emoji: params.emoji,
           count: 1,
-          reactedByMe: true
+          reactedByMe: true,
+          users: []
         })
       }
 

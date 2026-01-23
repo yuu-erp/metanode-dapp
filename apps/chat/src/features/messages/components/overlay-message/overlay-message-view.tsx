@@ -1,7 +1,8 @@
 'use client'
-import type { Account } from '@/modules/account'
-import type { Conversation } from '@/modules/conversation'
-import type { Message } from '@/modules/message'
+
+import * as React from 'react'
+import { motion } from 'framer-motion'
+import { SmilePlus } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,88 +10,30 @@ import {
   DropdownMenuTrigger
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
-import { motion } from 'framer-motion'
-import { SmilePlus } from 'lucide-react'
-import * as React from 'react'
-import { useCopyMessageAction, useMessageAction } from '../contexts'
-import { useReactToMessage } from '../hooks'
-import { CopyAction, DeleteAction, ForwardAction, ReplyAction } from './menu-context-actions'
-import MessageItem from './message-item'
+import MessageItem from '../message-item'
+import { CopyAction, DeleteAction, ForwardAction, ReplyAction } from '../menu-context-actions'
+import type { Message } from '@/modules/message'
+import type { OverlayMessageHandlers } from './overlay-message.types'
 
-interface OverlayMessageProps {
-  onClose: () => void
+interface OverlayMessageViewProps {
   message: Message
   isMine?: boolean
-  conversation?: Conversation
-  account?: Account
+  onClose: () => void
+  handlers: OverlayMessageHandlers
 }
 
-const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰'] // default Telegram
+const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰']
 
-export default React.memo(function OverlayMessage({
-  onClose,
-  message,
-  isMine,
-  conversation,
-  account
-}: OverlayMessageProps) {
-  const { setMessageAction } = useMessageAction()
-  const { copyMessage } = useCopyMessageAction()
-
-  const { mutate } = useReactToMessage()
-
+function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
-
   const [open, setOpen] = React.useState(true)
 
   const handleBackdropClick = (e: React.MouseEvent) => {
-    // Chỉ đóng khi click trực tiếp vào backdrop (vùng ngoài cùng)
     if (e.target === backdropRef.current) {
       setOpen(false)
       onClose()
     }
   }
-
-  const handleCloseAction = React.useCallback(() => onClose(), [])
-
-  const handleClickEmoji = React.useCallback(
-    (emoji: string) => {
-      console.log('HANDLE CLICK EMOJI ------', emoji)
-      if (!message || !message.id) return
-      if (!account || !conversation) return
-      mutate({
-        account,
-        conversation,
-        payload: {
-          messageId: message.id,
-          emoji
-        }
-      })
-      onClose()
-    },
-    [account, conversation, message]
-  )
-
-  const handleReplyMessage = React.useCallback(() => {
-    setMessageAction({
-      type: 'REPLY',
-      message
-    })
-    handleCloseAction()
-  }, [message, handleCloseAction])
-
-  const handleCopyMessage = React.useCallback(() => {
-    copyMessage(message.type === 'text' ? message.content : '')
-    handleCloseAction()
-  }, [message, handleCloseAction])
-
-  const handleForwardMessage = React.useCallback(() => {
-    setMessageAction({
-      type: 'FORWARD',
-      message
-    })
-    handleCloseAction()
-  }, [message, handleCloseAction])
 
   return (
     <motion.div
@@ -132,7 +75,7 @@ export default React.memo(function OverlayMessage({
                     <button
                       key={emoji}
                       className="text-2xl hover:scale-125 transition-transform"
-                      onClick={() => handleClickEmoji(emoji)}
+                      onClick={() => handlers.onReact(emoji)}
                     >
                       {emoji}
                     </button>
@@ -152,21 +95,22 @@ export default React.memo(function OverlayMessage({
             <DropdownMenuContent
               align={isMine ? 'end' : 'start'}
               className="w-64 ml-2 mr-2 shadow-xl bg-white/80 backdrop-blur-md border-none rounded-2xl"
-              // Ngăn click trong menu lan ra backdrop (tùy chọn, thường không cần)
               onClick={(e) => e.stopPropagation()}
-              onCloseAutoFocus={(e) => e.preventDefault()} // ← Ngăn focus quay về trigger khi đóng
-              onEscapeKeyDown={(e) => e.preventDefault()} // Optional
+              onCloseAutoFocus={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}
             >
-              <ReplyAction onClose={handleReplyMessage} />
+              <ReplyAction onClose={handlers.onReply} />
               <DropdownMenuSeparator className="bg-black/10" />
-              <CopyAction onClose={handleCopyMessage} />
+              <CopyAction onClose={handlers.onCopy} />
               <DropdownMenuSeparator className="bg-black/10" />
-              <ForwardAction onClose={handleForwardMessage} />
-              {isMine && <DeleteAction onClose={handleCloseAction} />}
+              <ForwardAction onClose={handlers.onForward} />
+              {isMine && <DeleteAction onClose={handlers.onDelete} />}
             </DropdownMenuContent>
           </DropdownMenu>
         </motion.div>
       </div>
     </motion.div>
   )
-})
+}
+
+export default React.memo(OverlayMessageView)

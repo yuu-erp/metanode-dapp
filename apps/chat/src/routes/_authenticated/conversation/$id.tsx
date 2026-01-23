@@ -3,12 +3,12 @@ import {
   ChatHeader,
   CopyMessageActionProvider,
   InputMessage,
-  ListMessage,
   MessageActionProvider
 } from '@/features/messages'
 import PinMessages from '@/features/messages/components/pin-messages'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
+import { ListMessage } from '@/features/messages/components/list-message/index'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({
   component: RouteComponent
