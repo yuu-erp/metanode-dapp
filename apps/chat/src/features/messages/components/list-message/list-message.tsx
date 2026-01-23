@@ -30,6 +30,7 @@ function ListMessage({ conversation, account }: ListMessageProps) {
       style={{ paddingBottom: 'var(--header-height)' }}
       aria-live="polite"
     >
+      {/* List message */}
       <ListMessageView
         messages={messages}
         isLoading={isLoading}
@@ -40,7 +41,9 @@ function ListMessage({ conversation, account }: ListMessageProps) {
         account={account}
         handleSelectMessage={handleSelectMessage}
       />
+      {/* Button scroll to top */}
       {showScrollBottom && <ButtonScrollToTop onClick={scrollToBottom} />}
+      {/* Overlay message */}
       <AnimatePresence mode="wait" initial={false}>
         {messageSelect && (
           <OverlayMessage
