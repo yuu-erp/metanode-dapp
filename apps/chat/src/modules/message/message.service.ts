@@ -181,4 +181,12 @@ export class MessageService {
       }
     })
   }
+
+  async editMessage(
+    _account: Account,
+    _conversation: Conversation,
+    _message: Message
+  ): Promise<void> {}
+
+  async deleteMessage(_message: Message): Promise<void> {}
 }
