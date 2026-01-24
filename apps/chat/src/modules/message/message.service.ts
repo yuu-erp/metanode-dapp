@@ -48,11 +48,6 @@ export class MessageService {
             account.address,
             item.finalContent
           )
-          console.log(
-            '[MESSAGE SERVICE] ---- getProcessedP2PMessages --- messageDecrypt',
-            messageDecrypt
-          )
-
           return mapperToMessage({
             accountId: account.address,
             conversationId: conversation.conversationId,

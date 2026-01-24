@@ -2,10 +2,10 @@
 import { StickerIcon } from '@/shared/components/icons'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
-import type { MessageAction } from '../../contexts'
 import { InputMessageAction } from '.'
+import type { MessageAction } from '@/modules/message'
 
-export interface InputMessageViewProps {
+export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
   isPending: boolean
   messageAction: MessageAction | null
@@ -32,13 +32,14 @@ function InputMessageView(props: InputMessageViewProps) {
     onChangeMessage,
     onSend,
     onOpenFilePicker,
-    onClearAction
+    onClearAction,
+    ...propsDiv
   } = props
   return (
     <div
       ref={containerRef}
       className="fixed bottom-0 left-0 right-0 banner__overlay--down"
-      {...props}
+      {...propsDiv}
     >
       <div style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
         <div className="w-full min-h-[72px] h-full flex items-end px-2 gap-1.5">

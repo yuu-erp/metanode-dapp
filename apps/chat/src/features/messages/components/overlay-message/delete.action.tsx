@@ -1,12 +1,12 @@
 'use client'
 
+import { TrashIcon } from '@/shared/components/icons'
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
-import { Trash2 } from 'lucide-react'
 import * as React from 'react'
 import type { ActionProps } from '.'
 
@@ -23,7 +23,7 @@ function DeleteAction({ className, ...props }: DeleteActionProps) {
       >
         Xoá tin nhắn
         <DropdownMenuShortcut>
-          <Trash2 className="size-5 text-red-500" />
+          <TrashIcon className="size-5 text-red-500" />
         </DropdownMenuShortcut>
       </DropdownMenuItem>
     </React.Fragment>

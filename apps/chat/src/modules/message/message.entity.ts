@@ -1,4 +1,12 @@
-import type { BaseMessage, Message, PersistedMessage, ReplyReference, SendPayload } from '.'
+import type {
+  BaseMessage,
+  ComposerDraft,
+  Message,
+  MessageAction,
+  PersistedMessage,
+  ReplyReference,
+  SendPayload
+} from '.'
 
 export function createOptimisticMessage(
   base: Omit<BaseMessage, 'type' | 'status'>,
@@ -159,6 +167,65 @@ export function createForwardPayload(message: PersistedMessage) {
       const _exhaustive: never = message
       return _exhaustive
     }
+  }
+}
+
+export function createSendPayload(
+  draft: ComposerDraft,
+  messageAction?: MessageAction
+): SendPayload {
+  const replyTo =
+    messageAction?.type === 'REPLY' ? createReplyReference(messageAction.message) : undefined
+
+  const forwardFrom = messageAction?.type === 'FORWARD' ? messageAction.message.sender : undefined
+
+  switch (draft.type) {
+    case 'text':
+      return {
+        type: 'text',
+        content: draft.content,
+        replyTo,
+        forwardFrom
+      }
+
+    case 'sticker':
+      return {
+        type: 'sticker',
+        stickerId: draft.stickerId,
+        replyTo,
+        forwardFrom
+      }
+
+    case 'file':
+      return {
+        type: 'file',
+        fileId: draft.fileId,
+        fileName: draft.fileName,
+        mimeType: draft.mimeType,
+        size: draft.size,
+        replyTo,
+        forwardFrom
+      }
+
+    case 'voice':
+      return {
+        type: 'voice',
+        fileId: draft.fileId,
+        duration: draft.duration,
+        mimeType: draft.mimeType,
+        replyTo,
+        forwardFrom
+      }
+
+    case 'location':
+      return {
+        type: 'location',
+        latitude: draft.latitude,
+        longitude: draft.longitude,
+        address: draft.address,
+        replyTo,
+        forwardFrom
+      }
   }
 }
 

@@ -13,7 +13,6 @@ export function useChatScroll() {
 
   const handleScroll = React.useCallback((event: React.UIEvent<HTMLDivElement>) => {
     const el = event.currentTarget
-    // cách bottom bao xa
     const distanceFromBottom = el.scrollTop
     setShowScrollBottom(distanceFromBottom < -200)
   }, [])

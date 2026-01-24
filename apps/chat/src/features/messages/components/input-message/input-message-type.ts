@@ -1,6 +1,6 @@
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
-import type { MessageAction } from '../../contexts'
+import type { MessageAction } from '@/modules/message'
 
 export interface InputMessageProps {
   account?: Account

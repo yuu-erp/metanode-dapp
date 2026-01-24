@@ -56,13 +56,13 @@ export type ReplyReference<T extends MessageType = MessageType> = {
 
 export interface BaseMessage {
   id?: string // undefined khi là optimistic message (chưa gửi thành công)
-  clientId: string // unique id do client tạo (dùng để match khi server trả về)
+  clientId?: string // unique id do client tạo (dùng để match khi server trả về)
   accountId: string
   type: MessageType
   sender: string
-  recipient: string
+  recipient: string // P2P thì là địa chỉ contract user còn nếu là GROUP thì là địa chỉ contract của group
   timestamp: number
-  conversationId: string
+  conversationId: string // P2P thì là địa chỉ contract user còn nếu là GROUP thì là địa chỉ contract của group
   isEdited?: boolean
   isDeleted?: boolean
   status?: MessageStatus
@@ -111,3 +111,16 @@ export type OnChainMessagePayload =
   | (BaseSendPayload & { type: 'file' } & MessagePayloadMap['file'])
   | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])
+
+export type ComposerDraft =
+  | { type: 'text'; content: string }
+  | { type: 'sticker'; stickerId: string }
+  | { type: 'file'; fileId: string; fileName: string; mimeType: string; size: number }
+  | { type: 'voice'; fileId: string; duration: number; mimeType: string }
+  | { type: 'location'; latitude: number; longitude: number; address?: string }
+
+export type MessageActionType = 'EDIT' | 'REPLY' | 'FORWARD' | 'EDIT'
+export interface MessageAction {
+  type: MessageActionType
+  message: PersistedMessage
+}

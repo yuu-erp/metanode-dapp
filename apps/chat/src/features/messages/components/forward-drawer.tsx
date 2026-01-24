@@ -7,9 +7,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
-import type { MessageAction } from '../contexts'
 import { useSendMessage } from '../hooks'
-import { createForwardPayload } from '@/modules/message'
+import { createForwardPayload, type MessageAction } from '@/modules/message'
 
 interface ForwardDrawerProps {
   open?: boolean
@@ -32,6 +31,19 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         id: messageAction.message.id
       })
       console.log('forwardPayload: ', forwardPayload)
+      if (forwardPayload.type === 'text') {
+        mutate({
+          account,
+          conversation,
+          payload: {
+            type: forwardPayload.type,
+            content: messageAction.message.type === 'text' ? messageAction.message.content : '',
+            forwardFrom: forwardPayload.forwardFrom
+          }
+        })
+      }
+      onClose?.()
+      navigate({ to: '/conversation/$id', params: { id: conversation.conversationId } })
     },
     [account, messageAction, mutate, navigate, onClose]
   )

@@ -27,6 +27,7 @@ const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰'
 function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
   const [open, setOpen] = React.useState(true)
+  const [interactive, setInteractive] = React.useState(false)
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === backdropRef.current) {
@@ -46,14 +47,18 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
       onClick={handleBackdropClick}
     >
       {/* Vùng wrapper - không nhận click */}
-      <div className="absolute inset-0 max-h-[70vh] flex items-end justify-center overflow-y-auto pointer-events-none">
+      <div className="absolute inset-0 max-h-[70vh] flex items-end justify-center overflow-y-auto pointer-events-none pb-5">
         {/* Vùng nội dung - bật lại pointer events */}
         <motion.div
-          className="w-full max-w-xl"
+          className={cn(
+            'w-full max-w-xl',
+            interactive ? 'pointer-events-auto' : 'pointer-events-none'
+          )}
           initial={{ scale: 0.94, y: 30 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.94, y: 30 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+          onAnimationComplete={() => setInteractive(true)}
         >
           <DropdownMenu
             open={open}
@@ -102,7 +107,6 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
               <ReplyAction onClose={handlers.onReply} />
               <DropdownMenuSeparator className="bg-black/10" />
               <CopyAction onClose={handlers.onCopy} />
-              <DropdownMenuSeparator className="bg-black/10" />
               {isMine && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
               <ForwardAction onClose={handlers.onForward} />
