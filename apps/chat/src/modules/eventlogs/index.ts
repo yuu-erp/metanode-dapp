@@ -17,6 +17,17 @@ export type EventMap = {
     reactor: string
     reaction: string
   }
+  PartnerMessageEdited: {
+    messageId: string
+    sender: string
+    recipient: string
+    newContent: string
+  }
+  PartnerMessageDeleted: {
+    messageId: string
+    sender: string
+    recipient: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi

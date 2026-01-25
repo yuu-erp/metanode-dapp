@@ -7,7 +7,7 @@ import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import { v4 as uuidv4 } from 'uuid'
-import type { Message, SendPayload } from '.'
+import type { EditTextPayload, Message, PersistedMessage, SendPayload } from '.'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
@@ -129,7 +129,15 @@ export class MessageService {
     }
   }
 
-  async messageReceived(account: Account, data: EventMap['MessageReceived']): Promise<Message> {
+  async decryptMessageFromPartner(
+    account: Account,
+    data: {
+      encryptedContent: string
+      sender: string
+      messageId: string
+      recipient: string
+    }
+  ) {
     const { encryptedContent, sender, messageId, recipient } = data
     const publicKey = await this.userContract.publicKey({
       from: account.address,
@@ -183,10 +191,77 @@ export class MessageService {
   }
 
   async editMessage(
-    _account: Account,
-    _conversation: Conversation,
-    _message: Message
-  ): Promise<void> {}
+    account: Account,
+    conversation: Conversation,
+    messageOld: PersistedMessage,
+    payload: EditTextPayload
+  ): Promise<void> {
+    // 🚫 chỉ cho phép edit text
+    if (messageOld.type !== 'text') {
+      throw new Error('Only text messages can be edited')
+    }
+
+    // ✏️ optimistic message (giữ nguyên id)
+    const optimisticMessage: PersistedMessage = {
+      ...messageOld,
+      content: payload.content,
+      isEdited: true,
+      status: 'sending',
+      timestamp: Date.now(),
+      ...(payload.replyTo && { replyTo: payload.replyTo }),
+      ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
+    }
+
+    // 🔥 Optimistic UI update
+    this.eventBus.emit('message.update', {
+      accountId: account.address,
+      conversationId: conversation.conversationId,
+      messageId: messageOld.id,
+      message: optimisticMessage
+    })
+
+    // 🔗 map sang payload on-chain
+    const messageOnChain = mapperMessageToOnChain(optimisticMessage)
+    const stringifyMessage = JSON.stringify(messageOnChain)
+
+    const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
+      this.walletService.encryptMessage(conversation.publicKey, account.address, stringifyMessage),
+      this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
+    ])
+
+    try {
+      // 📡 gọi smart contract edit
+      await this.userContract.editMessage({
+        from: account.address,
+        to: account.contractAddress,
+        inputData: {
+          partnerContract: conversation.conversationId,
+          _messageId: messageOld.id,
+          newEncryptedContent: encryptedForSelf,
+          newEncryptedContentForPartner: encryptedForRecipient
+        }
+      })
+
+      // ✅ update status sent
+      this.eventBus.emit('message.status', {
+        accountId: account.address,
+        conversationId: conversation.conversationId,
+        clientId: messageOld.id,
+        messageId: messageOld.id,
+        status: 'delivered'
+      })
+    } catch (error) {
+      // ❌ rollback / failed
+      this.eventBus.emit('message.status', {
+        accountId: account.address,
+        conversationId: conversation.conversationId,
+        clientId: messageOld.id,
+        messageId: messageOld.id,
+        status: 'failed'
+      })
+      throw error
+    }
+  }
 
   async deleteMessage(_message: Message): Promise<void> {}
 }

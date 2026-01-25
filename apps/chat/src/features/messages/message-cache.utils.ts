@@ -3,7 +3,8 @@ import {
   decodeBase64,
   type Message,
   type MessageReaction,
-  type MessageStatus
+  type MessageStatus,
+  type PersistedMessage
 } from '@/modules/message'
 
 function isSameMessage(a: Message, b: Message) {
@@ -119,6 +120,55 @@ export function applyMessageSent(
 
   return {
     ...oldData,
+    pages
+  }
+}
+
+export function applyMessageUpdate(
+  old: InfiniteData<Message[]> | undefined,
+  params: {
+    messageId: string
+    message: PersistedMessage
+  }
+): InfiniteData<Message[]> | undefined {
+  if (!old) return old
+
+  return {
+    ...old,
+    pages: old.pages.map((page) =>
+      page.map((msg) =>
+        msg.id === params.messageId
+          ? {
+              ...msg,
+              ...params.message
+            }
+          : msg
+      )
+    )
+  }
+}
+
+export function applyMessageDelete(
+  old: InfiniteData<Message[]> | undefined,
+  params: { messageId: string }
+): InfiniteData<Message[]> | undefined {
+  if (!old) return old
+
+  let removed = false
+
+  const pages = old.pages.map((page) => {
+    const nextPage = page.filter((msg) => msg.id !== params.messageId)
+    if (nextPage.length !== page.length) {
+      removed = true
+    }
+    return nextPage
+  })
+
+  // không có message nào bị xoá → return old để tránh re-render
+  if (!removed) return old
+
+  return {
+    ...old,
     pages
   }
 }

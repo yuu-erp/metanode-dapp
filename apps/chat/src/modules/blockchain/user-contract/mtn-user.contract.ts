@@ -3,6 +3,7 @@ import { CONTRACT_ADDRESSES } from '../config/contracts'
 import type { TransactionPayload } from '../types'
 import { userAbi } from './abis'
 import type {
+  EditMessageInput,
   GetFullInboxOutput,
   GetProcessedP2PMessagesInput,
   GetProcessedP2PMessagesOutput,
@@ -84,6 +85,18 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'reactToMessage',
       abiData: userAbi.reactToMessage,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  editMessage(payload: TransactionPayload<EditMessageInput>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'editMessage',
+      abiData: userAbi.editMessage,
       inputData,
       feeType: 'sc'
     })

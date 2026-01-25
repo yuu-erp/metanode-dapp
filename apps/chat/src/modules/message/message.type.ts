@@ -30,23 +30,15 @@ export interface MessagePayloadMap {
 // REPLY PREVIEW (chỉ những thông tin cần thiết để hiển thị reply bar)
 // ============================================================================
 
+// ─── Map type ───
 export type ReplyPreviewMap = {
-  [K in MessageType]: K extends 'text'
-    ? { content: string }
-    : K extends 'sticker'
-      ? { stickerId: string }
-      : K extends 'file'
-        ? { fileId: string; fileName: string; mimeType: string; size: number }
-        : K extends 'voice'
-          ? { fileId: string; duration: number; mimeType: string }
-          : K extends 'location'
-            ? { latitude: number; longitude: number; address?: string }
-            : never
+  [K in MessageType]: MessagePayloadMap[K]
 }
 
+// ─── ReplyReference ───
 export type ReplyReference<T extends MessageType = MessageType> = {
   messageId: string
-  sender: string
+  sender: string // hoặc senderId nếu bạn dùng id
   type: T
 } & ReplyPreviewMap[T]
 
@@ -101,6 +93,7 @@ export type SendPayload =
   | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])
 
+export type EditTextPayload = BaseSendPayload & { type: 'text' } & MessagePayloadMap['text']
 // ============================================================================
 // ON-CHAIN PAYLOAD (khi stringify và lưu lên smart contract)
 // ============================================================================
@@ -119,7 +112,7 @@ export type ComposerDraft =
   | { type: 'voice'; fileId: string; duration: number; mimeType: string }
   | { type: 'location'; latitude: number; longitude: number; address?: string }
 
-export type MessageActionType = 'EDIT' | 'REPLY' | 'FORWARD' | 'EDIT'
+export type MessageActionType = 'EDIT' | 'REPLY' | 'FORWARD'
 export interface MessageAction {
   type: MessageActionType
   message: PersistedMessage

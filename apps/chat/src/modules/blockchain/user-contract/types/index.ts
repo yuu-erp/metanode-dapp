@@ -55,3 +55,10 @@ export interface ReactToMessageInput {
   _reaction: string
   _reactionToPartner: string
 }
+
+export interface EditMessageInput {
+  partnerContract: string
+  _messageId: string
+  newEncryptedContent: string
+  newEncryptedContentForPartner: string
+}

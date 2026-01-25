@@ -7,7 +7,9 @@ import type { AppEvents } from '@/types/app-events'
 import type { InfiniteData } from '@tanstack/react-query'
 import * as React from 'react'
 import {
+  applyMessageDelete,
   applyMessageSent,
+  applyMessageUpdate,
   applyReactionCreate,
   applyReactionReceived,
   insertMessage,
@@ -26,7 +28,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       console.log('[MESSAGE PROVIDER] ---- onMessageReceived -- event ---', event)
       if (!account) return
       const messageService = container.messageService
-      const message = await messageService.messageReceived(account, event)
+      const message = await messageService.decryptMessageFromPartner(account, event)
       queryClient.setQueryData<InfiniteData<Message[]>>(
         MESSAGE_QUERY_KEY.MESSAGES(account!.address, message.conversationId),
         (old) => insertMessage(old, message)
@@ -81,6 +83,57 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     [account]
   )
 
+  const onMessagePartnerEdited = React.useCallback(
+    async (event: AppEvents['message.partneredited']) => {
+      if (!account) return
+      const { newContent, sender, recipient, messageId } = event
+      const messageService = container.messageService
+      const message = await messageService.decryptMessageFromPartner(account, {
+        encryptedContent: newContent,
+        sender,
+        recipient,
+        messageId
+      })
+      queryClient.setQueryData<InfiniteData<Message[]>>(
+        MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
+        (old) =>
+          applyMessageUpdate(old, {
+            messageId: event.messageId,
+            message: { ...message, id: event.messageId, isEdited: true }
+          })
+      )
+    },
+    [account]
+  )
+
+  const onMessagePartnerDeleted = React.useCallback(
+    async (event: AppEvents['message.partnerdeleted']) => {
+      if (!account) return
+      const { messageId, sender } = event
+      queryClient.setQueryData<InfiniteData<Message[]>>(
+        MESSAGE_QUERY_KEY.MESSAGES(account.address, sender),
+        (old) =>
+          applyMessageDelete(old, {
+            messageId
+          })
+      )
+    },
+    [account]
+  )
+
+  const onMessageUpdate = React.useCallback((event: AppEvents['message.update']) => {
+    console.log('[MESSAGE PROVIDER] ---- onMessageUpdate ---', event)
+
+    queryClient.setQueryData<InfiniteData<Message[]>>(
+      MESSAGE_QUERY_KEY.MESSAGES(event.accountId, event.conversationId),
+      (old) =>
+        applyMessageUpdate(old, {
+          messageId: event.messageId,
+          message: event.message
+        })
+    )
+  }, [])
+
   const onReactionReceived = React.useCallback(
     (event: AppEvents['reaction.received']) => {
       console.log('[MESSAGE PROVIDER] ---- onReactionReceived ---', event)
@@ -123,6 +176,9 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     eventBus.on('message.create', onMessageCreated)
     eventBus.on('message.status', onMessageStatus)
     eventBus.on('message.sent', onMessageSent)
+    eventBus.on('message.update', onMessageUpdate)
+    eventBus.on('message.partneredited', onMessagePartnerEdited)
+    eventBus.on('message.partnerdeleted', onMessagePartnerDeleted)
     eventBus.on('reaction.received', onReactionReceived)
     eventBus.on('reaction.create', onReactionCreate)
     return () => {
@@ -130,6 +186,9 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       eventBus.off('message.create', onMessageCreated)
       eventBus.off('message.status', onMessageStatus)
       eventBus.off('message.sent', onMessageSent)
+      eventBus.off('message.update', onMessageUpdate)
+      eventBus.off('message.partneredited', onMessagePartnerEdited)
+      eventBus.off('message.partnerdeleted', onMessagePartnerDeleted)
       eventBus.off('reaction.received', onReactionReceived)
       eventBus.off('reaction.create', onReactionCreate)
     }

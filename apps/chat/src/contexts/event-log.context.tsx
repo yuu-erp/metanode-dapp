@@ -29,9 +29,21 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('reaction.received', data)
     })
 
+    const offPartnerMessageEdited = eventLog.on('PartnerMessageEdited', (data) => {
+      if (data.sender === account.contractAddress) return
+      eventBus.emit('message.partneredited', data)
+    })
+
+    const offPartnerMessageDeleted = eventLog.on('PartnerMessageDeleted', (data) => {
+      if (data.sender === account.contractAddress) return
+      eventBus.emit('message.partnerdeleted', data)
+    })
+
     return () => {
       offMessageReceived()
       offReaction()
+      offPartnerMessageEdited()
+      offPartnerMessageDeleted()
     }
   }, [account?.address, account?.contractAddress])
 

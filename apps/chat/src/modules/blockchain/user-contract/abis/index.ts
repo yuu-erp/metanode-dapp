@@ -1,3 +1,4 @@
+import { editMessage } from './edit-message.abi'
 import { getFullInbox } from './get-full-Inbox.abi'
 import { getProcessedP2PMessages } from './get-processed-p2p-messages.abi'
 import { publicKey } from './publicKey.abi'
@@ -11,5 +12,6 @@ export const userAbi = {
   publicKey,
   getProcessedP2PMessages,
   sendMessage,
-  reactToMessage
+  reactToMessage,
+  editMessage
 }

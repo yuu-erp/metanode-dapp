@@ -2,8 +2,8 @@
 import type { Message } from '@/modules/message'
 import { LoaderCircle } from 'lucide-react'
 import * as React from 'react'
-import MessageItem from '../message-item'
 import type { Account } from '@/modules/account'
+import MessageItem from '../item-message/item-message'
 
 interface ListMessageViewProps {
   messages: Message[]

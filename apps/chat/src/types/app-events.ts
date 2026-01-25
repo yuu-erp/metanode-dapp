@@ -1,5 +1,5 @@
 import type { EventMap } from '@/modules/eventlogs'
-import type { Message, MessageStatus } from '@/modules/message'
+import type { Message, MessageStatus, PersistedMessage } from '@/modules/message'
 
 export type AppEvents = {
   // MESSAGE
@@ -19,7 +19,15 @@ export type AppEvents = {
   'message.create': {
     message: Message
   }
+  'message.update': {
+    accountId: string
+    conversationId: string
+    messageId: string
+    message: PersistedMessage
+  }
   'message.received': EventMap['MessageReceived']
+  'message.partneredited': EventMap['PartnerMessageEdited']
+  'message.partnerdeleted': EventMap['PartnerMessageDeleted']
   // REACTIONS
   'reaction.create': {
     accountId: string

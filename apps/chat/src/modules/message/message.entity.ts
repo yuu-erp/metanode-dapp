@@ -116,7 +116,7 @@ export function createForwardPayload(message: PersistedMessage) {
   }
 
   const common = {
-    forwardFrom: message.id
+    forwardFrom: message.sender
   }
 
   switch (message.type) {

@@ -10,10 +10,10 @@ import {
   DropdownMenuTrigger
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
-import MessageItem from '../message-item'
 import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction } from '.'
 import type { Message } from '@/modules/message'
 import type { OverlayMessageHandlers } from './overlay-message.types'
+import { ItemMessage } from '../item-message'
 
 interface OverlayMessageViewProps {
   message: Message
@@ -27,7 +27,6 @@ const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰'
 function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
   const [open, setOpen] = React.useState(true)
-  const [interactive, setInteractive] = React.useState(false)
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === backdropRef.current) {
@@ -50,15 +49,11 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
       <div className="absolute inset-0 max-h-[70vh] flex items-end justify-center overflow-y-auto pointer-events-none pb-5">
         {/* Vùng nội dung - bật lại pointer events */}
         <motion.div
-          className={cn(
-            'w-full max-w-xl',
-            interactive ? 'pointer-events-auto' : 'pointer-events-none'
-          )}
+          className="w-full max-w-xl"
           initial={{ scale: 0.94, y: 30 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.94, y: 30 }}
           transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-          onAnimationComplete={() => setInteractive(true)}
         >
           <DropdownMenu
             open={open}
@@ -89,7 +84,7 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
                     <SmilePlus className="size-5" />
                   </button>
                 </motion.div>
-                <MessageItem
+                <ItemMessage
                   layoutId={`message-${message.id ?? message.clientId}`}
                   message={message}
                   isMine={isMine}
