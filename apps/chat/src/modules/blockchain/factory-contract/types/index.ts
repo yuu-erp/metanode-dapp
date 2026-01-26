@@ -18,3 +18,10 @@ export interface IsUsernameTakenInput {
 export interface GetUserContractInput {
   user: string
 }
+
+export interface CreateGroupInput {
+  groupName: string
+  groupAvatar: string
+  encryptedInitialGroupKey: string
+  initialPolicy: number
+}

@@ -1,3 +1,4 @@
+import { deleteMessageV2 } from './delete-message-v2.abi'
 import { editMessage } from './edit-message.abi'
 import { getFullInbox } from './get-full-Inbox.abi'
 import { getProcessedP2PMessages } from './get-processed-p2p-messages.abi'
@@ -13,5 +14,6 @@ export const userAbi = {
   getProcessedP2PMessages,
   sendMessage,
   reactToMessage,
-  editMessage
+  editMessage,
+  deleteMessageV2
 }

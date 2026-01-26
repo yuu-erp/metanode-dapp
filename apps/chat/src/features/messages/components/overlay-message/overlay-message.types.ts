@@ -1,10 +1,10 @@
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
-import type { Message } from '@/modules/message'
+import type { PersistedMessage } from '@/modules/message'
 import type { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 export interface OverlayMessageProps {
   onClose: () => void
-  message: Message
+  message: PersistedMessage
   isMine?: boolean
   conversation?: Conversation
   account?: Account

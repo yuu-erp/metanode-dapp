@@ -192,4 +192,10 @@ export class ConversationService {
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
     })
   }
+
+  // ------------------------------------------------------------------
+  // GROUP (create / add membesr)
+  // ------------------------------------------------------------------
+
+  async createGroup() {}
 }

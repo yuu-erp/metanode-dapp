@@ -16,189 +16,167 @@ import {
   updateMessageStatus
 } from '../message-cache.utils'
 
-export interface MessageState {}
-
-const MessageContext = React.createContext<MessageState | undefined>(undefined)
-
 export function MessageProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
-  const onMessageReceived = React.useCallback(
-    async (event: AppEvents['message.received']) => {
-      console.log('[MESSAGE PROVIDER] ---- onMessageReceived -- event ---', event)
-      if (!account) return
-      const messageService = container.messageService
-      const message = await messageService.decryptMessageFromPartner(account, event)
-      queryClient.setQueryData<InfiniteData<Message[]>>(
-        MESSAGE_QUERY_KEY.MESSAGES(account!.address, message.conversationId),
-        (old) => insertMessage(old, message)
-      )
-    },
-    [account]
-  )
+  // Gom tất cả handler vào một object (memoized)
+  const handlers = React.useMemo(() => {
+    if (!account) return null
 
-  const onMessageCreated = React.useCallback(async (event: AppEvents['message.create']) => {
-    console.log('[MESSAGE PROVIDER] ---- onMessageCreated -- event ---', event)
-    const message = event.message
-    queryClient.setQueryData<InfiniteData<Message[]>>(
-      MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
-      (old) => insertMessage(old, message)
-    )
-  }, [])
-
-  const onMessageStatus = React.useCallback(
-    (event: AppEvents['message.status']) => {
-      console.log('[MESSAGE PROVIDER] ---- onMessageStatus -- event ---', event)
-
-      if (!account) return
-
-      const queryKey = MESSAGE_QUERY_KEY.MESSAGES(event.accountId, event.conversationId)
-
-      queryClient.setQueryData<InfiniteData<Message[]>>(queryKey, (old) =>
-        updateMessageStatus(old, {
-          messageId: event.messageId,
-          clientId: event.clientId,
-          status: event.status
-        })
-      )
-    },
-    [account]
-  )
-
-  const onMessageSent = React.useCallback(
-    (event: AppEvents['message.sent']) => {
-      console.log('[MESSAGE PROVIDER] ---- onMessageSent -- event ---', event)
-
-      if (!account) return
-
-      queryClient.setQueryData<InfiniteData<Message[]>>(
-        MESSAGE_QUERY_KEY.MESSAGES(event.accountId, event.conversationId),
-        (old) =>
-          applyMessageSent(old, {
-            clientId: event.clientId,
-            messageId: event.messageId
-          })
-      )
-    },
-    [account]
-  )
-
-  const onMessagePartnerEdited = React.useCallback(
-    async (event: AppEvents['message.partneredited']) => {
-      if (!account) return
-      const { newContent, sender, recipient, messageId } = event
-      const messageService = container.messageService
-      const message = await messageService.decryptMessageFromPartner(account, {
-        encryptedContent: newContent,
-        sender,
-        recipient,
-        messageId
-      })
-      queryClient.setQueryData<InfiniteData<Message[]>>(
-        MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
-        (old) =>
-          applyMessageUpdate(old, {
-            messageId: event.messageId,
-            message: { ...message, id: event.messageId, isEdited: true }
-          })
-      )
-    },
-    [account]
-  )
-
-  const onMessagePartnerDeleted = React.useCallback(
-    async (event: AppEvents['message.partnerdeleted']) => {
-      if (!account) return
-      const { messageId, sender } = event
-      queryClient.setQueryData<InfiniteData<Message[]>>(
-        MESSAGE_QUERY_KEY.MESSAGES(account.address, sender),
-        (old) =>
-          applyMessageDelete(old, {
-            messageId
-          })
-      )
-    },
-    [account]
-  )
-
-  const onMessageUpdate = React.useCallback((event: AppEvents['message.update']) => {
-    console.log('[MESSAGE PROVIDER] ---- onMessageUpdate ---', event)
-
-    queryClient.setQueryData<InfiniteData<Message[]>>(
-      MESSAGE_QUERY_KEY.MESSAGES(event.accountId, event.conversationId),
-      (old) =>
-        applyMessageUpdate(old, {
-          messageId: event.messageId,
-          message: event.message
-        })
-    )
-  }, [])
-
-  const onReactionReceived = React.useCallback(
-    (event: AppEvents['reaction.received']) => {
-      console.log('[MESSAGE PROVIDER] ---- onReactionReceived ---', event)
-
-      if (!account) return
-
-      queryClient.setQueryData<InfiniteData<Message[]>>(
-        MESSAGE_QUERY_KEY.MESSAGES(
-          account.address,
-          event.sender // conversationId = sender
-        ),
-        (old) =>
-          applyReactionReceived(old, {
-            messageId: event.messageId,
-            encodedEmoji: event.reaction,
-            reactedByMe: event.reactor === account.contractAddress
-          })
-      )
-    },
-    [account]
-  )
-
-  const onReactionCreate = React.useCallback((event: AppEvents['reaction.create']) => {
-    console.log('[MESSAGE PROVIDER] ---- onReactionCreate ---', event)
-
-    queryClient.setQueryData<InfiniteData<Message[]>>(
-      MESSAGE_QUERY_KEY.MESSAGES(event.accountId, event.conversationId),
-      (old) =>
-        applyReactionCreate(old, {
-          messageId: event.messageId,
-          emoji: event.emoji
-        })
-    )
-  }, [])
-
-  React.useEffect(() => {
-    if (!account) return
-    const eventBus = container.eventBus
-    eventBus.on('message.received', onMessageReceived)
-    eventBus.on('message.create', onMessageCreated)
-    eventBus.on('message.status', onMessageStatus)
-    eventBus.on('message.sent', onMessageSent)
-    eventBus.on('message.update', onMessageUpdate)
-    eventBus.on('message.partneredited', onMessagePartnerEdited)
-    eventBus.on('message.partnerdeleted', onMessagePartnerDeleted)
-    eventBus.on('reaction.received', onReactionReceived)
-    eventBus.on('reaction.create', onReactionCreate)
-    return () => {
-      eventBus.off('message.received', onMessageReceived)
-      eventBus.off('message.create', onMessageCreated)
-      eventBus.off('message.status', onMessageStatus)
-      eventBus.off('message.sent', onMessageSent)
-      eventBus.off('message.update', onMessageUpdate)
-      eventBus.off('message.partneredited', onMessagePartnerEdited)
-      eventBus.off('message.partnerdeleted', onMessagePartnerDeleted)
-      eventBus.off('reaction.received', onReactionReceived)
-      eventBus.off('reaction.create', onReactionCreate)
+    const messageService = container.messageService
+    // Helper decrypt an toàn
+    const safeDecrypt = async (payload: any): Promise<Message | null> => {
+      try {
+        return await messageService.decryptMessageFromPartner(account, payload)
+      } catch (err) {
+        console.error('[MessageProvider] Decrypt failed:', err)
+        return null
+      }
     }
-  }, [account, onMessageReceived, onMessageCreated, onMessageStatus, onMessageSent])
 
-  return <MessageContext.Provider value={{}}>{children}</MessageContext.Provider>
-}
+    return {
+      // ── Message ────────────────────────────────────────────────
+      'message.create': (e: AppEvents['message.create']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(e.message.accountId, e.message.conversationId),
+          (old) => insertMessage(old, e.message)
+        )
+      },
 
-export function useMessage() {
-  const ctx = React.useContext(MessageContext)
-  if (!ctx) throw new Error('useMessage must be used within MessageProvider')
-  return ctx
+      'message.status': (e: AppEvents['message.status']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
+          (old) =>
+            updateMessageStatus(old, {
+              messageId: e.messageId,
+              clientId: e.clientId,
+              status: e.status
+            })
+        )
+      },
+
+      'message.sent': (e: AppEvents['message.sent']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
+          (old) =>
+            applyMessageSent(old, {
+              clientId: e.clientId,
+              messageId: e.messageId
+            })
+        )
+      },
+
+      'message.update': (e: AppEvents['message.update']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
+          (old) =>
+            applyMessageUpdate(old, {
+              messageId: e.messageId,
+              message: e.message
+            })
+        )
+      },
+
+      'message.received': async (e: AppEvents['message.received']) => {
+        const message = await safeDecrypt(e)
+        if (!message) return
+
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId),
+          (old) => insertMessage(old, message)
+        )
+      },
+
+      'message.partneredited': async (e: AppEvents['message.partneredited']) => {
+        const message = await safeDecrypt({
+          encryptedContent: e.newContent,
+          sender: e.sender,
+          recipient: e.recipient,
+          messageId: e.messageId
+        })
+        if (!message) return
+
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
+          (old) =>
+            applyMessageUpdate(old, {
+              messageId: e.messageId,
+              message: { ...message, id: e.messageId, isEdited: true }
+            })
+        )
+      },
+
+      'message.partnerdeleted': (e: AppEvents['message.partnerdeleted']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.sender),
+          (old) => applyMessageDelete(old, { messageId: e.messageId })
+        )
+      },
+
+      'message.delete': (e: AppEvents['message.delete']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.conversationId),
+          (old) => applyMessageDelete(old, { messageId: e.messageId })
+        )
+      },
+
+      // ── Reaction ───────────────────────────────────────────────
+      'reaction.received': (e: AppEvents['reaction.received']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.sender),
+          (old) =>
+            applyReactionReceived(old, {
+              messageId: e.messageId,
+              encodedEmoji: e.reaction,
+              reactedByMe: e.reactor === account.contractAddress
+            })
+        )
+      },
+
+      'reaction.create': (e: AppEvents['reaction.create']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
+          (old) =>
+            applyReactionCreate(old, {
+              messageId: e.messageId,
+              emoji: e.emoji
+            })
+        )
+      }
+    }
+  }, [account]) // Chỉ depend vào account
+
+  // Effect đăng ký / hủy đăng ký event
+  React.useEffect(() => {
+    if (!account || !handlers) return
+
+    const eventBus = container.eventBus
+
+    // Đăng ký từng cái – TypeScript sẽ infer đúng type cho từng handler
+    eventBus.on('message.create', handlers['message.create'])
+    eventBus.on('message.status', handlers['message.status'])
+    eventBus.on('message.sent', handlers['message.sent'])
+    eventBus.on('message.update', handlers['message.update'])
+    eventBus.on('message.received', handlers['message.received'])
+    eventBus.on('message.partneredited', handlers['message.partneredited'])
+    eventBus.on('message.partnerdeleted', handlers['message.partnerdeleted'])
+    eventBus.on('message.delete', handlers['message.delete'])
+    eventBus.on('reaction.received', handlers['reaction.received'])
+    eventBus.on('reaction.create', handlers['reaction.create'])
+
+    return () => {
+      eventBus.off('message.create', handlers['message.create'])
+      eventBus.off('message.status', handlers['message.status'])
+      eventBus.off('message.sent', handlers['message.sent'])
+      eventBus.off('message.update', handlers['message.update'])
+      eventBus.off('message.received', handlers['message.received'])
+      eventBus.off('message.partneredited', handlers['message.partneredited'])
+      eventBus.off('message.partnerdeleted', handlers['message.partnerdeleted'])
+      eventBus.off('message.delete', handlers['message.delete'])
+      eventBus.off('reaction.received', handlers['reaction.received'])
+      eventBus.off('reaction.create', handlers['reaction.create'])
+    }
+  }, [account, handlers])
+
+  return <>{children}</>
 }

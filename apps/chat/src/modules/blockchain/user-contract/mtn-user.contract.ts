@@ -3,6 +3,7 @@ import { CONTRACT_ADDRESSES } from '../config/contracts'
 import type { TransactionPayload } from '../types'
 import { userAbi } from './abis'
 import type {
+  DeleteMessageV2Input,
   EditMessageInput,
   GetFullInboxOutput,
   GetProcessedP2PMessagesInput,
@@ -97,6 +98,18 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'editMessage',
       abiData: userAbi.editMessage,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  deleteMessageV2(payload: TransactionPayload<DeleteMessageV2Input>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'deleteMessageV2',
+      abiData: userAbi.deleteMessageV2,
       inputData,
       feeType: 'sc'
     })

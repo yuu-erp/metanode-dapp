@@ -62,114 +62,160 @@ export function insertMessage(
   }
 }
 
+// Helpers
+function updatePages(
+  oldData: InfiniteData<Message[]> | undefined,
+  updater: (msg: Message) => Message | null // null để delete
+): InfiniteData<Message[]> | undefined {
+  if (!oldData) return oldData
+  let updated = false
+  const pages = oldData.pages.map((page) => {
+    const newPage = page.map(updater).filter((msg): msg is Message => msg !== null)
+    if (newPage.length !== page.length || newPage.some((m, i) => m !== page[i])) {
+      updated = true
+    }
+    return newPage
+  })
+  return updated ? { ...oldData, pages } : oldData
+}
+
+function matchMessage(
+  msg: Message,
+  { messageId, clientId }: { messageId?: string; clientId?: string }
+) {
+  return (messageId && msg.id === messageId) || (clientId && msg.clientId === clientId)
+}
+
+// Refactored functions using helpers
 export function updateMessageStatus(
   oldData: InfiniteData<Message[]> | undefined,
   params: UpdateMessageStatusParams
 ): InfiniteData<Message[]> | undefined {
-  if (!oldData) return oldData
-
-  let updated = false
-
-  const pages = oldData.pages.map((page) =>
-    page.map((msg) => {
-      const match =
-        (params.messageId && msg.id === params.messageId) ||
-        (!params.messageId && params.clientId && msg.clientId === params.clientId)
-
-      if (!match) return msg
-
-      updated = true
-      return {
-        ...msg,
-        status: params.status
-      }
-    })
-  )
-
-  if (!updated) return oldData
-
-  return {
-    ...oldData,
-    pages
-  }
+  return updatePages(oldData, (msg) => {
+    if (!matchMessage(msg, params)) return msg
+    return { ...msg, status: params.status }
+  })
 }
 
 export function applyMessageSent(
   oldData: InfiniteData<Message[]> | undefined,
   params: ApplyMessageSentParams
 ): InfiniteData<Message[]> | undefined {
-  if (!oldData) return oldData
-
-  let updated = false
-
-  const pages: Message[][] = oldData.pages.map((page) =>
-    page.map((msg) => {
-      if (msg.clientId !== params.clientId) return msg
-
-      updated = true
-
-      return {
-        ...msg,
-        messageId: params.messageId,
-        status: 'delivered' as MessageStatus
-      }
-    })
-  )
-
-  if (!updated) return oldData
-
-  return {
-    ...oldData,
-    pages
-  }
+  return updatePages(oldData, (msg) => {
+    if (!matchMessage(msg, { clientId: params.clientId })) return msg
+    return { ...msg, id: params.messageId, status: 'delivered' }
+  })
 }
 
 export function applyMessageUpdate(
   old: InfiniteData<Message[]> | undefined,
-  params: {
-    messageId: string
-    message: PersistedMessage
-  }
+  params: { messageId: string; message: PersistedMessage }
 ): InfiniteData<Message[]> | undefined {
-  if (!old) return old
-
-  return {
-    ...old,
-    pages: old.pages.map((page) =>
-      page.map((msg) =>
-        msg.id === params.messageId
-          ? {
-              ...msg,
-              ...params.message
-            }
-          : msg
-      )
-    )
-  }
+  return updatePages(old, (msg) => {
+    if (!matchMessage(msg, { messageId: params.messageId })) return msg
+    return { ...msg, ...params.message }
+  })
 }
 
 export function applyMessageDelete(
   old: InfiniteData<Message[]> | undefined,
   params: { messageId: string }
 ): InfiniteData<Message[]> | undefined {
-  if (!old) return old
-
-  let removed = false
-
-  const pages = old.pages.map((page) => {
-    const nextPage = page.filter((msg) => msg.id !== params.messageId)
-    if (nextPage.length !== page.length) {
-      removed = true
-    }
-    return nextPage
+  return updatePages(old, (msg) => {
+    if (matchMessage(msg, { messageId: params.messageId })) return null
+    return msg
   })
+}
 
-  // không có message nào bị xoá → return old để tránh re-render
-  if (!removed) return old
+// Reaction helper (common logic for both create and received, adjusted for isMe)
+function handleReaction(
+  reactions: MessageReaction[] | undefined,
+  emoji: string,
+  isMe: boolean
+): MessageReaction[] {
+  const currentReactions = reactions ?? []
 
-  return {
-    ...old,
-    pages
+  if (isMe) {
+    // Logic for applyReactionCreate (me reacting)
+    const myReaction = currentReactions.find((r) => r.reactedByMe)
+
+    // 🔁 click lại đúng emoji mình đã reaction → noop
+    if (myReaction?.emoji === emoji) {
+      return currentReactions
+    }
+
+    // ❌ bỏ reaction cũ của mình (nếu có)
+    let nextReactions = currentReactions
+      .map((r) => {
+        if (r.reactedByMe) {
+          // giảm count emoji cũ
+          if (r.count > 1) {
+            return { ...r, count: r.count - 1, reactedByMe: false }
+          }
+          return null
+        }
+        return r
+      })
+      .filter(Boolean) as MessageReaction[]
+
+    // ✅ thêm / tăng emoji mới
+    const existing = nextReactions.find((r) => r.emoji === emoji)
+
+    if (existing) {
+      nextReactions = nextReactions.map((r) =>
+        r.emoji === emoji ? { ...r, count: r.count + 1, reactedByMe: true } : r
+      )
+    } else {
+      nextReactions.push({
+        emoji,
+        count: 1,
+        reactedByMe: true,
+        users: []
+      })
+    }
+
+    return nextReactions
+  } else {
+    // Logic for applyReactionReceived (opponent reacting)
+    const myReaction = currentReactions.find((r) => r.reactedByMe)
+    const opponentReaction = currentReactions.find((r) => !r.reactedByMe)
+
+    // 🔁 đối phương react trùng emoji của chính họ → noop
+    if (opponentReaction?.emoji === emoji) {
+      return currentReactions
+    }
+
+    // 🧠 nếu mình đã react cùng emoji → gộp count = 2
+    if (myReaction?.emoji === emoji) {
+      return [
+        {
+          emoji,
+          reactedByMe: true,
+          count: 2,
+          users: []
+        }
+      ]
+    }
+
+    // 🆕 đối phương react emoji khác
+    const newReactions: MessageReaction[] = []
+
+    if (myReaction) {
+      newReactions.push({
+        ...myReaction,
+        count: 1,
+        users: []
+      })
+    }
+
+    newReactions.push({
+      emoji,
+      reactedByMe: false,
+      count: myReaction ? 1 : 1,
+      users: []
+    })
+
+    return newReactions
   }
 }
 
@@ -177,73 +223,15 @@ export function applyReactionReceived(
   oldData: InfiniteData<Message[]> | undefined,
   params: ApplyReactionReceivedParams
 ): InfiniteData<Message[]> | undefined {
-  if (!oldData) return oldData
-
   const emoji = decodeBase64(params.encodedEmoji)
-  let updated = false
+  const isMe = params.reactedByMe // Sử dụng param để quyết định logic (dù code gốc assume false, nhưng để linh hoạt)
 
-  const pages = oldData.pages.map((page) =>
-    page.map((msg) => {
-      if (msg.id !== params.messageId) return msg
-
-      updated = true
-
-      const reactions = msg.reactions ?? []
-
-      const myReaction = reactions.find((r) => r.reactedByMe)
-      const opponentReaction = reactions.find((r) => !r.reactedByMe)
-
-      // 🔁 đối phương react trùng emoji của chính họ → noop
-      if (opponentReaction?.emoji === emoji) {
-        return msg
-      }
-
-      // 🧠 nếu mình đã react cùng emoji → gộp count = 2
-      if (myReaction?.emoji === emoji) {
-        return {
-          ...msg,
-          reactions: [
-            {
-              emoji,
-              reactedByMe: true,
-              count: 2,
-              users: []
-            }
-          ]
-        }
-      }
-
-      // 🆕 đối phương react emoji khác
-      const newReactions: MessageReaction[] = []
-
-      if (myReaction) {
-        newReactions.push({
-          ...myReaction,
-          count: 1,
-          users: []
-        })
-      }
-
-      newReactions.push({
-        emoji,
-        reactedByMe: false,
-        count: myReaction ? 1 : 1,
-        users: []
-      })
-
-      return {
-        ...msg,
-        reactions: newReactions
-      }
-    })
-  )
-
-  if (!updated) return oldData
-
-  return {
-    ...oldData,
-    pages
-  }
+  return updatePages(oldData, (msg) => {
+    if (!matchMessage(msg, { messageId: params.messageId })) return msg
+    const newReactions = handleReaction(msg.reactions, emoji, isMe)
+    if (newReactions === msg.reactions) return msg // Optional: avoid update if no change
+    return { ...msg, reactions: newReactions }
+  })
 }
 
 export function applyReactionCreate(
@@ -253,66 +241,10 @@ export function applyReactionCreate(
     emoji: string
   }
 ): InfiniteData<Message[]> | undefined {
-  if (!oldData) return oldData
-
-  let updated = false
-
-  const pages = oldData.pages.map((page) =>
-    page.map((msg) => {
-      if (msg.id !== params.messageId) return msg
-
-      updated = true
-
-      const reactions = msg.reactions ?? []
-
-      const myReaction = reactions.find((r) => r.reactedByMe)
-
-      // 🔁 click lại đúng emoji mình đã reaction → noop
-      if (myReaction?.emoji === params.emoji) {
-        return msg
-      }
-
-      // ❌ bỏ reaction cũ của mình (nếu có)
-      let nextReactions = reactions
-        .map((r) => {
-          if (r.reactedByMe) {
-            // giảm count emoji cũ
-            if (r.count > 1) {
-              return { ...r, count: r.count - 1, reactedByMe: false }
-            }
-            return null
-          }
-          return r
-        })
-        .filter(Boolean) as MessageReaction[]
-
-      // ✅ thêm / tăng emoji mới
-      const existing = nextReactions.find((r) => r.emoji === params.emoji)
-
-      if (existing) {
-        nextReactions = nextReactions.map((r) =>
-          r.emoji === params.emoji ? { ...r, count: r.count + 1, reactedByMe: true } : r
-        )
-      } else {
-        nextReactions.push({
-          emoji: params.emoji,
-          count: 1,
-          reactedByMe: true,
-          users: []
-        })
-      }
-
-      return {
-        ...msg,
-        reactions: nextReactions
-      }
-    })
-  )
-
-  if (!updated) return oldData
-
-  return {
-    ...oldData,
-    pages
-  }
+  return updatePages(oldData, (msg) => {
+    if (!matchMessage(msg, { messageId: params.messageId })) return msg
+    const newReactions = handleReaction(msg.reactions, params.emoji, true)
+    if (newReactions === msg.reactions) return msg // Optional: avoid update if no change
+    return { ...msg, reactions: newReactions }
+  })
 }

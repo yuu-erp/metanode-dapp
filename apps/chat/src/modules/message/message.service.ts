@@ -2,11 +2,11 @@ import type { Account } from '@/modules/account'
 import type { UserContract } from '@/modules/blockchain'
 import type { Conversation } from '@/modules/conversation'
 import type { EventBusPort } from '@/modules/event'
-import type { EventMap } from '@/modules/eventlogs'
 import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import { v4 as uuidv4 } from 'uuid'
+// MESSAGE MODULES
 import type { EditTextPayload, Message, PersistedMessage, SendPayload } from '.'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
@@ -263,5 +263,22 @@ export class MessageService {
     }
   }
 
-  async deleteMessage(_message: Message): Promise<void> {}
+  async deleteMessage(
+    account: Account,
+    conversation: Conversation,
+    message: PersistedMessage
+  ): Promise<void> {
+    this.eventBus.emit('message.delete', {
+      messageId: message.id,
+      conversationId: conversation.conversationId
+    })
+    await this.userContract.deleteMessageV2({
+      from: account.address,
+      to: account.contractAddress,
+      inputData: {
+        _messageId: message.id,
+        partnerContract: conversation.conversationId
+      }
+    })
+  }
 }

@@ -3,13 +3,14 @@
 import * as React from 'react'
 import type { OverlayMessageHandlers, OverlayMessageProps } from './overlay-message.types'
 import { useCopyMessageAction, useMessageAction } from '../../contexts'
-import { useReactToMessage } from '../../hooks'
+import { useDeleteMessage, useReactToMessage } from '../../hooks'
 import OverlayMessageView from './overlay-message-view'
 
 function OverlayMessage({ onClose, message, isMine, conversation, account }: OverlayMessageProps) {
   const { setMessageAction } = useMessageAction()
   const { copyMessage } = useCopyMessageAction()
-  const { mutate } = useReactToMessage()
+  const { mutate: mutateReactToMessage } = useReactToMessage()
+  const { mutate: mutateDelete } = useDeleteMessage()
 
   const handleClose = React.useCallback(() => onClose(), [onClose])
 
@@ -18,7 +19,7 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
       onReact: (emoji: string) => {
         if (!message?.id) return
         if (!account || !conversation) return
-        mutate({
+        mutateReactToMessage({
           account,
           conversation,
           payload: {
@@ -51,6 +52,13 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
       },
 
       onDelete: () => {
+        if (!message?.id) return
+        if (!account || !conversation) return
+        mutateDelete({
+          account,
+          conversation,
+          message
+        })
         handleClose()
       },
 
@@ -62,7 +70,16 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
         handleClose()
       }
     }),
-    [account, conversation, message, mutate, setMessageAction, copyMessage, handleClose]
+    [
+      account,
+      conversation,
+      message,
+      mutateReactToMessage,
+      mutateDelete,
+      setMessageAction,
+      copyMessage,
+      handleClose
+    ]
   )
 
   return (

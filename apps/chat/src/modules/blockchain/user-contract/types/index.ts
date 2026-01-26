@@ -62,3 +62,8 @@ export interface EditMessageInput {
   newEncryptedContent: string
   newEncryptedContentForPartner: string
 }
+
+export interface DeleteMessageV2Input {
+  partnerContract: string
+  _messageId: string
+}

@@ -25,6 +25,10 @@ export type AppEvents = {
     messageId: string
     message: PersistedMessage
   }
+  'message.delete': {
+    conversationId: string
+    messageId: string
+  }
   'message.received': EventMap['MessageReceived']
   'message.partneredited': EventMap['PartnerMessageEdited']
   'message.partnerdeleted': EventMap['PartnerMessageDeleted']
