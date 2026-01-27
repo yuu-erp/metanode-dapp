@@ -9,6 +9,17 @@ import { EventLogContainer } from '@/modules/eventlogs'
 import { MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
+import {
+  FileChunker,
+  FileTransferService,
+  createFileMetadataRepository,
+  type FileTransferPort
+} from '@/modules/file-transfer'
+import {
+  getRealtimeTransportModule,
+  type SessionManager,
+  type TransportService
+} from '@/modules/realtime-transport'
 import type { AppEvents } from './types/app-events'
 
 /**
@@ -27,12 +38,16 @@ class AppContainer {
   private readonly _userContract: UserContract
   private readonly _eventLogContainer: EventLogContainer
   private readonly _eventBus: EventBusPort<AppEvents>
+  private readonly _realtimeTransport: ReturnType<typeof getRealtimeTransportModule>
+  private readonly _sessionManager: SessionManager
+  private readonly _transportService: TransportService
   /* ================================
    * Application services
    * ================================ */
   private readonly _accountService: AccountService
   private readonly _conversationService: ConversationService
   private readonly _messageService: MessageService
+  private readonly _fileTransferService: FileTransferPort
 
   constructor() {
     const nativeWalletAdapter = new NativeWalletAdapter()
@@ -41,6 +56,10 @@ class AppContainer {
     this._userContract = new UserContract()
     this._eventLogContainer = new EventLogContainer()
     this._eventBus = new MittEventBus<AppEvents>()
+    this._realtimeTransport = getRealtimeTransportModule()
+    this._sessionManager = this._realtimeTransport.sessionManager
+    this._transportService = this._realtimeTransport.transportService
+
     // 5️⃣ Application Service (AccountService)
     const dbAccount = new AccountDexieDB(`accounts`)
     const accountRepository = new DexieAccountRepository(dbAccount)
@@ -65,6 +84,16 @@ class AppContainer {
       this._userContract,
       this._walletService,
       this._eventBus
+    )
+
+    // 5️⃣ Application Service (FileTransferService)
+    const fileChunker = new FileChunker()
+    const fileMetadataRepository = createFileMetadataRepository()
+    this._fileTransferService = new FileTransferService(
+      fileChunker,
+      fileMetadataRepository,
+      this._sessionManager,
+      this._transportService
     )
   }
 
@@ -94,6 +123,10 @@ class AppContainer {
 
   get messageService(): MessageService {
     return this._messageService
+  }
+
+  get fileTransferService(): FileTransferPort {
+    return this._fileTransferService
   }
 
   get eventLogContainer(): EventLogContainer {

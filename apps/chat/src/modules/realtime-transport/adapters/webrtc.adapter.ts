@@ -1,0 +1,28 @@
+import type { WebRTCAdapter, WebRTCConfig } from '../realtime-transport.type'
+
+/**
+ * Concrete implementation của WebRTC adapter
+ *
+ * Dùng để:
+ * - Tạo RTCPeerConnection với cấu hình standard
+ * - Tách biệt WebRTC initialization từ business logic
+ *
+ * Không phụ thuộc React, có thể test độc lập
+ */
+export class WebRTCAdapterImpl implements WebRTCAdapter {
+  createPeerConnection(config: WebRTCConfig): RTCPeerConnection {
+    const peerConnectionConfig: RTCConfiguration = {
+      iceServers: config.iceServers,
+      bundlePolicy: config.bundlePolicy || 'max-bundle'
+    }
+
+    return new RTCPeerConnection(peerConnectionConfig)
+  }
+}
+
+/**
+ * Factory function để tạo WebRTC adapter
+ */
+export function createWebRTCAdapter(): WebRTCAdapter {
+  return new WebRTCAdapterImpl()
+}
