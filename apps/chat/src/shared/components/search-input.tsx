@@ -12,7 +12,6 @@ function SearchInput({ className, ...props }: SearchInputProps) {
       <Input
         {...props}
         type="search"
-        placeholder="Search..."
         className={cn('pl-10 bg-black/40 rounded-xl border-none placeholder:text-muted', className)}
         style={{
           boxShadow: `2px 2px 6px 0px #0000004D inset`

@@ -1,13 +1,14 @@
 'use client'
 
-import { getSession } from '@/bootstrap'
+import { container } from '@/container'
 import { useMutation } from '@tanstack/react-query'
 
 export function useOpenImportWallet() {
   return useMutation({
     mutationFn: async () => {
-      const { wallet } = getSession()
-      await wallet.walletService.openImportWallet()
+      // Open import wallet
+      const walletService = container.walletService
+      return await walletService.openImportWallet()
     },
     onSuccess: () => {
       console.log('✅ Open dapp wallet success!')

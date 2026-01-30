@@ -9,7 +9,6 @@ import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
 import '@/shared/lib/i18n'
-import { initApp } from './bootstrap/index.ts'
 
 // Create a new router instance
 const router = createRouter({
@@ -33,7 +32,6 @@ declare module '@tanstack/react-router' {
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
-  initApp() // ⬅️ BẮT BUỘC
   root.render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />

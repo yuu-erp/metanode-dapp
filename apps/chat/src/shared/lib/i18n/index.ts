@@ -9,6 +9,7 @@ i18n
   .init({
     resources,
     defaultNS: 'common',
+    // lng: 'en', // 👈 ép mặc định
     fallbackLng: 'vi', // dùng nếu không detect được
     debug: true,
     interpolation: {
