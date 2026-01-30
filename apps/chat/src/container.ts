@@ -1,14 +1,15 @@
-import { AccountDexieDB, AccountService, DexieAccountRepository } from '@/modules/account'
+import { AccountFactory, AccountService } from '@/modules/account'
 import { FactoryContract, UserContract } from '@/modules/blockchain'
 import {
-  ConversationDexieDB,
+  ConversationFactory,
   ConversationService,
-  DexieConversationRepository
+  ConversationSyncStrategy
 } from '@/modules/conversation'
 import { EventLogContainer } from '@/modules/eventlogs'
-import { MessageService } from '@/modules/message'
+import { MessageFactory, MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
+import { SyncFactory, SyncManager } from '@/modules/sync'
 import type { AppEvents } from './types/app-events'
 
 /**
@@ -41,27 +42,22 @@ class AppContainer {
     this._userContract = new UserContract()
     this._eventLogContainer = new EventLogContainer()
     this._eventBus = new MittEventBus<AppEvents>()
+
     // 5️⃣ Application Service (AccountService)
-    const dbAccount = new AccountDexieDB(`accounts`)
-    const accountRepository = new DexieAccountRepository(dbAccount)
-    this._accountService = new AccountService(
+    this._accountService = AccountFactory.createService(
       this._walletService,
-      accountRepository,
       this._factoryContract,
       this._userContract
     )
 
     // 5️⃣ Application Service (ConversationService)
-    const dbConversation = new ConversationDexieDB(`conversations`)
-    const conversationRepository = new DexieConversationRepository(dbConversation)
-    this._conversationService = new ConversationService(
-      conversationRepository,
+    this._conversationService = ConversationFactory.createService(
       this._userContract,
       this._walletService
     )
 
     // 5️⃣ Application Service (MessageService)
-    this._messageService = new MessageService(
+    this._messageService = MessageFactory.createService(
       this._userContract,
       this._walletService,
       this._eventBus
@@ -102,6 +98,32 @@ class AppContainer {
 
   get eventBus(): EventBusPort<AppEvents> {
     return this._eventBus
+  }
+
+  /* ================================
+   * Sync Manager
+   * ================================ */
+  private _syncManager: SyncManager | undefined
+
+  get syncManager(): SyncManager {
+    if (!this._syncManager) {
+      this._syncManager = SyncFactory.createManager()
+
+      // Register Strategies
+      const conversationSync = new ConversationSyncStrategy(
+        this._conversationService,
+        (account) => {
+          import('@/shared/lib/react-query').then(({ queryClient, CONVERSATION_QUERY_KEY }) => {
+            queryClient.invalidateQueries({
+              queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
+            })
+          })
+        }
+      )
+
+      this._syncManager.registerStrategy(conversationSync)
+    }
+    return this._syncManager
   }
 }
 

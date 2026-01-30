@@ -1,4 +1,4 @@
-import { createGetConversationsQueryOptions } from '@/features/conversations'
+import { createGetConversationsQueryOptions } from '@/features/conversation'
 import type { Conversation } from '@/modules/conversation'
 import { CONVERSATION_QUERY_KEY } from '@/shared/lib/react-query'
 import { useQuery } from '@tanstack/react-query'

@@ -9,12 +9,13 @@ import { sendCommand } from '@metanodejs/system-core'
 import { Check, CheckCheck, ClockIcon } from 'lucide-react'
 import * as React from 'react'
 
+import type { PersistedMessage } from '@/modules/message'
+
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
   avatar?: string
   updatedAt: Date
-  lastMessageStatus?: 'sending' | 'sent' | 'delivered' | 'read'
-  latestMessageContent?: string
+  lastMessage?: PersistedMessage
   isPin?: boolean
   type?: 'USER' | 'PRIVATE' | 'GROUP'
   unreadCount?: number
@@ -23,8 +24,7 @@ function ItemConversation({
   name,
   avatar,
   updatedAt,
-  lastMessageStatus,
-  latestMessageContent,
+  lastMessage,
   isPin,
   type = 'USER',
   unreadCount = 0,
@@ -43,6 +43,27 @@ function ItemConversation({
       sendCommand('vibrate')
     }
   })
+
+  // Helper render content
+  const renderMessagePreview = () => {
+    if (!lastMessage) return t('conversation.no_message')
+    switch (lastMessage.type) {
+      case 'text':
+        return lastMessage.content
+      case 'sticker':
+        return t('conversation.sent_sticker')
+      case 'file':
+        return t('conversation.sent_file')
+      case 'voice':
+        return t('conversation.sent_voice')
+      case 'location':
+        return t('conversation.sent_location')
+      default:
+        return t('conversation.sent_message')
+    }
+  }
+
+  const lastMessageStatus = lastMessage?.status
 
   return (
     <div
@@ -78,7 +99,7 @@ function ItemConversation({
           </div>
           <div className="w-full flex items-center justify-between gap-3">
             <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium">
-              {latestMessageContent}
+              {renderMessagePreview()}
             </div>
             {unreadCount > 0 && (
               <Badge

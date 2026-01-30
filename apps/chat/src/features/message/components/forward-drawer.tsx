@@ -1,5 +1,5 @@
 'use client'
-import { useGetConversations } from '@/features/conversations'
+import { useGetConversations } from '@/features/conversation'
 import type { Conversation } from '@/modules/conversation'
 import ConversationContact from '@/shared/components/conversation-contact'
 import { useCurrentAccount } from '@/shared/hooks'

@@ -10,16 +10,15 @@ function StatusSync({ className, ...props }: StatusSyncProps) {
   const { t } = useI18N()
   const backgroundStatus = useBackgroundTaskStatus('conversation-sync')
   // Xác định trạng thái nào sẽ hiển thị (ưu tiên background sync)
-  let displayStatus: 'updating' | 'connecting' | 'error' | null = null
+  let displayStatus: 'running' | 'error' | null = null
   let displayTextKey: string | null = null
 
-  if (
-    backgroundStatus === 'updating' ||
-    backgroundStatus === 'connecting' ||
-    backgroundStatus === 'error'
-  ) {
-    displayStatus = backgroundStatus
-    displayTextKey = `status.${backgroundStatus}`
+  if (backgroundStatus === 'running') {
+    displayStatus = 'running'
+    displayTextKey = 'status.updating'
+  } else if (backgroundStatus === 'error') {
+    displayStatus = 'error'
+    displayTextKey = 'status.error'
   }
   // Chỉ render khi có trạng thái cần hiển thị
   if (!displayStatus) return null

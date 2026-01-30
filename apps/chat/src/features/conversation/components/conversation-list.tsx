@@ -21,7 +21,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     return conversations.filter(
       (c) =>
         c.name.toLowerCase().includes(keyword) ||
-        c.latestMessageContent.toLowerCase().includes(keyword)
+        (c.lastMessage?.type === 'text' && c.lastMessage.content.toLowerCase().includes(keyword))
     )
   }, [conversations, searchKeyword])
 
@@ -34,7 +34,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           updatedAt={item.updatedAt}
           // avatar={item.avatar}
           unreadCount={item.unreadCount}
-          latestMessageContent={item.latestMessageContent}
+          lastMessage={item.lastMessage}
           type={item.conversationType === 'private' ? 'PRIVATE' : 'USER'}
           isPin={item.conversationType === 'private'}
           onClick={() =>

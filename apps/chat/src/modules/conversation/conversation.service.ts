@@ -3,6 +3,7 @@ import type { UserContract } from '@/modules/blockchain'
 import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import { mapperToConversation } from './conversation.mapper'
+import type { PersistedMessage } from '@/modules/message'
 import type { ConversationRepository } from './conversation.repository'
 import type { Conversation } from './conversation.type'
 
@@ -57,34 +58,15 @@ export class ConversationService {
           })
         ])
 
-        const latestMessageContent = await this.decryptLatestMessageContent(
+        const lastMessageDecrypted = await this.decryptLatestMessageContent(
           account,
           item.latestMessageContent,
           conversationPublicKey
         )
-        const existed = await this.repository.getById(account.address, item.conversationId)
 
-        if (existed?.conversationType === 'private') {
-          return {
-            ...item,
-            accountId: account.address,
-            name: 'savedMessages',
-            avatar: '',
-            username: userProfile.userName,
-            conversationType: 'private',
-            publicKey: conversationPublicKey,
-            unreadCount: 0,
-            // @ts-ignore
-            latestMessageContent:
-              // @ts-ignore
-              latestMessageContent.text ??
-              // @ts-ignore
-              latestMessageContent.value ??
-              // @ts-ignore
-              latestMessageContent.content ??
-              ''
-          }
-        }
+        // Ideally, we should fetch the FULL message object if we want PersistedMessage.
+        // But for list view, maybe we construct a partial one or the mapper handles it.
+        // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
 
         return mapperToConversation({
           ...item,
@@ -94,15 +76,14 @@ export class ConversationService {
           userName: userProfile.userName,
           avatar: userProfile.avatar,
           publicKey: conversationPublicKey,
-          // @ts-ignore
-          latestMessageContent:
-            // @ts-ignore
-            latestMessageContent.text ??
-            // @ts-ignore
-            latestMessageContent.value ??
-            // @ts-ignore
-            latestMessageContent.content ??
-            ''
+          // Construct a fake object that mapperToMessage can parse
+          lastMessage: {
+            id: 'latest', // Dummy id for snapshot
+            content: lastMessageDecrypted,
+            sender: item.conversationId, // In inbox, conversationId is the partner address
+            timestamp: item.latestMessageTimestamp,
+            type: 'text' // This is a simplification. Real solution needs strict type check or full message fetch.
+          }
         })
       })
     )
@@ -119,10 +100,6 @@ export class ConversationService {
   ): Promise<Conversation | undefined> {
     const conversationLocal = await this.repository.getById(accountId, conversationId)
     if (conversationLocal) return conversationLocal
-    console.log('getConversationById', {
-      from: accountId,
-      to: conversationId
-    })
     const userProfile = await this.userContract.userProfile({
       from: accountId,
       to: conversationId
@@ -153,6 +130,27 @@ export class ConversationService {
     await this.repository.clearByAccount(accountId)
   }
 
+  async updateWithLastMessage(message: PersistedMessage) {
+    const current = await this.repository.getById(message.accountId, message.conversationId)
+
+    // Nếu chưa có conversation -> sync lại hoặc tạo mới (ở đây tạm thời sync)
+    if (!current) {
+      // TODO: Optimize by creating conversation directly from message info if possible
+      await this.syncByAccount({ address: message.accountId } as Account)
+      return
+    }
+
+    await this.repository.upsert({
+      ...current,
+      unreadCount: message.sender === message.accountId ? 0 : (current.unreadCount ?? 0) + 1,
+      lastMessage: message,
+      updatedAt: new Date(message.timestamp)
+    })
+  }
+
+  /**
+   * @deprecated Use updateWithLastMessage instead
+   */
   async updateConversation(account: Account, conversationId: string, encryptedContent: string) {
     // 1. Lấy conversation hiện tại
     const current = await this.repository.getById(account.address, conversationId)
@@ -162,17 +160,33 @@ export class ConversationService {
       await this.syncByAccount(account)
       return
     }
-    const decryptMessage = await this.walletService.decryptMessage(
-      current.publicKey,
-      account.address,
-      encryptedContent
+    const decryptedPayload = await this.walletService.decryptMessage<{
+      content?: string
+      text?: string
+      value?: string
+    }>(current.publicKey, account.address, encryptedContent)
+
+    console.log(
+      '[CONVERSATION SERVICE] - updateConversation - decryptedPayload: ',
+      decryptedPayload
     )
-    console.log('[CONVERSATION SERVICE] - updateConversation - decryptMessage: ', decryptMessage)
+    const decryptedContent =
+      decryptedPayload.value ?? decryptedPayload.content ?? decryptedPayload.text ?? ''
+
     await this.repository.upsert({
       ...current,
       unreadCount: account.contractAddress === conversationId ? 0 : (current.unreadCount ?? 0) + 1,
-      // @ts-ignore
-      latestMessageContent: decryptMessage.value ?? decryptMessage.content ?? decryptMessage.text,
+      lastMessage: {
+        id: 'latest-update', // Temporary ID since we don't have the full message object here easily without fetching
+        accountId: account.address,
+        conversationId: current.conversationId,
+        sender: conversationId, // Partner sent it
+        recipient: account.contractAddress,
+        timestamp: Date.now(),
+        type: 'text', // simplification
+        content: decryptedContent,
+        status: 'sent'
+      },
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
     })
   }
@@ -188,7 +202,6 @@ export class ConversationService {
       avatar: '',
       username: account.username,
       conversationType: 'private',
-      latestMessageContent: '',
       updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
     })
   }

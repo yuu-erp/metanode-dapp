@@ -7,7 +7,13 @@ import { fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import { v4 as uuidv4 } from 'uuid'
 // MESSAGE MODULES
-import type { EditTextPayload, Message, PersistedMessage, SendPayload } from '.'
+import type {
+  EditTextPayload,
+  Message,
+  OnChainMessagePayload,
+  PersistedMessage,
+  SendPayload
+} from '.'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
@@ -43,7 +49,7 @@ export class MessageService {
             ? conversation.publicKey // 🔑 public key của người gửi
             : account.publicKey // 🔑 public key của chính mình
 
-          const messageDecrypt = await this.walletService.decryptMessage<any>(
+          const messageDecrypt = await this.walletService.decryptMessage<OnChainMessagePayload>(
             decryptWithPublicKey,
             account.address,
             item.finalContent
@@ -143,7 +149,7 @@ export class MessageService {
       from: account.address,
       to: sender
     })
-    const decryptMessage = await this.walletService.decryptMessage<any>(
+    const decryptMessage = await this.walletService.decryptMessage<OnChainMessagePayload>(
       publicKey,
       account.address,
       encryptedContent

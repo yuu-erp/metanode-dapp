@@ -4,11 +4,11 @@ import {
   CopyMessageActionProvider,
   InputMessage,
   MessageActionProvider
-} from '@/features/messages'
-import PinMessages from '@/features/messages/components/pin-messages'
+} from '@/features/message'
+import PinMessages from '@/features/message/components/pin-messages'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { ListMessage } from '@/features/messages/components/list-message/index'
+import { ListMessage } from '@/features/message/components/list-message/index'
 import type { Conversation } from '@/modules/conversation'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({

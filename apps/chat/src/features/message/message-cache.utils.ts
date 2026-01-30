@@ -1,11 +1,11 @@
 import type { InfiniteData } from '@tanstack/react-query'
 import {
-  decodeBase64,
   type Message,
   type MessageReaction,
   type MessageStatus,
   type PersistedMessage
 } from '@/modules/message'
+import { decodeBase64 } from '@/modules/message/utils'
 
 function isSameMessage(a: Message, b: Message) {
   // 1️⃣ ưu tiên clientId (optimistic)

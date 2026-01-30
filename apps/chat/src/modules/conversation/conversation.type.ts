@@ -1,3 +1,5 @@
+import type { PersistedMessage } from '@/modules/message'
+
 export type ConversationType = 'direct' | 'group' | 'private'
 
 export interface Conversation {
@@ -10,7 +12,7 @@ export interface Conversation {
   avatar?: string
   username: string
   // Last message snapshot (cho hiển thị nhanh trong list)
-  latestMessageContent: string
+  lastMessage?: PersistedMessage
   // State
   unreadCount?: number
   conversationType: ConversationType

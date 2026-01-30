@@ -1,7 +1,7 @@
 import { EventLogProvider } from '@/contexts'
-import { ConversationsProvider } from '@/features/conversations'
-import { MessageProvider } from '@/features/messages'
-import { AppSessionProvider, BackgroundSyncProvider } from '@/shared/background-sync'
+import { ConversationsProvider } from '@/features/conversation'
+import { MessageProvider } from '@/features/message'
+import { BackgroundSyncProvider } from '@/shared/background-sync'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { queryClient } from '@/shared/lib/react-query'
@@ -33,10 +33,8 @@ function RouteComponent() {
       <ConversationsProvider>
         <MessageProvider>
           <BackgroundSyncProvider>
-            <AppSessionProvider>
-              <Outlet />
-              {showNavbar && <NavbarMenu />}
-            </AppSessionProvider>
+            <Outlet />
+            {showNavbar && <NavbarMenu />}
           </BackgroundSyncProvider>
         </MessageProvider>
       </ConversationsProvider>

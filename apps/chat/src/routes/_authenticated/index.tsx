@@ -3,7 +3,7 @@ import {
   ConversationList,
   DrawerNewConversation,
   SearchConversation
-} from '@/features/conversations'
+} from '@/features/conversation'
 import AccountActivationNotice from '@/shared/components/account-activation-notice'
 import StatusSync from '@/shared/components/status-sync'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
