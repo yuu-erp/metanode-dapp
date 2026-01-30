@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletsRouteImport } from './routes/wallets'
+import { Route as TestRouteImport } from './routes/test'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -18,35 +19,44 @@ import { Route as AuthenticatedConversationIdRouteImport } from './routes/_authe
 const WalletsRoute = WalletsRouteImport.update({
   id: '/wallets',
   path: '/wallets',
-  getParentRoute: () => rootRouteImport
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestRoute = TestRouteImport.update({
+  id: '/test',
+  path: '/test',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
-  getParentRoute: () => rootRouteImport
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRoute
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedSettingsIndexRoute = AuthenticatedSettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => AuthenticatedRoute
-} as any)
-const AuthenticatedConversationIdRoute = AuthenticatedConversationIdRouteImport.update({
-  id: '/conversation/$id',
-  path: '/conversation/$id',
-  getParentRoute: () => AuthenticatedRoute
-} as any)
+const AuthenticatedSettingsIndexRoute =
+  AuthenticatedSettingsIndexRouteImport.update({
+    id: '/settings/',
+    path: '/settings/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedConversationIdRoute =
+  AuthenticatedConversationIdRouteImport.update({
+    id: '/conversation/$id',
+    path: '/conversation/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
+  '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/': typeof AuthenticatedIndexRoute
   '/conversation/$id': typeof AuthenticatedConversationIdRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/': typeof AuthenticatedIndexRoute
   '/conversation/$id': typeof AuthenticatedConversationIdRoute
@@ -55,6 +65,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/conversation/$id': typeof AuthenticatedConversationIdRoute
@@ -62,12 +73,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/wallets' | '/' | '/conversation/$id' | '/settings'
+  fullPaths: '/test' | '/wallets' | '/' | '/conversation/$id' | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/wallets' | '/' | '/conversation/$id' | '/settings'
+  to: '/test' | '/wallets' | '/' | '/conversation/$id' | '/settings'
   id:
     | '__root__'
     | '/_authenticated'
+    | '/test'
     | '/wallets'
     | '/_authenticated/'
     | '/_authenticated/conversation/$id'
@@ -76,6 +88,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  TestRoute: typeof TestRoute
   WalletsRoute: typeof WalletsRoute
 }
 
@@ -86,6 +99,13 @@ declare module '@tanstack/react-router' {
       path: '/wallets'
       fullPath: '/wallets'
       preLoaderRoute: typeof WalletsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/test': {
+      id: '/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -128,16 +148,17 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedConversationIdRoute: AuthenticatedConversationIdRoute,
-  AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute
+  AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
-  AuthenticatedRouteChildren
+  AuthenticatedRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  WalletsRoute: WalletsRoute
+  TestRoute: TestRoute,
+  WalletsRoute: WalletsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

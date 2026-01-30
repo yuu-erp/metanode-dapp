@@ -112,8 +112,9 @@ export function BackgroundSyncProvider({ children }: { children: React.ReactNode
   const startTask = (task: BackgroundTask) => {
     if (timers.current.has(task.id)) return
 
-    const execute = async () => {
-      // ❌ offline → luôn connecting, KHÔNG chạy task
+    const execute = async (isRetry = false) => {
+      // ❌ offline → không chạy, giữ connecting
+      console.log('onlineRef.current', onlineRef.current)
       if (!onlineRef.current) {
         setTaskStatus(task.id, 'connecting')
         return
@@ -124,32 +125,43 @@ export function BackgroundSyncProvider({ children }: { children: React.ReactNode
       const currentRuns = runCounts.current.get(task.id) ?? 0
       const maxRuns = task.maxRuns ?? Infinity
 
-      if (currentRuns >= maxRuns) {
+      if (!isRetry && currentRuns >= maxRuns) {
         stopTask(task.id)
         return
       }
+      setTaskStatus(task.id, 'updating')
 
-      setTaskStatus(task.id, currentRuns === 0 ? 'connecting' : 'updating')
-
-      runCounts.current.set(task.id, currentRuns + 1)
+      if (!isRetry) {
+        runCounts.current.set(task.id, currentRuns + 1)
+      }
 
       try {
         await task.run()
 
-        // ⚠️ chỉ set idle nếu vẫn online
         if (onlineRef.current) {
           setTaskStatus(task.id, 'idle')
         }
       } catch (err) {
         console.error(`[BG TASK ERROR] ${task.id}`, err)
         setTaskStatus(task.id, 'error')
+
+        // 🔁 retry sau 3s
+        setTimeout(() => {
+          // nếu task đã bị stop thì không retry
+          if (!timers.current.has(task.id)) return
+
+          execute(true)
+        }, 3000)
       }
     }
 
-    // run immediately
+    // run ngay
     execute()
 
-    const timer = window.setInterval(execute, task.interval)
+    const timer = window.setInterval(() => {
+      execute()
+    }, task.interval)
+
     timers.current.set(task.id, timer)
   }
 
@@ -189,6 +201,8 @@ export function BackgroundSyncProvider({ children }: { children: React.ReactNode
       timers.current.clear()
     }
   }, [])
+
+  console.log('statuses', statuses)
 
   return (
     <BackgroundSyncContext.Provider

@@ -113,6 +113,25 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .bg-background-gradient {
+    background:
+      radial-gradient(
+        120% 60% at 50% 30%,
+        rgba(255, 220, 170, 0.35) 0%,
+        rgba(255, 220, 170, 0) 60%
+      ),
+      linear-gradient(180deg, #e9e4d9 0%, #efe4c8 25%, #d8b19a 45%, #9b857c 65%, #6f737a 100%);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -129,6 +148,15 @@
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
   }
+
+  #app {
+    transition: border-radius 1.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  body[data-scroll-locked='1'] [vaul-drawer-wrapper]#app {
+    border-radius: 48px !important;
+  }
+
   header {
     transition:
       background-color 0.3s ease,
@@ -165,6 +193,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
+
   .border-app {
     box-shadow:
       0px 0px 3px 0px #f2f2f2 inset,
@@ -187,7 +216,36 @@
       to bottom,
       transparent 10%,
       rgba(0, 0, 0, 0.2),
-      rgba(0, 0, 0, 0.6)
+      rgba(0, 0, 0, 0.8)
     );
+  }
+
+  .banner__overlay--up {
+    background-image: linear-gradient(
+      to top,
+      transparent 0%,
+      rgba(0, 0, 0, .3),
+      rgba(0, 0, 0, .6)
+    );
+  }
+
+  .backdrop-filter-app {
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    transform: translateZ(0); /* tạo layer riêng */
+    will-change: transform; /* hint cho browser optimize animation */
+  }
+
+  @keyframes slideRightBack {
+    0% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(6px);
+    }
+    100% {
+      transform: translateX(0);
+    }
   }
 }

@@ -1,7 +1,15 @@
-import { ChatHeader, InputChat } from '@/features/chats'
-import { useGetConversationId } from '@/shared/hooks'
-import { cn } from '@/shared/lib'
+'use client'
+import {
+  ChatHeader,
+  CopyMessageActionProvider,
+  InputMessage,
+  MessageActionProvider
+} from '@/features/messages'
+import PinMessages from '@/features/messages/components/pin-messages'
+import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
+import { ListMessage } from '@/features/messages/components/list-message/index'
+import type { Conversation } from '@/modules/conversation'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({
   component: RouteComponent
@@ -9,12 +17,25 @@ export const Route = createFileRoute('/_authenticated/conversation/$id')({
 
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/conversation/$id' })
+  const { data: account } = useCurrentAccount()
   const { data: conversation } = useGetConversationId(id)
-  console.log('CONVERSATION ID: ', conversation)
   return (
-    <div className={cn('w-full h-full flex flex-col')}>
-      <ChatHeader avatar={conversation?.avatar} name={conversation?.name} />
-      <InputChat />
-    </div>
+    <MessageActionProvider>
+      <CopyMessageActionProvider>
+        <div className="w-full h-screen flex flex-col">
+          {/* Header */}
+          <ChatHeader
+            name={conversation?.name}
+            type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}
+            username={conversation?.username}
+          />
+          <PinMessages />
+          {/* @ts-ignore */}
+          <ListMessage conversation={conversation} account={account} />
+          {/* Input chat - luôn dính bottom */}
+          <InputMessage conversation={conversation as Conversation} account={account} />
+        </div>
+      </CopyMessageActionProvider>
+    </MessageActionProvider>
   )
 }
