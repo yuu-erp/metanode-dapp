@@ -10,3 +10,4 @@ k8s
 **/.env*
 **/generated/**
 **/prisma/generated/**
+**/apps/chat/src/routeTree.gen.ts
