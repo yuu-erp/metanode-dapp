@@ -7,7 +7,7 @@ export function mapperToConversation(raw: any): Conversation {
     publicKey: raw.publicKey,
     accountId: raw.accountId,
     // UI snapshot
-    name: [raw.firstName, raw.lastName].filter(Boolean).join(' '),
+    name: raw.name || [raw.firstName, raw.lastName].filter(Boolean).join(' '),
     avatar: raw.avatar ?? undefined,
     username: raw.userName,
     // Last message

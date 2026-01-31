@@ -1,5 +1,5 @@
 'use client'
-import type { Message } from '@/modules/message'
+import type { PersistedMessage } from '@/modules/message'
 import { AnimatePresence } from 'framer-motion'
 import * as React from 'react'
 import { OverlayMessage } from '../overlay-message'
@@ -16,9 +16,9 @@ function ListMessage({ conversation, account }: ListMessageProps) {
   // Scroll to bottom
   const { scrollRef, showScrollBottom, scrollToBottom, handleScroll } = useChatScroll()
   // Select message show component OverlayMessage
-  const [messageSelect, setMessageSelect] = React.useState<Message | null>(null)
+  const [messageSelect, setMessageSelect] = React.useState<PersistedMessage | null>(null)
   const handleSelectMessage = React.useCallback(
-    (message: Message | null) => setMessageSelect(message),
+    (message: PersistedMessage | null) => setMessageSelect(message),
     []
   )
 
@@ -39,6 +39,7 @@ function ListMessage({ conversation, account }: ListMessageProps) {
         isFetchingNextPage={isFetchingNextPage}
         hasNextPage={hasNextPage}
         account={account}
+        // @ts-ignore
         handleSelectMessage={handleSelectMessage}
       />
       {/* Button scroll to top */}

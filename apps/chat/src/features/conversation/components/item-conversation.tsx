@@ -1,4 +1,5 @@
 'use client'
+import type { Message } from '@/modules/message'
 import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
 import { Badge } from '@/shared/components/ui/badge'
@@ -6,16 +7,13 @@ import { formatUpdatedAt } from '@/shared/helpers'
 import { useI18N, useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
-import { Check, CheckCheck, ClockIcon } from 'lucide-react'
 import * as React from 'react'
-
-import type { PersistedMessage } from '@/modules/message'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
   avatar?: string
   updatedAt: Date
-  lastMessage?: PersistedMessage
+  lastMessage?: Message
   isPin?: boolean
   type?: 'USER' | 'PRIVATE' | 'GROUP'
   unreadCount?: number
@@ -45,25 +43,6 @@ function ItemConversation({
   })
 
   // Helper render content
-  const renderMessagePreview = () => {
-    if (!lastMessage) return t('conversation.no_message')
-    switch (lastMessage.type) {
-      case 'text':
-        return lastMessage.content
-      case 'sticker':
-        return t('conversation.sent_sticker')
-      case 'file':
-        return t('conversation.sent_file')
-      case 'voice':
-        return t('conversation.sent_voice')
-      case 'location':
-        return t('conversation.sent_location')
-      default:
-        return t('conversation.sent_message')
-    }
-  }
-
-  const lastMessageStatus = lastMessage?.status
 
   return (
     <div
@@ -84,22 +63,18 @@ function ItemConversation({
         )}
       >
         <AvatarUser size="lg" name={name} type={type} />
-        <div className="grid flex-1 text-left text-sm leading-tight h-full">
+        <div className="grid flex-1 text-left text-sm leading-tight">
           <div className="w-full flex items-center justify-between gap-3">
             <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">
               {type === 'PRIVATE' ? t(name) : name}
             </div>
             <div className="flex items-center gap-1">
-              {lastMessageStatus === 'sending' && <ClockIcon className="size-4" />}
-              {lastMessageStatus === 'sent' && <Check className="text-gray-500 size-4" />}
-              {lastMessageStatus === 'delivered' && <CheckCheck className="text-gray-500 size-4" />}
-              {lastMessageStatus === 'read' && <CheckCheck className="text-green-500 size-4" />}
               <span>{formatUpdatedAt(updatedAt)}</span>
             </div>
           </div>
           <div className="w-full flex items-center justify-between gap-3">
             <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium">
-              {renderMessagePreview()}
+              {/* Priview message */}
             </div>
             {unreadCount > 0 && (
               <Badge

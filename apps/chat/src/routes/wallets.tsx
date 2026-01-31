@@ -1,4 +1,4 @@
-import { ButtonGroup, ListWallet, useGetAllWallets, useRegisterUser } from '@/features/wallets'
+import { ButtonGroup, ListWallet, useGetAllWallets, useRegisterUser } from '@/features/wallet'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { queryClient } from '@/shared/lib/react-query'

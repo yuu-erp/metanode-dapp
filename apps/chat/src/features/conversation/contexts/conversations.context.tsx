@@ -1,5 +1,6 @@
 'use client'
 import { container } from '@/container'
+import type { Message } from '@/modules/message'
 import { useCurrentAccount } from '@/shared/hooks'
 import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import type { AppEvents } from '@/types/app-events'
@@ -13,7 +14,7 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
   const handleUpdateConversation = React.useCallback(
-    async (message: any) => {
+    async (message: Message) => {
       // TODO: Define specific event type if possible or use generic payload
       if (!account) return
       const conversationService = container.conversationService
@@ -43,7 +44,7 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
           messageId: event.messageId,
           recipient: event.recipient
         })
-
+        console.log('KHAIHOAN DEBUG CONVERSATION CONTEXT ---- message', message)
         if (message) {
           await handleUpdateConversation(message)
         }

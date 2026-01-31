@@ -12,7 +12,9 @@ export class ConversationSyncStrategy implements SyncStrategy {
   ) {}
 
   public async sync(account: Account): Promise<void> {
+    console.log(`[ConversationSyncStrategy] Sync started for ${account.address}`)
     await this._service.syncByAccount(account)
     this._onSynced?.(account)
+    console.log(`[ConversationSyncStrategy] Sync completed for ${account.address}`)
   }
 }
