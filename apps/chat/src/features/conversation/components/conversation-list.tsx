@@ -1,10 +1,9 @@
 'use client'
+import { useCurrentAccount } from '@/shared/hooks'
 import { useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
-import ItemConversation from './item-conversation'
 import { useGetConversations } from '../hooks'
-import { useCurrentAccount } from '@/shared/hooks'
-import { ALL_MOCK_MESSAGES } from '@/shared/utils/mock-messages'
+import ItemConversation from './item-conversation'
 type ConversationListProps = {
   searchKeyword: string
 }
@@ -35,7 +34,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           updatedAt={item.updatedAt}
           // avatar={item.avatar}
           unreadCount={item.unreadCount}
-          lastMessage={ALL_MOCK_MESSAGES[Math.floor(Math.random() * ALL_MOCK_MESSAGES.length)]}
+          lastMessage={item.lastMessage}
           type={item.conversationType === 'private' ? 'PRIVATE' : 'USER'}
           isPin={item.conversationType === 'private'}
           onClick={() =>

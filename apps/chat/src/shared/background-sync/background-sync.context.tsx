@@ -9,7 +9,7 @@ import { createCurrentAccountQueryOptions } from '@/shared/hooks'
  * Types
  * ======================= */
 
-export type SyncStatus = 'idle' | 'running' | 'stopped' | 'error'
+export type SyncStatus = 'idle' | 'running' | 'stopped' | 'error' | 'connecting'
 
 interface BackgroundSyncContextValue {
   statuses: Record<string, SyncStatus>
@@ -34,41 +34,38 @@ export function useBackgroundSyncContext() {
  * ======================= */
 
 export function BackgroundSyncProvider({ children }: { children: React.ReactNode }) {
-  const [statuses, setStatuses] = useState<Record<string, SyncStatus>>({})
+  const [statuses, setStatuses] = useState<Record<string, SyncStatus>>(() =>
+    container.syncManager.getStatuses()
+  )
 
   // 1. Get Current Account
   const { data: currentAccount } = useQuery(createCurrentAccountQueryOptions())
 
-  // 2. Lifecycle Management
-  useEffect(() => {
-    if (currentAccount && currentAccount.isActive) {
-      container.syncManager.start(currentAccount)
-    } else {
-      container.syncManager.stop()
-    }
-
-    // Cleanup on unmount (optional, but good practice)
-    return () => {
-      // Don't stop on unmount if we want background sync to persist across route changes?
-      // Actually Provider is in _authenticated which wraps the app.
-      // So unmount means logout or close.
-      container.syncManager.stop()
-    }
-  }, [currentAccount, currentAccount?.address])
-
-  // 3. Status Subscription
+  // 2. Sync Management & Subscription
   useEffect(() => {
     const manager = container.syncManager
+
+    // Register listener BEFORE potentially starting sync
     const onStatusChange = ({ strategy, status }: { strategy: string; status: SyncStatus }) => {
       setStatuses((prev) => ({ ...prev, [strategy]: status }))
     }
-
     manager.events.on('statusChange', onStatusChange)
+
+    // Initial state sync (in case it changed before listener registered or on mount)
+    setStatuses(manager.getStatuses())
+
+    // Start/Stop based on account
+    if (currentAccount && currentAccount.isActive) {
+      manager.start(currentAccount)
+    } else {
+      manager.stop()
+    }
 
     return () => {
       manager.events.off('statusChange', onStatusChange)
+      manager.stop()
     }
-  }, [])
+  }, [currentAccount, currentAccount?.address])
 
   return (
     <BackgroundSyncContext.Provider value={{ statuses }}>{children}</BackgroundSyncContext.Provider>

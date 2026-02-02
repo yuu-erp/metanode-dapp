@@ -41,7 +41,7 @@ function InputMessageView(props: InputMessageViewProps) {
       className="fixed bottom-0 left-0 right-0 banner__overlay--down"
       {...propsDiv}
     >
-      <div style={{ paddingBottom: 'env(safe-area-inset-bottom, 12px)' }}>
+      <div className="pb-5">
         <div className="w-full min-h-[72px] h-full flex items-end px-2 gap-1.5">
           {/* Attach */}
           <button

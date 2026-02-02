@@ -248,4 +248,14 @@
       transform: translateX(0);
     }
   }
+
+  .chat-input-safe {
+  padding-bottom: 12px;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .chat-input-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
 }

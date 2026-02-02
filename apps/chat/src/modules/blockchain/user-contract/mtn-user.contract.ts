@@ -1,5 +1,4 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
-import { CONTRACT_ADDRESSES } from '../config/contracts'
 import type { TransactionPayload } from '../types'
 import { userAbi } from './abis'
 import type {
@@ -16,7 +15,7 @@ import type {
 
 export class UserContract extends MtnContract {
   constructor() {
-    super({ to: CONTRACT_ADDRESSES.userImplementation })
+    super({ to: '' })
   }
 
   userProfile(payload: TransactionPayload): Promise<UserProfileOutput> {
@@ -75,7 +74,8 @@ export class UserContract extends MtnContract {
       functionName: 'sendMessage',
       abiData: userAbi.sendMessage,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
+      gas: '3000000000000'
     })
   }
 

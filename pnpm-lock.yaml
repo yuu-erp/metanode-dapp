@@ -38,14 +38,14 @@ importers:
   apps/chat:
     dependencies:
       '@metanodejs/event-log':
-        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/event-log
-        version: link:../../../../../../yuu/Documents/CONG_TY/metanode-packages/packages/event-log
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/event-log
+        version: link:../../../metanode-packages/packages/event-log
       '@metanodejs/mtn-contract':
-        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/mtn-contract
-        version: link:../../../../../../yuu/Documents/CONG_TY/metanode-packages/packages/mtn-contract
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/mtn-contract
+        version: link:../../../metanode-packages/packages/mtn-contract
       '@metanodejs/system-core':
-        specifier: /Users/yuu/Documents/CONG_TY/metanode-packages/packages/system-core
-        version: link:../../../../../../yuu/Documents/CONG_TY/metanode-packages/packages/system-core
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core
+        version: link:../../../metanode-packages/packages/system-core
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
