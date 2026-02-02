@@ -11,7 +11,9 @@ import type {
   EditTextPayload,
   Message,
   OnChainMessagePayload,
+  OnChainReplyReference,
   PersistedMessage,
+  ReplyReference,
   SendPayload
 } from '.'
 import { createOptimisticMessage } from './message.entity'
@@ -30,7 +32,7 @@ export class MessageService {
     conversation: Conversation,
     options?: { limit?: number; page?: number }
   ): Promise<Message[]> {
-    const { limit = 50, page = 1 } = options ?? {} // page mặc định = 1 (không phải 2)
+    const { limit = 50, page = 1 } = options ?? {}
     const rawMessages = await this.userContract.getProcessedP2PMessages({
       from: account.address,
       to: account.contractAddress,
@@ -40,38 +42,99 @@ export class MessageService {
         page
       }
     })
+
     const messages = await fulfilledPromises(
-      rawMessages.map(async (item) => {
-        try {
-          const isIncoming = item.sender === conversation.conversationId
-
-          const decryptWithPublicKey = isIncoming
-            ? conversation.publicKey // 🔑 public key của người gửi
-            : account.publicKey // 🔑 public key của chính mình
-
-          const messageDecrypt = await this.walletService.decryptMessage<OnChainMessagePayload>(
-            decryptWithPublicKey,
-            account.address,
-            item.finalContent
-          )
-          return mapperToMessage({
-            accountId: account.address,
-            conversationId: conversation.conversationId,
-            ...item,
-            ...messageDecrypt
-          })
-        } catch (error) {
-          console.error(error)
-        }
-      })
+      rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
-    // Trường hợp conversation là Saved Messages ( cần bổ sung thêm replace Ox và chuyển toàn bộ ký tự về chữ thường)
+
+    const filteredMessages = messages.filter(Boolean) as Message[]
+
+    // Trường hợp conversation là Saved Messages (cần de-duplicate)
     if (account.contractAddress === conversation.conversationId) {
-      return Array.from(
-        new Map((messages.filter(Boolean) as Message[]).map((item) => [item.id, item])).values()
-      )
+      return Array.from(new Map(filteredMessages.map((item) => [item.id, item])).values())
     }
-    return messages.filter(Boolean) as Message[]
+
+    return filteredMessages
+  }
+
+  private async _processP2PMessage(
+    item: any,
+    account: Account,
+    conversation: Conversation
+  ): Promise<Message | undefined> {
+    try {
+      const isIncoming = item.sender === conversation.conversationId
+      const decryptionKey = isIncoming ? conversation.publicKey : account.publicKey
+
+      const decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
+        decryptionKey,
+        account.address,
+        item.finalContent
+      )
+
+      let replyTo = undefined
+      if (decrypted.replyTo) {
+        replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
+      }
+
+      return mapperToMessage({
+        accountId: account.address,
+        conversationId: conversation.conversationId,
+        ...item,
+        ...decrypted,
+        replyTo
+      })
+    } catch (error) {
+      console.error('[MessageService] Error processing message:', error)
+      return undefined
+    }
+  }
+
+  private async _inflateReplyTo(
+    replyTo: OnChainReplyReference,
+    account: Account,
+    conversation: Conversation
+  ): Promise<ReplyReference | OnChainReplyReference> {
+    try {
+      const { messageId, sender } = replyTo
+
+      const replyMessage = await this.userContract.getMessageById({
+        from: account.address,
+        to: account.contractAddress,
+        inputData: { _messageId: messageId }
+      })
+
+      const decryptionKey = await this._getDecryptionKey(sender, account, conversation)
+
+      const decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
+        decryptionKey,
+        account.address,
+        replyMessage.encryptedContent
+      )
+
+      return {
+        messageId,
+        sender,
+        ...decrypted
+      }
+    } catch (error) {
+      console.error('[MessageService] Failed to inflate replyTo:', error)
+      return replyTo
+    }
+  }
+
+  private async _getDecryptionKey(
+    sender: string,
+    account: Account,
+    conversation: Conversation
+  ): Promise<string> {
+    if (sender === account.contractAddress) return account.publicKey
+    if (sender === conversation.conversationId) return conversation.publicKey
+
+    return await this.userContract.publicKey({
+      from: account.address,
+      to: sender
+    })
   }
 
   async sendMessage(

@@ -33,7 +33,6 @@ export function useInfiniteMessages({
     queryKey,
     queryFn: async ({ pageParam = 1 }) => {
       if (!account || !conversation) return []
-      console.log('pageParam', { pageParam, account, conversation })
       const apiPage = await container.messageService.getProcessedP2PMessages(
         account,
         conversation,

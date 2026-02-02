@@ -67,3 +67,21 @@ export interface DeleteMessageV2Input {
   partnerContract: string
   _messageId: string
 }
+
+export interface SendDataChannelInput {
+  _recipientContractAddress: string
+  sessionId: string
+  channelName: string
+}
+
+export interface GetMessageByIdInput {
+  _messageId: string
+}
+
+export interface GetMessageByIdOutput {
+  messageId: string
+  sender: string
+  recipient: string
+  encryptedContent: string
+  timestamp: string
+}

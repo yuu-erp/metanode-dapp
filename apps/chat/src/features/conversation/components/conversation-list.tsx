@@ -10,9 +10,9 @@ type ConversationListProps = {
 
 function ConversationList({ searchKeyword }: ConversationListProps) {
   const navigate = useNavigate()
-  const { data: currentAccount } = useCurrentAccount()
+  const { data: account } = useCurrentAccount()
 
-  const { data: conversations = [] } = useGetConversations(currentAccount?.address)
+  const { data: conversations = [] } = useGetConversations(account?.address)
 
   const filteredConversations = React.useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase()
@@ -25,6 +25,8 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     )
   }, [conversations, searchKeyword])
 
+  console.log('[CONVERSATION LIST] ------ FILTERED CONVERSATIONS', filteredConversations)
+
   return (
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (
@@ -35,6 +37,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           // avatar={item.avatar}
           unreadCount={item.unreadCount}
           lastMessage={item.lastMessage}
+          isMine={Boolean(item.lastMessage?.sender === account?.contractAddress)}
           type={item.conversationType === 'private' ? 'PRIVATE' : 'USER'}
           isPin={item.conversationType === 'private'}
           onClick={() =>

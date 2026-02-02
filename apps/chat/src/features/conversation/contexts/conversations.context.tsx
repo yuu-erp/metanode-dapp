@@ -44,7 +44,6 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
           messageId: event.messageId,
           recipient: event.recipient
         })
-        console.log('KHAIHOAN DEBUG CONVERSATION CONTEXT ---- message', message)
         if (message) {
           await handleUpdateConversation(message)
         }

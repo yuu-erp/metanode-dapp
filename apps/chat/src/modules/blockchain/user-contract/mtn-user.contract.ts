@@ -5,9 +5,12 @@ import type {
   DeleteMessageV2Input,
   EditMessageInput,
   GetFullInboxOutput,
+  GetMessageByIdInput,
+  GetMessageByIdOutput,
   GetProcessedP2PMessagesInput,
   GetProcessedP2PMessagesOutput,
   ReactToMessageInput,
+  SendDataChannelInput,
   SendMessageInput,
   SendMessageOutput,
   UserProfileOutput
@@ -112,6 +115,30 @@ export class UserContract extends MtnContract {
       abiData: userAbi.deleteMessageV2,
       inputData,
       feeType: 'sc'
+    })
+  }
+
+  sendDataChannel(payload: TransactionPayload<SendDataChannelInput>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'sendDataChannel',
+      abiData: userAbi.sendDataChannel,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  getMessageById(payload: TransactionPayload<GetMessageByIdInput>): Promise<GetMessageByIdOutput> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getMessageById',
+      abiData: userAbi.getMessageById,
+      inputData,
+      feeType: 'read'
     })
   }
 }

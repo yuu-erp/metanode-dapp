@@ -92,7 +92,7 @@ function InputMessageView(props: InputMessageViewProps) {
                 </div>
 
                 <div className="h-8 flex items-center gap-1">
-                  <button onClick={() => onSendSticker('fa3c06143a51d30f8a40')}>
+                  <button onClick={() => onSendSticker('174bea63d6263f786637')}>
                     <StickerIcon className="text-white/80" />
                   </button>
 

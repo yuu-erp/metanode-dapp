@@ -42,6 +42,12 @@ export type ReplyReference<T extends MessageType = MessageType> = {
   type: T
 } & ReplyPreviewMap[T]
 
+// ─── On-Chain ReplyReference (Minimal) ───
+export type OnChainReplyReference = {
+  messageId: string
+  sender: string
+}
+
 // ============================================================================
 // BASE MESSAGE (các trường chung cho mọi loại message)
 // ============================================================================
@@ -59,7 +65,7 @@ export interface BaseMessage {
   isDeleted?: boolean
   status?: MessageStatus
   reactions?: MessageReaction[]
-  replyTo?: ReplyReference
+  replyTo?: ReplyReference | OnChainReplyReference
   forwardFrom?: string
 }
 
@@ -86,6 +92,11 @@ export interface BaseSendPayload {
   forwardFrom?: string
 }
 
+export interface BaseOnChainPayload {
+  replyTo?: OnChainReplyReference
+  forwardFrom?: string
+}
+
 export type SendPayload =
   | (BaseSendPayload & { type: 'text' } & MessagePayloadMap['text'])
   | (BaseSendPayload & { type: 'sticker' } & MessagePayloadMap['sticker'])
@@ -99,11 +110,11 @@ export type EditTextPayload = BaseSendPayload & { type: 'text' } & MessagePayloa
 // ============================================================================
 
 export type OnChainMessagePayload =
-  | (BaseSendPayload & { type: 'text' } & MessagePayloadMap['text'])
-  | (BaseSendPayload & { type: 'sticker' } & MessagePayloadMap['sticker'])
-  | (BaseSendPayload & { type: 'file' } & MessagePayloadMap['file'])
-  | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
-  | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])
+  | (BaseOnChainPayload & { type: 'text' } & MessagePayloadMap['text'])
+  | (BaseOnChainPayload & { type: 'sticker' } & MessagePayloadMap['sticker'])
+  | (BaseOnChainPayload & { type: 'file' } & MessagePayloadMap['file'])
+  | (BaseOnChainPayload & { type: 'voice' } & MessagePayloadMap['voice'])
+  | (BaseOnChainPayload & { type: 'location' } & MessagePayloadMap['location'])
 
 export type ComposerDraft =
   | { type: 'text'; content: string }

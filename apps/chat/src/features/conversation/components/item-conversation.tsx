@@ -8,6 +8,7 @@ import { formatUpdatedAt } from '@/shared/helpers'
 import { useI18N, useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
+import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -18,6 +19,7 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   isPin?: boolean
   type?: 'USER' | 'PRIVATE' | 'GROUP'
   unreadCount?: number
+  isMine?: boolean
 }
 function ItemConversation({
   name,
@@ -28,6 +30,7 @@ function ItemConversation({
   type = 'USER',
   unreadCount = 0,
   className,
+  isMine = false,
   ...props
 }: ItemConversationProps) {
   const { t } = useI18N()
@@ -42,7 +45,7 @@ function ItemConversation({
       sendCommand('vibrate')
     }
   })
-
+  console.log('isMine', isMine)
   // Helper render content
 
   return (
@@ -70,6 +73,7 @@ function ItemConversation({
               {type === 'PRIVATE' ? t(name) : name}
             </div>
             <div className="flex items-center gap-1">
+              {isMine && <CheckIcon className="size-3" />}
               <span>{formatUpdatedAt(updatedAt)}</span>
             </div>
           </div>

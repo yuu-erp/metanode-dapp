@@ -1,11 +1,12 @@
 import type {
   BaseMessage,
-  BaseSendPayload,
+  BaseOnChainPayload,
   Message,
   MessageReaction,
   MessageStatus,
   MessageType,
   OnChainMessagePayload,
+  OnChainReplyReference,
   ReplyReference
 } from './message.type'
 import { decodeBase64 } from './utils'
@@ -156,8 +157,13 @@ function mapStatus(raw: unknown): MessageStatus | undefined {
  */
 export function mapperMessageToOnChain(message: Message): OnChainMessagePayload {
   // Các field chung
-  const base: BaseSendPayload = {
-    ...(message.replyTo && { replyTo: message.replyTo }),
+  const base: BaseOnChainPayload = {
+    ...(message.replyTo && {
+      replyTo: {
+        messageId: message.replyTo.messageId,
+        sender: message.replyTo.sender
+      }
+    }),
     ...(message.forwardFrom && { forwardFrom: message.forwardFrom })
   }
 
@@ -243,12 +249,21 @@ export function parseReactionSummary(summary?: string): MessageReaction[] {
 /**
  * Helper: map raw replyTo → ReplyReference
  */
-function mapReplyReference(raw: unknown): ReplyReference | undefined {
-  if (!raw || typeof raw !== 'object') return undefined
+function mapReplyReference(raw: unknown): ReplyReference | OnChainReplyReference | undefined {
+  if (!raw || typeof raw !== 'object' || raw === null) return undefined
 
-  const ref = raw as Partial<ReplyReference<MessageType>>
-  if (!ref.messageId || !ref.sender || !ref.type) return undefined
+  const ref = raw as Record<string, unknown>
+  const messageId = String(ref.messageId ?? '')
+  const sender = String(ref.sender ?? '')
 
-  // Copy tất cả field có trong raw (giả sử raw đã có cấu trúc tương thích)
-  return { ...ref } as ReplyReference
+  if (!messageId || !sender) return undefined
+
+  if (typeof ref.type === 'string') {
+    return ref as unknown as ReplyReference
+  }
+
+  return {
+    messageId,
+    sender
+  }
 }
