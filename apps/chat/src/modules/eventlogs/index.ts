@@ -28,6 +28,12 @@ export type EventMap = {
     sender: string
     recipient: string
   }
+  DataChannel: {
+    sender: string
+    recipient: string
+    sessionId: string
+    channelName: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi

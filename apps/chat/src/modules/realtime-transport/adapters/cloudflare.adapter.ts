@@ -22,18 +22,23 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
     config: CloudflareConfig,
     localDescription: RTCSessionDescriptionInit
   ): Promise<CloudflareSession> {
-    const url = `${config.apiBase}/api/webrtc`
+    const url = `${config.apiBase}/sessions/new`
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${config.appToken}`,
       ...config.headers
     }
-
+    console.log('[CloudflareAdapter] Creating session...', {
+      url,
+      headers,
+      body: JSON.stringify({
+        sessionDescription: localDescription
+      })
+    })
     const response = await fetch(url, {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        appID: config.appID,
         sessionDescription: localDescription
       })
     })
@@ -55,10 +60,15 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
     config: CloudflareConfig,
     sessionId: string,
     dataChannelName: string
-  ): Promise<{ dataChannels: CloudflareDataChannel[] }> {
-    const url = `${config.apiBase}/api/webrtc/${sessionId}/datachannels/send`
+  ): Promise<{
+    requiresImmediateRenegotiation: boolean
+    sessionDescription?: RTCSessionDescriptionInit
+    dataChannels: CloudflareDataChannel[]
+  }> {
+    const url = `${config.apiBase}/sessions/${sessionId}/datachannels/new`
     const headers = {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.appToken}`,
       ...config.headers
     }
 
@@ -66,7 +76,12 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        label: dataChannelName
+        dataChannels: [
+          {
+            dataChannelName: dataChannelName,
+            location: 'local'
+          }
+        ]
       })
     })
 
@@ -74,7 +89,9 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
       throw new Error(`[CloudflareAdapter] Failed to create send channel: ${response.status}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    console.log('[CloudflareAdapter] createSendChannel response:', data)
+    return data
   }
 
   async createReceiveChannel(
@@ -82,10 +99,15 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
     sessionId: string,
     dataChannelName: string,
     senderSessionId: string
-  ): Promise<{ dataChannels: CloudflareDataChannel[] }> {
-    const url = `${config.apiBase}/api/webrtc/${sessionId}/datachannels/receive`
+  ): Promise<{
+    requiresImmediateRenegotiation: boolean
+    sessionDescription?: RTCSessionDescriptionInit
+    dataChannels: CloudflareDataChannel[]
+  }> {
+    const url = `${config.apiBase}/sessions/${sessionId}/datachannels/new`
     const headers = {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.appToken}`,
       ...config.headers
     }
 
@@ -93,8 +115,13 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        label: dataChannelName,
-        senderSessionId
+        dataChannels: [
+          {
+            dataChannelName: dataChannelName,
+            location: 'remote',
+            sessionId: senderSessionId
+          }
+        ]
       })
     })
 
@@ -102,13 +129,16 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
       throw new Error(`[CloudflareAdapter] Failed to create receive channel: ${response.status}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    console.log('[CloudflareAdapter] createReceiveChannel response:', data)
+    return data
   }
 
   async closeSession(config: CloudflareConfig, sessionId: string): Promise<void> {
-    const url = `${config.apiBase}/api/webrtc/${sessionId}`
+    const url = `${config.apiBase}/sessions/${sessionId}`
     const headers = {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.appToken}`,
       ...config.headers
     }
 
@@ -131,23 +161,31 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
     sessionDescription: RTCSessionDescriptionInit
     tracks: CloudflareTrack[]
   }> {
-    const url = `${config.apiBase}/api/webrtc/${sessionId}/tracks/send`
+    const url = `${config.apiBase}/sessions/${sessionId}/tracks/new`
     const headers = {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.appToken}`,
       ...config.headers
     }
 
     const response = await fetch(url, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ tracks })
+      body: JSON.stringify({
+        tracks: tracks.map((t) => ({
+          trackName: t.trackName,
+          location: 'local'
+        }))
+      })
     })
 
     if (!response.ok) {
       throw new Error(`[CloudflareAdapter] Failed to push track: ${response.status}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    console.log('[CloudflareAdapter] pushTrack response:', data)
+    return data
   }
 
   async pullTrack(
@@ -160,9 +198,10 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
     sessionDescription: RTCSessionDescriptionInit
     tracks: CloudflareTrack[]
   }> {
-    const url = `${config.apiBase}/api/webrtc/${sessionId}/tracks/receive`
+    const url = `${config.apiBase}/sessions/${sessionId}/tracks/new`
     const headers = {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.appToken}`,
       ...config.headers
     }
 
@@ -170,8 +209,11 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
       method: 'POST',
       headers,
       body: JSON.stringify({
-        senderSessionId,
-        trackNames
+        tracks: trackNames.map((name) => ({
+          trackName: name,
+          location: 'remote',
+          sessionId: senderSessionId
+        }))
       })
     })
 
@@ -179,6 +221,33 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
       throw new Error(`[CloudflareAdapter] Failed to pull track: ${response.status}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    console.log('[CloudflareAdapter] pullTrack response:', data)
+    return data
+  }
+
+  async renegotiate(
+    config: CloudflareConfig,
+    sessionId: string,
+    localDescription: RTCSessionDescriptionInit
+  ): Promise<void> {
+    const url = `${config.apiBase}/sessions/${sessionId}/renegotiate`
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${config.appToken}`,
+      ...config.headers
+    }
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        sessionDescription: localDescription
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`[CloudflareAdapter] Failed to renegotiate: ${response.status}`)
+    }
   }
 }

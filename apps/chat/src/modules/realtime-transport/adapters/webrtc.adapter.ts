@@ -13,7 +13,7 @@ export class WebRTCAdapterImpl implements WebRTCAdapter {
   createPeerConnection(config: WebRTCConfig): RTCPeerConnection {
     const peerConnectionConfig: RTCConfiguration = {
       iceServers: config.iceServers,
-      bundlePolicy: config.bundlePolicy || 'max-bundle'
+      bundlePolicy: config.bundlePolicy || 'balanced'
     }
 
     return new RTCPeerConnection(peerConnectionConfig)

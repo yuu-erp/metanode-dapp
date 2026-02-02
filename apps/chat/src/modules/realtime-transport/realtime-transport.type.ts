@@ -71,7 +71,11 @@ export interface CloudflareAdapter {
     config: CloudflareConfig,
     sessionId: string,
     dataChannelName: string
-  ): Promise<{ dataChannels: CloudflareDataChannel[] }>
+  ): Promise<{
+    requiresImmediateRenegotiation: boolean
+    sessionDescription?: RTCSessionDescriptionInit
+    dataChannels: CloudflareDataChannel[]
+  }>
 
   /**
    * Tạo data channel receive
@@ -81,7 +85,11 @@ export interface CloudflareAdapter {
     sessionId: string,
     dataChannelName: string,
     senderSessionId: string
-  ): Promise<{ dataChannels: CloudflareDataChannel[] }>
+  ): Promise<{
+    requiresImmediateRenegotiation: boolean
+    sessionDescription?: RTCSessionDescriptionInit
+    dataChannels: CloudflareDataChannel[]
+  }>
 
   /**
    * Đóng relay session
@@ -114,6 +122,15 @@ export interface CloudflareAdapter {
     sessionDescription: RTCSessionDescriptionInit
     tracks: CloudflareTrack[]
   }>
+
+  /**
+   * Renegotiate session (send answer for remote offer)
+   */
+  renegotiate(
+    config: CloudflareConfig,
+    sessionId: string,
+    localDescription: RTCSessionDescriptionInit
+  ): Promise<void>
 }
 
 /**

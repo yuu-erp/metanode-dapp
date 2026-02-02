@@ -21,7 +21,7 @@ export interface MessageReaction {
 export interface MessagePayloadMap {
   text: { content: string }
   sticker: { stickerId: string }
-  file: { fileId: string; fileName: string; mimeType: string; size: number }
+  file: { fileId: string; fileName: string; mimeType: string; size: number; filePath?: string }
   voice: { fileId: string; duration: number; mimeType: string }
   location: { latitude: number; longitude: number; address?: string }
 }

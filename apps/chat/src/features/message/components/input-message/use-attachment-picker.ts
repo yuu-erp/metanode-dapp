@@ -1,13 +1,16 @@
 'use client'
 import { useFilePicker } from '@/shared/hooks'
 
-export function useAttachmentPicker() {
+export interface UseAttachmentPickerOptions {
+  onSelect?: (files: File[]) => void
+}
+
+export function useAttachmentPicker(options?: UseAttachmentPickerOptions) {
   const { open, FileInput } = useFilePicker({
-    accept: 'image/*,video/*,application/pdf',
+    accept: 'image/*,video/*,application/pdf,*/*',
     multiple: true,
     onSelect: (files) => {
-      console.log('Selected files:', files)
-      // TODO: upload / preview
+      options?.onSelect?.(files)
     }
   })
 

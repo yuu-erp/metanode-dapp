@@ -40,4 +40,10 @@ export type AppEvents = {
     emoji: string
   }
   'reaction.received': EventMap['PartnerMessageReacted']
+  // WEBRTC
+  'webrtc.datachannel.received': EventMap['DataChannel']
+  'message.file.downloaded': {
+    fileId: string
+    filePath: string
+  }
 }

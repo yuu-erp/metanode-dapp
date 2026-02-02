@@ -1,6 +1,6 @@
 'use client'
 import type { Message } from '@/modules/message'
-import { MessageSticker, MessageText } from './message-type'
+import { MessageFile, MessageSticker, MessageText } from './message-type'
 
 interface ItemMessageViewProps {
   message: Message
@@ -14,7 +14,7 @@ export default function ItemMessageView({ message }: ItemMessageViewProps) {
       return <MessageSticker message={message} />
 
     case 'file':
-      return <div>📎 {message.fileName}</div>
+      return <MessageFile message={message} />
 
     case 'voice':
       return <div>🎤 Voice {message.duration}s</div>

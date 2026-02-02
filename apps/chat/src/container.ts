@@ -9,6 +9,7 @@ import { EventLogContainer } from '@/modules/eventlogs'
 import { MessageFactory, MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
+import { FileTransferService } from '@/modules/file-transfer'
 import { SyncFactory, SyncManager } from '@/modules/sync'
 import {
   getRealtimeTransportFactory,
@@ -39,6 +40,7 @@ class AppContainer {
   private readonly _accountService: AccountService
   private readonly _conversationService: ConversationService
   private readonly _messageService: MessageService
+  private readonly _fileTransferService: FileTransferService
   private readonly _realtimeTransportFactory: RealtimeTransportFactory
 
   constructor() {
@@ -62,12 +64,13 @@ class AppContainer {
       this._walletService
     )
 
-    // 5️⃣ Application Service (MessageService)
     this._messageService = MessageFactory.createService(
       this._userContract,
       this._walletService,
       this._eventBus
     )
+
+    this._fileTransferService = new FileTransferService()
 
     // 6️⃣ Realtime Transport Factory
     this._realtimeTransportFactory = getRealtimeTransportFactory()
@@ -99,6 +102,10 @@ class AppContainer {
 
   get messageService(): MessageService {
     return this._messageService
+  }
+
+  get fileTransferService(): FileTransferService {
+    return this._fileTransferService
   }
 
   get eventLogContainer(): EventLogContainer {

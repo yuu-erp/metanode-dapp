@@ -1,6 +1,7 @@
 import type {
   CloudflareAdapter,
   CloudflareConfig,
+  CloudflareDataChannel,
   CreateSessionRequest,
   CreateSessionResponse,
   RealtimeSession,
@@ -25,7 +26,9 @@ export class TransportService {
     private webrtcAdapter: WebRTCAdapter,
     private cloudflareConfig: CloudflareConfig,
     private webrtcConfig: WebRTCConfig
-  ) {}
+  ) {
+    console.log('[TransportService] Initialized')
+  }
 
   /**
    * Tạo session mới
@@ -40,35 +43,38 @@ export class TransportService {
    */
   async createSession(request: CreateSessionRequest): Promise<CreateSessionResponse> {
     try {
+      console.log(`[TransportService] Creating session for participant ${request.participantId}`, {
+        connectionType: request.connectionType
+      })
       // Step 1: Tạo peer connection
       const peerConnection = this.webrtcAdapter.createPeerConnection(this.webrtcConfig)
+      console.log('[TransportService] PeerConnection created', peerConnection)
 
-      // Step 2: Tạo offer (nếu duplex hoặc send)
-      let localDescription: RTCSessionDescriptionInit
-      if (request.connectionType !== 'receive') {
-        const offer = await peerConnection.createOffer()
-        await peerConnection.setLocalDescription(offer)
-        localDescription = offer
-      } else {
-        // Nếu receive-only, tạo local offer rỗng
-        const emptyOffer = {
-          type: 'offer' as const,
-          sdp: 'v=0\r\no=- 0 0 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\n'
-        }
-        await peerConnection.setLocalDescription(emptyOffer)
-        localDescription = emptyOffer
-      }
+      // Step 2: Tạo offer
+      // Cloudflare Calls yêu cầu SDP phải có ít nhất một m-section (media hoặc data)
+      // Chúng ta sẽ khởi tạo một DataChannel mặc định để đảm bảo SDP hợp lệ (chứa ice-ufrag, fingerprint, etc.)
+      peerConnection.createDataChannel('cloudflare-session-init')
+
+      // Luôn dùng createOffer để đảm bảo SDP hợp lệ
+      const offer = await peerConnection.createOffer()
+      await peerConnection.setLocalDescription(offer)
+      const localDescription = offer
+      console.log('[TransportService] Local offer created and set')
 
       // Step 3: Gửi offer tới Cloudflare
+      console.log('[TransportService] Sending offer to Cloudflare...')
       const cloudflareSession = await this.cloudflareAdapter.createSession(
         this.cloudflareConfig,
         localDescription
       )
+      console.log(`[TransportService] Cloudflare session created: ${cloudflareSession.sessionId}`)
 
       // Step 4: Set remote description (answer từ Cloudflare)
+      console.log('[TransportService] Setting remote description (Cloudflare answer)...')
       await peerConnection.setRemoteDescription(
         new RTCSessionDescription(cloudflareSession.sessionDescription)
       )
+      console.log('[TransportService] Remote description set successfully')
 
       // Step 5: Create session object
       const session: RealtimeSession = {
@@ -129,21 +135,76 @@ export class TransportService {
   }
 
   /**
-   * Tạo data channel
+   * Tạo data channel (Sender side)
    */
   async createDataChannel(session: RealtimeSession, channelName: string): Promise<RTCDataChannel> {
     try {
+      console.log(
+        `[TransportService] Creating DataChannel: ${channelName} for session ${session.sessionId}`
+      )
+
+      // 1. Tạo DataChannel trên PeerConnection
       const dataChannel = session.peerConnection.createDataChannel(channelName, {
         ordered: true
       })
 
+      // 2. Thông báo với Cloudflare
+      console.log('[TransportService] Notifying Cloudflare about new send channel...')
+      const { requiresImmediateRenegotiation, sessionDescription } =
+        await this.cloudflareAdapter.createSendChannel(
+          this.cloudflareConfig,
+          session.sessionId,
+          channelName
+        )
+
+      // 3. Xử lý renegotiation nếu Cloudflare yêu cầu
+      if (requiresImmediateRenegotiation && sessionDescription) {
+        await this.handleRenegotiation(session, sessionDescription)
+      }
+
       // Lưu reference
       session.dataChannels.set(channelName, dataChannel)
+      console.log('[TransportService] Data channel created and stored')
 
       return dataChannel
     } catch (error) {
       throw new Error(
         `[TransportService] Failed to create data channel: ${error instanceof Error ? error.message : String(error)}`
+      )
+    }
+  }
+
+  /**
+   * Kết nối tới data channel của partner (Receiver side)
+   * Qua Cloudflare relay
+   */
+  async pullDataChannel(
+    session: RealtimeSession,
+    senderSessionId: string,
+    channelName: string
+  ): Promise<CloudflareDataChannel[]> {
+    try {
+      console.log(
+        `[TransportService] Pulling DataChannel ${channelName} from sender ${senderSessionId} into session ${session.sessionId}`
+      )
+      const { dataChannels, requiresImmediateRenegotiation, sessionDescription } =
+        await this.cloudflareAdapter.createReceiveChannel(
+          this.cloudflareConfig,
+          session.sessionId,
+          channelName,
+          senderSessionId
+        )
+
+      // Xử lý renegotiation nếu Cloudflare yêu cầu
+      if (requiresImmediateRenegotiation && sessionDescription) {
+        await this.handleRenegotiation(session, sessionDescription)
+      }
+
+      console.log(`[TransportService] Data channels pulled: ${dataChannels.length}`)
+      return dataChannels
+    } catch (error) {
+      throw new Error(
+        `[TransportService] Failed to pull data channel: ${error instanceof Error ? error.message : String(error)}`
       )
     }
   }
@@ -155,7 +216,11 @@ export class TransportService {
     session: RealtimeSession,
     callback: (event: RTCDataChannelEvent) => void
   ): void {
-    session.peerConnection.ondatachannel = callback
+    console.log('[TransportService] Registering ondatachannel listener')
+    session.peerConnection.ondatachannel = (event) => {
+      console.log('[TransportService] ondatachannel event fired!', event.channel.label)
+      callback(event)
+    }
   }
 
   /**
@@ -166,6 +231,9 @@ export class TransportService {
     callback: (state: RTCPeerConnectionState) => void
   ): void {
     session.peerConnection.onconnectionstatechange = () => {
+      console.log(
+        `[TransportService] ConnectionState change: ${session.peerConnection.connectionState}`
+      )
       callback(session.peerConnection.connectionState)
       session.updatedAt = Date.now()
     }
@@ -179,8 +247,54 @@ export class TransportService {
     callback: (state: RTCIceConnectionState) => void
   ): void {
     session.peerConnection.oniceconnectionstatechange = () => {
+      console.log(
+        `[TransportService] ICE ConnectionState change: ${session.peerConnection.iceConnectionState}`
+      )
       callback(session.peerConnection.iceConnectionState)
       session.updatedAt = Date.now()
+    }
+  }
+
+  onSignalingStateChange(
+    session: RealtimeSession,
+    callback: (state: RTCSignalingState) => void
+  ): void {
+    session.peerConnection.onsignalingstatechange = () => {
+      console.log(
+        `[TransportService] SignalingState change: ${session.peerConnection.signalingState}`
+      )
+      callback(session.peerConnection.signalingState)
+    }
+  }
+
+  /**
+   * Xử lý tái thương lượng (Renegotiation)
+   * Phổ biến khi Push/Pull tracks hoặc DataChannels
+   */
+  private async handleRenegotiation(
+    session: RealtimeSession,
+    sessionDescription: RTCSessionDescriptionInit
+  ): Promise<void> {
+    console.log('[TransportService] Renogotiating session...')
+    try {
+      // 1. Set remote description từ Cloudflare
+      await session.peerConnection.setRemoteDescription(
+        new RTCSessionDescription(sessionDescription)
+      )
+
+      // 2. Nếu Cloudflare gửi offer, chúng ta phải tạo answer và gửi lại cho Cloudflare
+      if (sessionDescription.type === 'offer') {
+        const answer = await session.peerConnection.createAnswer()
+        await session.peerConnection.setLocalDescription(answer)
+
+        console.log('[TransportService] Sending answer back to Cloudflare renegotiate endpoint...')
+        await this.cloudflareAdapter.renegotiate(this.cloudflareConfig, session.sessionId, answer)
+        console.log('[TransportService] Answer sent and renegotiation finalized')
+      }
+      console.log('[TransportService] Renegotiation complete')
+    } catch (error) {
+      console.error('[TransportService] Renegotiation failed:', error)
+      throw error
     }
   }
 }

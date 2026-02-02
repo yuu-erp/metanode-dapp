@@ -13,7 +13,7 @@ type Props = {
   className?: string
 }
 
-function MessageSticker({ message, className }: Props) {
+function MessageSticker({ message: _message, className }: Props) {
   return (
     <div className={cn('relative overflow-hidden group', className)}>
       <img

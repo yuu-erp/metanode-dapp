@@ -39,11 +39,18 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('message.partnerdeleted', data)
     })
 
+    const offDataChannel = eventLog.on('DataChannel', (data) => {
+      if (data.sender === account.contractAddress) return
+      console.log('[useEventLog] DataChannel received', data)
+      eventBus.emit('webrtc.datachannel.received', data)
+    })
+
     return () => {
       offMessageReceived()
       offReaction()
       offPartnerMessageEdited()
       offPartnerMessageDeleted()
+      offDataChannel()
     }
   }, [account?.address, account?.contractAddress])
 

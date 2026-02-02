@@ -16,7 +16,7 @@ function ForwardMessage({ forwardFrom }: ForwardMessageProps) {
       .filter(Boolean)
       .join(' ') || USER_DEFAULT
   return (
-    <div className="flex gap-1 items-center flex-wrap min-w-0 pb-3 text-sm">
+    <div className="flex gap-1 items-center flex-wrap min-w-0 pb-3 text-sm text-white">
       <span className="shrink-0">Forwarded from</span>
 
       <div className="flex items-center gap-1 min-w-0">
