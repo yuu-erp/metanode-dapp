@@ -10,7 +10,12 @@ import { MessageFactory, MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
 import { SyncFactory, SyncManager } from '@/modules/sync'
+import {
+  getRealtimeTransportFactory,
+  type RealtimeTransportFactory
+} from '@/modules/realtime-transport/realtime-transport.factory'
 import type { AppEvents } from './types/app-events'
+import type { SessionManager, TransportService } from '@/modules/realtime-transport'
 
 /**
  * AppContainer
@@ -34,6 +39,7 @@ class AppContainer {
   private readonly _accountService: AccountService
   private readonly _conversationService: ConversationService
   private readonly _messageService: MessageService
+  private readonly _realtimeTransportFactory: RealtimeTransportFactory
 
   constructor() {
     const nativeWalletAdapter = new NativeWalletAdapter()
@@ -62,6 +68,9 @@ class AppContainer {
       this._walletService,
       this._eventBus
     )
+
+    // 6️⃣ Realtime Transport Factory
+    this._realtimeTransportFactory = getRealtimeTransportFactory()
   }
 
   /* ================================
@@ -98,6 +107,14 @@ class AppContainer {
 
   get eventBus(): EventBusPort<AppEvents> {
     return this._eventBus
+  }
+
+  get transportService(): TransportService {
+    return this._realtimeTransportFactory.transportService
+  }
+
+  get sessionManager(): SessionManager {
+    return this._realtimeTransportFactory.sessionManager
   }
 
   /* ================================
