@@ -108,8 +108,7 @@ function AvatarUser({
       style={resolveSize(avatarSize)}
       {...props}
     >
-      <AvatarImage src={url} alt={`@${name}`} />
-
+      {type !== 'PRIVATE' && <AvatarImage src={url} alt={`@${name}`} />}
       <AvatarFallback
         className={cn(
           'rounded-full flex items-center justify-center',

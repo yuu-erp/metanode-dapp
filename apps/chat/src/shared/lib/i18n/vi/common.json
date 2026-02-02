@@ -27,5 +27,13 @@
     "placeholder": "Tìm kiếm cuộc trò chuyện..."
   },
   "pinnedMessage": "Tin nhắn được ghim",
-  "savedMessages": "Tin nhắn đã lưu"
+  "savedMessages": "Tin nhắn đã lưu",
+  "message": {
+    "type": {
+      "sticker": "[Nhãn dán]",
+      "file": "[Tệp]",
+      "voice": "[Tin nhắn thoại]",
+      "location": "[Vị trí]"
+    }
+  }
 }

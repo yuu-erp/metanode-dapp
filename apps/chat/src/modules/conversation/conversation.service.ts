@@ -77,7 +77,7 @@ export class ConversationService {
           name: item.conversationId === account.contractAddress && 'savedMessages',
           avatar: userProfile.avatar,
           publicKey: conversationPublicKey,
-          updatedAt: new Date(item.latestMessageTimestamp),
+          updatedAt: item.latestMessageTimestamp,
           conversationType:
             item.conversationId === account.contractAddress ? 'private' : item.conversationType,
           // Construct a fake object that mapperToMessage can parse

@@ -27,5 +27,13 @@
     "placeholder": "Search conversations..."
   },
   "pinnedMessage": "Pinned Message",
-  "savedMessages": "Saved Messages"
+  "savedMessages": "Saved Messages",
+  "message": {
+    "type": {
+      "sticker": "[Sticker]",
+      "file": "[File]",
+      "voice": "[Voice Memo]",
+      "location": "[Location]"
+    }
+  }
 }

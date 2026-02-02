@@ -2,6 +2,7 @@
 import type { Message } from '@/modules/message'
 import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
+import { MessagePreview } from '@/shared/components/message-render'
 import { Badge } from '@/shared/components/ui/badge'
 import { formatUpdatedAt } from '@/shared/helpers'
 import { useI18N, useLongPress } from '@/shared/hooks'
@@ -62,7 +63,7 @@ function ItemConversation({
           isLongPressActive && 'scale-95'
         )}
       >
-        <AvatarUser size="lg" name={name} type={type} />
+        <AvatarUser size="lg" url={avatar} name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight">
           <div className="w-full flex items-center justify-between gap-3">
             <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">
@@ -73,8 +74,9 @@ function ItemConversation({
             </div>
           </div>
           <div className="w-full flex items-center justify-between gap-3">
-            <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium">
+            <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium pointer-events-none">
               {/* Priview message */}
+              {lastMessage && <MessagePreview message={lastMessage} />}
             </div>
             {unreadCount > 0 && (
               <Badge
