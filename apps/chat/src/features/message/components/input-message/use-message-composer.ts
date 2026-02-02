@@ -5,7 +5,7 @@ import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
 import type { EditTextPayload, MessageAction } from '@/modules/message'
 import { useMessageAction } from '../../contexts'
-import { useEditMessage, useSendText } from '../../hooks'
+import { useEditMessage, useSendSticker, useSendText } from '../../hooks'
 
 interface UseMessageComposerParams {
   account?: Account
@@ -18,11 +18,12 @@ export function useMessageComposer({ account, conversation }: UseMessageComposer
   const { messageAction, setMessageAction } = useMessageAction()
 
   const { sendText, isPending: isSending } = useSendText()
+  const { sendSticker, isPending: isSendingSticker } = useSendSticker()
   const { mutate: editMessage, isPending: isEditing } = useEditMessage()
 
   const isEdit = messageAction?.type === 'EDIT'
 
-  const canSend = Boolean(message.trim() && account && conversation && !isSending && !isEditing)
+  const canSend = Boolean(account && conversation && !isSending && !isEditing && !isSendingSticker)
 
   const handleSendText = React.useCallback(() => {
     if (!canSend || !account || !conversation) return
@@ -70,6 +71,39 @@ export function useMessageComposer({ account, conversation }: UseMessageComposer
     setMessageAction
   ])
 
+  const handleSendSticker = React.useCallback(
+    (stickerId: string) => {
+      console.log('[handleSendSticker]', {
+        stickerId,
+        canSend,
+        account,
+        conversation
+      })
+      if (!canSend || !account || !conversation) return
+      // 📤 SEND NEW MESSAGE
+      sendSticker({
+        account,
+        conversation,
+        stickerId,
+        messageAction: messageAction as MessageAction
+      })
+
+      setMessage('')
+      setMessageAction(null)
+    },
+    [
+      canSend,
+      account,
+      conversation,
+      message,
+      messageAction,
+      isEdit,
+      sendSticker,
+      editMessage,
+      setMessageAction
+    ]
+  )
+
   React.useEffect(() => {
     if (!messageAction || messageAction.type !== 'EDIT') return
     if (messageAction.message.type !== 'text') return
@@ -81,11 +115,12 @@ export function useMessageComposer({ account, conversation }: UseMessageComposer
     setMessage,
 
     canSend,
-    isPending: isSending || isEditing,
+    isPending: isSending || isEditing || isSendingSticker,
 
     messageAction,
     clearAction: () => setMessageAction(null),
 
-    sendText: handleSendText
+    sendText: handleSendText,
+    sendSticker: handleSendSticker
   }
 }

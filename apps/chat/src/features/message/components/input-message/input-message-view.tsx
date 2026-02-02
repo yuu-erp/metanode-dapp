@@ -4,6 +4,7 @@ import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { InputMessageAction } from '.'
 import type { MessageAction } from '@/modules/message'
+import { cn } from '@/shared/lib'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
@@ -17,6 +18,7 @@ export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivEleme
 
   onChangeMessage: (value: string) => void
   onSend: () => void
+  onSendSticker: (stickerId: string) => void
   onOpenFilePicker: () => void
   onClearAction: () => void
 }
@@ -31,6 +33,7 @@ function InputMessageView(props: InputMessageViewProps) {
     FileInput,
     onChangeMessage,
     onSend,
+    onSendSticker,
     onOpenFilePicker,
     onClearAction,
     ...propsDiv
@@ -42,7 +45,7 @@ function InputMessageView(props: InputMessageViewProps) {
       {...propsDiv}
     >
       <div className="pb-5">
-        <div className="w-full min-h-[72px] h-full flex items-end px-2 gap-1.5">
+        <div className="w-full min-h-[72px] h-full flex items-end gap-1.5 px-3">
           {/* Attach */}
           <button
             type="button"
@@ -63,7 +66,12 @@ function InputMessageView(props: InputMessageViewProps) {
             />
 
             {/* CONTENT LAYER – SCROLL Ở ĐÂY */}
-            <div className="relative h-full py-2 px-1 flex flex-col gap-1">
+            <div
+              className={cn(
+                'relative h-full py-2 px-2 flex flex-col gap-1',
+                !message.trim() ? 'px-2' : 'px-1'
+              )}
+            >
               <InputMessageAction messageAction={messageAction} onClearAction={onClearAction} />
               <div className="w-full h-full flex items-end">
                 <div className="no-scrollbar min-h-8 max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
@@ -84,7 +92,7 @@ function InputMessageView(props: InputMessageViewProps) {
                 </div>
 
                 <div className="h-8 flex items-center gap-1">
-                  <button>
+                  <button onClick={() => onSendSticker('fa3c06143a51d30f8a40')}>
                     <StickerIcon className="text-white/80" />
                   </button>
 

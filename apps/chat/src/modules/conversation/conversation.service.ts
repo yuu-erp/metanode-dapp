@@ -45,7 +45,6 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
-    console.log('KHAIHOAN DEBUG CONVERSATION SERVICE ---- inboxs', inboxs)
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
         const [conversationPublicKey, userProfile] = await Promise.all([
@@ -77,7 +76,6 @@ export class ConversationService {
           name: item.conversationId === account.contractAddress && 'savedMessages',
           avatar: userProfile.avatar,
           publicKey: conversationPublicKey,
-          updatedAt: item.latestMessageTimestamp,
           conversationType:
             item.conversationId === account.contractAddress ? 'private' : item.conversationType,
           // Construct a fake object that mapperToMessage can parse
@@ -90,7 +88,6 @@ export class ConversationService {
         })
       })
     )
-    console.log('KHAIHOAN DEBUG CONVERSATION SERVICE ---- conversations', conversations)
     await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
   }
 

@@ -11,7 +11,7 @@ function MessageSticker({ message }: Props) {
     <img
       src={`/stickers/${message.stickerId}.png`}
       alt="sticker"
-      className="w-24 h-24"
+      className="w-24 h-24 pointer-events-none mb-1"
       draggable={false}
     />
   )

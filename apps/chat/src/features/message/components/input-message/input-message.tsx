@@ -26,6 +26,7 @@ const InputMessage = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
         FileInput={attachment.FileInput}
         onChangeMessage={composer.setMessage}
         onSend={composer.sendText}
+        onSendSticker={composer.sendSticker}
         onOpenFilePicker={attachment.openFilePicker}
         onClearAction={composer.clearAction}
       />

@@ -62,7 +62,8 @@ export class UserContract extends MtnContract {
       functionName: 'getProcessedP2PMessages',
       abiData: userAbi.getProcessedP2PMessages,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
+      gas: '3000000000'
     })
   }
 
@@ -74,8 +75,7 @@ export class UserContract extends MtnContract {
       functionName: 'sendMessage',
       abiData: userAbi.sendMessage,
       inputData,
-      feeType: 'sc',
-      gas: '3000000000000'
+      feeType: 'sc'
     })
   }
 

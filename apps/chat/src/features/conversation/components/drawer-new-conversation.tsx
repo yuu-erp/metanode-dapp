@@ -22,8 +22,6 @@ function DrawerNewConversation() {
     mutate(account)
   }, [account, mutate])
 
-  console.log('conversations: ', conversations)
-
   return (
     <Drawer.Root shouldScaleBackground>
       <Drawer.Trigger asChild>

@@ -1,4 +1,3 @@
-import { mapperToMessage } from '@/modules/message'
 import type { Conversation, ConversationType } from './conversation.type'
 
 export function mapperToConversation(raw: any): Conversation {
@@ -11,20 +10,11 @@ export function mapperToConversation(raw: any): Conversation {
     avatar: raw.avatar ?? undefined,
     username: raw.userName,
     // Last message
-    // mapperToMessage returns Message, we need PersistedMessage (Message + id)
-    // The raw.lastMessage should ideally have an id. If not, we might need to handle it.
-    // Assuming mapperToMessage preserves id if present in raw.
-    lastMessage:
-      raw.lastMessage && (raw.lastMessage.id || raw.lastMessage.messageId)
-        ? {
-            ...mapperToMessage(raw.lastMessage),
-            id: String(raw.lastMessage.id ?? raw.lastMessage.messageId)
-          }
-        : undefined,
+    lastMessage: raw.lastMessage,
     // State
     unreadCount: Number(raw.unreadCount ?? 0),
     conversationType: raw.conversationType as ConversationType,
     // Sync / sort
-    updatedAt: new Date(Number(raw.lastMessage?.timestamp ?? Math.floor(Date.now() / 1000)))
+    updatedAt: new Date(Number(raw.latestMessageTimestamp ?? Math.floor(Date.now() / 1000)) * 1000)
   }
 }

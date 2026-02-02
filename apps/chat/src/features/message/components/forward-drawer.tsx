@@ -41,6 +41,17 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
             forwardFrom: forwardPayload.forwardFrom
           }
         })
+      } else if (forwardPayload.type === 'sticker') {
+        mutate({
+          account,
+          conversation,
+          payload: {
+            type: forwardPayload.type,
+            stickerId:
+              messageAction.message.type === 'sticker' ? messageAction.message.stickerId : '',
+            forwardFrom: forwardPayload.forwardFrom
+          }
+        })
       }
       onClose?.()
       navigate({ to: '/conversation/$id', params: { id: conversation.conversationId } })

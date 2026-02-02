@@ -58,7 +58,7 @@ function ItemMessage({
             ? 'bg-blue-600 text-white rounded-br-xs'
             : 'bg-gray-200 text-gray-900 rounded-bl-xs',
           isFailed && 'bg-red-50 text-red-700 border border-red-300',
-          isSticker && 'bg-transparent'
+          isSticker && 'bg-transparent border-none'
         )}
       >
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
