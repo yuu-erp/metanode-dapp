@@ -21,6 +21,7 @@ function MessagePreview({ message, className }: Props) {
         <span className="flex items-center gap-1 opacity-70 italic">
           <ImageIcon size={14} />
           {t('message.type.sticker', { defaultValue: '[Sticker]' })}
+          {/* <img src={`/stickers/${message.stickerId}.png`} alt="" className="size-5" /> */}
         </span>
       )
 

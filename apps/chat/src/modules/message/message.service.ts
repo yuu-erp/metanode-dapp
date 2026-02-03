@@ -350,4 +350,12 @@ export class MessageService {
       }
     })
   }
+
+  async sendFile(
+    account: Account,
+    conversation: Conversation,
+    payload: SendPayload
+  ): Promise<string> {
+    return ''
+  }
 }

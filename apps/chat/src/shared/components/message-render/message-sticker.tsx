@@ -17,10 +17,9 @@ function MessageSticker({ message: _message, className }: Props) {
   return (
     <div className={cn('relative overflow-hidden group', className)}>
       <img
-        // src={`/stickers/${message.stickerId}.png`}
-        src="https://i.pinimg.com/736x/b3/19/7c/b3197c4a31eeaec30aaaebe2fdcf0a87.jpg"
+        src={`/stickers/${_message.stickerId}.png`}
         alt="sticker"
-        className="w-full h-full object-contain transition-transform duration-200 group-hover:scale-110"
+        className="size-6 object-contain transition-transform duration-200 group-hover:scale-110"
         draggable={false}
       />
     </div>

@@ -16,8 +16,8 @@ function InputMessageAction({ messageAction, onClearAction }: InputMessageAction
   return (
     <InputMessageActionView
       title={viewData.title}
-      content={viewData.content}
       onClose={onClearAction}
+      messageAction={messageAction}
     />
   )
 }
