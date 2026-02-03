@@ -8,8 +8,9 @@ import {
 import { ListMessage } from '@/features/message/components/list-message/index'
 import PinMessages from '@/features/message/components/pin-messages'
 import type { Conversation } from '@/modules/conversation'
-import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
+import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
+import { useMemo } from 'react'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({
   component: RouteComponent
@@ -19,10 +20,19 @@ function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/conversation/$id' })
   const { data: account } = useCurrentAccount()
   const { data: conversation } = useGetConversationId(id)
+  const viewportHeight = useVisualViewport()
+
+  const containerStyle = useMemo(() => {
+    return viewportHeight ? { height: `${viewportHeight}px` } : undefined
+  }, [viewportHeight])
+
   return (
     <MessageActionProvider>
       <CopyMessageActionProvider>
-        <div className="w-full h-screen flex flex-col">
+        <div
+          className="fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]"
+          style={containerStyle}
+        >
           <ChatHeader
             name={conversation?.name}
             type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}

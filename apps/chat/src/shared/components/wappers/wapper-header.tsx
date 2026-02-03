@@ -5,10 +5,11 @@ import { cn } from '@/shared/lib'
 
 interface Props extends React.HTMLAttributes<HTMLElement> {
   alwaysScrolled?: boolean
+  position?: 'fixed' | 'sticky'
 }
 
 export const WapperHeader = React.forwardRef<HTMLElement, Props>(
-  ({ className, children, alwaysScrolled = false, ...props }, ref) => {
+  ({ className, children, alwaysScrolled = false, position = 'fixed', ...props }, ref) => {
     const localRef = React.useRef<HTMLElement>(null)
 
     React.useImperativeHandle(ref, () => localRef.current!)
@@ -50,7 +51,8 @@ export const WapperHeader = React.forwardRef<HTMLElement, Props>(
       <header
         ref={localRef}
         className={cn(
-          'fixed left-0 right-0 top-0 z-10 flex flex-col pb-3 px-3',
+          'left-0 right-0 top-0 z-10 flex flex-col pb-3 px-3',
+          position,
           window.isHasNotch ? 'pt-14' : 'pt-10',
           className
         )}

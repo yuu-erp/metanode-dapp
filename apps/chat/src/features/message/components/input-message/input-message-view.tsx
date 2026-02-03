@@ -42,7 +42,7 @@ function InputMessageView(props: InputMessageViewProps) {
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-0 left-0 right-0 banner__overlay--down"
+      className="absolute bottom-0 left-0 right-0 banner__overlay--down"
       {...propsDiv}
     >
       <div className="pb-5">

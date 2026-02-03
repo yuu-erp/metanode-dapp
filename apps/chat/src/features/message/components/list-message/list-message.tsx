@@ -26,8 +26,9 @@ function ListMessage({ conversation, account }: ListMessageProps) {
     <div
       ref={scrollRef}
       onScroll={handleScroll}
-      className="flex h-full flex-col-reverse overflow-y-auto relative"
-      style={{ paddingBottom: 'var(--header-height)' }}
+      className="flex flex-1 min-h-0 flex-col-reverse overflow-y-auto relative"
+      // Padding bottom 80px to account for absolute InputMessage
+      style={{ paddingBottom: '80px' }}
       aria-live="polite"
     >
       {/* List message */}

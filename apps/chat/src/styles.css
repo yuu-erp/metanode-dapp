@@ -125,9 +125,11 @@
 
   .bg-background-gradient {
     background:
-      radial-gradient(120% 60% at 50% 30%,
+      radial-gradient(
+        120% 60% at 50% 30%,
         rgba(255, 220, 170, 0.35) 0%,
-        rgba(255, 220, 170, 0) 60%),
+        rgba(255, 220, 170, 0) 60%
+      ),
       linear-gradient(180deg, #e9e4d9 0%, #efe4c8 25%, #d8b19a 45%, #9b857c 65%, #6f737a 100%);
   }
 }
@@ -187,11 +189,13 @@
   }
 
   .text-color {
-    background: linear-gradient(245.29deg,
-        #6dc1dc 13.32%,
-        #a690fc 28.55%,
-        #fc96bb 55.55%,
-        #ffc397 84.12%);
+    background: linear-gradient(
+      245.29deg,
+      #6dc1dc 13.32%,
+      #a690fc 28.55%,
+      #fc96bb 55.55%,
+      #ffc397 84.12%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
@@ -216,17 +220,21 @@
   }
 
   .banner__overlay--down {
-    background-image: linear-gradient(to bottom,
-        transparent 10%,
-        rgba(0, 0, 0, 0.2),
-        rgba(0, 0, 0, 0.8));
+    background-image: linear-gradient(
+      to bottom,
+      transparent 10%,
+      rgba(0, 0, 0, 0.2),
+      rgba(0, 0, 0, 0.8)
+    );
   }
 
   .banner__overlay--up {
-    background-image: linear-gradient(to top,
-        transparent 0%,
-        rgba(0, 0, 0, .3),
-        rgba(0, 0, 0, .6));
+    background-image: linear-gradient(
+      to top,
+      transparent 0%,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.6)
+    );
   }
 
   .backdrop-filter-app {

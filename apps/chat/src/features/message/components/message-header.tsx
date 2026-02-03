@@ -19,7 +19,7 @@ function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
   const router = useRouter()
   return (
     <React.Fragment>
-      <WapperHeader alwaysScrolled>
+      <WapperHeader alwaysScrolled position="sticky">
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-1" onClick={() => router.history.back()}>
             <ChevronLeft />
