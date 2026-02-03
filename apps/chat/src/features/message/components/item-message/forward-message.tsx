@@ -3,11 +3,13 @@ import * as React from 'react'
 import { useGetUserProfile } from '@/shared/hooks/accounts'
 import AvatarUser from '@/shared/components/avatar-user'
 import { USER_DEFAULT } from '@/constants/navbar-menu.constant'
+import { cn } from '@/shared/lib'
 
 interface ForwardMessageProps {
   forwardFrom?: string
+  isMine?: boolean
 }
-function ForwardMessage({ forwardFrom }: ForwardMessageProps) {
+function ForwardMessage({ forwardFrom, isMine }: ForwardMessageProps) {
   if (!forwardFrom) return null
   const { data: profile } = useGetUserProfile(forwardFrom)
   const displayName =
@@ -16,7 +18,12 @@ function ForwardMessage({ forwardFrom }: ForwardMessageProps) {
       .filter(Boolean)
       .join(' ') || USER_DEFAULT
   return (
-    <div className="flex gap-1 items-center flex-wrap min-w-0 pb-3 text-sm text-white">
+    <div
+      className={cn(
+        'flex gap-1 items-center flex-wrap min-w-0 pb-3 text-sm',
+        isMine ? 'text-white' : 'text-gray-800'
+      )}
+    >
       <span className="shrink-0">Forwarded from</span>
 
       <div className="flex items-center gap-1 min-w-0">

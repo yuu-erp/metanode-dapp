@@ -35,7 +35,7 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
 
       <div className="h-full flex-1 flex items-center gap-2 px-3">
         <div className="flex-1 overflow-hidden">
-          <div className="text-sm font-medium line-clamp-1 text-blue-400">
+          <div className="text-sm font-semibold line-clamp-1 text-blue-400">
             Reply to {replyToUser}
           </div>
           {replyPreview}

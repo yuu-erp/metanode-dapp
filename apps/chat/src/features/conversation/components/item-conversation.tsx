@@ -45,7 +45,6 @@ function ItemConversation({
       sendCommand('vibrate')
     }
   })
-  console.log('isMine', isMine)
   // Helper render content
 
   return (

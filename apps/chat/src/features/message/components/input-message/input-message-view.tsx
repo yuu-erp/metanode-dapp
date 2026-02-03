@@ -5,11 +5,13 @@ import { cn } from '@/shared/lib'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { InputMessageAction } from '.'
+import { SelectedFileList } from './selected-file-list'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
   isPending: boolean
   messageAction: MessageAction | null
+  files: File[]
 
   textareaRef: React.RefObject<HTMLTextAreaElement | null>
   containerRef: React.RefObject<HTMLDivElement | null>
@@ -21,6 +23,7 @@ export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivEleme
   onSendSticker: (stickerId: string) => void
   onOpenFilePicker: () => void
   onClearAction: () => void
+  onRemoveFile: (index: number) => void
 }
 
 function InputMessageView(props: InputMessageViewProps) {
@@ -28,6 +31,7 @@ function InputMessageView(props: InputMessageViewProps) {
     message,
     isPending,
     messageAction,
+    files,
     textareaRef,
     containerRef,
     FileInput,
@@ -36,6 +40,7 @@ function InputMessageView(props: InputMessageViewProps) {
     onSendSticker,
     onOpenFilePicker,
     onClearAction,
+    onRemoveFile,
     ...propsDiv
   } = props
 
@@ -46,7 +51,7 @@ function InputMessageView(props: InputMessageViewProps) {
       {...propsDiv}
     >
       <div className="pb-5">
-        <div className="w-full min-h-[72px] h-full flex items-end gap-1.5 px-3">
+        <div className="w-full min-h-[72px] h-full flex items-end gap-1 px-2">
           {/* Attach */}
           <button
             type="button"
@@ -69,11 +74,13 @@ function InputMessageView(props: InputMessageViewProps) {
             {/* CONTENT LAYER – SCROLL Ở ĐÂY */}
             <div
               className={cn(
-                'relative h-full py-2 px-2 flex flex-col gap-1',
-                !message.trim() ? 'px-2' : 'px-1'
+                'relative h-full pb-2 flex flex-col gap-1',
+                !message.trim() ? 'px-2' : 'px-1',
+                files.length > 0 ? 'pt-0' : 'pt-2'
               )}
             >
               <InputMessageAction messageAction={messageAction} onClearAction={onClearAction} />
+              <SelectedFileList files={files} onRemove={onRemoveFile} />
               <div className="w-full h-full flex items-end">
                 <div className="no-scrollbar min-h-8 max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
                   <textarea
@@ -97,7 +104,7 @@ function InputMessageView(props: InputMessageViewProps) {
                     <StickerIcon className="text-white/80" />
                   </button>
 
-                  {message.trim() && (
+                  {message.trim() || files.length > 0 ? (
                     <button
                       disabled={isPending}
                       onClick={onSend}
@@ -105,14 +112,14 @@ function InputMessageView(props: InputMessageViewProps) {
                     >
                       <Send className="text-white size-5" />
                     </button>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Mic */}
-          {!message.trim() && (
+          {!message.trim() && files.length === 0 && (
             <button className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80">
               <Mic className="text-white/80" />
             </button>

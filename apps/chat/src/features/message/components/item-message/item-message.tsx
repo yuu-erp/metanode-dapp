@@ -62,7 +62,7 @@ function ItemMessage({
         )}
       >
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
-        <ForwardMessage forwardFrom={message.forwardFrom} />
+        <ForwardMessage forwardFrom={message.forwardFrom} isMine={isMine} />
         <ItemMessageView message={message} />
         <div className="w-full flex items-end justify-between gap-3">
           <div className="flex items-center gap-1">

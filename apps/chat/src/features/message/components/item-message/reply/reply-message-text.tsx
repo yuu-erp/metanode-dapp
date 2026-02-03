@@ -13,7 +13,7 @@ function ReplyMessageText({ message, isMine }: Props) {
     <div
       className={cn(
         'text-xs font-medium line-clamp-1 break-all',
-        isMine ? 'text-blue-100' : 'text-black'
+        isMine ? 'text-white' : 'text-gray-800'
       )}
     >
       {message.content}
