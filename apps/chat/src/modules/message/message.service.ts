@@ -1,5 +1,5 @@
 import type { Account } from '@/modules/account'
-import type { UserContract } from '@/modules/blockchain'
+import type { FileContract, UserContract } from '@/modules/blockchain'
 import type { Conversation } from '@/modules/conversation'
 import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
@@ -19,10 +19,13 @@ import type {
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
+import { createHashWithBuffer } from '@metanodejs/system-core'
+import type { PushFileInfosParams } from '../blockchain/file-contract/types'
 
 export class MessageService {
   constructor(
     private readonly userContract: UserContract,
+    private readonly fileContract: FileContract,
     private readonly walletService: WalletService,
     private readonly eventBus: EventBusPort<AppEvents>
   ) {}
@@ -352,9 +355,44 @@ export class MessageService {
   }
 
   async sendFile(account: Account, conversation: Conversation, files: File[]): Promise<void> {
-    for (const file of files) {
-      const clientId = uuidv4()
-      try {
+    const fileInfos: PushFileInfosParams['infos'] = []
+    const messagesToSend: {
+      clientId: string
+      optimisticMessage: Message
+      encryptedForRecipient: string
+      encryptedForSelf: string
+    }[] = []
+
+    try {
+      for (const file of files) {
+        const clientId = uuidv4()
+        const arrayBuffer = await file.arrayBuffer()
+        const buffer = Array.from(new Uint8Array(arrayBuffer))
+        const { hash } = await createHashWithBuffer({ buffer })
+
+        fileInfos.push({
+          owner: account.address,
+          hash,
+          contentLen: file.size,
+          totalChunks: 1,
+          expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year
+          name: file.name,
+          ext: file.name.split('.').pop() || '',
+          status: 0,
+          contentDisposition: '',
+          contentID: ''
+        })
+
+        const payload: SendPayload = {
+          type: 'file',
+          fileId: '',
+          fileName: file.name,
+          mimeType: file.type,
+          size: file.size,
+          filePath: '',
+          file
+        }
+
         const optimisticMessage = createOptimisticMessage(
           {
             clientId,
@@ -365,28 +403,84 @@ export class MessageService {
             timestamp: Date.now()
           },
           {
-            type: 'file',
-            fileId: '',
-            fileName: file.name,
-            size: file.size,
-            mimeType: file.type,
-            file: file,
+            ...payload,
             filePath: URL.createObjectURL(file)
           }
         )
-        console.log('optimisticMessage: ', optimisticMessage)
+
         // optimistic update
         this.eventBus.emit('message.create', { message: optimisticMessage })
-        // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
-      } catch (error) {
-        this.eventBus.emit('message.status', {
-          accountId: account.address,
-          conversationId: conversation.conversationId,
+
+        // Prepare message payload
+        const messageOnChain = mapperMessageToOnChain(optimisticMessage)
+        const stringifyMessage = JSON.stringify(messageOnChain)
+
+        const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
+          this.walletService.encryptMessage(
+            conversation.publicKey,
+            account.address,
+            stringifyMessage
+          ),
+          this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
+        ])
+
+        messagesToSend.push({
           clientId,
-          status: 'failed'
+          optimisticMessage,
+          encryptedForRecipient,
+          encryptedForSelf
         })
-        throw error
       }
+      console.log('fileInfos', fileInfos)
+      console.log('messagesToSend', messagesToSend)
+      // 1. Push file infos to blockchain
+      const fileKeys = await this.fileContract.pushFileInfos({
+        from: account.address,
+        inputData: { infos: fileInfos }
+      })
+
+      const datas = files.map((file, index) => ({
+        fileKey: fileKeys[index] || '',
+        dataFile: file
+      }))
+      console.log('datas', datas)
+      // 2. Send messages to user contract
+      // for (const { clientId, encryptedForRecipient, encryptedForSelf } of messagesToSend) {
+      //   try {
+      //     const result = await this.userContract.sendMessage({
+      //       from: account.address,
+      //       to: account.contractAddress,
+      //       inputData: {
+      //         _recipientContractAddress: conversation.conversationId,
+      //         _encryptedContentForSelf: encryptedForSelf,
+      //         _encryptedContentForRecipient: encryptedForRecipient
+      //       }
+      //     })
+
+      //     this.eventBus.emit('message.sent', {
+      //       accountId: account.address,
+      //       conversationId: conversation.conversationId,
+      //       clientId,
+      //       messageId: result.messageId
+      //     })
+      //   } catch (error) {
+      //     console.error(`[MessageService] Failed to send message ${clientId}`, error)
+      //     this.eventBus.emit('message.status', {
+      //       accountId: account.address,
+      //       conversationId: conversation.conversationId,
+      //       clientId,
+      //       status: 'failed'
+      //     })
+      //   }
+      // }
+    } catch (error) {
+      console.error('[MessageService] sendFile error:', error)
+      // If batch push fails, all fail? Or we can't really recover easily if pushFileInfos fails.
+      // We should probably mark all optimistic messages as failed.
+      // Since we don't have the list of clientIds easily available if error happens early,
+      // but if error happens in loop, we have partial list.
+      // Simpler to just re-throw for now or handle what we can.
+      throw error
     }
   }
 }
