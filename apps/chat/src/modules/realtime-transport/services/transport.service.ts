@@ -145,7 +145,9 @@ export class TransportService {
 
       // 1. Tạo DataChannel trên PeerConnection
       const dataChannel = session.peerConnection.createDataChannel(channelName, {
-        ordered: true
+        ordered: true,
+        negotiated: true,
+        id: 1
       })
 
       // 2. Thông báo với Cloudflare
@@ -182,7 +184,11 @@ export class TransportService {
     session: RealtimeSession,
     senderSessionId: string,
     channelName: string
-  ): Promise<CloudflareDataChannel[]> {
+  ): Promise<{
+    requiresImmediateRenegotiation: boolean
+    sessionDescription?: RTCSessionDescriptionInit
+    dataChannels: CloudflareDataChannel[]
+  }> {
     try {
       console.log(
         `[TransportService] Pulling DataChannel ${channelName} from sender ${senderSessionId} into session ${session.sessionId}`
@@ -195,13 +201,24 @@ export class TransportService {
           senderSessionId
         )
 
+      console.log('[TransportService] createReceiveChannel result:', {
+        requiresImmediateRenegotiation,
+        hasSessionDescription: !!sessionDescription,
+        dataChannelsCount: dataChannels.length
+      })
+
       // Xử lý renegotiation nếu Cloudflare yêu cầu
       if (requiresImmediateRenegotiation && sessionDescription) {
+        console.log('[TransportService] Triggering renegotiation for pulled channel...')
         await this.handleRenegotiation(session, sessionDescription)
+      } else {
+        console.warn(
+          '[TransportService] No renegotiation required, DataChannel might not be established!'
+        )
       }
 
       console.log(`[TransportService] Data channels pulled: ${dataChannels.length}`)
-      return dataChannels
+      return { dataChannels, requiresImmediateRenegotiation, sessionDescription }
     } catch (error) {
       throw new Error(
         `[TransportService] Failed to pull data channel: ${error instanceof Error ? error.message : String(error)}`
@@ -294,6 +311,25 @@ export class TransportService {
       console.log('[TransportService] Renegotiation complete')
     } catch (error) {
       console.error('[TransportService] Renegotiation failed:', error)
+      throw error
+    }
+  }
+  /**
+   * Public method to force renegotiation
+   */
+  async renegotiate(
+    session: RealtimeSession,
+    sessionDescription: RTCSessionDescriptionInit
+  ): Promise<void> {
+    try {
+      console.log('[TransportService] Force renegotiating session...')
+      await this.cloudflareAdapter.renegotiate(
+        this.cloudflareConfig,
+        session.sessionId,
+        sessionDescription
+      )
+    } catch (error) {
+      console.error('[TransportService] Force renegotiation failed:', error)
       throw error
     }
   }

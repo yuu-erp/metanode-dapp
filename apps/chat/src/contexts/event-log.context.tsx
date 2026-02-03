@@ -41,7 +41,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     const offDataChannel = eventLog.on('DataChannel', (data) => {
       if (data.sender === account.contractAddress) return
-      console.log('[useEventLog] DataChannel received', data)
       eventBus.emit('webrtc.datachannel.received', data)
     })
 

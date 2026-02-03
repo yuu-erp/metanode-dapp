@@ -106,8 +106,7 @@ export function useFileTransfer(
         const session = await container.sessionManager.createSession({
           participantId: account.address,
           conversationId: conversation.conversationId,
-          connectionType: 'receive',
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+          connectionType: 'receive'
         })
         sessionRef.current = session
 
@@ -164,8 +163,7 @@ export function useFileTransfer(
         const session = await container.sessionManager.createSession({
           participantId: account.address,
           conversationId: conversation.conversationId,
-          connectionType: 'send',
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+          connectionType: 'send'
         })
         sessionRef.current = session
 

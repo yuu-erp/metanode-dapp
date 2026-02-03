@@ -1,10 +1,10 @@
 'use client'
+import type { MessageAction } from '@/modules/message'
 import { StickerIcon } from '@/shared/components/icons'
+import { cn } from '@/shared/lib'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { InputMessageAction } from '.'
-import type { MessageAction } from '@/modules/message'
-import { cn } from '@/shared/lib'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
@@ -38,6 +38,7 @@ function InputMessageView(props: InputMessageViewProps) {
     onClearAction,
     ...propsDiv
   } = props
+
   return (
     <div
       ref={containerRef}

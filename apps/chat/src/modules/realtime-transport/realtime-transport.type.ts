@@ -215,7 +215,6 @@ export interface CreateSessionRequest {
   participantId: string
   conversationId: string
   connectionType: 'send' | 'receive' | 'duplex'
-  iceServers: RTCIceServer[]
 }
 
 /**

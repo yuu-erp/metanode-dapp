@@ -5,11 +5,11 @@ import {
   InputMessage,
   MessageActionProvider
 } from '@/features/message'
+import { ListMessage } from '@/features/message/components/list-message/index'
 import PinMessages from '@/features/message/components/pin-messages'
+import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
-import { ListMessage } from '@/features/message/components/list-message/index'
-import type { Conversation } from '@/modules/conversation'
 
 export const Route = createFileRoute('/_authenticated/conversation/$id')({
   component: RouteComponent
@@ -23,16 +23,13 @@ function RouteComponent() {
     <MessageActionProvider>
       <CopyMessageActionProvider>
         <div className="w-full h-screen flex flex-col">
-          {/* Header */}
           <ChatHeader
             name={conversation?.name}
             type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}
             username={conversation?.username}
           />
-          <PinMessages />
-          {/* @ts-ignore */}
-          <ListMessage conversation={conversation} account={account} />
-          {/* Input chat - luôn dính bottom */}
+          <PinMessages account={account} conversation={conversation as Conversation} />
+          <ListMessage conversation={conversation as Conversation} account={account} />
           <InputMessage conversation={conversation as Conversation} account={account} />
         </div>
       </CopyMessageActionProvider>
