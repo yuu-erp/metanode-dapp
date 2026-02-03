@@ -19,7 +19,7 @@ function MessageFile({ message }: Props) {
 
   if (isImage && message.filePath) {
     return (
-      <div className="relative rounded-xl overflow-hidden max-w-sm group">
+      <div className="relative rounded-2xl overflow-hidden max-w-sm group">
         <img
           src={message.filePath}
           alt={message.fileName}

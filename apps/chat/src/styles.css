@@ -140,7 +140,7 @@
   }
 
   body {
-    @apply m-0 bg-background text-white select-none;
+    @apply m-0 bg-black text-white select-none;
     font-family:
       -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell',
       'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
