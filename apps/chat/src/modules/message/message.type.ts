@@ -21,7 +21,14 @@ export interface MessageReaction {
 export interface MessagePayloadMap {
   text: { content: string }
   sticker: { stickerId: string }
-  file: { fileId: string; fileName: string; mimeType: string; size: number; filePath?: string }
+  file: {
+    fileId: string
+    fileName: string
+    mimeType: string
+    size: number
+    filePath: string
+    file?: File
+  }
   voice: { fileId: string; duration: number; mimeType: string }
   location: { latitude: number; longitude: number; address?: string }
 }
@@ -119,7 +126,15 @@ export type OnChainMessagePayload =
 export type ComposerDraft =
   | { type: 'text'; content: string }
   | { type: 'sticker'; stickerId: string }
-  | { type: 'file'; fileId: string; fileName: string; mimeType: string; size: number }
+  | {
+      type: 'file'
+      fileId: string
+      fileName: string
+      mimeType: string
+      size: number
+      filePath: string
+      file: File
+    }
   | { type: 'voice'; fileId: string; duration: number; mimeType: string }
   | { type: 'location'; latitude: number; longitude: number; address?: string }
 

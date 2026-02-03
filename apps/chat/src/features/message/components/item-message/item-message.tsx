@@ -42,6 +42,12 @@ function ItemMessage({
 
   const isSticker = React.useMemo(() => message.type === 'sticker', [message.type])
 
+  const isImage = React.useMemo(() => {
+    if (message.type !== 'file') return false
+    if (!message.filePath) return false
+    return message.mimeType.startsWith('image/')
+  }, [message])
+
   return (
     <motion.div
       layoutId={layoutId}
@@ -58,21 +64,27 @@ function ItemMessage({
             ? 'bg-blue-600 text-white rounded-br-xs'
             : 'bg-gray-200 text-gray-900 rounded-bl-xs',
           isFailed && 'bg-red-50 text-red-700 border border-red-300',
-          isSticker && 'bg-transparent border-none'
+          (isSticker || isImage) && 'bg-transparent border-none px-0 py-0'
         )}
       >
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
         <ForwardMessage forwardFrom={message.forwardFrom} isMine={isMine} />
         <ItemMessageView message={message} />
-        <div className="w-full flex items-end justify-between gap-3">
+        <div
+          className={cn(
+            'w-full flex items-end justify-between gap-3',
+            isImage && 'absolute bottom-1.5 right-1.5'
+          )}
+        >
           <div className="flex items-center gap-1">
             <ReactionMessage reactions={message?.reactions} />
           </div>
           <div
             className={cn(
-              'text-[11px] flex items-end gap-1',
+              'text-[11px] flex items-center gap-1',
               isMine ? 'text-blue-200' : 'text-gray-500',
-              isFailed && 'text-red-500'
+              isFailed && 'text-red-500',
+              isImage && 'bg-black/40 backdrop-blur-sm p-0.5 pl-1 rounded-full text-white'
             )}
           >
             {message.isEdited && <span>edited</span>}

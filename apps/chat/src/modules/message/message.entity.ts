@@ -41,7 +41,9 @@ export function createOptimisticMessage(
         fileId: payload.fileId,
         fileName: payload.fileName,
         mimeType: payload.mimeType,
-        size: payload.size
+        size: payload.size,
+        filePath: payload.filePath,
+        file: payload.file
       } satisfies Message
 
     case 'voice':
@@ -89,7 +91,9 @@ export function createReplyReference(message: PersistedMessage): ReplyReference 
         fileId: message.fileId,
         fileName: message.fileName,
         mimeType: message.mimeType,
-        size: message.size
+        size: message.size,
+        filePath: message.filePath,
+        file: message.file
       }
 
     case 'voice':
@@ -204,7 +208,9 @@ export function createSendPayload(
         mimeType: draft.mimeType,
         size: draft.size,
         replyTo,
-        forwardFrom
+        forwardFrom,
+        filePath: draft.filePath,
+        file: draft.file
       }
 
     case 'voice':

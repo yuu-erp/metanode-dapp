@@ -89,6 +89,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
         mimeType: String(
           raw.mimeType ?? (raw.value as any)?.mimeType ?? 'application/octet-stream'
         ),
+        filePath: String(raw.filePath ?? (raw.value as any)?.filePath ?? ''),
         size: Number(raw.size ?? (raw.value as any)?.size ?? 0)
       }
     }

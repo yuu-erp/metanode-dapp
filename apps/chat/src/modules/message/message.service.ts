@@ -351,11 +351,42 @@ export class MessageService {
     })
   }
 
-  async sendFile(
-    account: Account,
-    conversation: Conversation,
-    payload: SendPayload
-  ): Promise<string> {
-    return ''
+  async sendFile(account: Account, conversation: Conversation, files: File[]): Promise<void> {
+    for (const file of files) {
+      const clientId = uuidv4()
+      try {
+        const optimisticMessage = createOptimisticMessage(
+          {
+            clientId,
+            accountId: account.address,
+            conversationId: conversation.conversationId,
+            sender: account.contractAddress,
+            recipient: account.contractAddress,
+            timestamp: Date.now()
+          },
+          {
+            type: 'file',
+            fileId: '',
+            fileName: file.name,
+            size: file.size,
+            mimeType: file.type,
+            file: file,
+            filePath: URL.createObjectURL(file)
+          }
+        )
+        console.log('optimisticMessage: ', optimisticMessage)
+        // optimistic update
+        this.eventBus.emit('message.create', { message: optimisticMessage })
+        // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
+      } catch (error) {
+        this.eventBus.emit('message.status', {
+          accountId: account.address,
+          conversationId: conversation.conversationId,
+          clientId,
+          status: 'failed'
+        })
+        throw error
+      }
+    }
   }
 }
