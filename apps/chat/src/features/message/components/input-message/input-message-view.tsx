@@ -51,7 +51,7 @@ function InputMessageView(props: InputMessageViewProps) {
           <button
             type="button"
             onClick={onOpenFilePicker}
-            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl"
+            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
           >
             <Paperclip className="text-white/80" />
           </button>
@@ -101,7 +101,7 @@ function InputMessageView(props: InputMessageViewProps) {
                     <button
                       disabled={isPending}
                       onClick={onSend}
-                      className="h-10 w-12 bg-blue-500 rounded-full flex items-center justify-center disabled:opacity-50"
+                      className="h-10 w-12 bg-blue-500 rounded-full flex items-center justify-center disabled:opacity-50 transition-transform duration-150 active:scale-80"
                     >
                       <Send className="text-white size-5" />
                     </button>
@@ -113,7 +113,7 @@ function InputMessageView(props: InputMessageViewProps) {
 
           {/* Mic */}
           {!message.trim() && (
-            <button className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl">
+            <button className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80">
               <Mic className="text-white/80" />
             </button>
           )}

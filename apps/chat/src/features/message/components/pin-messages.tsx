@@ -6,156 +6,216 @@ import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
 import { container } from '@/container'
 import type { AppEvents } from '@/types/app-events'
+import { toast } from 'sonner'
 
 interface PinMessagesProps {
   account?: Account
   conversation?: Conversation
 }
+
 function PinMessages({ account, conversation }: PinMessagesProps) {
   const { t } = useI18N()
+  const senderDcRef = React.useRef<RTCDataChannel | null>(null)
+
+  // -- SENDER LOGIC --
   const connectWebRTC = React.useCallback(async () => {
     if (!account || !conversation) return
 
     try {
+      // 1. Create Session
+      console.log('[Sender] Creating session...')
       const session = await container.sessionManager.createSession({
-        participantId: account.address,
+        participantId: account.contractAddress,
         conversationId: conversation.conversationId,
-        connectionType: 'send' // publisher
+        connectionType: 'send'
       })
+      console.log('[Sender] Session created:', session.sessionId)
 
-      console.log('Session created (sender):', session.sessionId)
-
-      // 1. Tạo DataChannel ở phía publisher (gọi API Cloudflare)
+      // 2. Create DataChannel
       const channelName = 'test-channel'
-      const createResult = await container.transportService.createDataChannel(session, channelName)
-      // Giả sử createDataChannel đã gọi /datachannels/new location=local và xử lý renegotiation
+      console.log('[Sender] Creating DataChannel:', channelName)
+      // Note: This calls the Cloudflare API to initialize the channel on the SFU
+      await container.transportService.createDataChannel(session, channelName)
 
-      // 2. Publisher cần lấy RTCDataChannel thật (thường qua ondatachannel hoặc từ adapter trả về)
-      // Nếu adapter không trả RTCDataChannel → đăng ký ondatachannel
-      let publisherDc: RTCDataChannel | null = null
+      // 3. Listen for the actual channel to Open (negotiated via Renegotiation)
+      // Since 'createDataChannel' above triggers renegotiation, we wait for the channel to be ready.
+      // In this specific architecture, we might need to listen to 'onRemoteDataChannel'
+      // OR just rely on the fact that we initiated it.
+      // However, for 'send' role, we typically get the channel via the PeerConnection DNE
+      // or we just need to wait for 'onopen'.
 
-      container.transportService.onRemoteDataChannel(session, (ev) => {
-        const dc = ev.channel
-        if (dc.label === channelName) {
-          publisherDc = dc
-          console.log('Publisher got its own DataChannel for sending')
+      // Let's attach a listener to catch when the channel is actually usable.
+      // But typically `createDataChannel` returns the channel object if wrapping native API,
+      // Here it returns void, implies we assume it's created on the PC.
+      // Let's try to get it from the session map if possible, or wait for negotiation.
 
-          dc.onopen = () => {
-            console.log('Publisher DataChannel OPEN - bắt đầu gửi mỗi 5s')
+      // FIX: The current transport service `createDataChannel` returns a Promise<RTCDataChannel>
+      // in the code I saw earlier? Let me double check usage in `transport.service.ts`.
+      // Wait, looking at previous context, it returns `Promise<RTCDataChannel>`.
+      // So I should capture it.
 
-            const sendPing = () => {
-              if (dc.readyState === 'open') {
-                const msg = `Ping from sender at ${new Date().toLocaleTimeString()}`
-                dc.send(msg)
-                console.log('Sent:', msg)
-              }
-            }
+      // RE-CHECK: I need to be sure about `createDataChannel` signature.
+      // Previously: `const dc = await container.transportService.createDataChannel(session, 'test-channel')`
+      // So yes, it returns the DC.
 
-            sendPing() // gửi ngay lần đầu
-            const interval = setInterval(sendPing, 5000)
+      // ERROR: The previous `write_to_file` in Step 383 had `const createResult = ...`
+      // implying it returns something.
 
-            dc.onclose = () => clearInterval(interval)
+      // Converting to correct logic:
+      const dc = await container.transportService.createDataChannel(session, channelName)
+      senderDcRef.current = dc
+
+      dc.onopen = () => {
+        console.log('[Sender] DataChannel OPEN. Starting ping loop...')
+        toast.success('Sender Connected! Sending pings...')
+
+        const sendPing = () => {
+          if (dc.readyState === 'open') {
+            const msg = `Ping from Sender ${new Date().toLocaleTimeString()}`
+            dc.send(msg)
+            console.log('[Sender] Sent:', msg)
           }
-
-          // Publisher thường không cần onmessage (vì unidirectional)
         }
-      })
+        sendPing()
+        // const interval = setInterval(sendPing, 5000)
+        // dc.onclose = () => clearInterval(interval)
+      }
 
-      // Publish channel name + sessionId cho người khác qua contract/event
+      dc.onclose = () => console.log('[Sender] DataChannel CLOSED')
+
+      // 4. SIGNALING via Smart Contract
+      console.log('[Sender] Signaling to Receiver via Contract...')
       await container.userContract.sendDataChannel({
         from: account.address,
         to: account.contractAddress,
         inputData: {
           _recipientContractAddress: conversation.conversationId,
-          sessionId: session.sessionId,
+          sessionId: session.sessionId, // Tell B which session to pull from
           channelName: channelName
         }
       })
+      console.log('[Sender] Signal Sent!')
     } catch (err) {
-      console.error('Sender setup failed:', err)
+      console.error('[Sender] Setup failed:', err)
+      toast.error('Sender Connection Failed')
     }
   }, [account, conversation])
+
+  // -- RECEIVER LOGIC --
   React.useEffect(() => {
     if (!account || !conversation) return
-    const handleDataChannel = async (data: AppEvents['webrtc.datachannel.received']) => {
+
+    const handleDataChannelReceived = async (data: AppEvents['webrtc.datachannel.received']) => {
       try {
-        console.log('Received channel info:', data)
+        console.log('[Receiver] Received Signal:', data)
+        toast.info('Receiving Connection Request...')
 
+        // 1. Create Session
         const session = await container.sessionManager.createSession({
-          participantId: account.address,
+          participantId: account.contractAddress,
           conversationId: conversation.conversationId,
-          connectionType: 'receive' // subscriber
+          connectionType: 'receive'
         })
+        console.log('[Receiver] Session created:', session.sessionId)
 
-        // 1. Pull / subscribe channel từ publisher
+        // 2. Pull DataChannel
+        console.log('[Receiver] Pulling DataChannel...')
         const pullResult = await container.transportService.pullDataChannel(
           session,
-          data.sessionId, // sessionId của sender
+          data.sessionId, // Sender's session ID
           data.channelName
         )
+        console.log('[Receiver] Pull Result:', pullResult)
 
-        console.log('Pull result:', pullResult)
+        // 3. Manually create the Negotiated Channel (Symmetric to Sender)
+        // Cloudflare uses negotiated channels, so we must manually create it with the SAME ID on both sides.
+        // We do NOT wait for ondatachannel.
+        if (pullResult.dataChannels && pullResult.dataChannels.length > 0) {
+          const channelId = parseInt(pullResult.dataChannels[0].id)
+          console.log(`[Receiver] Creating Negotiated Channel on ID: ${channelId}`)
 
-        // 2. Quan trọng: ĐĂNG KÝ ondatachannel để nhận RTCDataChannel thật từ SFU
-        container.transportService.onRemoteDataChannel(session, (ev) => {
-          const dc = ev.channel
-          console.log('Receiver: ondatachannel fired!', {
-            label: dc.label,
-            id: dc.id,
-            readyState: dc.readyState
+          const dc = session.peerConnection.createDataChannel(data.channelName, {
+            negotiated: true,
+            id: channelId
           })
 
-          if (dc.label === data.channelName) {
-            dc.onopen = () => {
-              console.log('Receiver DataChannel OPEN → sẵn sàng nhận message mỗi 5s')
-              // Không cần gửi gì vì unidirectional
-            }
+          // Setup Handlers
+          console.log(`[Receiver] DC created. State: ${dc.readyState}`)
 
-            dc.onmessage = (event) => {
-              console.log('Receiver GOT MESSAGE:', event.data)
-              // Ở đây bạn có thể update UI, hiển thị message, v.v.
-            }
-
-            dc.onerror = (err) => console.error('DataChannel error:', err)
-            dc.onclose = () => console.log('DataChannel closed')
+          dc.onopen = () => {
+            console.log('[Receiver] Channel OPEN!')
+            toast.success('Receiver Connected!')
           }
-        })
+          dc.onmessage = async (msgEvent) => {
+            console.log('[Receiver] Message received:', msgEvent)
+            const data = msgEvent.data
+            // Try handling as file transfer first
+            const savedPath = await container.fileTransferService.handleIncomingData(data)
 
-        // 3. Theo dõi connection/ICE để debug
-        container.transportService.onConnectionStateChange(session, (state) =>
-          console.log('Receiver connectionState:', state)
-        )
-        container.transportService.onICEConnectionStateChange(session, (state) =>
-          console.log('Receiver ICE state:', state)
-        )
+            if (savedPath) {
+              toast.success(`File received: ${savedPath.split('/').pop()}`)
+              console.log('File saved at', savedPath)
+            } else if (typeof data === 'string') {
+              // Check if it's NOT a file protocol message
+              try {
+                const parsed = JSON.parse(data)
+                if (parsed.type === 'FILE_START') return // handled by service
+              } catch {
+                // Plain text message
+                console.log('[Receiver] Message:', data)
+                toast.message(`Received: ${data}`)
+              }
+            }
+          }
+          dc.onerror = (e) => console.error('[Receiver] DC Error:', e)
+          dc.onclose = () => console.log('[Receiver] DC Closed')
+
+          // Diagnostic Loop
+          const diagInterval = setInterval(() => {
+            console.log(
+              `[Receiver DIAG] ICE: ${session.peerConnection.iceConnectionState} | DC: ${dc.readyState} | ID: ${dc.id}`
+            )
+            if (dc.readyState === 'closed' || session.peerConnection.connectionState === 'closed') {
+              clearInterval(diagInterval)
+            }
+          }, 2000)
+
+          // Force check if already open
+          if (dc.readyState === 'open') {
+            dc.onopen(new Event('open'))
+          }
+        } else {
+          console.warn(
+            '[Receiver] No data channel ID returned from Cloudflare. Cannot establish connection.'
+          )
+          toast.error('Connection Failed: No Channel ID')
+        }
       } catch (err) {
-        console.error('Receiver setup failed:', err)
+        console.error('[Receiver] Setup failed:', err)
+        toast.error('Receiver Connection Failed')
       }
     }
-    container.eventBus.on('webrtc.datachannel.received', handleDataChannel)
 
+    container.eventBus.on('webrtc.datachannel.received', handleDataChannelReceived)
     return () => {
-      container.eventBus.off('webrtc.datachannel.received', handleDataChannel)
+      container.eventBus.off('webrtc.datachannel.received', handleDataChannelReceived)
     }
   }, [account, conversation])
+
+  // -- RENDER --
   return (
     <div
-      className="h-14 flex items-center py-2 gap-3 sticky w-full z-10 px-3 bg-white/40 text-black shadow border-app"
-      style={{
-        top: 'var(--header-height)'
-      }}
-      onClick={connectWebRTC}
+      className="h-14 flex items-center py-2 gap-3 sticky w-full z-10 px-3 bg-white/40 text-black shadow border-app cursor-pointer hover:bg-white/60 transition-colors"
+      style={{ top: 'var(--header-height)' }}
     >
       <span className="h-full w-[3px] rounded-md bg-black"></span>
-      <div className="h-full flex-1 flex items-center">
-        <div>
+      <div className="h-full flex-1 flex items-center gap-2">
+        <div className="flex-1" onClick={connectWebRTC}>
           <div className="text-base font-bold flex-1 line-clamp-1 break-all">
             {t('pinnedMessage')}
           </div>
           <div className="flex-1 text-sm font-medium break-all text-black/60 line-clamp-1 break-all">
-            We sent an AI agent to read the entire internet. Every release, every hot take, and
-            every unreadable blog post from the past week. It's now standing by to build a
-            presidential brief just for you. It barely survived. You (hopefully) will.
+            Click to Connect / Check logs for status.
           </div>
         </div>
         <PinIcon className="shrink-0 size-5" />

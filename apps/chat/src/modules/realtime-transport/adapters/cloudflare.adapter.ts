@@ -86,7 +86,18 @@ export class CloudflareAdapterImpl implements CloudflareAdapter {
     })
 
     if (!response.ok) {
-      throw new Error(`[CloudflareAdapter] Failed to create send channel: ${response.status}`)
+      let errorMsg = `[CloudflareAdapter] Failed to create send channel: ${response.status} ${response.statusText}`
+      try {
+        const errorBody = await response.json()
+        console.error('[CloudflareAdapter] Error body:', errorBody)
+        if (errorBody && errorBody.dataChannels && errorBody.dataChannels[0]) {
+          const detail = errorBody.dataChannels[0]
+          errorMsg += ` - ${detail.errorCode}: ${detail.errorDescription}`
+        }
+      } catch (e) {
+        // Ignore json parse error
+      }
+      throw new Error(errorMsg)
     }
 
     const data = await response.json()

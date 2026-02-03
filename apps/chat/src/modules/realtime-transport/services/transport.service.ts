@@ -139,30 +139,45 @@ export class TransportService {
    */
   async createDataChannel(session: RealtimeSession, channelName: string): Promise<RTCDataChannel> {
     try {
+      if (session.dataChannels.has(channelName)) {
+        console.log(
+          `[TransportService] DataChannel ${channelName} already exists, returning cached instance.`
+        )
+        return session.dataChannels.get(channelName)!
+      }
+
       console.log(
-        `[TransportService] Creating DataChannel: ${channelName} for session ${session.sessionId}`
+        `[TransportService] Requesting DataChannel allocation: ${channelName} for session ${session.sessionId}`
       )
 
-      // 1. Tạo DataChannel trên PeerConnection
-      const dataChannel = session.peerConnection.createDataChannel(channelName, {
-        ordered: true,
-        negotiated: true,
-        id: 1
-      })
-
-      // 2. Thông báo với Cloudflare
-      console.log('[TransportService] Notifying Cloudflare about new send channel...')
-      const { requiresImmediateRenegotiation, sessionDescription } =
+      // 1. Thông báo với Cloudflare trước để lấy ID
+      console.log('[TransportService] Calling Cloudflare createSendChannel...')
+      const { requiresImmediateRenegotiation, sessionDescription, dataChannels } =
         await this.cloudflareAdapter.createSendChannel(
           this.cloudflareConfig,
           session.sessionId,
           channelName
         )
 
-      // 3. Xử lý renegotiation nếu Cloudflare yêu cầu
+      // 2. Lấy ID từ response
+      const assignedId = dataChannels && dataChannels.length > 0 ? parseInt(dataChannels[0].id) : -1
+      if (assignedId === -1) {
+        throw new Error('[TransportService] Cloudflare did not return a valid DataChannel ID')
+      }
+      console.log(`[TransportService] Cloudflare assigned DataChannel ID: ${assignedId}`)
+
+      // 3. Xử lý renegotiation nếu Cloudflare yêu cầu (để đảm bảo datachannel dc associate)
       if (requiresImmediateRenegotiation && sessionDescription) {
         await this.handleRenegotiation(session, sessionDescription)
       }
+
+      // 4. Tạo DataChannel trên PeerConnection với ID đã cấp
+      console.log(`[TransportService] Creating negotiated DataChannel on ID ${assignedId}`)
+      const dataChannel = session.peerConnection.createDataChannel(channelName, {
+        ordered: true,
+        negotiated: true,
+        id: assignedId
+      })
 
       // Lưu reference
       session.dataChannels.set(channelName, dataChannel)
