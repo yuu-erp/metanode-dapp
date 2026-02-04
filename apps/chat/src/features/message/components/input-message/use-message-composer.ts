@@ -3,46 +3,42 @@
 import * as React from 'react'
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
-import type { EditTextPayload, MessageAction } from '@/modules/message'
+import type { Message, MessageAction } from '@/modules/message'
 import { useMessageAction } from '../../contexts'
-import { useEditMessage, useSendSticker, useSendText } from '../../hooks'
 
 interface UseMessageComposerParams {
   account?: Account
   conversation?: Conversation
+  isSending?: boolean
+  onSendText: (content: string, messageAction: MessageAction | null) => void
+  onSendSticker: (stickerId: string, messageAction: MessageAction | null) => void
+  onEditMessage: (messageOld: Message, content: string) => void
 }
 
-export function useMessageComposer({ account, conversation }: UseMessageComposerParams) {
+export function useMessageComposer({
+  account,
+  conversation,
+  isSending = false,
+  onSendText,
+  onSendSticker,
+  onEditMessage
+}: UseMessageComposerParams) {
   const [message, setMessage] = React.useState('')
 
   const { messageAction, setMessageAction } = useMessageAction()
 
-  const { sendText, isPending: isSending } = useSendText()
-  const { sendSticker, isPending: isSendingSticker } = useSendSticker()
-  const { mutate: editMessage, isPending: isEditing } = useEditMessage()
-
   const isEdit = messageAction?.type === 'EDIT'
 
-  const canSend = Boolean(account && conversation && !isSending && !isEditing && !isSendingSticker)
+  const canSend = Boolean(account && conversation && !isSending)
 
   const handleSendText = React.useCallback(() => {
-    if (!canSend || !account || !conversation) return
+    if (!canSend) return
 
     const content = message.trim()
 
     // ✏️ EDIT MESSAGE (TEXT ONLY)
     if (isEdit && messageAction?.message) {
-      const payload: EditTextPayload = {
-        type: 'text',
-        content
-      }
-
-      editMessage({
-        account,
-        conversation,
-        messageOld: messageAction.message,
-        payload
-      })
+      onEditMessage(messageAction.message, content)
 
       setMessage('')
       setMessageAction(null)
@@ -50,58 +46,22 @@ export function useMessageComposer({ account, conversation }: UseMessageComposer
     }
 
     // 📤 SEND NEW MESSAGE
-    sendText({
-      account,
-      conversation,
-      content,
-      messageAction: messageAction as MessageAction
-    })
+    onSendText(content, messageAction)
 
     setMessage('')
     setMessageAction(null)
-  }, [
-    canSend,
-    account,
-    conversation,
-    message,
-    messageAction,
-    isEdit,
-    sendText,
-    editMessage,
-    setMessageAction
-  ])
+  }, [canSend, message, messageAction, isEdit, onSendText, onEditMessage, setMessageAction])
 
   const handleSendSticker = React.useCallback(
     (stickerId: string) => {
-      console.log('[handleSendSticker]', {
-        stickerId,
-        canSend,
-        account,
-        conversation
-      })
-      if (!canSend || !account || !conversation) return
+      if (!canSend) return
       // 📤 SEND NEW MESSAGE
-      sendSticker({
-        account,
-        conversation,
-        stickerId,
-        messageAction: messageAction as MessageAction
-      })
+      onSendSticker(stickerId, messageAction)
 
       setMessage('')
       setMessageAction(null)
     },
-    [
-      canSend,
-      account,
-      conversation,
-      message,
-      messageAction,
-      isEdit,
-      sendSticker,
-      editMessage,
-      setMessageAction
-    ]
+    [canSend, messageAction, onSendSticker, setMessageAction]
   )
 
   React.useEffect(() => {
@@ -115,7 +75,7 @@ export function useMessageComposer({ account, conversation }: UseMessageComposer
     setMessage,
 
     canSend,
-    isPending: isSending || isEditing || isSendingSticker,
+    isPending: isSending,
 
     messageAction,
     clearAction: () => setMessageAction(null),

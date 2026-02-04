@@ -5,7 +5,7 @@ export function getAvatarFallback(name?: string, max = 2): string {
     .trim()
     .split(/\s+/)
     .slice(0, max)
-    .map((word) => word[0])
+    .map((word) => Array.from(word)[0])
     .join('')
     .toUpperCase()
 }

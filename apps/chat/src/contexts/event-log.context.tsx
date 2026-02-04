@@ -44,12 +44,17 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('webrtc.datachannel.received', data)
     })
 
+    const offGroupCreated = eventLog.on('GroupCreated', (data) => {
+      eventBus.emit('group.created', data)
+    })
+
     return () => {
       offMessageReceived()
       offReaction()
       offPartnerMessageEdited()
       offPartnerMessageDeleted()
       offDataChannel()
+      offGroupCreated()
     }
   }, [account?.address, account?.contractAddress])
 

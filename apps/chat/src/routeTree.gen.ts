@@ -14,7 +14,8 @@ import { Route as TestRouteImport } from './routes/test'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
-import { Route as AuthenticatedConversationIdRouteImport } from './routes/_authenticated/conversation/$id'
+import { Route as AuthenticatedP2pIdRouteImport } from './routes/_authenticated/p2p.$id'
+import { Route as AuthenticatedGroupIdRouteImport } from './routes/_authenticated/group.$id'
 
 const WalletsRoute = WalletsRouteImport.update({
   id: '/wallets',
@@ -41,25 +42,31 @@ const AuthenticatedSettingsIndexRoute =
     path: '/settings/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedConversationIdRoute =
-  AuthenticatedConversationIdRouteImport.update({
-    id: '/conversation/$id',
-    path: '/conversation/$id',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
+const AuthenticatedP2pIdRoute = AuthenticatedP2pIdRouteImport.update({
+  id: '/p2p/$id',
+  path: '/p2p/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGroupIdRoute = AuthenticatedGroupIdRouteImport.update({
+  id: '/group/$id',
+  path: '/group/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/': typeof AuthenticatedIndexRoute
-  '/conversation/$id': typeof AuthenticatedConversationIdRoute
+  '/group/$id': typeof AuthenticatedGroupIdRoute
+  '/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/': typeof AuthenticatedIndexRoute
-  '/conversation/$id': typeof AuthenticatedConversationIdRoute
+  '/group/$id': typeof AuthenticatedGroupIdRoute
+  '/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesById {
@@ -68,21 +75,29 @@ export interface FileRoutesById {
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/conversation/$id': typeof AuthenticatedConversationIdRoute
+  '/_authenticated/group/$id': typeof AuthenticatedGroupIdRoute
+  '/_authenticated/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/test' | '/wallets' | '/' | '/conversation/$id' | '/settings'
+  fullPaths:
+    | '/test'
+    | '/wallets'
+    | '/'
+    | '/group/$id'
+    | '/p2p/$id'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/test' | '/wallets' | '/' | '/conversation/$id' | '/settings'
+  to: '/test' | '/wallets' | '/' | '/group/$id' | '/p2p/$id' | '/settings'
   id:
     | '__root__'
     | '/_authenticated'
     | '/test'
     | '/wallets'
     | '/_authenticated/'
-    | '/_authenticated/conversation/$id'
+    | '/_authenticated/group/$id'
+    | '/_authenticated/p2p/$id'
     | '/_authenticated/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -129,11 +144,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/conversation/$id': {
-      id: '/_authenticated/conversation/$id'
-      path: '/conversation/$id'
-      fullPath: '/conversation/$id'
-      preLoaderRoute: typeof AuthenticatedConversationIdRouteImport
+    '/_authenticated/p2p/$id': {
+      id: '/_authenticated/p2p/$id'
+      path: '/p2p/$id'
+      fullPath: '/p2p/$id'
+      preLoaderRoute: typeof AuthenticatedP2pIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/group/$id': {
+      id: '/_authenticated/group/$id'
+      path: '/group/$id'
+      fullPath: '/group/$id'
+      preLoaderRoute: typeof AuthenticatedGroupIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -141,13 +163,15 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedConversationIdRoute: typeof AuthenticatedConversationIdRoute
+  AuthenticatedGroupIdRoute: typeof AuthenticatedGroupIdRoute
+  AuthenticatedP2pIdRoute: typeof AuthenticatedP2pIdRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedConversationIdRoute: AuthenticatedConversationIdRoute,
+  AuthenticatedGroupIdRoute: AuthenticatedGroupIdRoute,
+  AuthenticatedP2pIdRoute: AuthenticatedP2pIdRoute,
   AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
 }
 

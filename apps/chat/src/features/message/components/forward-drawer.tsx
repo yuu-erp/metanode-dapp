@@ -54,7 +54,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         })
       }
       onClose?.()
-      navigate({ to: '/conversation/$id', params: { id: conversation.conversationId } })
+      navigate({ to: '/p2p/$id', params: { id: conversation.conversationId } })
     },
     [account, messageAction, mutate, navigate, onClose]
   )

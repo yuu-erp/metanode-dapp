@@ -1,5 +1,5 @@
 import { AccountFactory, AccountService } from '@/modules/account'
-import { FactoryContract, FileContract, UserContract } from '@/modules/blockchain'
+import { FactoryContract, FileContract, GroupContract, UserContract } from '@/modules/blockchain'
 import {
   ConversationFactory,
   ConversationService,
@@ -32,6 +32,7 @@ class AppContainer {
   private readonly _walletService: WalletService
   private readonly _factoryContract: FactoryContract
   private readonly _userContract: UserContract
+  private readonly _groupContract: GroupContract
   private readonly _fileContract: FileContract
   private readonly _eventLogContainer: EventLogContainer
   private readonly _eventBus: EventBusPort<AppEvents>
@@ -49,6 +50,7 @@ class AppContainer {
     this._walletService = new WalletService(nativeWalletAdapter)
     this._factoryContract = new FactoryContract()
     this._userContract = new UserContract()
+    this._groupContract = new GroupContract()
     this._fileContract = new FileContract()
     this._eventLogContainer = new EventLogContainer()
     this._eventBus = new MittEventBus<AppEvents>()
@@ -63,6 +65,8 @@ class AppContainer {
     // 5️⃣ Application Service (ConversationService)
     this._conversationService = ConversationFactory.createService(
       this._userContract,
+      this._factoryContract,
+      this._groupContract,
       this._walletService
     )
 

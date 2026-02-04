@@ -1,16 +1,20 @@
 import type { Account } from '@/modules/account'
-import type { UserContract } from '@/modules/blockchain'
+import type { FactoryContract, GroupContract, UserContract } from '@/modules/blockchain'
 import { mapperToMessage, type Message, type OnChainMessagePayload } from '@/modules/message'
 import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import { mapperToConversation } from './conversation.mapper'
 import type { ConversationRepository } from './conversation.repository'
-import type { Conversation } from './conversation.type'
+import { HistoryVisibility, type Conversation, type PayloadCreateGroup } from './conversation.type'
+import { generateSecureId } from '@/shared/lib/ids'
+import { createECDHPassword, encryptAESGCM, getPrivateKeyFromDb } from '@metanodejs/system-core'
 
 export class ConversationService {
   constructor(
     private readonly repository: ConversationRepository,
     private readonly userContract: UserContract,
+    private readonly factoryContract: FactoryContract,
+    private readonly groupContract: GroupContract,
     private readonly walletService: WalletService
   ) {}
 
@@ -37,9 +41,45 @@ export class ConversationService {
     }
   }
 
+  private async getGroupInfo(accountId: string, conversationId: string) {
+    const admin = await this.groupContract.admin({
+      from: accountId,
+      to: conversationId
+    })
+    const userContract = await this.factoryContract.getUserContract({
+      from: accountId,
+      inputData: {
+        user: admin
+      }
+    })
+
+    const publicKey = await this.userContract.publicKey({
+      from: accountId,
+      to: userContract
+    })
+    return {
+      admin,
+      publicKey
+    }
+  }
+
   // ------------------------------------------------------------------
   // SYNC from blockchain → local DB (account-scoped)
   // ------------------------------------------------------------------
+  private async getP2PInfo(accountId: string, conversationId: string) {
+    const [publicKey, userProfile] = await Promise.all([
+      this.userContract.publicKey({
+        from: accountId,
+        to: conversationId
+      }),
+      this.userContract.userProfile({
+        to: conversationId,
+        from: accountId
+      })
+    ])
+    return { publicKey, userProfile }
+  }
+
   async syncByAccount(account: Account): Promise<void> {
     const inboxs = await this.userContract.getFullInbox({
       from: account.address,
@@ -47,22 +87,25 @@ export class ConversationService {
     })
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
-        const [conversationPublicKey, userProfile] = await Promise.all([
-          this.userContract.publicKey({
-            from: account.address,
-            to: item.conversationId
-          }),
-          this.userContract.userProfile({
-            to: item.conversationId,
-            from: account.address
-          })
-        ])
+        let conversationPublicKey = ''
+        let userProfile = { firstName: '', lastName: '', userName: '', avatar: '' }
+
+        if (item.conversationType === 'group') {
+          const groupInfo = await this.getGroupInfo(account.address, item.conversationId)
+          conversationPublicKey = groupInfo.publicKey
+        } else {
+          const p2pInfo = await this.getP2PInfo(account.address, item.conversationId)
+          conversationPublicKey = p2pInfo.publicKey
+          userProfile = p2pInfo.userProfile
+        }
 
         const lastMessageDecrypted = await this.decryptLatestMessageContent(
           account,
           item.latestMessageContent,
           conversationPublicKey
-        )
+        ).catch(() => {
+          return undefined
+        })
         // Ideally, we should fetch the FULL message object if we want PersistedMessage.
         // But for list view, maybe we construct a partial one or the mapper handles it.
         // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
@@ -73,18 +116,27 @@ export class ConversationService {
           firstName: userProfile.firstName,
           lastName: userProfile.lastName,
           userName: userProfile.userName,
-          name: item.conversationId === account.contractAddress && 'savedMessages',
+          name:
+            item.conversationId === account.contractAddress
+              ? 'savedMessages'
+              : item.conversationType === 'group'
+                ? item.name
+                : [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' '),
           avatar: userProfile.avatar,
           publicKey: conversationPublicKey,
           conversationType:
-            item.conversationId === account.contractAddress ? 'private' : item.conversationType,
+            item.conversationId === account.contractAddress
+              ? 'private'
+              : (item.conversationType as any),
           // Construct a fake object that mapperToMessage can parse
-          lastMessage: mapperToMessage({
-            accountId: account.address,
-            conversationId: item.conversationId,
-            timestamp: item.latestMessageTimestamp,
-            ...lastMessageDecrypted
-          })
+          lastMessage: !lastMessageDecrypted
+            ? undefined
+            : mapperToMessage({
+                accountId: account.address,
+                conversationId: item.conversationId,
+                timestamp: item.latestMessageTimestamp,
+                ...lastMessageDecrypted
+              })
         })
       })
     )
@@ -197,5 +249,20 @@ export class ConversationService {
   // GROUP (create / add membesr)
   // ------------------------------------------------------------------
 
-  async createGroup() {}
+  async createGroup(account: Account, payload: PayloadCreateGroup) {
+    const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
+    const groupKey = generateSecureId()
+    const privateKey = await getPrivateKeyFromDb(account.address)
+    const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
+    const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+    await this.factoryContract.createGroup({
+      from: account.address,
+      inputData: {
+        groupName: name,
+        groupAvatar: avatar,
+        encryptedInitialGroupKey,
+        initialPolicy: policy
+      }
+    })
+  }
 }

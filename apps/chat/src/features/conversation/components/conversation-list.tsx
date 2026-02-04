@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import { useGetConversations } from '../hooks'
 import ItemConversation from './item-conversation'
+import type { Conversation } from '@/modules/conversation'
 type ConversationListProps = {
   searchKeyword: string
 }
@@ -27,6 +28,23 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
 
   console.log('[CONVERSATION LIST] ------ FILTERED CONVERSATIONS', filteredConversations)
 
+  const handleClickConversation = React.useCallback(
+    (conversation: Conversation) => {
+      if (conversation.conversationType === 'p2p') {
+        navigate({
+          to: '/p2p/$id',
+          params: { id: conversation.conversationId }
+        })
+      } else {
+        navigate({
+          to: '/group/$id',
+          params: { id: conversation.conversationId }
+        })
+      }
+    },
+    [navigate]
+  )
+
   return (
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (
@@ -40,12 +58,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           isMine={Boolean(item.lastMessage?.sender === account?.contractAddress)}
           type={item.conversationType === 'private' ? 'PRIVATE' : 'USER'}
           isPin={item.conversationType === 'private'}
-          onClick={() =>
-            navigate({
-              to: '/conversation/$id',
-              params: { id: item.conversationId }
-            })
-          }
+          onClick={() => handleClickConversation(item)}
         />
       ))}
     </div>

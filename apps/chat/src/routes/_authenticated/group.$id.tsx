@@ -1,23 +1,22 @@
-'use client'
 import {
   ChatHeader,
   CopyMessageActionProvider,
-  InputMessage,
-  MessageActionProvider
+  InputMessageGroup,
+  ListMessage,
+  MessageActionProvider,
+  PinMessages
 } from '@/features/message'
-import { ListMessage } from '@/features/message/components/list-message/index'
-import PinMessages from '@/features/message/components/pin-messages'
 import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
-export const Route = createFileRoute('/_authenticated/conversation/$id')({
+export const Route = createFileRoute('/_authenticated/group/$id')({
   component: RouteComponent
 })
 
 function RouteComponent() {
-  const { id } = useParams({ from: '/_authenticated/conversation/$id' })
+  const { id } = useParams({ from: '/_authenticated/group/$id' })
   const { data: account } = useCurrentAccount()
   const { data: conversation } = useGetConversationId(id)
   const viewportHeight = useVisualViewport()
@@ -40,7 +39,7 @@ function RouteComponent() {
           />
           <PinMessages account={account} conversation={conversation as Conversation} />
           <ListMessage conversation={conversation as Conversation} account={account} />
-          <InputMessage conversation={conversation as Conversation} account={account} />
+          <InputMessageGroup conversation={conversation as Conversation} account={account} />
         </div>
       </CopyMessageActionProvider>
     </MessageActionProvider>

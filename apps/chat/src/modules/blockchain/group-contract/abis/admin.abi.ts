@@ -1,0 +1,15 @@
+export const admin = [
+  {
+    inputs: [],
+    name: 'admin',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address'
+      }
+    ],
+    stateMutability: 'view',
+    type: 'function'
+  }
+]

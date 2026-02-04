@@ -46,4 +46,6 @@ export type AppEvents = {
     fileId: string
     filePath: string
   }
+  // GROUP
+  'group.created': EventMap['GroupCreated']
 }

@@ -23,7 +23,7 @@ export const Route = createFileRoute('/_authenticated')({
   component: RouteComponent
 })
 
-const noNavbarRoutes = [/^\/conversation\/[^/]+$/]
+const noNavbarRoutes = [/^\/p2p\/[^/]+$/, /^\/group\/[^/]+$/]
 
 function RouteComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })

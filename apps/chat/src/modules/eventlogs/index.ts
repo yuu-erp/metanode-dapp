@@ -34,6 +34,11 @@ export type EventMap = {
     sessionId: string
     channelName: string
   }
+  GroupCreated: {
+    groupId: string
+    contractAddress: string
+    admin: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi

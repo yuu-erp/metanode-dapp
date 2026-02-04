@@ -24,7 +24,7 @@ export function useScanQrcodeProfile() {
 
     onSuccess: (conversation) => {
       console.log('[Scan QR] SUCCESS:', conversation)
-      navigate({ to: '/conversation/$id', params: { id: conversation.conversationId } })
+      navigate({ to: '/p2p/$id', params: { id: conversation.conversationId } })
     },
 
     onError: (error) => {
