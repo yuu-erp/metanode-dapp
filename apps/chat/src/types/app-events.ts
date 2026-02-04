@@ -46,6 +46,9 @@ export type AppEvents = {
     fileId: string
     filePath: string
   }
+  'file.cached': {
+    fileKey: string
+  }
   // GROUP
   'group.created': EventMap['GroupCreated']
 }

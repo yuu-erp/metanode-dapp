@@ -22,3 +22,13 @@ export interface UploadChunksParams {
 export interface GetFileKeyFromNameParams {
   names: string[]
 }
+
+export interface GetFilesInfoParams {
+  fileKeys: string[]
+}
+
+export interface DownloadFileParams {
+  fileKey: string
+  start: number
+  limit: number
+}

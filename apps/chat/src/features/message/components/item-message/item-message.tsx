@@ -14,6 +14,7 @@ import {
   ReplyMessage,
   type MessageItemProps
 } from '.'
+import { useCachedFile } from '@/features/message/hooks/use-cached-file'
 
 function ItemMessage({
   message,
@@ -35,6 +36,10 @@ function ItemMessage({
     }
   })
 
+  const { cachedFile } = useCachedFile(
+    message.type === 'file' ? message.fileId || message.id : undefined
+  )
+
   const isFailed = React.useMemo(
     () => isMine && message.status === 'failed',
     [isMine, message.status]
@@ -44,9 +49,9 @@ function ItemMessage({
 
   const isImage = React.useMemo(() => {
     if (message.type !== 'file') return false
-    if (!message.filePath) return false
-    return message.mimeType.startsWith('image/')
-  }, [message])
+    if (!message.mimeType.startsWith('image/')) return false
+    return !!(message.filePath || cachedFile)
+  }, [message, cachedFile])
 
   return (
     <motion.div

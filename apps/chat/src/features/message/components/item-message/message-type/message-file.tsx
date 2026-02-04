@@ -1,8 +1,9 @@
-'use client'
 import * as React from 'react'
 import type { Message } from '@/modules/message'
-import { File } from 'lucide-react'
+import { File, Download, Loader2 } from 'lucide-react'
 import { cn } from '@/shared/lib'
+import { useDownloadFile } from '@/features/message/hooks/use-download-file'
+import { useCachedFile } from '@/features/message/hooks/use-cached-file'
 
 type Props = {
   message: Extract<Message, { type: 'file' }>
@@ -10,6 +11,28 @@ type Props = {
 }
 
 function MessageFile({ message, isMine }: Props) {
+  const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
+  const { cachedFile } = useCachedFile(message.fileId || message.id)
+
+  const isDownloadingThis = isDownloading && downloadedFileId === (message.fileId || message.id)
+
+  const handleDownload = React.useCallback(
+    async (e: React.MouseEvent) => {
+      e.stopPropagation()
+      if (message.filePath) {
+        window.open(message.filePath, '_blank')
+        return
+      }
+
+      // If no fileId (e.g. optimistic), try to use ID but it might fail if not on chain yet
+      const fileId = message.fileId || message.id
+      if (!fileId) return
+
+      await downloadFile(fileId, fileId, message.fileName, message.mimeType)
+    },
+    [message, downloadFile]
+  )
+
   const formattedSize = React.useMemo(() => {
     const size = message.size
     if (size < 1024) return `${size} B`
@@ -19,11 +42,14 @@ function MessageFile({ message, isMine }: Props) {
 
   const isImage = message.mimeType.startsWith('image/')
 
-  if (isImage && message.filePath) {
+  if (isImage && (message.filePath || cachedFile)) {
+    const imgSrc =
+      message.filePath ||
+      (cachedFile ? `data:${cachedFile.mimeType};base64,${cachedFile.base64}` : '')
     return (
       <div className="relative rounded-2xl overflow-hidden max-w-sm group">
         <img
-          src={message.filePath}
+          src={imgSrc}
           alt={message.fileName}
           className="w-full h-auto max-h-[360px] object-contain pointer-events-none"
           draggable={false}
@@ -37,14 +63,21 @@ function MessageFile({ message, isMine }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 cursor-pointer group" onClick={handleDownload}>
       <div
         className={cn(
-          'w-12 h-12 flex items-center justify-center rounded-full',
+          'w-12 h-12 flex items-center justify-center rounded-full shrink-0 relative',
           isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-blue-500'
         )}
       >
-        <File className="size-6" />
+        {isDownloadingThis ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-[10px] font-bold">{progress}%</div>
+            <Loader2 className="size-6 animate-spin absolute opacity-20" />
+          </div>
+        ) : (
+          <>{message.filePath ? <File className="size-6" /> : <Download className="size-6" />}</>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium truncate">{message.fileName}</div>

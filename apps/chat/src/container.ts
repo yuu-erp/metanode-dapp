@@ -1,4 +1,5 @@
 import { AccountFactory, AccountService } from '@/modules/account'
+import { FileCacheService, FileCacheDexieDB, DexieFileCacheRepository } from '@/modules/file-cache'
 import { FactoryContract, FileContract, GroupContract, UserContract } from '@/modules/blockchain'
 import {
   ConversationFactory,
@@ -43,7 +44,10 @@ class AppContainer {
   private readonly _conversationService: ConversationService
   private readonly _messageService: MessageService
   private readonly _fileTransferService: FileTransferService
+  private readonly _fileCacheService: FileCacheService
   private readonly _realtimeTransportFactory: RealtimeTransportFactory
+  private readonly _fileCacheDB: FileCacheDexieDB
+  private readonly _fileCacheRepository: DexieFileCacheRepository
 
   constructor() {
     const nativeWalletAdapter = new NativeWalletAdapter()
@@ -70,11 +74,17 @@ class AppContainer {
       this._walletService
     )
 
+    // File Cache initialization
+    this._fileCacheDB = new FileCacheDexieDB()
+    this._fileCacheRepository = new DexieFileCacheRepository(this._fileCacheDB)
+    this._fileCacheService = new FileCacheService(this._fileCacheRepository)
+
     this._messageService = MessageFactory.createService(
       this._userContract,
       this._fileContract,
       this._walletService,
-      this._eventBus
+      this._eventBus,
+      this._fileCacheService
     )
 
     this._fileTransferService = new FileTransferService()
@@ -113,6 +123,10 @@ class AppContainer {
 
   get fileTransferService(): FileTransferService {
     return this._fileTransferService
+  }
+
+  get fileCacheService(): FileCacheService {
+    return this._fileCacheService
   }
 
   get eventLogContainer(): EventLogContainer {

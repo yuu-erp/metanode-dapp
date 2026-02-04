@@ -1,4 +1,6 @@
 import type { Account } from '@/modules/account'
+import type { FileCacheService } from '../file-cache'
+import { createFileWithBuffer, share } from '@metanodejs/system-core'
 import type { FileContract, UserContract } from '@/modules/blockchain'
 import type { Conversation } from '@/modules/conversation'
 import type { EventBusPort } from '@/modules/event'
@@ -28,7 +30,8 @@ export class MessageService {
     private readonly userContract: UserContract,
     private readonly fileContract: FileContract,
     private readonly walletService: WalletService,
-    private readonly eventBus: EventBusPort<AppEvents>
+    private readonly eventBus: EventBusPort<AppEvents>,
+    private readonly fileCacheService: FileCacheService
   ) {}
 
   async getProcessedP2PMessages(
@@ -489,6 +492,20 @@ export class MessageService {
           }
           console.log('File upload completed successfully!', data.dataFile.name)
 
+          // Cache the sent file
+          try {
+            const arrayBuffer = await data.dataFile.arrayBuffer()
+            const base64 = encodeBase64(new Uint8Array(arrayBuffer))
+            await this.fileCacheService.saveFile(
+              data.fileKey,
+              base64,
+              data.dataFile.type,
+              data.dataFile.name
+            )
+          } catch (error) {
+            console.error('[MessageService] Failed to cache sent file:', error)
+          }
+
           // Update message with correct fileId
           if (optimisticMessage.type === 'file') {
             optimisticMessage.fileId = data.fileKey
@@ -588,5 +605,111 @@ export class MessageService {
       encodedData = solidityPacked(['bytes32', 'bytes'], [lastChunkHash, chunkData])
     }
     return keccak256(encodedData)
+  }
+
+  async downloadFile(
+    account: Account,
+    fileKey: string,
+    fileName: string,
+    mimeType: string,
+    onProgress?: (percent: number) => void
+  ): Promise<void> {
+    try {
+      console.log('[downloadFile] - payload', {
+        account,
+        fileKey,
+        fileName,
+        mimeType
+      })
+      // 1. Get file info to know total chunks
+      // @ts-ignore
+      const { infos } = await this.fileContract.getFilesInfo({
+        from: account.address,
+        inputData: { fileKeys: [fileKey] }
+      })
+      console.log('fileStatus', infos)
+      if (!infos) {
+        throw new Error('File not found on chain')
+      }
+      // @ts-ignore
+      const { totalChunks } = infos[0]
+      const totalChunksNum = Number(totalChunks)
+
+      // 2. Download chunks in batches
+      const chunks: Uint8Array[] = []
+      const BATCH_SIZE = 5 // Adjust concurrency as needed
+      let downloadedChunks = 0
+
+      for (let i = 0; i < totalChunksNum; i += BATCH_SIZE) {
+        const batchPromises = []
+        const currentBatchLimit = Math.min(BATCH_SIZE, totalChunksNum - i)
+
+        for (let j = 0; j < currentBatchLimit; j++) {
+          const chunkIndex = i + j
+          batchPromises.push(
+            this.fileContract
+              .downloadFile({
+                from: account.address,
+                inputData: {
+                  fileKey,
+                  start: chunkIndex,
+                  limit: 1 // Fetch 1 chunk at a time
+                }
+              })
+              .then((result: any) => {
+                // result is string[] because downloadFile returns bytes[]
+                // Since we requested limit=1, we expect an array with 1 hex string
+                const hexString = Array.isArray(result) ? result[0] : result
+
+                // hexString is something like "0x1234..."
+                const rawHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString
+                // Convert hex string to Uint8Array
+                const bytes = new Uint8Array(
+                  (rawHex.match(/[\da-f]{2}/gi) || []).map((h: string) => parseInt(h, 16))
+                )
+                return { index: chunkIndex, data: bytes }
+              })
+          )
+        }
+
+        const batchResults = await Promise.all(batchPromises)
+
+        // Store results in order
+        batchResults.forEach((res) => {
+          chunks[res.index] = res.data
+        })
+
+        downloadedChunks += currentBatchLimit
+        const progress = Math.min(100, Math.floor((downloadedChunks / totalChunksNum) * 100))
+        if (onProgress) onProgress(progress)
+      }
+
+      // 3. Save file using createFileWithBuffer
+      const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+      const combinedBuffer = new Uint8Array(totalSize)
+      let offset = 0
+      for (const chunk of chunks) {
+        combinedBuffer.set(chunk, offset)
+        offset += chunk.length
+      }
+
+      const dotIndex = fileName.lastIndexOf('.')
+      const name = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName
+      const ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : ''
+      const { path } = await createFileWithBuffer(name, 'message', ext, Array.from(combinedBuffer))
+      try {
+        const base64 = encodeBase64(combinedBuffer)
+        await this.fileCacheService.saveFile(fileKey, base64, mimeType, fileName)
+        this.eventBus.emit('file.cached', { fileKey })
+      } catch (error) {
+        console.error('[MessageService] Failed to cache downloaded file:', error)
+      }
+      await share({ type: 'file', path, title: fileName })
+
+      // Cache the downloaded file
+    } catch (error) {
+      console.error('[MessageService] Download file failed:', error)
+      throw error
+    }
   }
 }

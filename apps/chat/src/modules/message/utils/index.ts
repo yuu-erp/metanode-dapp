@@ -1,7 +1,7 @@
-export function encodeBase64(str: string): string {
-  const utf8Bytes = new TextEncoder().encode(str) // Uint8Array
+export function encodeBase64(input: string | Uint8Array): string {
+  const bytes = typeof input === 'string' ? new TextEncoder().encode(input) : input
   let binary = ''
-  utf8Bytes.forEach((b) => (binary += String.fromCharCode(b)))
+  bytes.forEach((b) => (binary += String.fromCharCode(b)))
   return btoa(binary)
 }
 
