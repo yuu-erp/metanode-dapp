@@ -1,105 +1,72 @@
 'use client'
 import type { Message } from '@/modules/message'
-import { formatMessageTime } from '@/shared/helpers/date-fns'
 import { useLongPress } from '@/shared/hooks'
-import { cn } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
-import { motion } from 'framer-motion'
 import * as React from 'react'
-import {
-  ForwardMessage,
-  ItemMessageView,
-  MessageStatus,
-  ReactionMessage,
-  ReplyMessage,
-  type MessageItemProps
-} from '.'
+import { type MessageItemProps } from '.'
+import ItemMessageUI from './item-message-ui'
 import { useCachedFile } from '@/features/message/hooks/use-cached-file'
 
-function ItemMessage({
-  message,
-  isMine,
-  onSelectMessage,
-  layoutId,
-  ...props
-}: MessageItemProps<Message>) {
+// --- Logic Hook ---
+function useMessageLogic(
+  message: Message,
+  isMine?: boolean,
+  onSelectMessage?: (m: Message) => void
+) {
   const { handlers, isLongPressActive } = useLongPress({
     threshold: 250,
     shouldPreventDefault: true,
     movementThreshold: 12,
-    onLongPressStart: () => {
-      console.log('Long press start')
-    },
+    onLongPressStart: () => {},
     onLongPressEnd: () => {
       onSelectMessage?.(message)
       sendCommand('vibrate')
     }
   })
 
+  // status logic
+  const isFailed = isMine && message.status === 'failed'
+
+  return { handlers, isLongPressActive, isFailed }
+}
+
+// --- Specialized Wrappers ---
+
+const FileItemMessage = React.memo((props: MessageItemProps<Message>) => {
+  const { message, isMine, onSelectMessage } = props
+  const logic = useMessageLogic(message, isMine, onSelectMessage)
+
+  // Only runs for files
   const { cachedFile } = useCachedFile(
     message.type === 'file' ? message.fileId || message.id : undefined
   )
 
-  const isFailed = React.useMemo(
-    () => isMine && message.status === 'failed',
-    [isMine, message.status]
-  )
-
-  const isSticker = React.useMemo(() => message.type === 'sticker', [message.type])
-
   const isImage = React.useMemo(() => {
     if (message.type !== 'file') return false
     if (!message.mimeType.startsWith('image/')) return false
+    // use cachedFile (async) or filePath (sync) to determing if image styling applies
     return !!(message.filePath || cachedFile)
   }, [message, cachedFile])
 
-  return (
-    <motion.div
-      layoutId={layoutId}
-      className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}
-      {...handlers}
-      {...props}
-    >
-      <div
-        className={cn(
-          'max-w-[90%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',
-          'transition-all duration-300 ease-out',
-          isLongPressActive && 'scale-90',
-          isMine
-            ? 'bg-blue-600 text-white rounded-br-xs'
-            : 'bg-gray-200 text-gray-900 rounded-bl-xs',
-          isFailed && 'bg-red-50 text-red-700 border border-red-300',
-          (isSticker || isImage) && 'bg-transparent border-none px-0 py-0'
-        )}
-      >
-        <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
-        <ForwardMessage forwardFrom={message.forwardFrom} isMine={isMine} />
-        <ItemMessageView message={message} isMine={isMine} />
-        <div
-          className={cn(
-            'w-full flex items-end justify-between gap-3',
-            isImage && 'absolute bottom-1.5 right-1.5'
-          )}
-        >
-          <div className="flex items-center gap-1">
-            <ReactionMessage reactions={message?.reactions} />
-          </div>
-          <div
-            className={cn(
-              'text-[11px] flex items-center gap-1',
-              isMine ? 'text-blue-200' : 'text-gray-500',
-              isFailed && 'text-red-500',
-              isImage && 'bg-black/40 backdrop-blur-sm p-0.5 pl-1 rounded-full text-white'
-            )}
-          >
-            {message.isEdited && <span>edited</span>}
-            <span>{formatMessageTime(message.timestamp)}</span>
-            {isMine && <MessageStatus status={message.status} />}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  )
+  return <ItemMessageUI {...props} {...logic} isImage={isImage} />
+})
+
+const StandardItemMessage = React.memo((props: MessageItemProps<Message>) => {
+  const { message, isMine, onSelectMessage } = props
+  const logic = useMessageLogic(message, isMine, onSelectMessage)
+
+  const isSticker = message.type === 'sticker'
+
+  return <ItemMessageUI {...props} {...logic} isSticker={isSticker} />
+})
+
+// --- Main Component ---
+
+function ItemMessage(props: MessageItemProps<Message>) {
+  if (props.message.type === 'file') {
+    return <FileItemMessage {...props} />
+  }
+  return <StandardItemMessage {...props} />
 }
 
 export default React.memo(ItemMessage)

@@ -1,31 +1,20 @@
 import { container } from '@/container'
-import { useEffect, useState } from 'react'
-import type { FileCache } from '@/modules/file-cache'
+import { FILE_CACHE_QUERY_KEY } from '@/shared/lib/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
 export const useCachedFile = (fileKey?: string) => {
-  const [cachedFile, setCachedFile] = useState<FileCache | undefined>(undefined)
-  const [isLoading, setIsLoading] = useState(false)
+  const queryClient = useQueryClient()
 
+  // Subscribe to file.cached events to invalidate query
   useEffect(() => {
     if (!fileKey) return
 
-    const fetchCache = async () => {
-      setIsLoading(true)
-      try {
-        const file = await container.fileCacheService.getFile(fileKey)
-        setCachedFile(file)
-      } catch (error) {
-        console.error('Failed to fetch cached file:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchCache()
-
     const handler = (event: { fileKey: string }) => {
       if (event.fileKey === fileKey) {
-        fetchCache()
+        queryClient.invalidateQueries({
+          queryKey: FILE_CACHE_QUERY_KEY.GET_FILE(fileKey)
+        })
       }
     }
 
@@ -34,7 +23,19 @@ export const useCachedFile = (fileKey?: string) => {
     return () => {
       container.eventBus.off('file.cached', handler)
     }
-  }, [fileKey])
+  }, [fileKey, queryClient])
+
+  // Use React Query
+  const { data: cachedFile, isLoading } = useQuery({
+    queryKey: FILE_CACHE_QUERY_KEY.GET_FILE(fileKey!),
+    queryFn: async () => {
+      if (!fileKey) return undefined
+      return container.fileCacheService.getFile(fileKey)
+    },
+    enabled: !!fileKey,
+    staleTime: Infinity, // Cache forever (immutable by hash/key)
+    gcTime: 1000 * 60 * 60 // Keep in memory for 1 hour
+  })
 
   return { cachedFile, isLoading }
 }

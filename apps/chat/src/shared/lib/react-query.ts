@@ -37,3 +37,7 @@ export const CONVERSATION_QUERY_KEY = {
 export const MESSAGE_QUERY_KEY = {
   MESSAGES: (accountId: string, conversationId: string) => ['messages', accountId, conversationId]
 }
+
+export const FILE_CACHE_QUERY_KEY = {
+  GET_FILE: (fileKey: string) => ['fileCache', fileKey] as const
+}
