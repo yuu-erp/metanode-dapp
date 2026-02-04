@@ -12,3 +12,13 @@ export interface PushFileInfosParams {
     contentID: string
   }[]
 }
+
+export interface UploadChunksParams {
+  fileKey: string
+  chunkDatas: string[]
+  chunkHashes: string[]
+}
+
+export interface GetFileKeyFromNameParams {
+  names: string[]
+}

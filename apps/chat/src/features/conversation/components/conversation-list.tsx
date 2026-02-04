@@ -56,7 +56,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           unreadCount={item.unreadCount}
           lastMessage={item.lastMessage}
           isMine={Boolean(item.lastMessage?.sender === account?.contractAddress)}
-          type={item.conversationType === 'private' ? 'PRIVATE' : 'USER'}
+          type={item.conversationType}
           isPin={item.conversationType === 'private'}
           onClick={() => handleClickConversation(item)}
         />

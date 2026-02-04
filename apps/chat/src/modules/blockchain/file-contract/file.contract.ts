@@ -1,6 +1,6 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
 import type { TransactionPayload } from '../types'
-import type { PushFileInfosParams } from './types'
+import type { PushFileInfosParams, UploadChunksParams, GetFileKeyFromNameParams } from './types'
 import { fileAbis } from './abis'
 import { CONTRACT_ADDRESSES } from '../config/contracts'
 
@@ -17,6 +17,28 @@ export class FileContract extends MtnContract {
       abiData: fileAbis.pushFileInfos,
       inputData,
       feeType: 'sc'
+    })
+  }
+
+  uploadChunks(payload: TransactionPayload<UploadChunksParams>): Promise<void> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      functionName: 'uploadChunks',
+      abiData: fileAbis.uploadChunks,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  getFileKeyFromName(payload: TransactionPayload<GetFileKeyFromNameParams>): Promise<string[]> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      functionName: 'getFileKeyFromName',
+      abiData: fileAbis.getFileKeyFromName,
+      inputData,
+      feeType: 'read'
     })
   }
 }

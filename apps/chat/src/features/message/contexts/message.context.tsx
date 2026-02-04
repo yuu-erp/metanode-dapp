@@ -56,6 +56,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.sent': (e: AppEvents['message.sent']) => {
+        console.log('message.sent', e)
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
           (old) =>
@@ -67,6 +68,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.update': (e: AppEvents['message.update']) => {
+        console.log('message.update', e)
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
           (old) =>
@@ -104,6 +106,9 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
               message: { ...message, id: e.messageId, isEdited: true }
             })
         )
+        queryClient.invalidateQueries({
+          queryKey: MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId)
+        })
       },
 
       'message.partnerdeleted': (e: AppEvents['message.partnerdeleted']) => {

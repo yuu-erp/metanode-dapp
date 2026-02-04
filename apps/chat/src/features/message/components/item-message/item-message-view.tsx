@@ -4,8 +4,9 @@ import { MessageFile, MessageSticker, MessageText } from './message-type'
 
 interface ItemMessageViewProps {
   message: Message
+  isMine?: boolean
 }
-export default function ItemMessageView({ message }: ItemMessageViewProps) {
+export default function ItemMessageView({ message, isMine }: ItemMessageViewProps) {
   switch (message.type) {
     case 'text':
       return <MessageText message={message} />
@@ -14,7 +15,7 @@ export default function ItemMessageView({ message }: ItemMessageViewProps) {
       return <MessageSticker message={message} />
 
     case 'file':
-      return <MessageFile message={message} />
+      return <MessageFile message={message} isMine={isMine} />
 
     case 'voice':
       return <div>🎤 Voice {message.duration}s</div>

@@ -63,8 +63,7 @@ interface AvatarUserProps
   extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof avatarVariants> {
   name: string
   url?: string
-  type?: 'USER' | 'PRIVATE' | 'GROUP'
-
+  type?: 'p2p' | 'group' | 'private'
   /** Custom sizes (px) */
   avatarSize?: number
   textSize?: number
@@ -88,7 +87,7 @@ function resolveSize(size?: number) {
 function AvatarUser({
   name,
   url,
-  type = 'USER',
+  type = 'p2p',
   size,
   avatarSize,
   textSize,
@@ -103,26 +102,28 @@ function AvatarUser({
       className={cn(
         'rounded-full shrink-0',
         !isCustomAvatarSize && avatarVariants({ size }),
+        type === 'group' && 'rounded-2xl',
         className
       )}
       style={resolveSize(avatarSize)}
       {...props}
     >
-      {type !== 'PRIVATE' && <AvatarImage src={url} alt={`@${name}`} />}
+      {type !== 'private' && <AvatarImage src={url} alt={`@${name}`} />}
       <AvatarFallback
         className={cn(
           'rounded-full flex items-center justify-center',
+          type === 'group' && 'rounded-2xl',
           !textSize && fallbackTextVariants({ size })
         )}
         style={{
           background:
-            type === 'PRIVATE'
+            type === 'private'
               ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
               : getTelegramGradient(name),
           fontSize: textSize
         }}
       >
-        {type === 'PRIVATE' ? (
+        {type === 'private' ? (
           <BookmarkIcon
             className={cn(!iconSize && bookmarkIconVariants({ size }))}
             style={{

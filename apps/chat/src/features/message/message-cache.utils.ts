@@ -112,8 +112,30 @@ export function applyMessageUpdate(
   params: { messageId: string; message: PersistedMessage }
 ): InfiniteData<Message[]> | undefined {
   return updatePages(old, (msg) => {
-    if (!matchMessage(msg, { messageId: params.messageId })) return msg
-    return { ...msg, ...params.message }
+    // 1. Update chính message đó
+    if (matchMessage(msg, { messageId: params.messageId })) {
+      return { ...msg, ...params.message }
+    }
+
+    // 2. Update các message đang reply message đó (Cascade Update)
+    if (
+      msg.replyTo &&
+      msg.replyTo.messageId === params.messageId &&
+      params.message.type === 'text'
+    ) {
+      // Chỉ update nếu reply reference cũng đang lưu dạng text (có field content)
+      if ('content' in msg.replyTo) {
+        return {
+          ...msg,
+          replyTo: {
+            ...msg.replyTo,
+            content: params.message.content
+          } as any
+        }
+      }
+    }
+
+    return msg
   })
 }
 

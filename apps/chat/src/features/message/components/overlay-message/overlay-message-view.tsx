@@ -100,9 +100,13 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
               onEscapeKeyDown={(e) => e.preventDefault()}
             >
               <ReplyAction onClose={handlers.onReply} />
-              <DropdownMenuSeparator className="bg-black/10" />
-              <CopyAction onClose={handlers.onCopy} />
-              {isMine && <EditAction onClose={handlers.onEdit} />}
+              {message.type === 'text' && (
+                <React.Fragment>
+                  <DropdownMenuSeparator className="bg-black/10" />
+                  <CopyAction onClose={handlers.onCopy} />
+                </React.Fragment>
+              )}
+              {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
               <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}

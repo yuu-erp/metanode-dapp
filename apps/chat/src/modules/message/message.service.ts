@@ -21,6 +21,7 @@ import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
 import { createHashWithBuffer } from '@metanodejs/system-core'
 import type { PushFileInfosParams } from '../blockchain/file-contract/types'
+import { keccak256, solidityPacked } from 'ethers'
 
 export class MessageService {
   constructor(
@@ -220,13 +221,29 @@ export class MessageService {
       account.address,
       encryptedContent
     )
+    console.log('decryptMessage: ', decryptMessage)
+
+    let replyTo = undefined
+    if (decryptMessage.replyTo) {
+      // Mock conversation for _inflateReplyTo since we don't have the full object here
+      // We only need conversationId and publicKey (which we just fetched)
+      // However, _inflateReplyTo uses conversation.conversationId to check if it matches reply sender
+      const mockConversation = {
+        conversationId: sender,
+        publicKey: publicKey // Use the fetched public key of the sender
+      } as Conversation
+
+      replyTo = await this._inflateReplyTo(decryptMessage.replyTo, account, mockConversation)
+    }
+
     return mapperToMessage({
       ...decryptMessage,
       messageId,
       accountId: account.address,
       conversationId: sender,
       sender,
-      recipient
+      recipient,
+      replyTo
     })
   }
 
@@ -355,28 +372,36 @@ export class MessageService {
   }
 
   async sendFile(account: Account, conversation: Conversation, files: File[]): Promise<void> {
-    const fileInfos: PushFileInfosParams['infos'] = []
-    const messagesToSend: {
-      clientId: string
-      optimisticMessage: Message
-      encryptedForRecipient: string
-      encryptedForSelf: string
-    }[] = []
-
     try {
+      const fileInfos: PushFileInfosParams['infos'] = []
+      const fileNames: string[] = []
+      const preparedMessages: {
+        clientId: string
+        optimisticMessage: Message
+      }[] = []
+
       for (const file of files) {
         const clientId = uuidv4()
         const arrayBuffer = await file.arrayBuffer()
         const buffer = Array.from(new Uint8Array(arrayBuffer))
         const { hash } = await createHashWithBuffer({ buffer })
+        const timestamp = Date.now()
+        const sanitizedFileName = file.name
+          .split('.')
+          .slice(0, -1)
+          .join('.')
+          .replace(/\s+/g, '_')
+          .replace(/[^\w\-_.]/g, '')
+        const fileNameWithTimestamp = `${sanitizedFileName}_${timestamp}.${file.name.split('.').pop() || ''}`
 
+        fileNames.push(fileNameWithTimestamp)
         fileInfos.push({
           owner: account.address,
-          hash,
+          hash: '0x' + hash,
           contentLen: file.size,
-          totalChunks: 1,
+          totalChunks: Math.ceil(file.size / 1024),
           expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year
-          name: file.name,
+          name: fileNameWithTimestamp,
           ext: file.name.split('.').pop() || '',
           status: 0,
           contentDisposition: '',
@@ -385,7 +410,7 @@ export class MessageService {
 
         const payload: SendPayload = {
           type: 'file',
-          fileId: '',
+          fileId: '', // Placeholder, will be updated after upload
           fileName: file.name,
           mimeType: file.type,
           size: file.size,
@@ -411,76 +436,157 @@ export class MessageService {
         // optimistic update
         this.eventBus.emit('message.create', { message: optimisticMessage })
 
-        // Prepare message payload
-        const messageOnChain = mapperMessageToOnChain(optimisticMessage)
-        const stringifyMessage = JSON.stringify(messageOnChain)
-
-        const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
-          this.walletService.encryptMessage(
-            conversation.publicKey,
-            account.address,
-            stringifyMessage
-          ),
-          this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
-        ])
-
-        messagesToSend.push({
+        preparedMessages.push({
           clientId,
-          optimisticMessage,
-          encryptedForRecipient,
-          encryptedForSelf
+          optimisticMessage
         })
       }
+
       console.log('fileInfos', fileInfos)
-      console.log('messagesToSend', messagesToSend)
+
       // 1. Push file infos to blockchain
-      const fileKeys = await this.fileContract.pushFileInfos({
+      await this.fileContract.pushFileInfos({
         from: account.address,
         inputData: { infos: fileInfos }
       })
 
+      const fileKeys = await this.fileContract.getFileKeyFromName({
+        from: account.address,
+        inputData: { names: fileNames }
+      })
+
       const datas = files.map((file, index) => ({
         fileKey: fileKeys[index] || '',
-        dataFile: file
+        dataFile: file,
+        preparedMessage: preparedMessages[index]
       }))
       console.log('datas', datas)
-      // 2. Send messages to user contract
-      // for (const { clientId, encryptedForRecipient, encryptedForSelf } of messagesToSend) {
-      //   try {
-      //     const result = await this.userContract.sendMessage({
-      //       from: account.address,
-      //       to: account.contractAddress,
-      //       inputData: {
-      //         _recipientContractAddress: conversation.conversationId,
-      //         _encryptedContentForSelf: encryptedForSelf,
-      //         _encryptedContentForRecipient: encryptedForRecipient
-      //       }
-      //     })
 
-      //     this.eventBus.emit('message.sent', {
-      //       accountId: account.address,
-      //       conversationId: conversation.conversationId,
-      //       clientId,
-      //       messageId: result.messageId
-      //     })
-      //   } catch (error) {
-      //     console.error(`[MessageService] Failed to send message ${clientId}`, error)
-      //     this.eventBus.emit('message.status', {
-      //       accountId: account.address,
-      //       conversationId: conversation.conversationId,
-      //       clientId,
-      //       status: 'failed'
-      //     })
-      //   }
-      // }
+      for (const data of datas) {
+        if (!data.dataFile || !data.fileKey) continue
+
+        const { preparedMessage } = data
+        const { clientId, optimisticMessage } = preparedMessage
+
+        try {
+          const { chunkData, chunkHash } = await this._splitFileIntoChunks(data.dataFile)
+          // CHIA thành từng nhóm 7 CHUNK
+          const chunkDataBatches = this._chunkArray(chunkData, 7)
+          const chunkHashBatches = this._chunkArray(chunkHash, 7)
+
+          for (let i = 0; i < chunkDataBatches.length; i++) {
+            const batchData = chunkDataBatches[i]
+            const batchHash = chunkHashBatches[i]
+            await this.fileContract.uploadChunks({
+              from: account.address,
+              inputData: {
+                fileKey: data.fileKey,
+                chunkDatas: batchData,
+                chunkHashes: batchHash
+              }
+            })
+            console.log('File chunk uploaded successfully!', data.fileKey)
+          }
+          console.log('File upload completed successfully!', data.dataFile.name)
+
+          // Update message with correct fileId
+          if (optimisticMessage.type === 'file') {
+            optimisticMessage.fileId = data.fileKey
+          }
+
+          // Prepare message payload for sending
+          const messageOnChain = mapperMessageToOnChain(optimisticMessage)
+          const stringifyMessage = JSON.stringify(messageOnChain)
+
+          const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
+            this.walletService.encryptMessage(
+              conversation.publicKey,
+              account.address,
+              stringifyMessage
+            ),
+            this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
+          ])
+
+          const result = await this.userContract.sendMessage({
+            from: account.address,
+            to: account.contractAddress,
+            inputData: {
+              _recipientContractAddress: conversation.conversationId,
+              _encryptedContentForSelf: encryptedForSelf,
+              _encryptedContentForRecipient: encryptedForRecipient
+            }
+          })
+
+          this.eventBus.emit('message.sent', {
+            accountId: account.address,
+            conversationId: conversation.conversationId,
+            clientId,
+            messageId: result.messageId
+          })
+        } catch (error) {
+          console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
+          this.eventBus.emit('message.status', {
+            accountId: account.address,
+            conversationId: conversation.conversationId,
+            clientId,
+            status: 'failed'
+          })
+        }
+      }
     } catch (error) {
       console.error('[MessageService] sendFile error:', error)
-      // If batch push fails, all fail? Or we can't really recover easily if pushFileInfos fails.
-      // We should probably mark all optimistic messages as failed.
-      // Since we don't have the list of clientIds easily available if error happens early,
-      // but if error happens in loop, we have partial list.
-      // Simpler to just re-throw for now or handle what we can.
       throw error
     }
+  }
+
+  private _chunkArray<T>(array: T[], size: number): T[][] {
+    const result: T[][] = []
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size))
+    }
+    return result
+  }
+
+  private async _splitFileIntoChunks(
+    file: File
+  ): Promise<{ chunkData: string[]; chunkHash: string[] }> {
+    const chunkData: string[] = []
+    const chunkHash: string[] = []
+    const CHUNK_SIZE = 1024
+    let lastChunkHash = '0x'
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE
+      const end = Math.min(start + CHUNK_SIZE, file.size)
+      const blob = file.slice(start, end)
+      const buffer = new Uint8Array(await blob.arrayBuffer())
+
+      const hash = this._computeChunkHash(lastChunkHash, buffer)
+      lastChunkHash = hash
+
+      const chunkDataContent = Array.from(buffer)
+        .map((byte) => byte.toString(16).padStart(2, '0'))
+        .join('')
+
+      chunkData.push(chunkDataContent)
+      chunkHash.push(hash)
+    }
+
+    console.log(`Final file hash: ${lastChunkHash}`)
+    return { chunkData, chunkHash }
+  }
+
+  private _computeChunkHash(lastChunkHash: string, chunkData: Uint8Array): string {
+    const emptyBytes32 = '0x'.padEnd(66, '0')
+    let encodedData: string
+    if (!lastChunkHash || lastChunkHash === '0x') {
+      console.log('lần 1 ===> ')
+      encodedData = solidityPacked(['bytes32', 'bytes'], [emptyBytes32, chunkData])
+    } else {
+      console.log('lần tiếp theo ===> ')
+      encodedData = solidityPacked(['bytes32', 'bytes'], [lastChunkHash, chunkData])
+    }
+    return keccak256(encodedData)
   }
 }

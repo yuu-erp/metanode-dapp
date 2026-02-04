@@ -85,3 +85,7 @@ export interface GetMessageByIdOutput {
   encryptedContent: string
   timestamp: string
 }
+
+export interface SetMeetingFactoryInput {
+  _newMeetingFactoryAddress: string
+}

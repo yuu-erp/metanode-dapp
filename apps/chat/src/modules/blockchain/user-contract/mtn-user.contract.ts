@@ -13,6 +13,7 @@ import type {
   SendDataChannelInput,
   SendMessageInput,
   SendMessageOutput,
+  SetMeetingFactoryInput,
   UserProfileOutput
 } from './types'
 
@@ -138,6 +139,29 @@ export class UserContract extends MtnContract {
       functionName: 'getMessageById',
       abiData: userAbi.getMessageById,
       inputData,
+      feeType: 'read'
+    })
+  }
+
+  setMeetingFactory(payload: TransactionPayload<SetMeetingFactoryInput>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'setMeetingFactory',
+      abiData: userAbi.setMeetingFactory,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  meetingFactoryAddress(payload: TransactionPayload): Promise<string> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'meetingFactoryAddress',
+      abiData: userAbi.meetingFactoryAddress,
       feeType: 'read'
     })
   }

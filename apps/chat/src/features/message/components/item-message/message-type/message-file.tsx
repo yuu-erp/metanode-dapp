@@ -2,12 +2,14 @@
 import * as React from 'react'
 import type { Message } from '@/modules/message'
 import { File } from 'lucide-react'
+import { cn } from '@/shared/lib'
 
 type Props = {
   message: Extract<Message, { type: 'file' }>
+  isMine?: boolean
 }
 
-function MessageFile({ message }: Props) {
+function MessageFile({ message, isMine }: Props) {
   const formattedSize = React.useMemo(() => {
     const size = message.size
     if (size < 1024) return `${size} B`
@@ -36,7 +38,12 @@ function MessageFile({ message }: Props) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="w-12 h-12 flex items-center justify-center bg-blue-500 rounded-full text-blue-200">
+      <div
+        className={cn(
+          'w-12 h-12 flex items-center justify-center rounded-full',
+          isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-blue-500'
+        )}
+      >
         <File className="size-6" />
       </div>
       <div className="flex-1 min-w-0">

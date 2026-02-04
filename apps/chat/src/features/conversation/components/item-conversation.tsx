@@ -17,7 +17,7 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   updatedAt: Date
   lastMessage?: Message
   isPin?: boolean
-  type?: 'USER' | 'PRIVATE' | 'GROUP'
+  type?: 'p2p' | 'private' | 'group'
   unreadCount?: number
   isMine?: boolean
 }
@@ -27,7 +27,7 @@ function ItemConversation({
   updatedAt,
   lastMessage,
   isPin,
-  type = 'USER',
+  type = 'p2p',
   unreadCount = 0,
   className,
   isMine = false,
@@ -69,7 +69,7 @@ function ItemConversation({
         <div className="grid flex-1 text-left text-sm leading-tight">
           <div className="w-full flex items-center justify-between gap-3">
             <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">
-              {type === 'PRIVATE' ? t(name) : name}
+              {type === 'private' ? t(name) : name}
             </div>
             <div className="flex items-center gap-1">
               {isMine && <CheckIcon className="size-3" />}

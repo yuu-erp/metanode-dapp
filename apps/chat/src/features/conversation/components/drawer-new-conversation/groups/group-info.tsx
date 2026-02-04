@@ -41,7 +41,7 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
               if (!member) return null
               return (
                 <div key={id} className="flex flex-col items-center w-14 gap-1">
-                  <AvatarUser name={member.name} type="USER" size="md" />
+                  <AvatarUser name={member.name} size="md" />
                   <span className="text-[10px] text-gray-300 truncate w-full text-center">
                     {member.name}
                   </span>
