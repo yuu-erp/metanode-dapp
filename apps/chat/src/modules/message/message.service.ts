@@ -83,7 +83,12 @@ export class MessageService {
       if (decrypted.replyTo) {
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
       }
-
+      if (decrypted.type === 'file') {
+        const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
+        if (fileDB) {
+          decrypted.filePath = fileDB.base64
+        }
+      }
       return mapperToMessage({
         accountId: account.address,
         conversationId: conversation.conversationId,

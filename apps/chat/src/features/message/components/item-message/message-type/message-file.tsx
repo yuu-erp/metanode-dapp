@@ -3,7 +3,6 @@ import type { Message } from '@/modules/message'
 import { File, Download, Loader2 } from 'lucide-react'
 import { cn } from '@/shared/lib'
 import { useDownloadFile } from '@/features/message/hooks/use-download-file'
-import { useCachedFile } from '@/features/message/hooks/use-cached-file'
 
 type Props = {
   message: Extract<Message, { type: 'file' }>
@@ -12,7 +11,6 @@ type Props = {
 
 function MessageFile({ message, isMine }: Props) {
   const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
-  const { cachedFile } = useCachedFile(message.fileId || message.id)
 
   const isDownloadingThis = isDownloading && downloadedFileId === (message.fileId || message.id)
 
@@ -41,20 +39,32 @@ function MessageFile({ message, isMine }: Props) {
   }, [message.size])
 
   const isImage = message.mimeType.startsWith('image/')
+  const isVideo = message.mimeType.startsWith('video/')
 
-  if (isImage && (message.filePath || cachedFile)) {
-    const imgSrc =
-      message.filePath ||
-      (cachedFile ? `data:${cachedFile.mimeType};base64,${cachedFile.base64}` : '')
+  const mediaSrc = React.useMemo(() => {
+    if (!message.filePath) return ''
+    const raw = message.filePath
+    if (raw.startsWith('http') || raw.startsWith('blob:')) return raw
+    // Check if it already has data URI prefix
+    if (raw.startsWith('data:')) return raw
+    // Otherwise assume base64 and prepend prefix
+    return `data:${message.mimeType};base64,${raw}`
+  }, [message.filePath, message.mimeType])
+
+  if ((isImage || isVideo) && mediaSrc) {
     return (
       <div className="relative rounded-2xl overflow-hidden max-w-sm group">
-        <img
-          src={imgSrc}
-          alt={message.fileName}
-          className="w-full h-auto max-h-[360px] object-contain pointer-events-none"
-          draggable={false}
-        />
-        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+        {isImage ? (
+          <img
+            src={mediaSrc}
+            alt={message.fileName}
+            className="w-full h-auto max-h-[360px] object-contain pointer-events-none"
+            draggable={false}
+          />
+        ) : (
+          <video src={mediaSrc} controls className="w-full h-auto max-h-[360px] object-contain" />
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           <div className="text-xs text-white truncate">{message.fileName}</div>
           <div className="text-[10px] text-white/80">{formattedSize}</div>
         </div>

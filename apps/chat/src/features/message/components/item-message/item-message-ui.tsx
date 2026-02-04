@@ -17,6 +17,7 @@ export interface ItemMessageUIProps extends MessageItemProps<Message> {
   handlers: any
   isLongPressActive: boolean
   isImage?: boolean
+  isVideo?: boolean
   isSticker?: boolean
   isFailed?: boolean
 }
@@ -28,6 +29,7 @@ function ItemMessageUI({
   handlers,
   isLongPressActive,
   isImage,
+  isVideo,
   isSticker,
   isFailed,
   ...props
@@ -48,7 +50,7 @@ function ItemMessageUI({
             ? 'bg-blue-600 text-white rounded-br-xs'
             : 'bg-gray-200 text-gray-900 rounded-bl-xs',
           isFailed && 'bg-red-50 text-red-700 border border-red-300',
-          (isSticker || isImage) && 'bg-transparent border-none px-0 py-0'
+          (isSticker || isImage || isVideo) && 'bg-transparent border-none px-0 py-0'
         )}
       >
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
@@ -57,7 +59,7 @@ function ItemMessageUI({
         <div
           className={cn(
             'w-full flex items-end justify-between gap-3',
-            isImage && 'absolute bottom-1.5 right-1.5'
+            (isImage || isVideo) && 'absolute bottom-1.5 right-1.5'
           )}
         >
           <div className="flex items-center gap-1">
@@ -68,7 +70,8 @@ function ItemMessageUI({
               'text-[11px] flex items-center gap-1',
               isMine ? 'text-blue-200' : 'text-gray-500',
               isFailed && 'text-red-500',
-              isImage && 'bg-black/40 backdrop-blur-sm p-0.5 pl-1 rounded-full text-white'
+              (isImage || isVideo) &&
+                'bg-black/40 backdrop-blur-sm p-0.5 pl-1 rounded-full text-white'
             )}
           >
             {message.isEdited && <span>edited</span>}

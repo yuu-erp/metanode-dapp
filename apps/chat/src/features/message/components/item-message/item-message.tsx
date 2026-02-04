@@ -5,7 +5,6 @@ import { sendCommand } from '@metanodejs/system-core'
 import * as React from 'react'
 import { type MessageItemProps } from '.'
 import ItemMessageUI from './item-message-ui'
-import { useCachedFile } from '@/features/message/hooks/use-cached-file'
 
 // --- Logic Hook ---
 function useMessageLogic(
@@ -36,19 +35,20 @@ const FileItemMessage = React.memo((props: MessageItemProps<Message>) => {
   const { message, isMine, onSelectMessage } = props
   const logic = useMessageLogic(message, isMine, onSelectMessage)
 
-  // Only runs for files
-  const { cachedFile } = useCachedFile(
-    message.type === 'file' ? message.fileId || message.id : undefined
-  )
-
   const isImage = React.useMemo(() => {
     if (message.type !== 'file') return false
     if (!message.mimeType.startsWith('image/')) return false
     // use cachedFile (async) or filePath (sync) to determing if image styling applies
-    return !!(message.filePath || cachedFile)
-  }, [message, cachedFile])
+    return !!message.filePath
+  }, [message])
 
-  return <ItemMessageUI {...props} {...logic} isImage={isImage} />
+  const isVideo = React.useMemo(() => {
+    if (message.type !== 'file') return false
+    if (!message.mimeType.startsWith('video/')) return false
+    return !!message.filePath
+  }, [message])
+
+  return <ItemMessageUI {...props} {...logic} isImage={isImage} isVideo={isVideo} />
 })
 
 const StandardItemMessage = React.memo((props: MessageItemProps<Message>) => {
