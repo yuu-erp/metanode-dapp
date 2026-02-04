@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react'
-import { useCurrentAccount } from '@/shared/hooks'
 import { container } from '@/container'
-import { toast } from 'sonner'
 import type { MessageService } from '@/modules/message'
+import { useCurrentAccount } from '@/shared/hooks'
+import { useCallback, useState } from 'react'
 
 export function useDownloadFile() {
   const [isDownloading, setIsDownloading] = useState(false)
@@ -25,7 +24,7 @@ export function useDownloadFile() {
         })
       } catch (error) {
         console.error('Download failed:', error)
-        toast.error('Failed to download file')
+        // toast.error('Failed to download file')
       } finally {
         setIsDownloading(false)
         setDownloadedFileId(null)
