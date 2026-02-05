@@ -26,6 +26,20 @@
   "conversationSearch": {
     "placeholder": "Search conversations..."
   },
+  "drawer": {
+    "newMessage": "New Message",
+    "newGroup": "New Group",
+    "newContact": "New Contact",
+    "newChannel": "New Channel",
+    "groupInfo": "Group Info",
+    "selectMembers": "{{count}} Select members",
+    "groupName": "Group Name",
+    "enterGroupName": "Enter group name",
+    "members": "{{count}} members"
+  },
+  "search": {
+    "addressOrUsername": "Search address or username"
+  },
   "pinnedMessage": "Pinned Message",
   "savedMessages": "Saved Messages",
   "message": {

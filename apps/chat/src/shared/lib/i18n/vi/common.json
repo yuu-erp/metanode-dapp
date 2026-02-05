@@ -26,6 +26,20 @@
   "conversationSearch": {
     "placeholder": "Tìm kiếm cuộc trò chuyện..."
   },
+  "drawer": {
+    "newMessage": "Tin nhắn mới",
+    "newGroup": "Nhóm mới",
+    "newContact": "Liên hệ mới",
+    "newChannel": "Kênh mới",
+    "groupInfo": "Thông tin nhóm",
+    "selectMembers": "{{count}} Đã chọn",
+    "groupName": "Tên nhóm",
+    "enterGroupName": "Nhập tên nhóm",
+    "members": "{{count}} thành viên"
+  },
+  "search": {
+    "addressOrUsername": "Tìm kiếm địa chỉ hoặc tên người dùng"
+  },
   "pinnedMessage": "Tin nhắn được ghim",
   "savedMessages": "Tin nhắn đã lưu",
   "message": {

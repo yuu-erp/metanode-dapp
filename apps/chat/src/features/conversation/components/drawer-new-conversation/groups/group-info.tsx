@@ -3,6 +3,7 @@
 import type { Conversation } from '@/modules/conversation'
 import AvatarUser from '@/shared/components/avatar-user'
 import { Input } from '@/shared/components/ui/input'
+import { useI18N } from '@/shared/hooks'
 import * as React from 'react'
 
 interface GroupInfoProps {
@@ -12,6 +13,7 @@ interface GroupInfoProps {
   setGroupName: (groupName: string) => void
 }
 function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: GroupInfoProps) {
+  const { t } = useI18N()
   return (
     <React.Fragment>
       <div className="flex flex-col items-center pt-8 gap-6">
@@ -23,9 +25,11 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
         </div>
 
         <div className="w-full max-w-sm">
-          <label className="text-sm text-gray-400 mb-2 block ml-1">Group Name</label>
+          <label className="text-sm text-gray-400 mb-2 block ml-1">
+            {t('drawer.groupName', { defaultValue: 'Group Name' })}
+          </label>
           <Input
-            placeholder="Enter group name"
+            placeholder={t('drawer.enterGroupName', { defaultValue: 'Enter group name' })}
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
             className="bg-[#2c2c2e] border-white/10 text-white h-12 rounded-xl"
@@ -34,7 +38,12 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
         </div>
 
         <div className="w-full max-w-sm flex flex-col gap-2 border-t border-white/10 pt-4 mt-2">
-          <span className="text-sm text-gray-400 ml-1">{selectedMembers.length} members</span>
+          <span className="text-sm text-gray-400 ml-1">
+            {t('drawer.members', {
+              count: selectedMembers.length,
+              defaultValue: `${selectedMembers.length} members`
+            })}
+          </span>
           <div className="flex flex-wrap gap-2">
             {selectedMembers.map((id) => {
               const member = conversations.find((c) => c.conversationId === id)

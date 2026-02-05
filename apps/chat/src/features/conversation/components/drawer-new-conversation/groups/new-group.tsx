@@ -12,6 +12,7 @@ import type { Account } from '@/modules/account'
 import { cn } from '@/shared/lib'
 import { Input } from '@/shared/components/ui/input'
 import { useCreateGroup } from '@/features/conversation/hooks'
+import { useI18N } from '@/shared/hooks'
 
 export enum ScreenGroupType {
   SELECT_MEMBERS = 'SELECT_MEMBERS',
@@ -26,6 +27,7 @@ interface NewGroupProps {
 }
 function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: NewGroupProps) {
   const { mutateAsync: createGroup, isPending: isCreatingGroup } = useCreateGroup()
+  const { t } = useI18N()
 
   const [screenType, setScreenType] = React.useState<ScreenGroupType>(
     ScreenGroupType.SELECT_MEMBERS
@@ -122,11 +124,16 @@ function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: 
             <ChevronLeftIcon className="size-5 text-gray-100" />
           </button>
           <div className="flex flex-col items-center">
-            <Drawer.Title className="text-gray-100 font-semibold text-lg">New Group</Drawer.Title>
+            <Drawer.Title className="text-gray-100 font-semibold text-lg">
+              {t('drawer.newGroup', { defaultValue: 'New Group' })}
+            </Drawer.Title>
             <span className="text-gray-400 text-sm">
               {screenType === ScreenGroupType.GROUP_INFO
-                ? 'Group Info'
-                : `${selectedMembers.length} Select members`}
+                ? t('drawer.groupInfo', { defaultValue: 'Group Info' })
+                : t('drawer.selectMembers', {
+                    count: selectedMembers.length,
+                    defaultValue: `${selectedMembers.length} Select members`
+                  })}
             </span>
           </div>
           <button
@@ -146,7 +153,9 @@ function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: 
           <div className="flex items-center gap-2 px-4">
             <Input
               type="text"
-              placeholder="Search address or username"
+              placeholder={t('search.addressOrUsername', {
+                defaultValue: 'Search address or username'
+              })}
               className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
             />
           </div>

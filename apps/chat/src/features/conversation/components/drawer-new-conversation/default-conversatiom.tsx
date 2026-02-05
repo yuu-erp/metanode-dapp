@@ -13,6 +13,7 @@ import { useScanQrcodeProfile } from '../../hooks'
 import { ScreenType } from './drawer-new-conversation'
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
+import { useI18N } from '@/shared/hooks'
 
 interface DefaultConversationProps {
   conversations?: Conversation[]
@@ -25,6 +26,7 @@ function DefaultConversation({
   onChangeScreenType
 }: DefaultConversationProps) {
   const navigate = useNavigate()
+  const { t } = useI18N()
 
   const { mutate } = useScanQrcodeProfile()
 
@@ -43,13 +45,17 @@ function DefaultConversation({
             </Button>
           </Drawer.Close>
 
-          <Drawer.Title className="text-gray-100 font-semibold text-lg">New Message</Drawer.Title>
+          <Drawer.Title className="text-gray-100 font-semibold text-lg">
+            {t('drawer.newMessage', { defaultValue: 'New Message' })}
+          </Drawer.Title>
         </div>
         {/* Search + QR */}
         <div className="flex items-center gap-2 px-4">
           <Input
             type="text"
-            placeholder="Search address or username"
+            placeholder={t('search.addressOrUsername', {
+              defaultValue: 'Search address or username'
+            })}
             className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
           />
 
@@ -71,7 +77,9 @@ function DefaultConversation({
             className="w-full h-12 flex items-center gap-4 text-left transition"
           >
             <UserGroupIcon className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">New Group</span>
+            <span className="font-medium text-blue-500">
+              {t('drawer.newGroup', { defaultValue: 'New Group' })}
+            </span>
           </button>
 
           <div className="h-px bg-white/20 ml-10" />
@@ -82,7 +90,9 @@ function DefaultConversation({
             disabled
           >
             <UserAddIcon className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">New Contact</span>
+            <span className="font-medium text-blue-500">
+              {t('drawer.newContact', { defaultValue: 'New Contact' })}
+            </span>
           </button>
 
           <div className="h-px bg-white/20 ml-10" />
@@ -93,7 +103,9 @@ function DefaultConversation({
             disabled
           >
             <Megaphone className="size-5 text-blue-500" />
-            <span className="font-medium text-blue-500">New Channel</span>
+            <span className="font-medium text-blue-500">
+              {t('drawer.newChannel', { defaultValue: 'New Channel' })}
+            </span>
           </button>
         </div>
         {/* List conversation */}
