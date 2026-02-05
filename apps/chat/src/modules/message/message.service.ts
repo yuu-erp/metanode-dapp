@@ -23,7 +23,6 @@ import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
 import { createHashWithBuffer } from '@metanodejs/system-core'
 import type { PushFileInfosParams } from '../blockchain/file-contract/types'
-import { keccak256, solidityPacked } from 'ethers'
 
 export class MessageService {
   constructor(
@@ -33,6 +32,8 @@ export class MessageService {
     private readonly eventBus: EventBusPort<AppEvents>,
     private readonly fileCacheService: FileCacheService
   ) {}
+
+  private fileProcessingWorker: Worker | null = null
 
   async getProcessedP2PMessages(
     account: Account,
@@ -569,48 +570,40 @@ export class MessageService {
     return result
   }
 
-  private async _splitFileIntoChunks(
-    file: File
-  ): Promise<{ chunkData: string[]; chunkHash: string[] }> {
-    const chunkData: string[] = []
-    const chunkHash: string[] = []
-    const CHUNK_SIZE = 1024
-    let lastChunkHash = '0x'
-    const totalChunks = Math.ceil(file.size / CHUNK_SIZE)
+  private _splitFileIntoChunks(file: File): Promise<{ chunkData: string[]; chunkHash: string[] }> {
+    return new Promise((resolve, reject) => {
+      // Lazy init worker
+      if (!this.fileProcessingWorker) {
+        this.fileProcessingWorker = new Worker(
+          new URL('./workers/file-processing.worker.ts', import.meta.url),
+          { type: 'module' }
+        )
+      }
 
-    for (let i = 0; i < totalChunks; i++) {
-      const start = i * CHUNK_SIZE
-      const end = Math.min(start + CHUNK_SIZE, file.size)
-      const blob = file.slice(start, end)
-      const buffer = new Uint8Array(await blob.arrayBuffer())
+      const id = uuidv4()
+      const handler = (e: MessageEvent) => {
+        const { type, id: responseId, payload, error } = e.data
+        if (responseId !== id) return
 
-      const hash = this._computeChunkHash(lastChunkHash, buffer)
-      lastChunkHash = hash
+        if (type === 'PROCESS_COMPLETE') {
+          resolve({
+            chunkData: payload.chunkData,
+            chunkHash: payload.chunkHash
+          })
+          console.log(`Final file hash: ${payload.lastChunkHash}`)
+        } else if (type === 'PROCESS_ERROR') {
+          reject(new Error(error))
+        }
 
-      const chunkDataContent = Array.from(buffer)
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('')
+        this.fileProcessingWorker?.removeEventListener('message', handler)
+      }
 
-      chunkData.push(chunkDataContent)
-      chunkHash.push(hash)
-    }
-
-    console.log(`Final file hash: ${lastChunkHash}`)
-    return { chunkData, chunkHash }
+      this.fileProcessingWorker.addEventListener('message', handler)
+      this.fileProcessingWorker.postMessage({ type: 'PROCESS_FILE', file, id })
+    })
   }
 
-  private _computeChunkHash(lastChunkHash: string, chunkData: Uint8Array): string {
-    const emptyBytes32 = '0x'.padEnd(66, '0')
-    let encodedData: string
-    if (!lastChunkHash || lastChunkHash === '0x') {
-      console.log('lần 1 ===> ')
-      encodedData = solidityPacked(['bytes32', 'bytes'], [emptyBytes32, chunkData])
-    } else {
-      console.log('lần tiếp theo ===> ')
-      encodedData = solidityPacked(['bytes32', 'bytes'], [lastChunkHash, chunkData])
-    }
-    return keccak256(encodedData)
-  }
+  // Remove _computeChunkHash as it is in the worker now
 
   async downloadFile(
     account: Account,
