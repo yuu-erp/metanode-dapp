@@ -18,6 +18,7 @@ export interface OverlayMessageHandlers {
   onDelete: () => void
   onEdit: () => void
   onSave: () => void
+  onPin: () => void
 }
 
 export interface ActionProps extends React.ComponentProps<typeof DropdownMenuItem> {

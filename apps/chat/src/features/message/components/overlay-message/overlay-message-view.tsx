@@ -11,6 +11,7 @@ import {
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
 import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction, SaveAction } from '.'
+import PinAction from './pin.action'
 import type { Message } from '@/modules/message'
 import type { OverlayMessageHandlers } from './overlay-message.types'
 import { ItemMessage } from '../item-message'
@@ -20,11 +21,18 @@ interface OverlayMessageViewProps {
   isMine?: boolean
   onClose: () => void
   handlers: OverlayMessageHandlers
+  isPinned: boolean
 }
 
 const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰']
 
-function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessageViewProps) {
+function OverlayMessageView({
+  message,
+  isMine,
+  onClose,
+  handlers,
+  isPinned
+}: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
   const [open, setOpen] = React.useState(true)
 
@@ -113,6 +121,8 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
                 </React.Fragment>
               )}
               {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}
+              <DropdownMenuSeparator className="bg-black/10" />
+              <PinAction isPinned={isPinned} onClose={handlers.onPin} />
               <DropdownMenuSeparator className="bg-black/10" />
               <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}

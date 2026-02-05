@@ -13,10 +13,10 @@ import {
   ConversationSyncStrategy
 } from '@/modules/conversation'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
-import { EventLogContainer } from '@/modules/eventlogs'
 import { FileCacheFactory, FileCacheService } from '@/modules/file-cache'
 import { FileTransferService } from '@/modules/file-transfer'
 import { MessageFactory, MessageService } from '@/modules/message'
+import { MessagePinFactory, MessagePinService } from '@/modules/message-pin'
 import type { SessionManager, TransportService } from '@/modules/realtime-transport'
 import {
   getRealtimeTransportFactory,
@@ -25,6 +25,7 @@ import {
 import { SyncFactory, SyncManager } from '@/modules/sync'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import type { AppEvents } from './types/app-events'
+import { EventLogContainer } from './modules/eventlogs'
 
 /**
  * AppContainer
@@ -54,6 +55,7 @@ class AppContainer {
   private readonly _callService: CallService
   private readonly _fileTransferService: FileTransferService
   private readonly _fileCacheService: FileCacheService
+  private readonly _messagePinService: MessagePinService
   private readonly _realtimeTransportFactory: RealtimeTransportFactory
 
   constructor() {
@@ -95,6 +97,7 @@ class AppContainer {
     )
 
     this._fileTransferService = new FileTransferService()
+    this._messagePinService = MessagePinFactory.createService()
     this._callService = new CallService(
       this._mettingContract,
       this._userContract,
@@ -144,6 +147,10 @@ class AppContainer {
 
   get fileCacheService(): FileCacheService {
     return this._fileCacheService
+  }
+
+  get messagePinService(): MessagePinService {
+    return this._messagePinService
   }
 
   get callService(): CallService {
