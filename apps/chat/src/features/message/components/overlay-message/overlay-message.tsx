@@ -101,14 +101,14 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
               conversation.conversationId,
               message.id
             )
-            toast.success('Đã bỏ ghim tin nhắn')
+            // toast.success('Đã bỏ ghim tin nhắn')
           } else {
             await container.messagePinService.pinMessage(
               account.address,
               conversation.conversationId,
               message
             )
-            toast.success('Đã ghim tin nhắn')
+            // toast.success('Đã ghim tin nhắn')
           }
           await Promise.all([
             queryClient.invalidateQueries({

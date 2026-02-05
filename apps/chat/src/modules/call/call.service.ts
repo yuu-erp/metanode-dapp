@@ -75,7 +75,7 @@ export class CallService {
     }
   }
 
-  async handleCallReceived(account: Account, caller: string, callee: string, roomId: string) {
+  async handleCallReceived(account: Account, caller: string) {
     try {
       const userContractAddress = await this.factoryContract.getUserContract({
         from: account.address,

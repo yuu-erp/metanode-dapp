@@ -25,10 +25,14 @@ function MessagePreview({ message, className }: Props) {
       )
 
     case 'file':
-      if (message.mimeType?.startsWith('image/') && message.filePath) {
+      if (message.mimeType?.startsWith('image/') && message.file) {
         return (
           <span className="flex items-center gap-1 opacity-70 italic">
-            <img src={message.filePath} alt="preview" className="size-6 object-cover rounded-sm" />
+            <img
+              src={URL.createObjectURL(message.file)}
+              alt="preview"
+              className="size-6 object-cover rounded-sm"
+            />
             {/* Hiện thị file name */}
             {message.fileName || t('message.type.file', { defaultValue: '[File]' })}
           </span>

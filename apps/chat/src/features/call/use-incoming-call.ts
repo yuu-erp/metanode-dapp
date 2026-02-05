@@ -14,12 +14,7 @@ export const useIncomingCall = () => {
     const handleCallReceived = async (event: EventMap['CallReceived']) => {
       console.log('CallReceived event:', event, account)
       if (formatAddress(event.callee) === formatAddress(account.contractAddress)) {
-        const userProfile = await container.callService.handleCallReceived(
-          account,
-          event.caller,
-          event.callee,
-          event.roomId
-        )
+        const userProfile = await container.callService.handleCallReceived(account, event.caller)
         setIncomingCall({
           caller: event.caller,
           callee: event.callee,

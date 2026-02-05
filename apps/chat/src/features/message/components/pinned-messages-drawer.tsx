@@ -5,7 +5,6 @@ import type { Conversation } from '@/modules/conversation'
 import MessagePreview from '@/shared/components/message-render/message-preview'
 import { useI18N } from '@/shared/hooks'
 import { X } from 'lucide-react'
-import * as React from 'react'
 import { Drawer } from 'vaul'
 import { usePinnedMessages } from '../hooks'
 
