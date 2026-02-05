@@ -39,6 +39,28 @@ export type EventMap = {
     contractAddress: string
     admin: string
   }
+  RoomCreatedEvent: {
+    roomId: string
+    name: string
+    creator: string
+  }
+  FrontendEvent: {
+    seesionHash: string
+    roomId: string
+    sessionId: string
+    eventType: string
+    data: string
+  }
+  LeftRoomEvent: {
+    roomId: string
+    sessionId: string
+  }
+  CallReceived: {
+    caller: string
+    callee: string
+    roomId: string
+    status: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi

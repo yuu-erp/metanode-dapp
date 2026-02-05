@@ -16,8 +16,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     if (!account?.address || !account.contractAddress) return
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
-
-    eventLog.registerEvent(account.address, [account.contractAddress])
+    const meetingAddress = import.meta.env.VITE_MEETING
+    eventLog.registerEvent(account.address, [account.contractAddress, meetingAddress])
 
     const offMessageReceived = eventLog.on('MessageReceived', (data) => {
       if (data.sender === account.contractAddress) return
@@ -48,6 +48,11 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('group.created', data)
     })
 
+    const offCallReceived = eventLog.on('CallReceived', (data) => {
+      console.log('eventLog CallReceived event:', data)
+      eventBus.emit('call.received', data)
+    })
+
     return () => {
       offMessageReceived()
       offReaction()
@@ -55,6 +60,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       offPartnerMessageDeleted()
       offDataChannel()
       offGroupCreated()
+      offCallReceived()
     }
   }, [account?.address, account?.contractAddress])
 

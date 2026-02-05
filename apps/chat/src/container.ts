@@ -1,6 +1,12 @@
 import { AccountFactory, AccountService, AccountSyncStrategy } from '@/modules/account'
 import { FileCacheService, FileCacheDexieDB, DexieFileCacheRepository } from '@/modules/file-cache'
-import { FactoryContract, FileContract, GroupContract, UserContract } from '@/modules/blockchain'
+import {
+  FactoryContract,
+  FileContract,
+  GroupContract,
+  MettingContract,
+  UserContract
+} from '@/modules/blockchain'
 import {
   ConversationFactory,
   ConversationService,
@@ -11,6 +17,7 @@ import { MessageFactory, MessageService } from '@/modules/message'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
 import { FileTransferService } from '@/modules/file-transfer'
+import { CallService } from '@/modules/call'
 import { SyncFactory, SyncManager } from '@/modules/sync'
 import {
   getRealtimeTransportFactory,
@@ -35,6 +42,7 @@ class AppContainer {
   private readonly _userContract: UserContract
   private readonly _groupContract: GroupContract
   private readonly _fileContract: FileContract
+  private readonly _mettingContract: MettingContract
   private readonly _eventLogContainer: EventLogContainer
   private readonly _eventBus: EventBusPort<AppEvents>
   /* ================================
@@ -43,6 +51,7 @@ class AppContainer {
   private readonly _accountService: AccountService
   private readonly _conversationService: ConversationService
   private readonly _messageService: MessageService
+  private readonly _callService: CallService
   private readonly _fileTransferService: FileTransferService
   private readonly _fileCacheService: FileCacheService
   private readonly _realtimeTransportFactory: RealtimeTransportFactory
@@ -56,6 +65,7 @@ class AppContainer {
     this._userContract = new UserContract()
     this._groupContract = new GroupContract()
     this._fileContract = new FileContract()
+    this._mettingContract = new MettingContract()
     this._eventLogContainer = new EventLogContainer()
     this._eventBus = new MittEventBus<AppEvents>()
 
@@ -88,6 +98,12 @@ class AppContainer {
     )
 
     this._fileTransferService = new FileTransferService()
+    this._callService = new CallService(
+      this._mettingContract,
+      this._userContract,
+      this._factoryContract,
+      this._eventLogContainer
+    )
 
     // 6️⃣ Realtime Transport Factory
     this._realtimeTransportFactory = getRealtimeTransportFactory()
@@ -109,6 +125,10 @@ class AppContainer {
     return this._userContract
   }
 
+  get mettingContract(): MettingContract {
+    return this._mettingContract
+  }
+
   get accountService(): AccountService {
     return this._accountService
   }
@@ -127,6 +147,10 @@ class AppContainer {
 
   get fileCacheService(): FileCacheService {
     return this._fileCacheService
+  }
+
+  get callService(): CallService {
+    return this._callService
   }
 
   get eventLogContainer(): EventLogContainer {

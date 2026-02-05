@@ -1,4 +1,5 @@
 import { EventLogProvider } from '@/contexts'
+import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
 import { MessageProvider } from '@/features/message'
 import { BackgroundSyncProvider } from '@/shared/background-sync'
@@ -33,7 +34,10 @@ function RouteComponent() {
       <ConversationsProvider>
         <MessageProvider>
           <BackgroundSyncProvider>
-            <Outlet />
+            <IncomingCall />
+            <div className="flex-1 flex flex-col min-w-0 relative">
+              <Outlet />
+            </div>
             {showNavbar && <NavbarMenu />}
           </BackgroundSyncProvider>
         </MessageProvider>

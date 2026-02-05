@@ -51,4 +51,6 @@ export type AppEvents = {
   }
   // GROUP
   'group.created': EventMap['GroupCreated']
+  // CALL
+  'call.received': EventMap['CallReceived']
 }

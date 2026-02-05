@@ -13,8 +13,9 @@ interface ChatHeaderProps {
   name?: string
   username?: string
   type?: 'p2p' | 'group' | 'private'
+  onVideoCall?: () => void
 }
-function ChatHeader({ name = '', type = 'p2p', username }: ChatHeaderProps) {
+function ChatHeader({ name = '', type = 'p2p', username, onVideoCall }: ChatHeaderProps) {
   const { t } = useI18N()
   const router = useRouter()
   return (
@@ -39,7 +40,7 @@ function ChatHeader({ name = '', type = 'p2p', username }: ChatHeaderProps) {
           {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
-          <button>
+          <button onClick={onVideoCall}>
             <VideoIcon className="size-7 text-white/80" />
           </button>
           {/* <button>
