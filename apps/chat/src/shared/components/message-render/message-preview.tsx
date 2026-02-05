@@ -1,8 +1,8 @@
 'use client'
-import * as React from 'react'
 import type { Message } from '@/modules/message'
-import { FileIcon, ImageIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import { useI18N } from '@/shared/hooks'
+import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
+import * as React from 'react'
 
 type Props = {
   message: Message
@@ -19,13 +19,21 @@ function MessagePreview({ message, className }: Props) {
     case 'sticker':
       return (
         <span className="flex items-center gap-1 opacity-70 italic">
-          <ImageIcon size={14} />
+          <img src={`/stickers/${message.stickerId}.png`} alt="" className="size-6 rounded-sm" />
           {t('message.type.sticker', { defaultValue: '[Sticker]' })}
-          {/* <img src={`/stickers/${message.stickerId}.png`} alt="" className="size-5" /> */}
         </span>
       )
 
     case 'file':
+      if (message.mimeType?.startsWith('image/') && message.filePath) {
+        return (
+          <span className="flex items-center gap-1 opacity-70 italic">
+            <img src={message.filePath} alt="preview" className="size-6 object-cover rounded-sm" />
+            {/* Hiện thị file name */}
+            {message.fileName || t('message.type.file', { defaultValue: '[File]' })}
+          </span>
+        )
+      }
       return (
         <span className="flex items-center gap-1 opacity-70 italic">
           <FileIcon size={14} />

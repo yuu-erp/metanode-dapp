@@ -4,6 +4,7 @@ import * as React from 'react'
 import type { OverlayMessageHandlers, OverlayMessageProps } from './overlay-message.types'
 import { useCopyMessageAction, useMessageAction } from '../../contexts'
 import { useDeleteMessage, useReactToMessage } from '../../hooks'
+import { useDownloadFile } from '../../hooks/use-download-file'
 import OverlayMessageView from './overlay-message-view'
 
 function OverlayMessage({ onClose, message, isMine, conversation, account }: OverlayMessageProps) {
@@ -11,6 +12,7 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
   const { copyMessage } = useCopyMessageAction()
   const { mutate: mutateReactToMessage } = useReactToMessage()
   const { mutate: mutateDelete } = useDeleteMessage()
+  const { downloadFile } = useDownloadFile()
 
   const handleClose = React.useCallback(() => onClose(), [onClose])
 
@@ -68,6 +70,13 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
           message
         })
         handleClose()
+      },
+
+      onSave: () => {
+        if (message.type !== 'file' || !message.fileId) return
+        const mimeType = message.mimeType || 'application/octet-stream'
+        downloadFile(message.id, message.fileId, message.fileName || 'file', mimeType)
+        handleClose()
       }
     }),
     [
@@ -78,7 +87,8 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
       mutateDelete,
       setMessageAction,
       copyMessage,
-      handleClose
+      handleClose,
+      downloadFile
     ]
   )
 

@@ -99,11 +99,15 @@ export function updateMessageStatus(
 
 export function applyMessageSent(
   oldData: InfiniteData<Message[]> | undefined,
-  params: ApplyMessageSentParams
+  params: ApplyMessageSentParams & { fileId?: string }
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { clientId: params.clientId })) return msg
-    return { ...msg, id: params.messageId, status: 'delivered' }
+    const newMsg = { ...msg, id: params.messageId, status: 'delivered' } as Message // Cast to avoid strict type issues with status literal
+    if (params.fileId && newMsg.type === 'file') {
+      newMsg.fileId = params.fileId
+    }
+    return newMsg
   })
 }
 
@@ -268,5 +272,20 @@ export function applyReactionCreate(
     const newReactions = handleReaction(msg.reactions, params.emoji, true)
     if (newReactions === msg.reactions) return msg // Optional: avoid update if no change
     return { ...msg, reactions: newReactions }
+  })
+}
+
+export function updateMessageFilePath(
+  oldData: InfiniteData<Message[]> | undefined,
+  params: {
+    fileKey: string
+    filePath: string
+  }
+): InfiniteData<Message[]> | undefined {
+  return updatePages(oldData, (msg) => {
+    if (msg.type === 'file' && msg.fileId === params.fileKey) {
+      return { ...msg, filePath: params.filePath }
+    }
+    return msg
   })
 }

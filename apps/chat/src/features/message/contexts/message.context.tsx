@@ -13,6 +13,7 @@ import {
   applyReactionCreate,
   applyReactionReceived,
   insertMessage,
+  updateMessageFilePath,
   updateMessageStatus
 } from '../message-cache.utils'
 
@@ -62,7 +63,8 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
           (old) =>
             applyMessageSent(old, {
               clientId: e.clientId,
-              messageId: e.messageId
+              messageId: e.messageId,
+              fileId: e.fileId
             })
         )
       },
@@ -147,6 +149,24 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
               emoji: e.emoji
             })
         )
+      },
+      'file.cached': (e: AppEvents['file.cached']) => {
+        // Iterate over all active message queries and update corresponding file paths
+        const activeQueries = queryClient.getQueryCache().findAll({
+          queryKey: ['messages']
+        })
+        console.log('activeQueries', activeQueries)
+        activeQueries.forEach((query) => {
+          const queryKey = query.queryKey as [string, string, string] // ['messages', accountId, conversationId]
+          if (queryKey[0] !== 'messages') return
+          console.log('queryKey', queryKey)
+          queryClient.setQueryData<InfiniteData<Message[]>>(queryKey, (old) =>
+            updateMessageFilePath(old, {
+              fileKey: e.fileKey,
+              filePath: e.filePath
+            })
+          )
+        })
       }
     }
   }, [account]) // Chỉ depend vào account
@@ -168,7 +188,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     eventBus.on('message.delete', handlers['message.delete'])
     eventBus.on('reaction.received', handlers['reaction.received'])
     eventBus.on('reaction.create', handlers['reaction.create'])
-
+    eventBus.on('file.cached', handlers['file.cached'])
     return () => {
       eventBus.off('message.create', handlers['message.create'])
       eventBus.off('message.status', handlers['message.status'])
@@ -180,6 +200,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       eventBus.off('message.delete', handlers['message.delete'])
       eventBus.off('reaction.received', handlers['reaction.received'])
       eventBus.off('reaction.create', handlers['reaction.create'])
+      eventBus.off('file.cached', handlers['file.cached'])
     }
   }, [account, handlers])
 

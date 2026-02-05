@@ -50,7 +50,7 @@ export class MessageService {
         page
       }
     })
-
+    console.log('rawMessages', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
@@ -79,7 +79,7 @@ export class MessageService {
         account.address,
         item.finalContent
       )
-
+      console.log('decrypted', decrypted)
       let replyTo = undefined
       if (decrypted.replyTo) {
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
@@ -87,7 +87,7 @@ export class MessageService {
       if (decrypted.type === 'file') {
         const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
         if (fileDB) {
-          decrypted.filePath = fileDB.base64
+          decrypted.filePath = URL.createObjectURL(fileDB.blob)
         }
       }
       return mapperToMessage({
@@ -244,7 +244,12 @@ export class MessageService {
 
       replyTo = await this._inflateReplyTo(decryptMessage.replyTo, account, mockConversation)
     }
-
+    if (decryptMessage.type === 'file') {
+      const fileDB = await this.fileCacheService.getFile(decryptMessage.fileId)
+      if (fileDB) {
+        decryptMessage.filePath = URL.createObjectURL(fileDB.blob)
+      }
+    }
     return mapperToMessage({
       ...decryptMessage,
       messageId,
@@ -501,10 +506,9 @@ export class MessageService {
           // Cache the sent file
           try {
             const arrayBuffer = await data.dataFile.arrayBuffer()
-            const base64 = encodeBase64(new Uint8Array(arrayBuffer))
             await this.fileCacheService.saveFile(
               data.fileKey,
-              base64,
+              new Blob([arrayBuffer], { type: data.dataFile.type }),
               data.dataFile.type,
               data.dataFile.name
             )
@@ -544,7 +548,8 @@ export class MessageService {
             accountId: account.address,
             conversationId: conversation.conversationId,
             clientId,
-            messageId: result.messageId
+            messageId: result.messageId,
+            fileId: data.fileKey
           })
         } catch (error) {
           console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
@@ -613,19 +618,51 @@ export class MessageService {
     onProgress?: (percent: number) => void
   ): Promise<void> {
     try {
-      console.log('[downloadFile] - payload', {
-        account,
-        fileKey,
-        fileName,
-        mimeType
-      })
+      // 0. Check cache first
+      const cachedFile = await this.fileCacheService.getFile(fileKey)
+      if (cachedFile) {
+        let path = cachedFile.filePath
+
+        // If filePath is missing (legacy cache), re-create to get path
+        if (!path) {
+          const arrayBuffer = await cachedFile.blob.arrayBuffer()
+          // Prepare name/ext logic similar to below
+          const dotIndex = fileName.lastIndexOf('.')
+          const name = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName
+          const ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : ''
+
+          const result = await createFileWithBuffer(
+            name,
+            'message',
+            ext,
+            Array.from(new Uint8Array(arrayBuffer))
+          )
+          path = result.path
+
+          // Update cache with new path
+          await this.fileCacheService.saveFile(
+            fileKey,
+            cachedFile.blob,
+            cachedFile.mimeType,
+            fileName,
+            path
+          )
+          this.eventBus.emit('file.cached', {
+            fileKey,
+            filePath: URL.createObjectURL(cachedFile.blob)
+          })
+        }
+
+        await share({ type: 'file', path, title: fileName })
+        return
+      }
+
       // 1. Get file info to know total chunks
       // @ts-ignore
       const { infos } = await this.fileContract.getFilesInfo({
         from: account.address,
         inputData: { fileKeys: [fileKey] }
       })
-      console.log('fileStatus', infos)
       if (!infos) {
         throw new Error('File not found on chain')
       }
@@ -696,9 +733,12 @@ export class MessageService {
       const ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : ''
       const { path } = await createFileWithBuffer(name, 'message', ext, Array.from(combinedBuffer))
       try {
-        const base64 = encodeBase64(combinedBuffer)
-        await this.fileCacheService.saveFile(fileKey, base64, mimeType, fileName)
-        this.eventBus.emit('file.cached', { fileKey })
+        const blob = new Blob([combinedBuffer], { type: mimeType })
+        await this.fileCacheService.saveFile(fileKey, blob, mimeType, fileName, path)
+        this.eventBus.emit('file.cached', {
+          fileKey,
+          filePath: URL.createObjectURL(blob)
+        })
       } catch (error) {
         console.error('[MessageService] Failed to cache downloaded file:', error)
       }

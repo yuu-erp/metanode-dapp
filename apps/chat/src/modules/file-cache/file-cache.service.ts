@@ -6,15 +6,17 @@ export class FileCacheService {
 
   async saveFile(
     fileKey: string,
-    base64: string,
+    blob: Blob,
     mimeType: string,
-    fileName: string
+    fileName: string,
+    filePath?: string
   ): Promise<void> {
     await this.repository.save({
       id: fileKey,
-      base64,
+      blob,
       mimeType,
       fileName,
+      filePath,
       timestamp: Date.now()
     })
   }

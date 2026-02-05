@@ -15,6 +15,7 @@ export type AppEvents = {
     conversationId: string
     clientId: string
     messageId: string
+    fileId?: string
   }
   'message.create': {
     message: Message
@@ -48,6 +49,7 @@ export type AppEvents = {
   }
   'file.cached': {
     fileKey: string
+    filePath: string
   }
   // GROUP
   'group.created': EventMap['GroupCreated']

@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
-import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction } from '.'
+import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction, SaveAction } from '.'
 import type { Message } from '@/modules/message'
 import type { OverlayMessageHandlers } from './overlay-message.types'
 import { ItemMessage } from '../item-message'
@@ -104,6 +104,12 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
                 <React.Fragment>
                   <DropdownMenuSeparator className="bg-black/10" />
                   <CopyAction onClose={handlers.onCopy} />
+                </React.Fragment>
+              )}
+              {message.type === 'file' && (
+                <React.Fragment>
+                  <DropdownMenuSeparator className="bg-black/10" />
+                  <SaveAction onClose={handlers.onSave} />
                 </React.Fragment>
               )}
               {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}

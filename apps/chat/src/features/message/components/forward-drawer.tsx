@@ -52,6 +52,24 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
             forwardFrom: forwardPayload.forwardFrom
           }
         })
+      } else if (forwardPayload.type === 'file') {
+        const message = messageAction.message
+        console.log('message: ', message)
+        if (message.type === 'file') {
+          mutate({
+            account,
+            conversation,
+            payload: {
+              type: 'file',
+              fileId: message.fileId,
+              fileName: message.fileName,
+              mimeType: message.mimeType,
+              size: message.size,
+              filePath: message.filePath,
+              forwardFrom: forwardPayload.forwardFrom
+            }
+          })
+        }
       }
       onClose?.()
       navigate({ to: '/p2p/$id', params: { id: conversation.conversationId } })

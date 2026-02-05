@@ -33,7 +33,8 @@
       "sticker": "[Nhãn dán]",
       "file": "[Tệp]",
       "voice": "[Tin nhắn thoại]",
-      "location": "[Vị trí]"
+      "location": "[Vị trí]",
+      "photo": "[Hình ảnh]"
     }
   }
 }

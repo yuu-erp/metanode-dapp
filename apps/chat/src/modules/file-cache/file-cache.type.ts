@@ -1,7 +1,8 @@
 export interface FileCache {
   id: string // fileKey
-  base64: string
+  blob: Blob
   mimeType: string
   fileName: string
+  filePath?: string
   timestamp: number
 }

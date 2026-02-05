@@ -76,18 +76,19 @@ class AppContainer {
       this._userContract
     )
 
+    // File Cache initialization
+    this._fileCacheDB = new FileCacheDexieDB()
+    this._fileCacheRepository = new DexieFileCacheRepository(this._fileCacheDB)
+    this._fileCacheService = new FileCacheService(this._fileCacheRepository)
+
     // 5️⃣ Application Service (ConversationService)
     this._conversationService = ConversationFactory.createService(
       this._userContract,
       this._factoryContract,
       this._groupContract,
-      this._walletService
+      this._walletService,
+      this._fileCacheService
     )
-
-    // File Cache initialization
-    this._fileCacheDB = new FileCacheDexieDB()
-    this._fileCacheRepository = new DexieFileCacheRepository(this._fileCacheDB)
-    this._fileCacheService = new FileCacheService(this._fileCacheRepository)
 
     this._messageService = MessageFactory.createService(
       this._userContract,

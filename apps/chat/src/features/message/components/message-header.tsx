@@ -40,9 +40,11 @@ function ChatHeader({ name = '', type = 'p2p', username, onVideoCall }: ChatHead
           {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
-          <button onClick={onVideoCall}>
-            <VideoIcon className="size-7 text-white/80" />
-          </button>
+          {type !== 'private' && (
+            <button onClick={onVideoCall}>
+              <VideoIcon className="size-7 text-white/80" />
+            </button>
+          )}
           {/* <button>
             <EllipsisVertical className="size-7 text-white/80" />
           </button> */}

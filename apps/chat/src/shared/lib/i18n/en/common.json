@@ -33,7 +33,8 @@
       "sticker": "[Sticker]",
       "file": "[File]",
       "voice": "[Voice Memo]",
-      "location": "[Location]"
+      "location": "[Location]",
+      "photo": "[Photo]"
     }
   }
 }

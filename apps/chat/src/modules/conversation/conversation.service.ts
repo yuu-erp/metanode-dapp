@@ -1,6 +1,7 @@
 import type { Account } from '@/modules/account'
 import type { FactoryContract, GroupContract, UserContract } from '@/modules/blockchain'
 import { mapperToMessage, type Message, type OnChainMessagePayload } from '@/modules/message'
+import type { FileCacheService } from '@/modules/file-cache'
 import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import { mapperToConversation } from './conversation.mapper'
@@ -15,7 +16,8 @@ export class ConversationService {
     private readonly userContract: UserContract,
     private readonly factoryContract: FactoryContract,
     private readonly groupContract: GroupContract,
-    private readonly walletService: WalletService
+    private readonly walletService: WalletService,
+    private readonly fileCacheService: FileCacheService
   ) {}
 
   // ------------------------------------------------------------------
@@ -106,6 +108,13 @@ export class ConversationService {
         ).catch(() => {
           return undefined
         })
+
+        if (lastMessageDecrypted && lastMessageDecrypted.type === 'file') {
+          const fileDB = await this.fileCacheService.getFile(lastMessageDecrypted.fileId)
+          if (fileDB) {
+            lastMessageDecrypted.filePath = URL.createObjectURL(fileDB.blob)
+          }
+        }
         // Ideally, we should fetch the FULL message object if we want PersistedMessage.
         // But for list view, maybe we construct a partial one or the mapper handles it.
         // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
