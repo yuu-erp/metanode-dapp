@@ -1,4 +1,4 @@
-import { AccountFactory, AccountService } from '@/modules/account'
+import { AccountFactory, AccountService, AccountSyncStrategy } from '@/modules/account'
 import { FileCacheService, FileCacheDexieDB, DexieFileCacheRepository } from '@/modules/file-cache'
 import { FactoryContract, FileContract, GroupContract, UserContract } from '@/modules/blockchain'
 import {
@@ -167,6 +167,9 @@ class AppContainer {
       )
 
       this._syncManager.registerStrategy(conversationSync)
+
+      const accountSync = new AccountSyncStrategy(this._accountService)
+      this._syncManager.registerStrategy(accountSync)
     }
     return this._syncManager
   }

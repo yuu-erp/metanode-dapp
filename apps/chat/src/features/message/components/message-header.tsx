@@ -1,6 +1,6 @@
 'use client'
 import AvatarUser from '@/shared/components/avatar-user'
-import { PhoneIcon, VideoIcon } from '@/shared/components/icons'
+import { VideoIcon } from '@/shared/components/icons'
 import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
@@ -36,9 +36,9 @@ function ChatHeader({ name = '', type = 'p2p', username }: ChatHeaderProps) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <button>
+          {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
-          </button>
+          </button> */}
           <button>
             <VideoIcon className="size-7 text-white/80" />
           </button>

@@ -1,4 +1,5 @@
 'use client'
+import Dexie from 'dexie'
 import { useCurrentAccount, useI18N } from '@/shared/hooks'
 import { useCheckUserContract } from '@/shared/hooks/accounts'
 import { AlertTriangle, MoveRight } from 'lucide-react'
@@ -28,8 +29,18 @@ function AccountActivationNotice() {
 
           <button
             className="mt-2 inline-flex items-center gap-1 self-start text-sm font-medium text-yellow-800 hover:underline"
-            onClick={() => {
-              // TODO: navigate to activation page
+            onClick={async () => {
+              try {
+                await Promise.all([
+                  Dexie.delete('account_db'),
+                  Dexie.delete('conversation_db'),
+                  Dexie.delete('message_db'),
+                  Dexie.delete('file_cache_db')
+                ])
+                window.location.reload()
+              } catch (error) {
+                console.error('Failed to clear data:', error)
+              }
             }}
           >
             {t('accountActivationNotice.btn.activateNow')}

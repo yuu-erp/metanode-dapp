@@ -16,3 +16,8 @@ export function handleBackgroundWallet(string: string) {
     return `url(${images.defaultWalletBg}) no-repeat center center / cover`
   }
 }
+
+export function formatAddress(address: string): string {
+  if (!address) return ''
+  return address.toLowerCase().replace(/^0x/, '')
+}

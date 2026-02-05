@@ -4,6 +4,7 @@ import { activateAccount, createAccount } from './account.entity'
 import type { AccountRepository } from './account.repository'
 import type { Account } from './account.types'
 import { detectNameFromWalletName, generateAvailableUsername } from './utils'
+import { formatAddress } from '@/shared/utils'
 
 export class AccountService {
   constructor(
@@ -104,5 +105,32 @@ export class AccountService {
       from: address,
       to: conversationId
     })
+  }
+
+  async syncByRegisterMeeting(account: Account): Promise<void> {
+    try {
+      const currentFactory = await this.userContract.meetingFactoryAddress({
+        from: account.address,
+        to: account.contractAddress
+      })
+
+      const envFactory = import.meta.env.VITE_MEETING
+      console.log(`[AccountService] Current meeting factory: ${formatAddress(currentFactory)}`)
+      console.log(`[AccountService] Environment meeting factory: ${formatAddress(envFactory)}`)
+      if (formatAddress(currentFactory) !== formatAddress(envFactory)) {
+        console.log(
+          `[AccountService] Updating meeting factory from ${currentFactory} to ${envFactory}`
+        )
+        await this.userContract.setMeetingFactory({
+          from: account.address,
+          to: account.contractAddress,
+          inputData: {
+            _newMeetingFactoryAddress: envFactory
+          }
+        })
+      }
+    } catch (error) {
+      console.error('[AccountService] Failed to sync meeting factory:', error)
+    }
   }
 }
