@@ -6,6 +6,7 @@ import type { Conversation } from '@/modules/conversation'
 import * as React from 'react'
 import { usePinnedMessages } from '../hooks'
 import MessagePreview from '@/shared/components/message-render/message-preview'
+import { PinnedMessagesDrawer } from './pinned-messages-drawer'
 
 interface PinMessagesProps {
   account?: Account
@@ -14,6 +15,7 @@ interface PinMessagesProps {
 
 function PinMessages({ account, conversation }: PinMessagesProps) {
   const { t } = useI18N()
+  const [openDrawer, setOpenDrawer] = React.useState(false)
 
   const { data: pinnedMessages } = usePinnedMessages(
     account?.address || '',
@@ -26,26 +28,35 @@ function PinMessages({ account, conversation }: PinMessagesProps) {
   }, [pinnedMessages])
 
   if (!pinnedMessage) return null
-
+  console.log('pinnedMessage: ', pinnedMessage)
   return (
-    <div
-      className="h-14 flex items-center py-2 gap-3 sticky w-full z-10 px-3 bg-white/80 text-black shadow border-app cursor-pointer hover:bg-white/60 transition-colors"
-      style={{ top: 'var(--header-height)' }}
-    >
-      <span className="h-full w-[3px] rounded-md bg-black"></span>
-      <div className="h-full flex-1 flex items-center gap-2">
-        <div className="flex-1">
-          <div className="text-base font-bold flex-1 line-clamp-1 break-all">
-            {t('pinnedMessage')}
+    <>
+      <div
+        onClick={() => setOpenDrawer(true)}
+        className="h-14 flex items-center py-2 gap-3 sticky w-full z-10 px-3 bg-white/80 text-black shadow border-app cursor-pointer hover:bg-white/60 transition-colors"
+        style={{ top: 'var(--header-height)' }}
+      >
+        <span className="h-full w-[3px] rounded-md bg-black"></span>
+        <div className="h-full flex-1 flex items-center gap-2">
+          <div className="flex-1">
+            <div className="text-base font-bold flex-1 line-clamp-1 break-all">
+              {t('pinnedMessage')}
+            </div>
+            <div className="flex-1 text-sm font-medium break-all text-black/60 line-clamp-1 break-all">
+              {/* {pinnedMessage.type === 'text' ? pinnedMessage.content : `[${pinnedMessage.type}]`} */}
+              <MessagePreview message={pinnedMessage} />
+            </div>
           </div>
-          <div className="flex-1 text-sm font-medium break-all text-black/60 line-clamp-1 break-all">
-            {/* {pinnedMessage.type === 'text' ? pinnedMessage.content : `[${pinnedMessage.type}]`} */}
-            <MessagePreview message={pinnedMessage} />
-          </div>
+          <PinIcon className="shrink-0 size-5" />
         </div>
-        <PinIcon className="shrink-0 size-5" />
       </div>
-    </div>
+      <PinnedMessagesDrawer
+        open={openDrawer}
+        onOpenChange={setOpenDrawer}
+        account={account}
+        conversation={conversation}
+      />
+    </>
   )
 }
 

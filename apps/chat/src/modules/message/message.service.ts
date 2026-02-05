@@ -79,7 +79,6 @@ export class MessageService {
         account.address,
         item.finalContent
       )
-      console.log('decrypted', decrypted)
       let replyTo = undefined
       if (decrypted.replyTo) {
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
