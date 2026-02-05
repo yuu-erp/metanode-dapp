@@ -27,6 +27,7 @@ export function useInputMessageController({
   onEditMessage
 }: UseInputMessageControllerParams) {
   const [files, setFiles] = React.useState<File[]>([])
+  const [isStickerDrawerOpen, setIsStickerDrawerOpen] = React.useState(false)
 
   const composer = useMessageComposer({
     account,
@@ -87,6 +88,10 @@ export function useInputMessageController({
     handleSendSticker: composer.sendSticker,
     openFilePicker: attachment.openFilePicker,
     clearAction: composer.clearAction,
-    handleRemoveFile
+    handleRemoveFile,
+
+    // UI state
+    isStickerDrawerOpen,
+    setIsStickerDrawerOpen
   }
 }

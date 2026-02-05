@@ -103,7 +103,7 @@ function DefaultConversation({
               <ConversationContact
                 name={conversation.name}
                 username={conversation.username}
-                type={account?.contractAddress === conversation.conversationId ? 'PRIVATE' : 'USER'}
+                type={conversation.conversationType}
                 onClick={() =>
                   navigate({
                     to: '/p2p/$id',

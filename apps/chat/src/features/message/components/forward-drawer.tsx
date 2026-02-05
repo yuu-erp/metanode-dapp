@@ -130,11 +130,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
                       <ConversationContact
                         name={conversation.name}
                         username={conversation.username}
-                        type={
-                          account?.contractAddress === conversation.conversationId
-                            ? 'PRIVATE'
-                            : 'USER'
-                        }
+                        type={conversation.conversationType}
                         onClick={handleForwardMessage(conversation)}
                       />
                       <div className="h-px bg-white/20 ml-18" />

@@ -8,12 +8,12 @@ interface ConversationContactProps extends React.HTMLAttributes<HTMLDivElement> 
   avatar?: string
   name: string
   username?: string
-  type?: 'USER' | 'PRIVATE' | 'GROUP'
+  type?: 'p2p' | 'group' | 'private'
 }
 function ConversationContact({
   name,
   username,
-  type = 'USER',
+  type = 'p2p',
   className,
   ...props
 }: ConversationContactProps) {
@@ -27,7 +27,7 @@ function ConversationContact({
         <AvatarUser size="lg" url="" name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="text-base font-bold flex-1 line-clamp-1 break-all">
-            {type === 'PRIVATE' ? t(name) : name}
+            {type === 'private' ? t(name) : name}
           </div>
           {username && (
             <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">@{username}</div>

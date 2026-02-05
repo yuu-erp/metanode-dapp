@@ -34,7 +34,7 @@ function RouteComponent() {
         >
           <ChatHeader
             name={conversation?.name}
-            type={conversation?.conversationType === 'private' ? 'PRIVATE' : 'USER'}
+            type={conversation?.conversationType}
             username={conversation?.username}
           />
           <PinMessages account={account} conversation={conversation as Conversation} />

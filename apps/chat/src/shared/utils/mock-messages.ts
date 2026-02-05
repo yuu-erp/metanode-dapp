@@ -34,6 +34,7 @@ export const MOCK_FILE_MESSAGE: Extract<Message, { type: 'file' }> = {
   fileName: 'design-specification.pdf',
   mimeType: 'application/pdf',
   size: 2450000, // ~2.45 MB
+  filePath: 'file-123',
   accountId: BASE_ACCOUNT_ID,
   conversationId: BASE_CONVERSATION_ID,
   sender: BASE_SENDER,

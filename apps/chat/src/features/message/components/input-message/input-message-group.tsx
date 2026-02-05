@@ -69,6 +69,8 @@ const InputMessageGroup = React.forwardRef<HTMLTextAreaElement, InputMessageProp
         onOpenFilePicker={controller.openFilePicker}
         onClearAction={controller.clearAction}
         onRemoveFile={controller.handleRemoveFile}
+        isStickerDrawerOpen={controller.isStickerDrawerOpen}
+        onToggleStickerDrawer={controller.setIsStickerDrawerOpen}
       />
     )
   }

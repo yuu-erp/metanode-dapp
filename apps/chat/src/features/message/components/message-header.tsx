@@ -12,9 +12,9 @@ interface ChatHeaderProps {
   avatar?: string
   name?: string
   username?: string
-  type?: 'USER' | 'PRIVATE' | 'GROUP'
+  type?: 'p2p' | 'group' | 'private'
 }
-function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
+function ChatHeader({ name = '', type = 'p2p', username }: ChatHeaderProps) {
   const { t } = useI18N()
   const router = useRouter()
   return (
@@ -28,7 +28,7 @@ function ChatHeader({ name = '', type = 'USER', username }: ChatHeaderProps) {
           <AvatarUser size="md" url="" name={name} type={type} />
           <div className="grid flex-1 text-left text-sm leading-tight">
             <div className="text-base font-bold flex-1 line-clamp-1 break-all">
-              {type === 'PRIVATE' ? t(name) : name}
+              {type === 'private' ? t(name) : name}
             </div>
             {username && (
               <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">@{username}</div>

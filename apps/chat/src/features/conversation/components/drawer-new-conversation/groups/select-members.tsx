@@ -39,7 +39,7 @@ function SelectMembers({
               <ConversationContact
                 name={conversation.name}
                 username={conversation.username}
-                type="USER"
+                type="p2p"
               />
             </div>
           </div>

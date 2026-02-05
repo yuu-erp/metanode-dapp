@@ -6,6 +6,7 @@ import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { InputMessageAction } from '.'
 import { SelectedFileList } from './selected-file-list'
+import { StickerDrawer } from './sticker-drawer'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
@@ -24,6 +25,8 @@ export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivEleme
   onOpenFilePicker: () => void
   onClearAction: () => void
   onRemoveFile: (index: number) => void
+  isStickerDrawerOpen: boolean
+  onToggleStickerDrawer: (open: boolean) => void
 }
 
 function InputMessageView(props: InputMessageViewProps) {
@@ -41,6 +44,8 @@ function InputMessageView(props: InputMessageViewProps) {
     onOpenFilePicker,
     onClearAction,
     onRemoveFile,
+    isStickerDrawerOpen,
+    onToggleStickerDrawer,
     ...propsDiv
   } = props
 
@@ -100,7 +105,7 @@ function InputMessageView(props: InputMessageViewProps) {
                 </div>
 
                 <div className="h-8 flex items-center gap-1">
-                  <button onClick={() => onSendSticker('174bea63d6263f786637')}>
+                  <button onClick={() => onToggleStickerDrawer(true)}>
                     <StickerIcon className="text-white/80" />
                   </button>
 
@@ -126,6 +131,11 @@ function InputMessageView(props: InputMessageViewProps) {
           )}
         </div>
       </div>
+      <StickerDrawer
+        open={isStickerDrawerOpen}
+        onOpenChange={onToggleStickerDrawer}
+        onSendSticker={onSendSticker}
+      />
     </div>
   )
 }
