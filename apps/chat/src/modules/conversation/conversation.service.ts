@@ -6,9 +6,15 @@ import type { WalletService } from '@/modules/wallet'
 import { fulfilledPromises } from '@/shared/utils'
 import { mapperToConversation } from './conversation.mapper'
 import type { ConversationRepository } from './conversation.repository'
-import { HistoryVisibility, type Conversation, type PayloadCreateGroup } from './conversation.type'
+import {
+  HistoryVisibility,
+  type Conversation,
+  type PayloadAddMembers,
+  type PayloadCreateGroup
+} from './conversation.type'
 import { generateSecureId } from '@/shared/lib/ids'
 import { createECDHPassword, encryptAESGCM, getPrivateKeyFromDb } from '@metanodejs/system-core'
+import type { EventLogContainer } from '../eventlogs'
 
 export class ConversationService {
   constructor(
@@ -17,7 +23,8 @@ export class ConversationService {
     private readonly factoryContract: FactoryContract,
     private readonly groupContract: GroupContract,
     private readonly walletService: WalletService,
-    private readonly fileCacheService: FileCacheService
+    private readonly fileCacheService: FileCacheService,
+    private readonly eventLogContainer: EventLogContainer
   ) {}
 
   // ------------------------------------------------------------------
@@ -259,19 +266,58 @@ export class ConversationService {
   // ------------------------------------------------------------------
 
   async createGroup(account: Account, payload: PayloadCreateGroup) {
-    const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
-    const groupKey = generateSecureId()
-    const privateKey = await getPrivateKeyFromDb(account.address)
-    const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
-    const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
-    await this.factoryContract.createGroup({
-      from: account.address,
-      inputData: {
-        groupName: name,
-        groupAvatar: avatar,
-        encryptedInitialGroupKey,
-        initialPolicy: policy
+    return new Promise(async (resolve, reject) => {
+      try {
+        const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
+        const groupKey = generateSecureId()
+        const privateKey = await getPrivateKeyFromDb(account.address)
+        const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
+        const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+        const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
+          off()
+          resolve({
+            groupKey,
+            ...event
+          })
+        })
+        await this.factoryContract.createGroup({
+          from: account.address,
+          inputData: {
+            groupName: name,
+            groupAvatar: avatar,
+            encryptedInitialGroupKey,
+            initialPolicy: policy
+          }
+        })
+      } catch (error) {
+        reject(error)
       }
     })
+  }
+
+  async addMembers(
+    account: Account,
+    groupConversation: string,
+    groupKey: string,
+    members: PayloadAddMembers[]
+  ) {
+    const privateKeyAdmin = await getPrivateKeyFromDb(account.address)
+    for (const member of members) {
+      const { publicKey, conversationId } = member
+      const addressMember = await this.userContract.owner({
+        from: account.address,
+        to: conversationId
+      })
+      const { password: sharedSecrect } = await createECDHPassword(publicKey, privateKeyAdmin)
+      const { result: encryptedGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+      await this.groupContract.addMember({
+        to: groupConversation,
+        from: account.address,
+        inputData: {
+          user: addressMember,
+          encryptedKeyForNewMember: encryptedGroupKey
+        }
+      })
+    }
   }
 }

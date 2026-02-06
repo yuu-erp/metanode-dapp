@@ -28,7 +28,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'userProfile',
-      abiData: userAbi.userProfile,
+      abiData: userAbi.userProfile as any,
       feeType: 'read'
     })
   }
@@ -39,7 +39,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'getFullInbox',
-      abiData: userAbi.getFullInbox,
+      abiData: userAbi.getFullInbox as any,
       feeType: 'read',
       gas: '30000000'
     })
@@ -51,7 +51,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'publicKey',
-      abiData: userAbi.publicKey,
+      abiData: userAbi.publicKey as any,
       feeType: 'read'
     })
   }
@@ -64,7 +64,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'getProcessedP2PMessages',
-      abiData: userAbi.getProcessedP2PMessages,
+      abiData: userAbi.getProcessedP2PMessages as any,
       inputData,
       feeType: 'read',
       gas: '3000000000'
@@ -77,7 +77,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'sendMessage',
-      abiData: userAbi.sendMessage,
+      abiData: userAbi.sendMessage as any,
       inputData,
       feeType: 'sc'
     })
@@ -89,7 +89,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'reactToMessage',
-      abiData: userAbi.reactToMessage,
+      abiData: userAbi.reactToMessage as any,
       inputData,
       feeType: 'sc'
     })
@@ -101,7 +101,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'editMessage',
-      abiData: userAbi.editMessage,
+      abiData: userAbi.editMessage as any,
       inputData,
       feeType: 'sc'
     })
@@ -113,7 +113,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'deleteMessageV2',
-      abiData: userAbi.deleteMessageV2,
+      abiData: userAbi.deleteMessageV2 as any,
       inputData,
       feeType: 'sc'
     })
@@ -125,7 +125,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'sendDataChannel',
-      abiData: userAbi.sendDataChannel,
+      abiData: userAbi.sendDataChannel as any,
       inputData,
       feeType: 'sc'
     })
@@ -137,7 +137,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'getMessageById',
-      abiData: userAbi.getMessageById,
+      abiData: userAbi.getMessageById as any,
       inputData,
       feeType: 'read'
     })
@@ -149,7 +149,7 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'setMeetingFactory',
-      abiData: userAbi.setMeetingFactory,
+      abiData: userAbi.setMeetingFactory as any,
       inputData,
       feeType: 'sc'
     })
@@ -161,7 +161,18 @@ export class UserContract extends MtnContract {
       from,
       to,
       functionName: 'meetingFactoryAddress',
-      abiData: userAbi.meetingFactoryAddress,
+      abiData: userAbi.meetingFactoryAddress as any,
+      feeType: 'read'
+    })
+  }
+
+  owner(payload: TransactionPayload): Promise<string> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'owner',
+      abiData: userAbi.owner as any,
       feeType: 'read'
     })
   }

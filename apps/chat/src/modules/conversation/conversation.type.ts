@@ -31,3 +31,8 @@ export interface PayloadCreateGroup {
   avatar?: string
   policy?: HistoryVisibility
 }
+
+export interface PayloadAddMembers {
+  publicKey: string
+  conversationId: string
+}

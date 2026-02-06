@@ -1,27 +1,17 @@
-import { deleteMessageV2 } from './delete-message-v2.abi'
-import { editMessage } from './edit-message.abi'
-import { getFullInbox } from './get-full-Inbox.abi'
-import { getMessageById } from './get-message-by-id.abi'
-import { getProcessedP2PMessages } from './get-processed-p2p-messages.abi'
-import { meetingFactoryAddress } from './meeting-factory-address'
-import { publicKey } from './publicKey.abi'
-import { reactToMessage } from './reactToMessage.abi'
-import { sendDataChannel } from './send-data-channel.abi'
-import { sendMessage } from './send-message.abi'
-import { setMeetingFactory } from './set-meeting-factory.abi'
-import { userProfile } from './user-profile.abi'
+import userContract from './user-contract.json'
 
 export const userAbi = {
-  userProfile,
-  getFullInbox,
-  publicKey,
-  getProcessedP2PMessages,
-  sendMessage,
-  reactToMessage,
-  editMessage,
-  deleteMessageV2,
-  sendDataChannel,
-  getMessageById,
-  setMeetingFactory,
-  meetingFactoryAddress
+  userProfile: userContract.find((item) => item.name === 'userProfile'),
+  getFullInbox: userContract.find((item) => item.name === 'getFullInbox'),
+  publicKey: userContract.find((item) => item.name === 'publicKey'),
+  getProcessedP2PMessages: userContract.find((item) => item.name === 'getProcessedP2PMessages'),
+  sendMessage: userContract.find((item) => item.name === 'sendMessage'),
+  reactToMessage: userContract.find((item) => item.name === 'reactToMessage'),
+  editMessage: userContract.find((item) => item.name === 'editMessage'),
+  deleteMessageV2: userContract.find((item) => item.name === 'deleteMessageV2'),
+  sendDataChannel: userContract.find((item) => item.name === 'sendDataChannel'),
+  getMessageById: userContract.find((item) => item.name === 'getMessageById'),
+  setMeetingFactory: userContract.find((item) => item.name === 'setMeetingFactory'),
+  meetingFactoryAddress: userContract.find((item) => item.name === 'meetingFactoryAddress'),
+  owner: userContract.find((item) => item.name === 'owner')
 }
