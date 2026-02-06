@@ -85,7 +85,8 @@ class AppContainer {
       this._factoryContract,
       this._groupContract,
       this._walletService,
-      this._fileCacheService
+      this._fileCacheService,
+      this._eventLogContainer
     )
 
     this._messageService = MessageFactory.createService(

@@ -4,6 +4,7 @@ import { ConversationService } from './conversation.service'
 import type { FactoryContract, GroupContract, UserContract } from '@/modules/blockchain'
 import type { WalletService } from '@/modules/wallet'
 import type { FileCacheService } from '@/modules/file-cache'
+import type { EventLogContainer } from '../eventlogs'
 
 export class ConversationFactory {
   static createService(
@@ -11,7 +12,8 @@ export class ConversationFactory {
     factoryContract: FactoryContract,
     groupContract: GroupContract,
     walletService: WalletService,
-    fileCacheService: FileCacheService
+    fileCacheService: FileCacheService,
+    eventLogContainer: EventLogContainer
   ): ConversationService {
     const db = new ConversationDexieDB('conversations')
     const repository = new DexieConversationRepository(db)
@@ -21,7 +23,8 @@ export class ConversationFactory {
       factoryContract,
       groupContract,
       walletService,
-      fileCacheService
+      fileCacheService,
+      eventLogContainer
     )
   }
 }

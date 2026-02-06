@@ -27,7 +27,7 @@ export class CallService {
             query: new URLSearchParams({
               creatorAddress: event.creator,
               receiveUser: receiver,
-              roomId: event.roomId,
+              roomId: `0x${event.roomId}`,
               address: account.address,
               sessionId: sessionId
             }).toString()
@@ -64,7 +64,7 @@ export class CallService {
         query: new URLSearchParams({
           creatorAddress: caller,
           receiveUser: callee,
-          roomId: roomId,
+          roomId: `0x${roomId}`,
           address: account.address,
           sessionId: sessionId
         }).toString()
