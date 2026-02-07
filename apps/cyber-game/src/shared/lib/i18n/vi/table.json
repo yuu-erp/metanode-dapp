@@ -1,0 +1,40 @@
+{
+  "selectAll": "Chọn tất cả",
+  "selectRow": "Chọn dòng",
+  "deviceName": "Tên máy",
+  "status": "Trạng thái",
+  "name": "Tên",
+  "statusText": {
+    "online": "Online",
+    "offline": "Offline",
+    "gaming": "Đang chơi",
+    "maintenance": "Bảo trì",
+    "updated": "Đã cập nhật",
+    "newUpdate": "Có cập nhật mới",
+    "active": "Hoạt động",
+    "inactive": "Đang tắt",
+    "inUse": "Đang sử dụng"
+  },
+  "ipAddress": "Địa chỉ IP",
+  "walletAddress": "Địa chỉ ví",
+  "macAddress": "Địa chỉ MAC",
+  "username": "Tên người dùng",
+  "loginTime": "Đăng nhập lúc",
+  "actions": "Hành động",
+  "powerMachine": "Bật/tắt máy",
+  "editMachine": "Sửa máy",
+  "deleteMachineConfirm": "Bạn muốn xoá máy trạm",
+  "deleteMachineDesc": "Hành động này sẽ xoá máy trạm này vĩnh viễn",
+  "positionName": "Tên vị trí",
+  "permission": "Phân quyền",
+  "modifiedDate": "Ngày sửa đổi",
+  "size": "Kích cỡ",
+  "config": "Cấu hình",
+  "filter": {
+    "filterBy": "Lọc bởi",
+    "all": "Tất cả"
+  },
+  "addStation": "Thêm máy trạm",
+  "operatingSystem": "Hệ điều hành",
+  "storage": "Lưu trữ"
+}

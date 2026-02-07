@@ -1,0 +1,6 @@
+{
+  "required": "This field is required",
+  "minLength3": "Minimum 3 characters",
+  "invalidPhone": "Invalid phone number",
+  "permissionRequired": "Please select a permission"
+}

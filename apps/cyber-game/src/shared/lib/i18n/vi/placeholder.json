@@ -1,0 +1,19 @@
+{
+  "enterWalletAddress": "Nhập địa chỉ ví",
+  "enterDisplayName": "Nhập tên hiển thị",
+  "enterCitizenId": "Nhập CCCD",
+  "enterPhoneNumber": "Nhập số điện thoại",
+  "enterGmail": "Nhập gmail",
+  "enterAmount": "Nhập vào số tiền",
+  "searchUser": "Tìm kiếm người dùng",
+  "noteForOrder": "Ghi chú cho đơn hàng",
+  "enterDishName": "Nhập tên món ăn",
+  "enterDishDescription": "Nhập mô tả món ăn",
+  "enterPrice": "Nhập món ăn",
+  "ingredientName": "Tên thành phần",
+  "employeeCode": "Mã nhân viên",
+  "employeeName": "Tên nhân viên",
+  "enterAddress": "Địa chỉ ví",
+  "permission": "Quyền",
+  "selectedPermission": "Chọn quyền"
+}

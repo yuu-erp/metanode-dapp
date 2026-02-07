@@ -1,0 +1,23 @@
+{
+  "dashboard": "Dashboard",
+  "stations": "Station Management",
+  "staffManagement": "Staff Management",
+  "accounts": "Account Management",
+  "foods": "Food Management",
+  "gameList": "Game List",
+  "order": "Order",
+  "topup": "Top Up",
+  "loyalty": "Loyalty",
+  "deviceSettings": "Device Settings",
+  "language": "Language",
+  "iqr": "IQR",
+  "redeem": "Redeem Rewards",
+  "general": "General",
+  "finance": "Finance",
+  "system": "System",
+  "policy": "Policy",
+  "diary": "Diary",
+  "orderManagement": "Order Management",
+  "employeeList": "Employee List",
+  "roleManagement": "Role Management"
+}

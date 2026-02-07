@@ -1,0 +1,13 @@
+{
+  "notFound": {
+    "title": "Không tìm thấy cấu hình đại lý",
+    "description": "Chúng tôi không thể tìm thấy cấu hình cho đại lý này. Điều này có thể xảy ra nếu:",
+    "reasons": {
+      "notRegistered": "Tên miền chưa được đăng ký làm đại lý.",
+      "corrupted": "Cấu hình đại lý bị hỏng hoặc không đầy đủ.",
+      "network": "Vấn đề mạng khi kết nối tới blockchain."
+    },
+    "tryAgain": "Thử lại",
+    "pleaseWait": "Vui lòng đợi"
+  }
+}

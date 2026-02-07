@@ -1,0 +1,13 @@
+{
+  "notFound": {
+    "title": "Agent Config Not Found",
+    "description": "We couldn't find the configuration for this agent. This might happen if:",
+    "reasons": {
+      "notRegistered": "The domain is not registered as an agent.",
+      "corrupted": "The agent configuration is corrupted or incomplete.",
+      "network": "There is a network issue connecting to the blockchain."
+    },
+    "tryAgain": "Try Again",
+    "pleaseWait": "Please wait"
+  }
+}
