@@ -7,7 +7,7 @@ import { useMutation } from '@tanstack/react-query'
 /**
  * Variables cho delete message
  */
-export interface DeleteMessageVariables {
+interface DeleteMessageVariables {
   account: Account
   conversation: Conversation
   message: PersistedMessage
@@ -16,14 +16,11 @@ export interface DeleteMessageVariables {
 /**
  * Hook delete message (chỉ cho phép text)
  */
-export function useDeleteMessage() {
+export function useDeleteGroupMessage() {
   return useMutation<void, Error, DeleteMessageVariables>({
     mutationFn: async ({ account, conversation, message }) => {
       const messageService = container.messageService
-      if (conversation.conversationType === 'group') {
-        return messageService.deleteGroupMessage(account, conversation, message)
-      }
-      return messageService.deleteMessage(account, conversation, message)
+      return messageService.deleteGroupMessage(account, conversation, message)
     },
 
     onMutate: ({ message }) => {

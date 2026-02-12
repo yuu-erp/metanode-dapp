@@ -2,12 +2,13 @@
 
 import { container } from '@/container'
 import type { Account } from '@/modules/account'
-import type { Conversation } from '@/modules/conversation'
+import type { Conversation, ConversationType } from '@/modules/conversation'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 import { ACCOUNT_QUERY_KEY, CONVERSATION_QUERY_KEY, queryClient } from '../lib/react-query'
 
 export function createGetConversationIdQueryOptions(
-  conversationId: string
+  conversationId: string,
+  conversationType: ConversationType
 ): UseQueryOptions<
   Conversation | null,
   Error,
@@ -24,7 +25,8 @@ export function createGetConversationIdQueryOptions(
       const conversationService = container.conversationService
       const conversation = await conversationService.getConversationById(
         currentAccount.address,
-        conversationId
+        conversationId,
+        conversationType
       )
       if (!conversation) return null
       return conversation
@@ -33,6 +35,6 @@ export function createGetConversationIdQueryOptions(
   }
 }
 
-export function useGetConversationId(conversationId: string) {
-  return useQuery(createGetConversationIdQueryOptions(conversationId))
+export function useGetConversationId(conversationId: string, conversationType: ConversationType) {
+  return useQuery(createGetConversationIdQueryOptions(conversationId, conversationType))
 }

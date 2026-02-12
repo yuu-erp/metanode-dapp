@@ -9,11 +9,17 @@ import type { ConversationRepository } from './conversation.repository'
 import {
   HistoryVisibility,
   type Conversation,
+  type ConversationType,
   type PayloadAddMembers,
   type PayloadCreateGroup
 } from './conversation.type'
 import { generateSecureId } from '@/shared/lib/ids'
-import { createECDHPassword, encryptAESGCM, getPrivateKeyFromDb } from '@metanodejs/system-core'
+import {
+  createECDHPassword,
+  encryptAESGCM,
+  getPrivateKeyFromDb,
+  decryptAESGCM
+} from '@metanodejs/system-core'
 import type { EventLogContainer } from '../eventlogs'
 
 export class ConversationService {
@@ -30,7 +36,7 @@ export class ConversationService {
   // ------------------------------------------------------------------
   // Private helpers
   // ------------------------------------------------------------------
-  private async decryptLatestMessageContent<T = OnChainMessagePayload>(
+  private async decryptP2PLatestMessageContent<T = OnChainMessagePayload>(
     account: Account,
     encryptedMessage: string,
     conversationPublicKey: string
@@ -50,6 +56,18 @@ export class ConversationService {
     }
   }
 
+  private async decryptGroupMessage(encryptedMessage: string, groupKey: string) {
+    function jsonParseSafe(value: any) {
+      if (typeof value === 'string' && (value.includes('{') || value.includes('[')))
+        return JSON.parse(value)
+      return value
+    }
+
+    const decryptData = await decryptAESGCM(groupKey, encryptedMessage)
+    const result = jsonParseSafe(decryptData?.resultUtf8)
+    return result
+  }
+
   private async getGroupInfo(accountId: string, conversationId: string) {
     const admin = await this.groupContract.admin({
       from: accountId,
@@ -61,14 +79,23 @@ export class ConversationService {
         user: admin
       }
     })
+    const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
+      from: accountId,
+      to: conversationId,
+      inputData: {}
+    })
 
     const publicKey = await this.userContract.publicKey({
       from: accountId,
       to: userContract
     })
+    const privateKey = await getPrivateKeyFromDb(accountId)
+    const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
+
+    const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
     return {
       admin,
-      publicKey
+      groupKey
     }
   }
 
@@ -94,27 +121,35 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
+
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
-        let conversationPublicKey = ''
+        let conversationKey = ''
         let userProfile = { firstName: '', lastName: '', userName: '', avatar: '' }
+        let lastMessageDecrypted: OnChainMessagePayload | undefined
 
         if (item.conversationType === 'group') {
           const groupInfo = await this.getGroupInfo(account.address, item.conversationId)
-          conversationPublicKey = groupInfo.publicKey
+          conversationKey = groupInfo.groupKey
+          lastMessageDecrypted = await this.decryptGroupMessage(
+            item.latestMessageContent,
+            groupInfo.groupKey
+          ).catch(() => {
+            return undefined
+          })
         } else {
           const p2pInfo = await this.getP2PInfo(account.address, item.conversationId)
-          conversationPublicKey = p2pInfo.publicKey
+          conversationKey = p2pInfo.publicKey
           userProfile = p2pInfo.userProfile
-        }
 
-        const lastMessageDecrypted = await this.decryptLatestMessageContent(
-          account,
-          item.latestMessageContent,
-          conversationPublicKey
-        ).catch(() => {
-          return undefined
-        })
+          lastMessageDecrypted = await this.decryptP2PLatestMessageContent(
+            account,
+            item.latestMessageContent,
+            conversationKey
+          ).catch(() => {
+            return undefined
+          })
+        }
 
         if (lastMessageDecrypted && lastMessageDecrypted.type === 'file') {
           const fileDB = await this.fileCacheService.getFile(lastMessageDecrypted.fileId)
@@ -139,7 +174,7 @@ export class ConversationService {
                 ? item.name
                 : [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' '),
           avatar: userProfile.avatar,
-          publicKey: conversationPublicKey,
+          conversationKey: conversationKey,
           conversationType:
             item.conversationId === account.contractAddress
               ? 'private'
@@ -164,25 +199,44 @@ export class ConversationService {
   // ------------------------------------------------------------------
   async getConversationById(
     accountId: string,
-    conversationId: string
+    conversationId: string,
+    conversationType: ConversationType
   ): Promise<Conversation | undefined> {
     const conversationLocal = await this.repository.getById(accountId, conversationId)
     if (conversationLocal) return conversationLocal
-    const userProfile = await this.userContract.userProfile({
-      from: accountId,
-      to: conversationId
-    })
-    const publicKey = await this.userContract.publicKey({
-      from: accountId,
-      to: conversationId
-    })
-    const conversation = mapperToConversation({
-      conversationId,
-      accountId,
-      publicKey,
-      ...userProfile,
-      conversationType: 'p2p'
-    })
+    let conversation
+    switch (conversationType) {
+      case 'private':
+      case 'p2p': {
+        const userProfile = await this.userContract.userProfile({
+          from: accountId,
+          to: conversationId
+        })
+        const publicKey = await this.userContract.publicKey({
+          from: accountId,
+          to: conversationId
+        })
+        conversation = mapperToConversation({
+          conversationId,
+          accountId,
+          conversationKey: publicKey,
+          ...userProfile,
+          conversationType: 'p2p'
+        })
+        break
+      }
+      case 'group': {
+        const groupInfo = await this.getGroupInfo(accountId, conversationId)
+        conversation = mapperToConversation({
+          conversationId,
+          accountId,
+          conversationKey: groupInfo.groupKey,
+          conversationType: 'group'
+        })
+        break
+      }
+    }
+    if (!conversation) throw new Error('[getConversationById]: Invalid conversation')
     await this.repository.upsert(conversation)
     return conversation
   }
@@ -228,7 +282,7 @@ export class ConversationService {
       return
     }
     const decryptedPayload = await this.walletService.decryptMessage<OnChainMessagePayload>(
-      current.publicKey,
+      current.conversationKey,
       account.address,
       encryptedContent
     )
@@ -251,7 +305,7 @@ export class ConversationService {
     if (current) return
     await this.repository.upsert({
       conversationId: account.contractAddress,
-      publicKey: account.publicKey,
+      conversationKey: account.publicKey,
       accountId: account.address,
       name: 'savedMessages',
       avatar: '',

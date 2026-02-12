@@ -1,19 +1,19 @@
-import * as React from 'react'
 import {
   type EditTextPayload,
   type Message,
   type MessageAction,
   type PersistedMessage
 } from '@/modules/message'
-import { useEditMessage, useSendSticker, useSendText } from '../../hooks'
+import * as React from 'react'
 import { type InputMessageProps, InputMessageView, useInputMessageController } from '.'
+import { useEditGroupMessage, useSendGroupSticker, useSendGroupText } from '../../hooks'
 
 const InputMessageGroup = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
   ({ account, conversation }, ref) => {
     // TODO: Replace with Group specific hooks whenever available
-    const { sendText, isPending: isSendingText } = useSendText()
-    const { sendSticker, isPending: isSendingSticker } = useSendSticker()
-    const { mutate: editMessage, isPending: isEditing } = useEditMessage()
+    const { sendText, isPending: isSendingText } = useSendGroupText()
+    const { sendSticker, isPending: isSendingSticker } = useSendGroupSticker()
+    const { mutate: editMessage, isPending: isEditing } = useEditGroupMessage()
 
     const handleSendText = React.useCallback(
       (content: string, messageAction: MessageAction | null) => {

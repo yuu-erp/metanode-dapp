@@ -13,5 +13,6 @@ export const userAbi = {
   getMessageById: userContract.find((item) => item.name === 'getMessageById'),
   setMeetingFactory: userContract.find((item) => item.name === 'setMeetingFactory'),
   meetingFactoryAddress: userContract.find((item) => item.name === 'meetingFactoryAddress'),
-  owner: userContract.find((item) => item.name === 'owner')
+  owner: userContract.find((item) => item.name === 'owner'),
+  detailedSettings: userContract.find((item) => item.name === 'detailedSettings')
 }

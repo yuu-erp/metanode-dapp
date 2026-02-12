@@ -16,7 +16,8 @@ export function useScanQrcodeProfile() {
       const conversationId = JSON.parse(dataScan)
       const conversation = await conversationService.getConversationById(
         account.address,
-        conversationId
+        conversationId,
+        'p2p'
       )
       if (!conversation) throw new Error('User không tồn tại')
       return conversation

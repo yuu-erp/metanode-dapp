@@ -27,14 +27,17 @@ export class AccountService {
   async registerUser(wallet: Wallet): Promise<Account> {
     const address = wallet.address
     // 1. Check on-chain
+
     const isRegistered = await this.factoryContract.checkUserContract({
       from: address,
       inputData: {
         user: address
       }
     })
+
     // 3. Get public key
     const publicKey = await this.walletService.getEncryptedPublicKey(address)
+
     if (!isRegistered) {
       const username = await generateAvailableUsername(
         wallet.name,

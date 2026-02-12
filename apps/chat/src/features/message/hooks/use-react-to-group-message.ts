@@ -8,22 +8,13 @@ export type ReactToMessagePayload = {
   emoji: string
 }
 
-export async function reactToMessage(
+async function reactToMessage(
   account: Account,
   conversation: Conversation,
   payload: ReactToMessagePayload
 ): Promise<void> {
   const messageService = container.messageService
   return await messageService.reactToMessage(account, conversation, payload)
-}
-
-export async function reactGroupMessage(
-  account: Account,
-  conversation: Conversation,
-  payload: ReactToMessagePayload
-): Promise<void> {
-  const messageService = container.messageService
-  return await messageService.reactGroupMessage(account, conversation, payload)
 }
 
 interface ReactToMessageVariables {
@@ -35,9 +26,6 @@ interface ReactToMessageVariables {
 export function useReactToMessage() {
   return useMutation({
     mutationFn: async ({ account, conversation, payload }: ReactToMessageVariables) => {
-      if (conversation.conversationType === 'group') {
-        return reactGroupMessage(account, conversation, payload)
-      }
       return reactToMessage(account, conversation, payload)
     },
     onSuccess: (_messageId) => {

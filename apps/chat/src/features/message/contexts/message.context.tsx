@@ -35,6 +35,19 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       }
     }
 
+    const safeGroupDecrypt = async (payload: {
+      messageId: string
+      groupAddress: string
+      encryptedContent: string
+    }): Promise<Message | null> => {
+      try {
+        return await messageService.decryptMessageFromGroup(account, payload)
+      } catch (err) {
+        console.error('[MessageProvider] Decrypt group failed:', err)
+        return null
+      }
+    }
+
     return {
       // ── Message ────────────────────────────────────────────────
       'message.create': (e: AppEvents['message.create']) => {
@@ -91,11 +104,42 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         )
       },
 
+      'message.sentGroup': async (e: AppEvents['message.sentGroup']) => {
+        const message = await safeGroupDecrypt(e)
+        if (!message) return
+
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId),
+          (old) => insertMessage(old, message)
+        )
+      },
+
       'message.partneredited': async (e: AppEvents['message.partneredited']) => {
         const message = await safeDecrypt({
           encryptedContent: e.newContent,
           sender: e.sender,
           recipient: e.recipient,
+          messageId: e.messageId
+        })
+        if (!message) return
+
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
+          (old) =>
+            applyMessageUpdate(old, {
+              messageId: e.messageId,
+              message: { ...message, id: e.messageId, isEdited: true }
+            })
+        )
+        queryClient.invalidateQueries({
+          queryKey: MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId)
+        })
+      },
+
+      'message.editGroup': async (e: AppEvents['message.editGroup']) => {
+        const message = await safeGroupDecrypt({
+          encryptedContent: e.newContent,
+          groupAddress: e.groupAddress,
           messageId: e.messageId
         })
         if (!message) return
@@ -120,6 +164,13 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         )
       },
 
+      'message.deleteGroup': (e: AppEvents['message.deleteGroup']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.groupAddress),
+          (old) => applyMessageDelete(old, { messageId: e.messageId })
+        )
+      },
+
       'message.delete': (e: AppEvents['message.delete']) => {
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.conversationId),
@@ -131,6 +182,17 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       'reaction.received': (e: AppEvents['reaction.received']) => {
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.sender),
+          (old) =>
+            applyReactionReceived(old, {
+              messageId: e.messageId,
+              encodedEmoji: e.reaction,
+              reactedByMe: e.reactor === account.contractAddress
+            })
+        )
+      },
+      'reaction.group': (e: AppEvents['reaction.group']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.reactor),
           (old) =>
             applyReactionReceived(old, {
               messageId: e.messageId,

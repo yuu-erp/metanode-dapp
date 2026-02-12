@@ -19,7 +19,7 @@ export const Route = createFileRoute('/_authenticated/p2p/$id')({
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/p2p/$id' })
   const { data: account } = useCurrentAccount()
-  const { data: conversation } = useGetConversationId(id)
+  const { data: conversation } = useGetConversationId(id, 'p2p')
   const viewportHeight = useVisualViewport()
 
   const containerStyle = useMemo(() => {

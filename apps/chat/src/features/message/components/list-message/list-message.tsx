@@ -8,6 +8,7 @@ import type { ListMessageProps } from './list-message-type'
 import ListMessageView from './list-message-view'
 import { useChatScroll } from './use-chat-scroll'
 import { useViewInfiniteScroll } from './use-view-infinite-scroll'
+import { isMine } from '@/shared/helpers'
 
 function ListMessage({ conversation, account }: ListMessageProps) {
   // Infinite scroll
@@ -40,6 +41,7 @@ function ListMessage({ conversation, account }: ListMessageProps) {
         isFetchingNextPage={isFetchingNextPage}
         hasNextPage={hasNextPage}
         account={account}
+        conversation={conversation}
         // @ts-ignore
         handleSelectMessage={handleSelectMessage}
       />
@@ -50,7 +52,7 @@ function ListMessage({ conversation, account }: ListMessageProps) {
         {messageSelect && (
           <OverlayMessage
             message={messageSelect}
-            isMine={messageSelect.sender === account?.contractAddress}
+            isMine={isMine(messageSelect, conversation, account)}
             onClose={() => handleSelectMessage(null)}
             conversation={conversation}
             account={account}

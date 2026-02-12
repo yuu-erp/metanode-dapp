@@ -37,10 +37,21 @@ export function useInfiniteMessages({
 
       const messageService = container.messageService
       // Gọi service với beforeTimestamp để lấy tin nhắn cũ hơn
-      return await messageService.getProcessedP2PMessages(account, conversation, {
-        limit: pageSize,
-        page: pageParam as number | undefined
-      })
+      let result: any[] = []
+
+      if (conversation.conversationType === 'group') {
+        result = await messageService.getGroupMessages(account, conversation, {
+          limit: pageSize,
+          page: pageParam as number | undefined
+        })
+      } else {
+        result = await messageService.getProcessedP2PMessages(account, conversation, {
+          limit: pageSize,
+          page: pageParam as number | undefined
+        })
+      }
+
+      return result
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {

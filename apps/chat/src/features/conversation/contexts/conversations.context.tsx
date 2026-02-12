@@ -63,15 +63,38 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
     [account, handleUpdateConversation]
   )
 
+  const onGroupConversationReceived = React.useCallback(
+    async (event: AppEvents['message.sentGroup']) => {
+      if (!account) return
+      const messageService = container.messageService
+
+      try {
+        const message = await messageService.decryptMessageFromGroup(account, {
+          encryptedContent: event.encryptedContent,
+          messageId: event.messageId,
+          groupAddress: event.groupAddress
+        })
+        if (message) {
+          await handleUpdateConversation(message)
+        }
+      } catch (error) {
+        console.error('[ConversationsProvider] Error decrypting message:', error)
+      }
+    },
+    [account, handleUpdateConversation]
+  )
+
   React.useEffect(() => {
     if (!account) return
     const eventBus = container.eventBus
     eventBus.on('message.received', onConversationReceived)
     eventBus.on('message.create', onMessageCreate)
+    eventBus.on('message.sentGroup', onGroupConversationReceived)
 
     return () => {
       eventBus.off('message.received', onConversationReceived)
       eventBus.off('message.create', onMessageCreate)
+      eventBus.off('message.sentGroup', onGroupConversationReceived)
     }
   }, [account, onConversationReceived, onMessageCreate])
   return <ConversationsContext.Provider value={{}}>{children}</ConversationsContext.Provider>

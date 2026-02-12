@@ -54,12 +54,12 @@ const AuthenticatedGroupIdRoute = AuthenticatedGroupIdRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthenticatedIndexRoute
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
-  '/': typeof AuthenticatedIndexRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
-  '/settings': typeof AuthenticatedSettingsIndexRoute
+  '/settings/': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
@@ -82,12 +82,12 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/test'
     | '/wallets'
-    | '/'
     | '/group/$id'
     | '/p2p/$id'
-    | '/settings'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to: '/test' | '/wallets' | '/' | '/group/$id' | '/p2p/$id' | '/settings'
   id:
@@ -126,7 +126,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -140,7 +140,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated/settings/': {
       id: '/_authenticated/settings/'
       path: '/settings'
-      fullPath: '/settings'
+      fullPath: '/settings/'
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }

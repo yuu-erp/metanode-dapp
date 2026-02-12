@@ -18,7 +18,7 @@ export const Route = createFileRoute('/_authenticated/group/$id')({
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/group/$id' })
   const { data: account } = useCurrentAccount()
-  const { data: conversation } = useGetConversationId(id)
+  const { data: conversation } = useGetConversationId(id, 'group')
   const viewportHeight = useVisualViewport()
 
   const containerStyle = useMemo(() => {

@@ -3,7 +3,7 @@ import type { Conversation, ConversationType } from './conversation.type'
 export function mapperToConversation(raw: any): Conversation {
   return {
     conversationId: raw.conversationId,
-    publicKey: raw.publicKey,
+    conversationKey: raw.conversationKey,
     accountId: raw.accountId,
     // UI snapshot
     name: raw.name || [raw.firstName, raw.lastName].filter(Boolean).join(' '),

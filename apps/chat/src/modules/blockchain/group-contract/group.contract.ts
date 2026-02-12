@@ -40,4 +40,78 @@ export class GroupContract extends MtnContract {
       inputData
     })
   }
+
+  sendMessage(
+    payload: TransactionPayload<{ encryptedContent: string; recipientOwners: string[] }>
+  ) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'sendMessage',
+      abiData: groupAbis.sendMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  getMemberListGroup(payload: TransactionPayload<{}>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string[]>({
+      from,
+      to,
+      functionName: 'getMemberListGroup',
+      abiData: groupAbis.getMemberListGroup as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  getProcessedGroupMessages(payload: TransactionPayload<{ page: number; limit: number }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string[]>({
+      from,
+      to,
+      functionName: 'getProcessedGroupMessages',
+      abiData: groupAbis.getProcessedGroupMessages as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  editMessage(payload: TransactionPayload<{ messageId: string; newEncryptedContent: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<void>({
+      from,
+      to,
+      functionName: 'editMessage',
+      abiData: groupAbis.editMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  deleteMessage(payload: TransactionPayload<{ messageId: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<void>({
+      from,
+      to,
+      functionName: 'deleteMessage',
+      abiData: groupAbis.deleteMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  reactToMessage(payload: TransactionPayload<{ messageId: string; reaction: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<void>({
+      from,
+      to,
+      functionName: 'reactToMessage',
+      abiData: groupAbis.reactToMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
 }

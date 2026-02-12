@@ -61,6 +61,27 @@ export type EventMap = {
     roomId: string
     status: string
   }
+  MessageSentGroup: {
+    messageId: string
+    sender: string
+    encryptedContent: string
+    groupAddress: string
+  }
+  MessageReactedGroup: {
+    messageId: string
+    reactor: string
+    reaction: string
+    groupAddress: string
+  }
+  MessageEditedGroup: {
+    messageId: string
+    newContent: string
+    groupAddress: string
+  }
+  MessageDeletedGroup: {
+    messageId: string
+    groupAddress: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi

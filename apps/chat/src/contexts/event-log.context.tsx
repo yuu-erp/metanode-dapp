@@ -52,6 +52,22 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       console.log('eventLog CallReceived event:', data)
       eventBus.emit('call.received', data)
     })
+    //GROUP
+    const offMessageSentGroup = eventLog.on('MessageSentGroup', (data) => {
+      eventBus.emit('message.sentGroup', data)
+    })
+
+    const offMessageEditedGroup = eventLog.on('MessageEditedGroup', (data) => {
+      eventBus.emit('message.editGroup', data)
+    })
+
+    const offMessageDeletedGroup = eventLog.on('MessageDeletedGroup', (data) => {
+      eventBus.emit('message.deleteGroup', data)
+    })
+
+    const offMessageReactedGroup = eventLog.on('MessageReactedGroup', (data) => {
+      eventBus.emit('reaction.group', data)
+    })
 
     return () => {
       offMessageReceived()
@@ -61,6 +77,10 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       offDataChannel()
       offGroupCreated()
       offCallReceived()
+      offMessageSentGroup()
+      offMessageEditedGroup()
+      offMessageDeletedGroup()
+      offMessageReactedGroup()
     }
   }, [account?.address, account?.contractAddress])
 

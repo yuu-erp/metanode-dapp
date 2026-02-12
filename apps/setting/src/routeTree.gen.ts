@@ -26,73 +26,75 @@ import { Route as LayoutNewProfileCreateIndexRouteImport } from './routes/_layou
 
 const LayoutRoute = LayoutRouteImport.update({
   id: '/_layout',
-  getParentRoute: () => rootRouteImport
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutIndexRoute = LayoutIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutWallpaperRoute = LayoutWallpaperRouteImport.update({
   id: '/wallpaper',
   path: '/wallpaper',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSecurityRoute = LayoutSecurityRouteImport.update({
   id: '/security',
   path: '/security',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutProfileDetailRoute = LayoutProfileDetailRouteImport.update({
   id: '/profile-detail',
   path: '/profile-detail',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutNodeRoute = LayoutNodeRouteImport.update({
   id: '/node',
   path: '/node',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutManagerProfileRoute = LayoutManagerProfileRouteImport.update({
   id: '/manager-profile',
   path: '/manager-profile',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutGeneralRoute = LayoutGeneralRouteImport.update({
   id: '/general',
   path: '/general',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutSharedWalletsIndexRoute = LayoutSharedWalletsIndexRouteImport.update({
-  id: '/shared-wallets/',
-  path: '/shared-wallets/',
-  getParentRoute: () => LayoutRoute
-} as any)
+const LayoutSharedWalletsIndexRoute =
+  LayoutSharedWalletsIndexRouteImport.update({
+    id: '/shared-wallets/',
+    path: '/shared-wallets/',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 const LayoutSharedDappsIndexRoute = LayoutSharedDappsIndexRouteImport.update({
   id: '/shared-dapps/',
   path: '/shared-dapps/',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutNewProfileIndexRoute = LayoutNewProfileIndexRouteImport.update({
   id: '/new-profile/',
   path: '/new-profile/',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSharedWalletsAddRoute = LayoutSharedWalletsAddRouteImport.update({
   id: '/shared-wallets/add',
   path: '/shared-wallets/add',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutSharedDappsAddRoute = LayoutSharedDappsAddRouteImport.update({
   id: '/shared-dapps/add',
   path: '/shared-dapps/add',
-  getParentRoute: () => LayoutRoute
+  getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutNewProfileCreateIndexRoute = LayoutNewProfileCreateIndexRouteImport.update({
-  id: '/new-profile/create/',
-  path: '/new-profile/create/',
-  getParentRoute: () => LayoutRoute
-} as any)
+const LayoutNewProfileCreateIndexRoute =
+  LayoutNewProfileCreateIndexRouteImport.update({
+    id: '/new-profile/create/',
+    path: '/new-profile/create/',
+    getParentRoute: () => LayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/general': typeof LayoutGeneralRoute
@@ -326,13 +328,14 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutNewProfileIndexRoute: LayoutNewProfileIndexRoute,
   LayoutSharedDappsIndexRoute: LayoutSharedDappsIndexRoute,
   LayoutSharedWalletsIndexRoute: LayoutSharedWalletsIndexRoute,
-  LayoutNewProfileCreateIndexRoute: LayoutNewProfileCreateIndexRoute
+  LayoutNewProfileCreateIndexRoute: LayoutNewProfileCreateIndexRoute,
 }
 
-const LayoutRouteWithChildren = LayoutRoute._addFileChildren(LayoutRouteChildren)
+const LayoutRouteWithChildren =
+  LayoutRoute._addFileChildren(LayoutRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  LayoutRoute: LayoutRouteWithChildren
+  LayoutRoute: LayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

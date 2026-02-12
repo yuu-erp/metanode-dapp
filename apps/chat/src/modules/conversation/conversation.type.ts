@@ -5,7 +5,7 @@ export type ConversationType = 'p2p' | 'group' | 'private'
 export interface Conversation {
   // Identity
   conversationId: string // primary key
-  publicKey: string // public key của conversation (nếu cần cho encryption/identification)
+  conversationKey: string
   accountId: string // ← Quan trọng: account/wallet hiện tại sở hữu conversation này
   // UI display (snapshot)
   name: string

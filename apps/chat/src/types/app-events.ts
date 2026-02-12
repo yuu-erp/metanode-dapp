@@ -33,6 +33,12 @@ export type AppEvents = {
   'message.received': EventMap['MessageReceived']
   'message.partneredited': EventMap['PartnerMessageEdited']
   'message.partnerdeleted': EventMap['PartnerMessageDeleted']
+  // GROUP
+  'message.sentGroup': EventMap['MessageSentGroup']
+  'message.editGroup': EventMap['MessageEditedGroup']
+  'message.deleteGroup': EventMap['MessageDeletedGroup']
+  'reaction.group': EventMap['MessageReactedGroup']
+
   // REACTIONS
   'reaction.create': {
     accountId: string

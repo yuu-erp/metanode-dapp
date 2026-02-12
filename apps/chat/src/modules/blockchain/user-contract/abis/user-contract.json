@@ -19,32 +19,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_scannedAddress",
-        "type": "address"
-      }
-    ],
-    "name": "addScanHistory",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_userToBlock",
-        "type": "address"
-      }
-    ],
-    "name": "blockUser",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -70,6 +44,12 @@
         "internalType": "string",
         "name": "sessionId",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
       }
     ],
     "name": "CallEnded",
@@ -95,9 +75,40 @@
         "internalType": "address",
         "name": "roomId",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
       }
     ],
     "name": "CallReceived",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "CallRejectedByPartner",
     "type": "event"
   },
   {
@@ -176,70 +187,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "partnerContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_messageId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "deleteMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "partnerContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_messageId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "deleteMessageV2",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "partnerContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "newEncryptedContent",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "newEncryptedContentForPartner",
-        "type": "string"
-      }
-    ],
-    "name": "editMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -288,72 +235,6 @@
     ],
     "name": "GroupJoined",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_factory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_publicKey",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_userName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_firstName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_lastName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_avatar",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_bio",
-        "type": "string"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "partnerContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "messageIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "markMessagesAsRead",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -565,6 +446,37 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "conversation",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isMuted",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "MuteToggled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "newStore",
@@ -578,6 +490,44 @@
       }
     ],
     "name": "NewDataStoreCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum NotificationSettingType",
+        "name": "settingType",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "NotificationSettingChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "NotificationsReset",
     "type": "event"
   },
   {
@@ -748,478 +698,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "partnerContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "_reaction",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_reactionToPartner",
-        "type": "string"
-      }
-    ],
-    "name": "reactToMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "_messageIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "receiveBatchReadReceipts",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "callee",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      }
-    ],
-    "name": "receiveCallSignal",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_senderContract",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_recipientContractAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "channelName",
-        "type": "string"
-      }
-    ],
-    "name": "receiveChannlel",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_senderContract",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_recipientContractAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "status",
-        "type": "bool"
-      }
-    ],
-    "name": "receiveConnect",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "receiveDeleteNotification",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "newContent",
-        "type": "string"
-      }
-    ],
-    "name": "receiveEditNotification",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "initiator",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "otherParty",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      }
-    ],
-    "name": "receiveEndCallSignal",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_senderContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "encryptedContent",
-        "type": "string"
-      }
-    ],
-    "name": "receiveMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "reactor",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "reaction",
-        "type": "string"
-      }
-    ],
-    "name": "receiveReactionNotification",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "reactor",
-        "type": "address"
-      }
-    ],
-    "name": "receiveUnReactionNotification",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "groupContract",
-        "type": "address"
-      }
-    ],
-    "name": "registerCreatedAnonymousCommunity",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_groupId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_groupContractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "registerCreatedGroup",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "groupContract",
-        "type": "address"
-      }
-    ],
-    "name": "registerJoinedAnonymousCommunity",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_groupId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_groupContractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "registerJoinedGroup",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_recipientContractAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "status",
-        "type": "bool"
-      }
-    ],
-    "name": "sendConnectDCEvent",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_recipientContractAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "channelName",
-        "type": "string"
-      }
-    ],
-    "name": "sendDataChannel",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_recipientContractAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_encryptedContentForRecipient",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_encryptedContentForSelf",
-        "type": "string"
-      }
-    ],
-    "name": "sendMessage",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "recipient",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "encryptedContent",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "dataStoreAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "messageNonce",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newMeetingFactoryAddress",
-        "type": "address"
-      }
-    ],
-    "name": "setMeetingFactory",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_userToUnblock",
-        "type": "address"
-      }
-    ],
-    "name": "unblockUser",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "partnerContract",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "unReactToMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_userName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_firstName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_lastName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_avatar",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_bio",
-        "type": "string"
-      }
-    ],
-    "name": "updateProfile",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -1256,6 +734,45 @@
     ],
     "name": "UserUnblocked",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_MESSAGES_PER_STORE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_scannedAddress",
+        "type": "address"
+      }
+    ],
+    "name": "addScanHistory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_userToBlock",
+        "type": "address"
+      }
+    ],
+    "name": "blockUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
     "inputs": [
@@ -1384,6 +901,42 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "partnerContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deleteMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partnerContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deleteMessageV2",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
@@ -1398,6 +951,57 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "detailedSettings",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "p2pChatEnabled",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "reactionsEnabled",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "showPreview",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partnerContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "newEncryptedContent",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "newEncryptedContentForPartner",
+        "type": "string"
+      }
+    ],
+    "name": "editMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1448,7 +1052,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct UserContractV3.GroupMembership[]",
+        "internalType": "struct GroupMembership[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1480,7 +1084,7 @@
                 "type": "bool"
               }
             ],
-            "internalType": "struct UserContractV3.GroupMembership[]",
+            "internalType": "struct GroupMembership[]",
             "name": "allRegularGroups",
             "type": "tuple[]"
           },
@@ -1495,7 +1099,7 @@
             "type": "address[]"
           }
         ],
-        "internalType": "struct UserContractV3.ConversationList",
+        "internalType": "struct ConversationList",
         "name": "",
         "type": "tuple"
       }
@@ -1517,6 +1121,36 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getDetailedSettings",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "p2pChatEnabled",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "reactionsEnabled",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "showPreview",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct NotificationSettings",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -1591,6 +1225,11 @@
             "internalType": "string",
             "name": "conversationType",
             "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isMuted",
+            "type": "bool"
           }
         ],
         "internalType": "struct InboxItem[]",
@@ -1665,7 +1304,7 @@
             "type": "address"
           }
         ],
-        "internalType": "struct UserContractV3.AnonymousCommunityMembership[]",
+        "internalType": "struct AnonymousCommunityMembership[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1695,7 +1334,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct UserContractV3.GroupMembership[]",
+        "internalType": "struct GroupMembership[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1725,7 +1364,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct UserContractV3.GroupMembership[]",
+        "internalType": "struct GroupMembership[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1755,7 +1394,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct UserContractV3.GroupMembership[]",
+        "internalType": "struct GroupMembership[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1824,9 +1463,14 @@
             "internalType": "bool",
             "name": "isRead",
             "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isEdited",
+            "type": "bool"
           }
         ],
-        "internalType": "struct UserContractV3.ProcessedP2PMessage[]",
+        "internalType": "struct ProcessedP2PMessage[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1891,6 +1535,94 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getUserProfile",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "userName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "firstName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "lastName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "avatar",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "bio",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct UserProfile",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_factory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_publicKey",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_userName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_firstName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_lastName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_avatar",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_bio",
+        "type": "string"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -1904,6 +1636,25 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isConversationMuted",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -2063,16 +1814,21 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "MAX_MESSAGES_PER_STORE",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "partnerContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32[]",
+        "name": "messageIds",
+        "type": "bytes32[]"
       }
     ],
-    "stateMutability": "view",
+    "name": "markMessagesAsRead",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2283,6 +2039,351 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "partnerContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "_reaction",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_reactionToPartner",
+        "type": "string"
+      }
+    ],
+    "name": "reactToMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "_messageIds",
+        "type": "bytes32[]"
+      }
+    ],
+    "name": "receiveBatchReadReceipts",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_senderContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipientContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "channelName",
+        "type": "string"
+      }
+    ],
+    "name": "receiveChannlel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_senderContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_recipientContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "receiveConnect",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "receiveDeleteNotification",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "newContent",
+        "type": "string"
+      }
+    ],
+    "name": "receiveEditNotification",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "initiator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "otherParty",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveEndCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_senderContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "encryptedContent",
+        "type": "string"
+      }
+    ],
+    "name": "receiveMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "reactor",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "reaction",
+        "type": "string"
+      }
+    ],
+    "name": "receiveReactionNotification",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveRejectCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "reactor",
+        "type": "address"
+      }
+    ],
+    "name": "receiveUnReactionNotification",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "groupContract",
+        "type": "address"
+      }
+    ],
+    "name": "registerCreatedAnonymousCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_groupId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_groupContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "registerCreatedGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "groupContract",
+        "type": "address"
+      }
+    ],
+    "name": "registerJoinedAnonymousCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_groupId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_groupContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "registerJoinedGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "resetNotificationSettings",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -2297,6 +2398,235 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_recipientContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "status",
+        "type": "bool"
+      }
+    ],
+    "name": "sendConnectDCEvent",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_recipientContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "channelName",
+        "type": "string"
+      }
+    ],
+    "name": "sendDataChannel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_recipientContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_encryptedContentForRecipient",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_encryptedContentForSelf",
+        "type": "string"
+      }
+    ],
+    "name": "sendMessage",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "encryptedContent",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "dataStoreAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "messageNonce",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newMeetingFactoryAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setMeetingFactory",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setP2PChatEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setReactionsEnabled",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "enabled",
+        "type": "bool"
+      }
+    ],
+    "name": "setShowPreview",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_conv",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_mute",
+        "type": "bool"
+      }
+    ],
+    "name": "toggleMute",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partnerContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "unReactToMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_userToUnblock",
+        "type": "address"
+      }
+    ],
+    "name": "unblockUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_userName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_firstName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_lastName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_avatar",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_bio",
+        "type": "string"
+      }
+    ],
+    "name": "updateProfile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

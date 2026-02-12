@@ -176,4 +176,19 @@ export class UserContract extends MtnContract {
       feeType: 'read'
     })
   }
+
+  detailedSettings(payload: TransactionPayload): Promise<{
+    p2pChatEnabled: boolean
+    reactionsEnabled: boolean
+    showPreview: boolean
+  }> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'detailedSettings',
+      abiData: userAbi.detailedSettings as any,
+      feeType: 'read'
+    })
+  }
 }

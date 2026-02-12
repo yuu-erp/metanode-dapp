@@ -86,23 +86,16 @@
         "internalType": "address",
         "name": "newAdmin",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "AdminTransferred",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_participant",
-        "type": "address"
-      }
-    ],
-    "name": "approveParticipant",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "inputs": [
@@ -131,9 +124,108 @@
         "internalType": "uint256",
         "name": "duration",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "CallEndedGroup",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "initiator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "otherParty",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "CallEndedSignal",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "CallReceivedSignal",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "CallRejectedByPartner",
     "type": "event"
   },
   {
@@ -165,9 +257,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "isLivestream",
-        "type": "bool"
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "CallStarted",
@@ -193,6 +285,12 @@
         "internalType": "bool",
         "name": "isOn",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "CameraStatusChanged",
@@ -250,6 +348,12 @@
         "internalType": "string",
         "name": "newAvatar",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "GroupInfoUpdated",
@@ -263,6 +367,12 @@
         "internalType": "enum GroupChatV3.HistoryVisibility",
         "name": "newPolicy",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "HistoryVisibilityChanged",
@@ -281,6 +391,12 @@
         "indexed": true,
         "internalType": "address",
         "name": "newHost",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -338,60 +454,13 @@
   {
     "inputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "trackName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "mid",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "streamNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "location",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "isPublished",
-            "type": "bool"
-          },
-          {
-            "internalType": "string",
-            "name": "sessionId",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "roomId",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct Track[]",
-        "name": "_initialTracks",
-        "type": "tuple[]"
-      },
-      {
-        "internalType": "string",
-        "name": "_sdpOffer",
-        "type": "string"
-      },
-      {
         "internalType": "string",
         "name": "_personalSessionId",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "name",
+        "name": "_password",
         "type": "string"
       }
     ],
@@ -454,6 +523,12 @@
         "internalType": "string",
         "name": "publicKey",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "MemberAdded",
@@ -478,6 +553,12 @@
         "indexed": true,
         "internalType": "address",
         "name": "hostSender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -504,6 +585,12 @@
         "internalType": "address",
         "name": "kickedBy",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "MemberKicked",
@@ -517,6 +604,12 @@
         "internalType": "address",
         "name": "member",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "MemberLeft",
@@ -529,6 +622,12 @@
         "indexed": true,
         "internalType": "address",
         "name": "member",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -555,6 +654,12 @@
         "internalType": "address",
         "name": "unbannedBy",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "MemberUnbanned",
@@ -568,9 +673,15 @@
         "internalType": "bytes32",
         "name": "messageId",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
-    "name": "MessageDeleted",
+    "name": "MessageDeletedGroup",
     "type": "event"
   },
   {
@@ -587,9 +698,15 @@
         "internalType": "string",
         "name": "newContent",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
-    "name": "MessageEdited",
+    "name": "MessageEditedGroup",
     "type": "event"
   },
   {
@@ -612,9 +729,15 @@
         "internalType": "string",
         "name": "reaction",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
-    "name": "MessageReacted",
+    "name": "MessageReactedGroup",
     "type": "event"
   },
   {
@@ -630,6 +753,12 @@
         "indexed": false,
         "internalType": "address",
         "name": "reader",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -662,9 +791,15 @@
         "internalType": "string",
         "name": "encryptedContent",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
-    "name": "MessageSent",
+    "name": "MessageSentGroup",
     "type": "event"
   },
   {
@@ -680,6 +815,12 @@
         "indexed": true,
         "internalType": "address",
         "name": "reactor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -712,6 +853,12 @@
         "internalType": "uint256",
         "name": "timestamp",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "NewChatMessage",
@@ -730,6 +877,12 @@
         "indexed": false,
         "internalType": "address",
         "name": "previousStore",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -750,6 +903,12 @@
         "internalType": "address",
         "name": "participant",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "ParticipantApproved",
@@ -769,6 +928,12 @@
         "internalType": "uint256",
         "name": "newCount",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "ParticipantCountUpdated",
@@ -794,6 +959,12 @@
         "internalType": "uint256",
         "name": "quantity",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "ParticipantJoined",
@@ -819,6 +990,12 @@
         "internalType": "uint256",
         "name": "quantity",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "ParticipantLeft",
@@ -837,6 +1014,12 @@
         "indexed": true,
         "internalType": "address",
         "name": "participant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -863,6 +1046,12 @@
         "internalType": "string",
         "name": "name",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "ParticipantWaiting",
@@ -890,11 +1079,87 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_participant",
+        "name": "caller",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
       }
     ],
-    "name": "rejectParticipant",
+    "name": "receiveCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "initiator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "otherParty",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveEndCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveRejectCallSignal",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -956,6 +1221,12 @@
         "internalType": "bool",
         "name": "muteCam",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "RequestMute",
@@ -998,6 +1269,12 @@
         "internalType": "bool",
         "name": "locked",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "RoomLockChanged",
@@ -1017,6 +1294,12 @@
         "internalType": "address",
         "name": "sharer",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
       }
     ],
     "name": "ScreenShareStarted",
@@ -1035,6 +1318,12 @@
         "indexed": true,
         "internalType": "address",
         "name": "sharer",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
         "type": "address"
       }
     ],
@@ -1088,84 +1377,14 @@
   {
     "inputs": [
       {
-        "internalType": "bool",
-        "name": "_locked",
-        "type": "bool"
-      }
-    ],
-    "name": "setRoomLock",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "string",
         "name": "_sessionId",
         "type": "string"
       },
       {
-        "internalType": "bool",
-        "name": "_isLivestream",
-        "type": "bool"
-      },
-      {
-        "internalType": "string",
-        "name": "_roomName",
-        "type": "string"
-      },
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "trackName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "mid",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "streamNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "location",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "isPublished",
-            "type": "bool"
-          },
-          {
-            "internalType": "string",
-            "name": "sessionId",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "roomId",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct Track[]",
-        "name": "_initialTracks",
-        "type": "tuple[]"
-      },
-      {
-        "internalType": "string",
-        "name": "_sdpOffer",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
+        "internalType": "address",
+        "name": "technicalRoomId",
+        "type": "address"
       },
       {
         "internalType": "string",
@@ -1173,9 +1392,9 @@
         "type": "string"
       },
       {
-        "internalType": "bool",
-        "name": "_isLocked",
-        "type": "bool"
+        "internalType": "string",
+        "name": "_password",
+        "type": "string"
       }
     ],
     "name": "startCallGroup",
@@ -1333,11 +1552,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "bool",
-        "name": "isLivestream",
-        "type": "bool"
-      },
-      {
         "internalType": "address",
         "name": "currentSharer",
         "type": "address"
@@ -1348,9 +1562,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "bool",
-        "name": "isLocked",
-        "type": "bool"
+        "internalType": "bytes32",
+        "name": "password",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -1454,6 +1668,84 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getMessageById",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "messageId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "author",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "finalContent",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "reactor",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "reaction",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct GroupChatV3.Reaction[]",
+            "name": "reactions",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "readBy",
+            "type": "address[]"
+          },
+          {
+            "internalType": "bool",
+            "name": "isEdited",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDecryptable",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct GroupChatV3.ProcessedGroupMessage",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -1923,30 +2215,6 @@
         "internalType": "string",
         "name": "",
         "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "name": "waitingStatus",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
       }
     ],
     "stateMutability": "view",

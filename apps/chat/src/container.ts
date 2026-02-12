@@ -24,8 +24,8 @@ import {
 } from '@/modules/realtime-transport/realtime-transport.factory'
 import { SyncFactory, SyncManager } from '@/modules/sync'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
-import type { AppEvents } from './types/app-events'
 import { EventLogContainer } from './modules/eventlogs'
+import type { AppEvents } from './types/app-events'
 
 /**
  * AppContainer
@@ -91,6 +91,8 @@ class AppContainer {
 
     this._messageService = MessageFactory.createService(
       this._userContract,
+      this._groupContract,
+      this._factoryContract,
       this._fileContract,
       this._walletService,
       this._eventBus,
