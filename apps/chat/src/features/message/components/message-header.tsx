@@ -6,7 +6,7 @@ import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
 import { useRouter } from '@tanstack/react-router'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, LoaderCircle } from 'lucide-react'
 import * as React from 'react'
 
 interface ChatHeaderProps {
@@ -15,8 +15,15 @@ interface ChatHeaderProps {
   username?: string
   type?: 'p2p' | 'group' | 'private'
   onVideoCall?: () => void
+  isLoading?: boolean
 }
-function ChatHeader({ name = '', type = 'p2p', username, onVideoCall }: ChatHeaderProps) {
+function ChatHeader({
+  name = '',
+  type = 'p2p',
+  username,
+  onVideoCall,
+  isLoading
+}: ChatHeaderProps) {
   const { t } = useI18N()
   const router = useRouter()
   return (
@@ -42,8 +49,12 @@ function ChatHeader({ name = '', type = 'p2p', username, onVideoCall }: ChatHead
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
           {type !== 'private' && (
-            <button onClick={onVideoCall}>
-              <VideoIcon className="size-7 text-white/80" />
+            <button onClick={onVideoCall} disabled={isLoading}>
+              {isLoading ? (
+                <LoaderCircle className="size-6 text-white/80 animate-spin" />
+              ) : (
+                <VideoIcon className="size-7 text-white/80" />
+              )}
             </button>
           )}
           {type === 'group' && <DrawerAddGroupMember />}

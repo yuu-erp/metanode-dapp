@@ -8,9 +8,9 @@ import {
 } from '@/features/message'
 import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
-import { container } from '@/container'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
+import { useCreateCall } from '@/features/call'
 
 export const Route = createFileRoute('/_authenticated/p2p/$id')({
   component: RouteComponent
@@ -26,10 +26,12 @@ function RouteComponent() {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
 
+  const { mutate: createCall, isPending } = useCreateCall()
+
   const handleVideoCall = useCallback(() => {
     if (!account || !conversation) return
-    container.callService.createCall(account, conversation as Conversation).catch(console.error)
-  }, [account, conversation])
+    createCall({ account, conversation: conversation as Conversation })
+  }, [account, conversation, createCall])
 
   return (
     <MessageActionProvider>
@@ -43,6 +45,7 @@ function RouteComponent() {
             type={conversation?.conversationType}
             username={conversation?.username}
             onVideoCall={handleVideoCall}
+            isLoading={isPending}
           />
           <PinMessages account={account} conversation={conversation as Conversation} />
           <ListMessage conversation={conversation as Conversation} account={account} />
