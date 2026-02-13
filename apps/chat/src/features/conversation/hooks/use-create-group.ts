@@ -12,7 +12,7 @@ export function useCreateGroup() {
 
   return useMutation({
     mutationFn: async ({ account, payload }: { account: Account; payload: PayloadCreateGroup }) => {
-      console.log('thanhduy useCreateGroup 1')
+      console.log('thanhduy useCreateGroup 1', payload)
 
       const group = await container.conversationService.createGroup(account, payload)
       console.log('thanhduy useCreateGroup 2')

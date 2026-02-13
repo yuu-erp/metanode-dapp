@@ -105,6 +105,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.sentGroup': async (e: AppEvents['message.sentGroup']) => {
+        console.log('thanhduy - message.sentGroup', e)
         const message = await safeGroupDecrypt(e)
         if (!message) return
 

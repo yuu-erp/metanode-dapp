@@ -90,21 +90,12 @@ export class MessageService {
       const isIncoming = item.sender === conversation.conversationId
       const decryptionKey = isIncoming ? conversation.conversationKey : account.publicKey
 
-      let decrypted: any
+      let decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
+        decryptionKey,
+        account.address,
+        item.finalContent
+      )
 
-      if (conversation.conversationType === 'group') {
-        decrypted = (await decryptAESGCM(conversation.conversationKey, item.finalContent))
-          ?.resultUtf8
-        if (typeof decrypted === 'string') {
-          decrypted = JSON.parse(decrypted)
-        }
-      } else {
-        decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
-          decryptionKey,
-          account.address,
-          item.finalContent
-        )
-      }
       let replyTo = undefined
       if (decrypted.replyTo) {
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
@@ -115,9 +106,52 @@ export class MessageService {
           decrypted.filePath = URL.createObjectURL(fileDB.blob)
         }
       }
+
       return mapperToMessage({
         accountId: account.address,
         conversationId: conversation.conversationId,
+        ...item,
+        ...decrypted,
+        replyTo
+      })
+    } catch (error) {
+      console.error('[MessageService] Error processing message:', error)
+      return undefined
+    }
+  }
+
+  private async _processGroupMessage(
+    item: any,
+    account: Account,
+    conversation: Conversation
+  ): Promise<Message | undefined> {
+    try {
+      let decrypted = (await decryptAESGCM(conversation.conversationKey, item.finalContent))
+        ?.resultUtf8
+      if (typeof decrypted === 'string') {
+        decrypted = JSON.parse(decrypted)
+      }
+
+      let replyTo = undefined
+      if (decrypted.replyTo) {
+        replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
+      }
+      if (decrypted.type === 'file') {
+        const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
+        if (fileDB) {
+          decrypted.filePath = URL.createObjectURL(fileDB.blob)
+        }
+      }
+
+      const sender = await this.factoryContract.getUserContract({
+        from: account.address,
+        inputData: { user: item.author }
+      })
+
+      return mapperToMessage({
+        accountId: account.address,
+        conversationId: conversation.conversationId,
+        sender,
         ...item,
         ...decrypted,
         replyTo
@@ -826,9 +860,12 @@ export class MessageService {
         page
       }
     })
+    console.log('thanhduy - getGroupMessages 1')
+
     const messages = await fulfilledPromises(
-      rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
+      rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
+    console.log('thanhduy - getGroupMessages 2', messages)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -889,6 +926,7 @@ export class MessageService {
     payload: SendPayload
   ): Promise<string> {
     const clientId = uuidv4()
+    console.log('thanhduy - sender ', account.contractAddress)
     const optimisticMessage = createOptimisticMessage(
       {
         clientId,
@@ -1052,6 +1090,7 @@ export class MessageService {
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
 
     const decryptMessage = await decryptAESGCM(groupKey, encryptedContent)
+    console.log('thanhduy - decryptMessage', decryptMessage)
     const sender = decryptMessage?.sender ?? ''
 
     let replyTo = undefined

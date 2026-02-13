@@ -44,6 +44,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
     ? (rawType as MessageType)
     : 'text'
 
+  console.log('thanhduy - raw', raw)
   // Xây dựng base fields chung
   const base: Omit<BaseMessage, 'type'> = {
     id: String(raw.messageId ?? raw.id ?? raw.clientId ?? Date.now()),

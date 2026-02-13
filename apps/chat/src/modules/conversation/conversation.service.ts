@@ -85,17 +85,28 @@ export class ConversationService {
       inputData: {}
     })
 
-    const publicKey = await this.userContract.publicKey({
-      from: accountId,
-      to: userContract
-    })
+    const [publicKey, name] = await fulfilledPromises([
+      this.userContract.publicKey({
+        from: accountId,
+        to: userContract
+      }),
+
+      this.groupContract.groupName({
+        from: accountId,
+        to: conversationId
+      })
+    ])
     const privateKey = await getPrivateKeyFromDb(accountId)
     const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
+
+    console.log('thanhduy groupKey', groupKey)
+
     return {
       admin,
-      groupKey
+      groupKey,
+      name
     }
   }
 
@@ -138,6 +149,8 @@ export class ConversationService {
           ).catch(() => {
             return undefined
           })
+
+          console.log('thanhduy - end group', lastMessageDecrypted)
         } else {
           const p2pInfo = await this.getP2PInfo(account.address, item.conversationId)
           conversationKey = p2pInfo.publicKey
@@ -161,7 +174,7 @@ export class ConversationService {
         // Ideally, we should fetch the FULL message object if we want PersistedMessage.
         // But for list view, maybe we construct a partial one or the mapper handles it.
         // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
-
+        console.log('thanhduy - lastMessageDecrypted', lastMessageDecrypted)
         return mapperToConversation({
           ...item,
           accountId: account.address,
@@ -192,6 +205,13 @@ export class ConversationService {
         })
       })
     )
+
+    const groupAddresses = conversations
+      .filter((item) => item.conversationType === 'group')
+      .map((item) => item.conversationId)
+    console.log('thanhduy - groupAddresses', groupAddresses)
+
+    this.eventLogContainer.eventLog.registerEvent(account.address, groupAddresses)
     await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
   }
 

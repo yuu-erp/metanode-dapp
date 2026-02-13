@@ -18,7 +18,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const eventBus = container.eventBus
     const meetingAddress = import.meta.env.VITE_MEETING
     const factoryAddress = import.meta.env.VITE_FACTORY
-    console.log('thanhduy - factoryAddress', factoryAddress)
+
     eventLog.registerEvent(account.address, [
       account.contractAddress,
       meetingAddress,
@@ -60,6 +60,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
     //GROUP
     const offMessageSentGroup = eventLog.on('MessageSentGroup', (data) => {
+      console.log('thanhduy MessageSentGroup data: ', data)
       eventBus.emit('message.sentGroup', data)
     })
 
