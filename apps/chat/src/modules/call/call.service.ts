@@ -20,13 +20,13 @@ export class CallService {
       const receiver = conversation.conversationId
       const sessionId = Math.random().toString(36).substring(7)
       // 1. Listen for RoomCreatedEvent
-      const promise = new Promise<void>(async (resolve) => {
+      const promise = new Promise<string>(async (resolve) => {
         const off = this.eventLogContainer.eventLog.on('RoomCreatedEvent', async (event) => {
           console.log('RoomCreatedEvent', event)
           if (formatAddress(event.creator) === formatAddress(account.address)) {
             off() // Stop listening
-            await sendCommand('startCallRTC', {
-              query: new URLSearchParams({
+            resolve(
+              new URLSearchParams({
                 caller: event.creator,
                 callee: receiver,
                 roomId: `0x${event.roomId}`,
@@ -34,10 +34,9 @@ export class CallService {
                 sessionId: sessionId,
                 type: 'direct'
               }).toString()
-            })
+            )
           }
         })
-        resolve()
       })
       await this.mettingContract.createRoom({
         from: account.address,
@@ -47,7 +46,10 @@ export class CallService {
           meet: false
         }
       })
-      return await promise
+      const query = await promise
+      await sendCommand('startCallRTC', {
+        query: query
+      })
     } catch (error) {
       console.error('[CallService] Error creating call:', error)
       throw error
