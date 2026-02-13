@@ -10,7 +10,7 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   base: './',
   plugins: [
-    devtools(),
+    // devtools(),
     tanstackRouter({
       target: 'react',
       autoCodeSplitting: true

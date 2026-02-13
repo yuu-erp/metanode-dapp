@@ -67,9 +67,14 @@ function updatePages(
   oldData: InfiniteData<Message[]> | undefined,
   updater: (msg: Message) => Message | null // null để delete
 ): InfiniteData<Message[]> | undefined {
+  console.log('thanhduy - updatePages 1')
+
   if (!oldData) return oldData
+  console.log('thanhduy - updatePages 2', oldData)
+
   let updated = false
   const pages = oldData.pages.map((page) => {
+    console.log('thanhduy - updatePages 3', page)
     const newPage = page.map(updater).filter((msg): msg is Message => msg !== null)
     if (newPage.length !== page.length || newPage.some((m, i) => m !== page[i])) {
       updated = true
@@ -116,6 +121,8 @@ export function applyMessageUpdate(
   params: { messageId: string; message: PersistedMessage }
 ): InfiniteData<Message[]> | undefined {
   return updatePages(old, (msg) => {
+    console.log('thanhduy - applyMessageUpdate', { ...msg, ...params.message })
+
     // 1. Update chính message đó
     if (matchMessage(msg, { messageId: params.messageId })) {
       return { ...msg, ...params.message }

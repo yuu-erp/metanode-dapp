@@ -8,7 +8,7 @@ import type {
 import type { Conversation } from '@/modules/conversation'
 import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
-import { fulfilledPromises } from '@/shared/utils'
+import { formatAddress, fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import {
   createECDHPassword,
@@ -860,12 +860,10 @@ export class MessageService {
         page
       }
     })
-    console.log('thanhduy - getGroupMessages 1')
 
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
-    console.log('thanhduy - getGroupMessages 2', messages)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -913,7 +911,7 @@ export class MessageService {
   sendGroupMessagePromise(account: Account) {
     return new Promise<string>((resolve) => {
       const off = this.eventLogContainer.eventLog.on('MessageSentGroup', (data) => {
-        if (data.sender !== account.address) return
+        if (formatAddress(data.sender) !== formatAddress(account.address)) return
         off()
         resolve(data.messageId)
       })
@@ -926,7 +924,6 @@ export class MessageService {
     payload: SendPayload
   ): Promise<string> {
     const clientId = uuidv4()
-    console.log('thanhduy - sender ', account.contractAddress)
     const optimisticMessage = createOptimisticMessage(
       {
         clientId,
@@ -962,7 +959,6 @@ export class MessageService {
         }
       })
       const messageId = await promise
-
       this.eventBus.emit('message.sent', {
         accountId: account.address,
         conversationId: conversation.conversationId,
@@ -1003,14 +999,6 @@ export class MessageService {
       ...(payload.replyTo && { replyTo: payload.replyTo }),
       ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
     }
-
-    // 🔥 Optimistic UI update
-    this.eventBus.emit('message.update', {
-      accountId: account.address,
-      conversationId: conversation.conversationId,
-      messageId: messageOld.id,
-      message: optimisticMessage
-    })
 
     // 🔗 map sang payload on-chain
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
@@ -1089,9 +1077,8 @@ export class MessageService {
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
 
-    const decryptMessage = await decryptAESGCM(groupKey, encryptedContent)
-    console.log('thanhduy - decryptMessage', decryptMessage)
-    const sender = decryptMessage?.sender ?? ''
+    const { resultUtf8 } = await decryptAESGCM(groupKey, encryptedContent)
+    const decryptMessage = JSON.parse(resultUtf8)
 
     let replyTo = undefined
     if (decryptMessage.replyTo) {
@@ -1099,7 +1086,7 @@ export class MessageService {
       // We only need conversationId and publicKey (which we just fetched)
       // However, _inflateReplyTo uses conversation.conversationId to check if it matches reply sender
       const mockConversation = {
-        conversationId: sender,
+        conversationId: groupAddress,
         conversationKey: publicKey // Use the fetched public key of the sender
       } as Conversation
 
@@ -1115,8 +1102,7 @@ export class MessageService {
       ...decryptMessage,
       messageId,
       accountId: account.address,
-      conversationId: sender,
-      sender,
+      conversationId: groupAddress,
       recipient: groupAddress,
       replyTo
     })

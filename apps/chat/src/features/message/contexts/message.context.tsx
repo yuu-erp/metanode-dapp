@@ -95,18 +95,17 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.received': async (e: AppEvents['message.received']) => {
-        const message = await safeDecrypt(e)
-        if (!message) return
+        let message
+        if (e.type === 'group') {
+          message = await safeGroupDecrypt({
+            encryptedContent: e.encryptedContent,
+            groupAddress: e.recipient,
+            messageId: e.messageId
+          })
+        } else {
+          message = await safeDecrypt(e)
+        }
 
-        queryClient.setQueryData<InfiniteData<Message[]>>(
-          MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId),
-          (old) => insertMessage(old, message)
-        )
-      },
-
-      'message.sentGroup': async (e: AppEvents['message.sentGroup']) => {
-        console.log('thanhduy - message.sentGroup', e)
-        const message = await safeGroupDecrypt(e)
         if (!message) return
 
         queryClient.setQueryData<InfiniteData<Message[]>>(
@@ -147,11 +146,13 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
 
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
-          (old) =>
-            applyMessageUpdate(old, {
+          (old) => {
+            console.log('thanhduy - applyMessageUpdate before', old)
+            return applyMessageUpdate(old, {
               messageId: e.messageId,
               message: { ...message, id: e.messageId, isEdited: true }
             })
+          }
         )
         queryClient.invalidateQueries({
           queryKey: MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId)
@@ -252,6 +253,10 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     eventBus.on('reaction.received', handlers['reaction.received'])
     eventBus.on('reaction.create', handlers['reaction.create'])
     eventBus.on('file.cached', handlers['file.cached'])
+    eventBus.on('message.editGroup', handlers['message.editGroup'])
+    eventBus.on('message.deleteGroup', handlers['message.deleteGroup'])
+    eventBus.on('reaction.group', handlers['reaction.group'])
+
     return () => {
       eventBus.off('message.create', handlers['message.create'])
       eventBus.off('message.status', handlers['message.status'])
@@ -264,6 +269,9 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       eventBus.off('reaction.received', handlers['reaction.received'])
       eventBus.off('reaction.create', handlers['reaction.create'])
       eventBus.off('file.cached', handlers['file.cached'])
+      eventBus.off('message.editGroup', handlers['message.editGroup'])
+      eventBus.off('message.deleteGroup', handlers['message.deleteGroup'])
+      eventBus.off('reaction.group', handlers['reaction.group'])
     }
   }, [account, handlers])
 
