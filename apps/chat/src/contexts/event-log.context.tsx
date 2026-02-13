@@ -27,7 +27,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     const offMessageReceived = eventLog.on('MessageReceived', (data) => {
       if (data.sender === account.contractAddress) return
-      eventBus.emit('message.received', data)
+      eventBus.emit('message.received', { ...data, type: 'p2p' })
     })
 
     const offReaction = eventLog.on('PartnerMessageReacted', (data) => {
@@ -60,11 +60,15 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
     //GROUP
     const offMessageSentGroup = eventLog.on('MessageSentGroup', (data) => {
-      console.log('thanhduy MessageSentGroup data: ', data)
-      eventBus.emit('message.sentGroup', data)
+      eventBus.emit('message.received', {
+        ...data,
+        recipient: data.groupAddress,
+        type: 'group'
+      })
     })
 
     const offMessageEditedGroup = eventLog.on('MessageEditedGroup', (data) => {
+      console.log('thanhduy - MessageEditedGroup', data)
       eventBus.emit('message.editGroup', data)
     })
 

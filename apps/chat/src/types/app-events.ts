@@ -1,5 +1,6 @@
+import type { ConversationType } from '@/modules/conversation'
 import type { EventMap } from '@/modules/eventlogs'
-import type { Message, MessageStatus, PersistedMessage } from '@/modules/message'
+import type { Message, MessageStatus, MessageType, PersistedMessage } from '@/modules/message'
 
 export type AppEvents = {
   // MESSAGE
@@ -30,11 +31,16 @@ export type AppEvents = {
     conversationId: string
     messageId: string
   }
-  'message.received': EventMap['MessageReceived']
+  'message.received': {
+    sender: string
+    recipient: string
+    messageId: string
+    encryptedContent: string
+    type: ConversationType
+  }
   'message.partneredited': EventMap['PartnerMessageEdited']
   'message.partnerdeleted': EventMap['PartnerMessageDeleted']
   // GROUP
-  'message.sentGroup': EventMap['MessageSentGroup']
   'message.editGroup': EventMap['MessageEditedGroup']
   'message.deleteGroup': EventMap['MessageDeletedGroup']
   'reaction.group': EventMap['MessageReactedGroup']

@@ -101,8 +101,6 @@ export class ConversationService {
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
 
-    console.log('thanhduy groupKey', groupKey)
-
     return {
       admin,
       groupKey,
@@ -132,7 +130,6 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
-    console.log('thanhduy - inboxs', inboxs)
 
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
@@ -149,8 +146,6 @@ export class ConversationService {
           ).catch(() => {
             return undefined
           })
-
-          console.log('thanhduy - end group', lastMessageDecrypted)
         } else {
           const p2pInfo = await this.getP2PInfo(account.address, item.conversationId)
           conversationKey = p2pInfo.publicKey
@@ -174,7 +169,6 @@ export class ConversationService {
         // Ideally, we should fetch the FULL message object if we want PersistedMessage.
         // But for list view, maybe we construct a partial one or the mapper handles it.
         // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
-        console.log('thanhduy - lastMessageDecrypted', lastMessageDecrypted)
         return mapperToConversation({
           ...item,
           accountId: account.address,
@@ -209,7 +203,6 @@ export class ConversationService {
     const groupAddresses = conversations
       .filter((item) => item.conversationType === 'group')
       .map((item) => item.conversationId)
-    console.log('thanhduy - groupAddresses', groupAddresses)
 
     this.eventLogContainer.eventLog.registerEvent(account.address, groupAddresses)
     await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
@@ -360,39 +353,31 @@ export class ConversationService {
     account: Account,
     payload: PayloadCreateGroup
   ): Promise<EventMap['GroupCreated'] & { groupKey: string }> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
-        const groupKey = generateSecureId()
-        const privateKey = await getPrivateKeyFromDb(account.address)
-        const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
-        const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
-        console.log('thanhduy - createGroup 1')
-        const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
-          console.log('thanhduy - createGroup 4')
-
-          off()
-          resolve({
-            groupKey,
-            ...event
-          })
+    const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
+    const groupKey = generateSecureId()
+    const privateKey = await getPrivateKeyFromDb(account.address)
+    const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
+    const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+    const promise = new Promise<any>((resolve) => {
+      const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
+        off()
+        resolve({
+          groupKey,
+          ...event
         })
-        console.log('thanhduy - createGroup 2')
+      })
+    })
 
-        await this.factoryContract.createGroup({
-          from: account.address,
-          inputData: {
-            groupName: name,
-            groupAvatar: avatar,
-            encryptedInitialGroupKey,
-            initialPolicy: policy
-          }
-        })
-        console.log('thanhduy - createGroup 3')
-      } catch (error) {
-        reject(error)
+    await this.factoryContract.createGroup({
+      from: account.address,
+      inputData: {
+        groupName: name,
+        groupAvatar: avatar,
+        encryptedInitialGroupKey,
+        initialPolicy: policy
       }
     })
+    return await promise
   }
 
   async addMembers(

@@ -44,7 +44,6 @@ export function useInfiniteMessages({
           limit: pageSize,
           page: pageParam as number | undefined
         })
-        console.log('thanhduy - group message rs', result)
       } else {
         result = await messageService.getProcessedP2PMessages(account, conversation, {
           limit: pageSize,
