@@ -27,8 +27,8 @@ export class CallService {
             off() // Stop listening
             await sendCommand('startCallRTC', {
               query: new URLSearchParams({
-                creatorAddress: event.creator,
-                receiveUser: receiver,
+                caller: event.creator,
+                callee: receiver,
                 roomId: `0x${event.roomId}`,
                 address: account.address,
                 sessionId: sessionId,
@@ -65,8 +65,8 @@ export class CallService {
       console.log('[CallService] Accepting call...', account)
       await sendCommand('startCallRTC', {
         query: new URLSearchParams({
-          creatorAddress: caller,
-          receiveUser: callee,
+          caller: caller,
+          callee: callee,
           roomId: `0x${roomId}`,
           address: account.address,
           sessionId: sessionId,
