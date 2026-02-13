@@ -8,7 +8,12 @@ function Background() {
       <img
         src={images.backgroundMobile}
         alt="Background Dapp Chat - Metanode"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover md:hidden"
+      />
+      <img
+        src={images.backgroundDesktop}
+        alt="Background Dapp Chat - Metanode"
+        className="w-full h-full object-cover hidden md:block"
       />
     </div>
   )

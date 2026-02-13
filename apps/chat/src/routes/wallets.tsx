@@ -46,7 +46,12 @@ function RouteComponent() {
   )
 
   return (
-    <div className={cn('w-full h-screen flex flex-col', window.isHasNotch ? 'pt-14' : 'pt-5')}>
+    <div
+      className={cn(
+        'w-full h-screen flex flex-col max-w-2xl mx-auto',
+        window.isHasNotch ? 'pt-14' : 'pt-5'
+      )}
+    >
       <div className="w-full h-full flex flex-col">
         <div className="w-full text-center">
           <Trans

@@ -35,7 +35,6 @@ export const mockWallets: any[] = [
     decimals: 18
   }
 ]
-
 export function createGetAllWalletsQueryOptions(): UseQueryOptions<
   Wallet[],
   Error,
