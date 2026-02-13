@@ -31,7 +31,8 @@ export const ACCOUNT_QUERY_KEY = {
 
 export const CONVERSATION_QUERY_KEY = {
   CONVERSATIONS: (accountId: string) => ['conversations', accountId] as const,
-  CONVERSATION: (conversationId: string) => ['conversation', conversationId] as const
+  CONVERSATION: (conversationId: string) => ['conversation', conversationId] as const,
+  GROUP_MEMBERS: (conversationId: string) => ['groupMembers', conversationId] as const
 }
 
 export const MESSAGE_QUERY_KEY = {

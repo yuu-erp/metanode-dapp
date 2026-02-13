@@ -35,6 +35,7 @@ import type { PushFileInfosParams } from '../blockchain/file-contract/types'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
+import type { EventLogContainer } from '../eventlogs'
 
 export class MessageService {
   constructor(
@@ -44,7 +45,8 @@ export class MessageService {
     private readonly fileContract: FileContract,
     private readonly walletService: WalletService,
     private readonly eventBus: EventBusPort<AppEvents>,
-    private readonly fileCacheService: FileCacheService
+    private readonly fileCacheService: FileCacheService,
+    private readonly eventLogContainer: EventLogContainer
   ) {}
 
   private fileProcessingWorker: Worker | null = null
@@ -556,30 +558,57 @@ export class MessageService {
           const messageOnChain = mapperMessageToOnChain(optimisticMessage)
           const stringifyMessage = JSON.stringify(messageOnChain)
 
-          const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
-            this.walletService.encryptMessage(
-              conversation.conversationKey,
-              account.address,
-              stringifyMessage
-            ),
-            this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
-          ])
+          let messageId = ''
 
-          const result = await this.userContract.sendMessage({
-            from: account.address,
-            to: account.contractAddress,
-            inputData: {
-              _recipientContractAddress: conversation.conversationId,
-              _encryptedContentForSelf: encryptedForSelf,
-              _encryptedContentForRecipient: encryptedForRecipient
-            }
-          })
+          if (conversation.conversationType === 'group') {
+            const encryptedContent = await encryptAESGCM(
+              conversation.conversationKey,
+              stringifyMessage
+            )
+            const recipientOwners = await this.getRecipientOwners(account, conversation)
+            const promise = this.sendGroupMessagePromise(account)
+
+            await this.groupContract.sendMessage({
+              from: account.address,
+              to: conversation.conversationId,
+              inputData: {
+                encryptedContent,
+                recipientOwners
+              }
+            })
+            messageId = await promise
+          } else {
+            const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
+              this.walletService.encryptMessage(
+                conversation.conversationKey,
+                account.address,
+                stringifyMessage
+              ),
+              this.walletService.encryptMessage(
+                account.publicKey,
+                account.address,
+                stringifyMessage
+              )
+            ])
+
+            const result = await this.userContract.sendMessage({
+              from: account.address,
+              to: account.contractAddress,
+              inputData: {
+                _recipientContractAddress: conversation.conversationId,
+                _encryptedContentForSelf: encryptedForSelf,
+                _encryptedContentForRecipient: encryptedForRecipient
+              }
+            })
+
+            messageId = result.messageId
+          }
 
           this.eventBus.emit('message.sent', {
             accountId: account.address,
             conversationId: conversation.conversationId,
             clientId,
-            messageId: result.messageId,
+            messageId: messageId,
             fileId: data.fileKey
           })
         } catch (error) {
@@ -810,6 +839,50 @@ export class MessageService {
     return filteredMessages
   }
 
+  async getRecipientOwners(account: Account, conversation: Conversation) {
+    const members = await this.groupContract.getMemberListGroup({
+      from: account.address,
+      to: conversation.conversationId
+    })
+
+    const contractAddresses = await Promise.all(
+      members.map(async (mem) => {
+        const contractAddress = await this.factoryContract.getUserContract({
+          from: account.address,
+          inputData: {
+            user: mem
+          }
+        })
+        return { contractAddress, address: mem }
+      })
+    )
+
+    const userSettings = await Promise.all(
+      contractAddresses.map(async (c) => {
+        const settings = await this.userContract.detailedSettings({
+          from: account.address,
+          to: c.contractAddress
+        })
+
+        return { ...c, ...settings }
+      })
+    )
+
+    const recipientOwners = userSettings.filter((i) => i.p2pChatEnabled).map((i) => i.address)
+
+    return recipientOwners
+  }
+
+  sendGroupMessagePromise(account: Account) {
+    return new Promise<string>((resolve) => {
+      const off = this.eventLogContainer.eventLog.on('MessageSentGroup', (data) => {
+        if (data.sender !== account.address) return
+        off()
+        resolve(data.messageId)
+      })
+    })
+  }
+
   async sendGroupMessae(
     account: Account,
     conversation: Conversation,
@@ -839,37 +912,10 @@ export class MessageService {
       const encryptMessage = (await encryptAESGCM(conversation.conversationKey, stringifyMessage))
         ?.result
 
-      const members = await this.groupContract.getMemberListGroup({
-        from: account.address,
-        to: conversation.conversationId
-      })
+      const recipientOwners = await this.getRecipientOwners(account, conversation)
+      const promise = this.sendGroupMessagePromise(account)
 
-      const contractAddresses = await Promise.all(
-        members.map(async (mem) => {
-          const contractAddress = await this.factoryContract.getUserContract({
-            from: account.address,
-            inputData: {
-              user: mem
-            }
-          })
-          return { contractAddress, address: mem }
-        })
-      )
-
-      const userSettings = await Promise.all(
-        contractAddresses.map(async (c) => {
-          const settings = await this.userContract.detailedSettings({
-            from: account.address,
-            to: c.contractAddress
-          })
-
-          return { ...c, ...settings }
-        })
-      )
-
-      const recipientOwners = userSettings.filter((i) => i.p2pChatEnabled).map((i) => i.address)
-
-      const result = await this.groupContract.sendMessage({
+      await this.groupContract.sendMessage({
         from: account.address,
         to: conversation.conversationId,
         inputData: {
@@ -877,15 +923,16 @@ export class MessageService {
           recipientOwners
         }
       })
+      const messageId = await promise
 
       this.eventBus.emit('message.sent', {
         accountId: account.address,
         conversationId: conversation.conversationId,
         clientId,
-        messageId: result.messageId
+        messageId: messageId
       })
 
-      return result.messageId
+      return messageId
     } catch (error) {
       this.eventBus.emit('message.status', {
         accountId: account.address,

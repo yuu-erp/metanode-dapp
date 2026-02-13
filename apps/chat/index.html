@@ -19,6 +19,41 @@
 
   <body>
     <div vaul-drawer-wrapper id="app"></div>
+    <script type="module">
+      function isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+      }
+
+      function loadScriptOnce(src) {
+        if (!document.querySelector(`script[src="${src}"]`)) {
+          const s = document.createElement('script')
+          s.src = src
+          document.head.appendChild(s)
+        }
+      }
+
+      function loadCSSOnce(href) {
+        if (!document.querySelector(`link[href="${href}"]`)) {
+          const l = document.createElement('link')
+          l.rel = 'stylesheet'
+          l.href = href
+          document.head.appendChild(l)
+        }
+      }
+
+      if (isMobile()) {
+        console.log('Đang chạy trên điện thoại')
+      } else {
+        loadScriptOnce('https://a.ibe.app:8000/mtn-virtual-lib/js/fileDbHelper.js')
+        loadScriptOnce('https://a.ibe.app:8000/mtn-virtual-lib/js/exe_controller.js')
+        loadScriptOnce('https://a.ibe.app:8000/mtn-virtual-lib/js/storage_controller.js')
+        loadScriptOnce('https://a.ibe.app:8000/mtn-virtual-lib/js/file_controller.js')
+        loadScriptOnce('https://a.ibe.app:8000/mtn-virtual-lib/js/finsdk.js')
+        loadCSSOnce('https://a.ibe.app:8000/mtn-virtual-lib/css/index.css')
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

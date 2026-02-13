@@ -9,6 +9,7 @@ import type { WalletService } from '@/modules/wallet'
 import type { AppEvents } from '@/types/app-events'
 import type { FileCacheService } from '../file-cache'
 import { MessageService } from './message.service'
+import type { EventLogContainer } from '../eventlogs'
 
 export class MessageFactory {
   static createService(
@@ -18,7 +19,8 @@ export class MessageFactory {
     fileContract: FileContract,
     walletService: WalletService,
     eventBus: EventBusPort<AppEvents>,
-    fileCacheService: FileCacheService
+    fileCacheService: FileCacheService,
+    eventLogContainer: EventLogContainer
   ): MessageService {
     return new MessageService(
       userContract,
@@ -27,7 +29,8 @@ export class MessageFactory {
       fileContract,
       walletService,
       eventBus,
-      fileCacheService
+      fileCacheService,
+      eventLogContainer
     )
   }
 }

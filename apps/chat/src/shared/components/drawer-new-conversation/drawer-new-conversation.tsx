@@ -6,7 +6,7 @@ import { Drawer } from 'vaul'
 import DefaultConversation from './default-conversatiom'
 import { NewGroup } from './groups'
 import { useCurrentAccount } from '@/shared/hooks'
-import { useGetConversations } from '../../hooks'
+import { useGetConversations } from '../../../features/conversation/hooks'
 
 export enum ScreenType {
   DEFAULT = 'DEFAULT',

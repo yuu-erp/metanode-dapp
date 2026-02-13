@@ -1,11 +1,9 @@
 'use client'
+import type { Account } from '@/modules/account'
 import type { Message } from '@/modules/message'
 import { LoaderCircle } from 'lucide-react'
 import * as React from 'react'
-import type { Account } from '@/modules/account'
 import MessageItem from '../item-message/item-message'
-import { isMine } from '@/shared/helpers'
-import type { Conversation } from '@/modules/conversation'
 
 interface ListMessageViewProps {
   messages: Message[]
@@ -15,7 +13,6 @@ interface ListMessageViewProps {
   isFetchingNextPage?: boolean
   hasNextPage?: boolean
   account?: Account
-  conversation?: Conversation
   handleSelectMessage?: (message: Message) => void
 }
 function ListMessageView({
@@ -25,7 +22,6 @@ function ListMessageView({
   loadMoreRef,
   isFetchingNextPage,
   hasNextPage,
-  conversation,
   account,
   handleSelectMessage
 }: ListMessageViewProps) {
@@ -52,7 +48,7 @@ function ListMessageView({
         <MessageItem
           key={message.id ?? message.clientId}
           message={message}
-          isMine={isMine(message, conversation, account)}
+          isMine={message.sender === account?.contractAddress}
           onSelectMessage={handleSelectMessage}
           layoutId={`message-${message.id ?? message.clientId}`}
         />

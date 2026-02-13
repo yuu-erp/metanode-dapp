@@ -1,8 +1,6 @@
 'use client'
 
-import * as React from 'react'
-import { motion } from 'framer-motion'
-import { SmilePlus } from 'lucide-react'
+import type { Message } from '@/modules/message'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,11 +8,12 @@ import {
   DropdownMenuTrigger
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
+import { motion } from 'framer-motion'
+import { SmilePlus } from 'lucide-react'
+import * as React from 'react'
 import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction, SaveAction } from '.'
-import PinAction from './pin.action'
-import type { Message } from '@/modules/message'
-import type { OverlayMessageHandlers } from './overlay-message.types'
 import { ItemMessage } from '../item-message'
+import type { OverlayMessageHandlers } from './overlay-message.types'
 
 interface OverlayMessageViewProps {
   message: Message
@@ -26,13 +25,7 @@ interface OverlayMessageViewProps {
 
 const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰']
 
-function OverlayMessageView({
-  message,
-  isMine,
-  onClose,
-  handlers,
-  isPinned
-}: OverlayMessageViewProps) {
+function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
   const [open, setOpen] = React.useState(true)
 
@@ -122,7 +115,7 @@ function OverlayMessageView({
               )}
               {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
-              <PinAction isPinned={isPinned} onClose={handlers.onPin} />
+              {/* <PinAction isPinned={isPinned} onClose={handlers.onPin} /> */}
               <DropdownMenuSeparator className="bg-black/10" />
               <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}

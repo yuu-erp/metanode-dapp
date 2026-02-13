@@ -7,7 +7,7 @@ import { HeaderSection } from '../sections'
 import { Drawer } from 'vaul'
 import { CheckIcon, ChevronLeftIcon, Loader2Icon } from 'lucide-react'
 import { ScreenType } from '../drawer-new-conversation'
-import type { Conversation } from '@/modules/conversation'
+import type { Conversation, PayloadAddMembers } from '@/modules/conversation'
 import type { Account } from '@/modules/account'
 import { cn } from '@/shared/lib'
 import { Input } from '@/shared/components/ui/input'
@@ -32,7 +32,7 @@ function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: 
   const [screenType, setScreenType] = React.useState<ScreenGroupType>(
     ScreenGroupType.SELECT_MEMBERS
   )
-  const [selectedMembers, setSelectedMembers] = React.useState<string[]>([])
+  const [selectedMembers, setSelectedMembers] = React.useState<PayloadAddMembers[]>([])
   const [groupName, setGroupName] = React.useState('')
 
   const onChangeScreenGroupType = React.useCallback(
@@ -40,12 +40,12 @@ function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: 
     []
   )
 
-  const handleSelectMember = React.useCallback((id: string) => {
+  const handleSelectMember = React.useCallback((mem: PayloadAddMembers) => {
     setSelectedMembers((prev) => {
-      if (prev.includes(id)) {
-        return prev.filter((member) => member !== id)
+      if (prev.some((item) => item.conversationId === mem.conversationId)) {
+        return prev.filter((member) => member.conversationId !== mem.conversationId)
       }
-      return [...prev, id]
+      return [...prev, mem]
     })
   }, [])
 
@@ -98,12 +98,13 @@ function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: 
       await createGroup({
         account: account!,
         payload: {
-          name: groupName
+          name: groupName,
+          members: selectedMembers
         }
       })
       onClose?.()
     }
-  }, [isNext, onChangeScreenGroupType, groupName, createGroup, account, onClose])
+  }, [isNext, onChangeScreenGroupType, groupName, createGroup, account, onClose, selectedMembers])
 
   const handleBack = React.useCallback(() => {
     if (screenType === ScreenGroupType.GROUP_INFO) {

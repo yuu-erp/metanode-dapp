@@ -30,6 +30,7 @@ export interface PayloadCreateGroup {
   name: string
   avatar?: string
   policy?: HistoryVisibility
+  members: PayloadAddMembers[]
 }
 
 export interface PayloadAddMembers {

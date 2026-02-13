@@ -1,6 +1,6 @@
 'use client'
 
-import type { Conversation } from '@/modules/conversation'
+import type { Conversation, PayloadAddMembers } from '@/modules/conversation'
 import AvatarUser from '@/shared/components/avatar-user'
 import { Input } from '@/shared/components/ui/input'
 import { useI18N } from '@/shared/hooks'
@@ -8,7 +8,7 @@ import * as React from 'react'
 
 interface GroupInfoProps {
   conversations: Conversation[]
-  selectedMembers: string[]
+  selectedMembers: PayloadAddMembers[]
   groupName: string
   setGroupName: (groupName: string) => void
 }
@@ -45,11 +45,11 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
             })}
           </span>
           <div className="flex flex-wrap gap-2">
-            {selectedMembers.map((id) => {
-              const member = conversations.find((c) => c.conversationId === id)
+            {selectedMembers.map((mem) => {
+              const member = conversations.find((c) => c.conversationId === mem.conversationId)
               if (!member) return null
               return (
-                <div key={id} className="flex flex-col items-center w-14 gap-1">
+                <div key={mem.conversationId} className="flex flex-col items-center w-14 gap-1">
                   <AvatarUser name={member.name} size="md" />
                   <span className="text-[10px] text-gray-300 truncate w-full text-center">
                     {member.name}

@@ -1,9 +1,6 @@
 'use client'
-import {
-  ConversationList,
-  DrawerNewConversation,
-  SearchConversation
-} from '@/features/conversation'
+import { ConversationList, SearchConversation } from '@/features/conversation'
+import { DrawerNewConversation } from '@/shared/components'
 import AccountActivationNotice from '@/shared/components/account-activation-notice'
 import StatusSync from '@/shared/components/status-sync'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'

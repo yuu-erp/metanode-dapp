@@ -1,3 +1,5 @@
 export * from './use-get-conversations'
 export * from './use-scan-qrcode-profile'
 export * from './use-create-group'
+export * from './use-add-member'
+export * from './use-get-group-members'

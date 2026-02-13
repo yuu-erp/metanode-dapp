@@ -20,7 +20,7 @@ import {
   getPrivateKeyFromDb,
   decryptAESGCM
 } from '@metanodejs/system-core'
-import type { EventLogContainer } from '../eventlogs'
+import type { EventLogContainer, EventMap } from '../eventlogs'
 
 export class ConversationService {
   constructor(
@@ -121,6 +121,7 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
+    console.log('thanhduy - inboxs', inboxs)
 
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
@@ -245,6 +246,22 @@ export class ConversationService {
     return this.repository.getSortedByAccount(accountId)
   }
 
+  async getGroupMembers(accountId: string, conversationId: string) {
+    const membres = await this.groupContract.getMemberListGroup({
+      from: accountId,
+      to: conversationId
+    })
+    return await fulfilledPromises(
+      membres.map(
+        async (mem) =>
+          await this.factoryContract.getUserContract({
+            from: accountId,
+            inputData: { user: mem }
+          })
+      )
+    )
+  }
+
   // ------------------------------------------------------------------
   // CLEAR (logout / switch account)
   // ------------------------------------------------------------------
@@ -319,7 +336,10 @@ export class ConversationService {
   // GROUP (create / add membesr)
   // ------------------------------------------------------------------
 
-  async createGroup(account: Account, payload: PayloadCreateGroup) {
+  async createGroup(
+    account: Account,
+    payload: PayloadCreateGroup
+  ): Promise<EventMap['GroupCreated'] & { groupKey: string }> {
     return new Promise(async (resolve, reject) => {
       try {
         const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
@@ -327,13 +347,18 @@ export class ConversationService {
         const privateKey = await getPrivateKeyFromDb(account.address)
         const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
         const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+        console.log('thanhduy - createGroup 1')
         const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
+          console.log('thanhduy - createGroup 4')
+
           off()
           resolve({
             groupKey,
             ...event
           })
         })
+        console.log('thanhduy - createGroup 2')
+
         await this.factoryContract.createGroup({
           from: account.address,
           inputData: {
@@ -343,6 +368,7 @@ export class ConversationService {
             initialPolicy: policy
           }
         })
+        console.log('thanhduy - createGroup 3')
       } catch (error) {
         reject(error)
       }

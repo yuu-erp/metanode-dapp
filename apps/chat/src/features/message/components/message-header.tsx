@@ -1,4 +1,5 @@
 'use client'
+import { DrawerAddGroupMember } from '@/shared/components'
 import AvatarUser from '@/shared/components/avatar-user'
 import { VideoIcon } from '@/shared/components/icons'
 import TotalUnreadcount from '@/shared/components/total-unreadcount'
@@ -45,6 +46,7 @@ function ChatHeader({ name = '', type = 'p2p', username, onVideoCall }: ChatHead
               <VideoIcon className="size-7 text-white/80" />
             </button>
           )}
+          {type === 'group' && <DrawerAddGroupMember />}
           {/* <button>
             <EllipsisVertical className="size-7 text-white/80" />
           </button> */}

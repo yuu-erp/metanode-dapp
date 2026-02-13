@@ -96,7 +96,8 @@ class AppContainer {
       this._fileContract,
       this._walletService,
       this._eventBus,
-      this._fileCacheService
+      this._fileCacheService,
+      this.eventLogContainer
     )
 
     this._fileTransferService = new FileTransferService()

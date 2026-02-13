@@ -17,7 +17,13 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
     const meetingAddress = import.meta.env.VITE_MEETING
-    eventLog.registerEvent(account.address, [account.contractAddress, meetingAddress])
+    const factoryAddress = import.meta.env.VITE_FACTORY
+    console.log('thanhduy - factoryAddress', factoryAddress)
+    eventLog.registerEvent(account.address, [
+      account.contractAddress,
+      meetingAddress,
+      factoryAddress
+    ])
 
     const offMessageReceived = eventLog.on('MessageReceived', (data) => {
       if (data.sender === account.contractAddress) return
