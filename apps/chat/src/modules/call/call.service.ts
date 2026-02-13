@@ -20,7 +20,7 @@ export class CallService {
       const receiver = conversation.conversationId
       const sessionId = Math.random().toString(36).substring(7)
       // 1. Listen for RoomCreatedEvent
-      const promise = new Promise<any>(async () => {
+      const promise = new Promise<void>(async (resolve) => {
         const off = this.eventLogContainer.eventLog.on('RoomCreatedEvent', async (event) => {
           if (formatAddress(event.creator) === formatAddress(account.address)) {
             off() // Stop listening
@@ -36,17 +36,15 @@ export class CallService {
             })
           }
         })
-
-        // 2. Create Room
-        console.log('[CallService] Creating room...')
-        await this.mettingContract.createRoom({
-          from: account.address,
-          inputData: {
-            name: `Call from ${account.name}`,
-            receiver,
-            meet: false
-          }
-        })
+        resolve()
+      })
+      await this.mettingContract.createRoom({
+        from: account.address,
+        inputData: {
+          name: `Call from ${account.name}`,
+          receiver,
+          meet: false
+        }
       })
       return await promise
     } catch (error) {
