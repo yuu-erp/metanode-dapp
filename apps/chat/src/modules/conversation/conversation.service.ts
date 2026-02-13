@@ -64,6 +64,7 @@ export class ConversationService {
     }
 
     const decryptData = await decryptAESGCM(groupKey, encryptedMessage)
+    // @ts-ignore
     const result = jsonParseSafe(decryptData?.resultUtf8)
     return result
   }
@@ -91,7 +92,7 @@ export class ConversationService {
     })
     const privateKey = await getPrivateKeyFromDb(accountId)
     const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
-
+    // @ts-ignore
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
     return {
       admin,

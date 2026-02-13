@@ -18,7 +18,11 @@ export default defineConfig({
     viteReact(),
     tailwindcss()
   ],
+  optimizeDeps: {
+    exclude: ['@metanodejs/system-core']
+  },
   server: {
+    port: 5731,
     host: '0.0.0.0'
   },
   resolve: {
