@@ -1,6 +1,6 @@
 import type { ConversationType } from '@/modules/conversation'
 import type { EventMap } from '@/modules/eventlogs'
-import type { Message, MessageStatus, MessageType, PersistedMessage } from '@/modules/message'
+import type { Message, MessageStatus, PersistedMessage } from '@/modules/message'
 
 export type AppEvents = {
   // MESSAGE
