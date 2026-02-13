@@ -20,31 +20,35 @@ export class CallService {
       const receiver = conversation.conversationId
       const sessionId = Math.random().toString(36).substring(7)
       // 1. Listen for RoomCreatedEvent
-      const off = this.eventLogContainer.eventLog.on('RoomCreatedEvent', async (event) => {
-        if (formatAddress(event.creator) === formatAddress(account.address)) {
-          off() // Stop listening
-          await sendCommand('startCallRTC', {
-            query: new URLSearchParams({
-              creatorAddress: event.creator,
-              receiveUser: receiver,
-              roomId: `0x${event.roomId}`,
-              address: account.address,
-              sessionId: sessionId
-            }).toString()
-          })
-        }
-      })
+      const promise = new Promise<any>(async () => {
+        const off = this.eventLogContainer.eventLog.on('RoomCreatedEvent', async (event) => {
+          if (formatAddress(event.creator) === formatAddress(account.address)) {
+            off() // Stop listening
+            await sendCommand('startCallRTC', {
+              query: new URLSearchParams({
+                creatorAddress: event.creator,
+                receiveUser: receiver,
+                roomId: `0x${event.roomId}`,
+                address: account.address,
+                sessionId: sessionId,
+                type: 'direct'
+              }).toString()
+            })
+          }
+        })
 
-      // 2. Create Room
-      console.log('[CallService] Creating room...')
-      await this.mettingContract.createRoom({
-        from: account.address,
-        inputData: {
-          name: `Call from ${account.name}`,
-          receiver,
-          meet: false
-        }
+        // 2. Create Room
+        console.log('[CallService] Creating room...')
+        await this.mettingContract.createRoom({
+          from: account.address,
+          inputData: {
+            name: `Call from ${account.name}`,
+            receiver,
+            meet: false
+          }
+        })
       })
+      return await promise
     } catch (error) {
       console.error('[CallService] Error creating call:', error)
       throw error
@@ -66,7 +70,8 @@ export class CallService {
           receiveUser: callee,
           roomId: `0x${roomId}`,
           address: account.address,
-          sessionId: sessionId
+          sessionId: sessionId,
+          type: 'direct'
         }).toString()
       })
     } catch (error) {

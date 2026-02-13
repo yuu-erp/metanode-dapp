@@ -30,14 +30,14 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
 
   const handleClickConversation = React.useCallback(
     (conversation: Conversation) => {
-      if (conversation.conversationType === 'p2p') {
+      if (conversation.conversationType === 'group') {
         navigate({
-          to: '/p2p/$id',
+          to: '/group/$id',
           params: { id: conversation.conversationId }
         })
       } else {
         navigate({
-          to: '/group/$id',
+          to: '/p2p/$id',
           params: { id: conversation.conversationId }
         })
       }
