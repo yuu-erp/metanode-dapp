@@ -22,6 +22,7 @@ export class CallService {
       // 1. Listen for RoomCreatedEvent
       const promise = new Promise<void>(async (resolve) => {
         const off = this.eventLogContainer.eventLog.on('RoomCreatedEvent', async (event) => {
+          console.log('RoomCreatedEvent', event)
           if (formatAddress(event.creator) === formatAddress(account.address)) {
             off() // Stop listening
             await sendCommand('startCallRTC', {
@@ -93,7 +94,6 @@ export class CallService {
         to: userContractAddress
       })
       console.log('User profile:', userProfile)
-
       return userProfile
     } catch (error) {
       console.error('[CallService] Error handling call received:', error)
