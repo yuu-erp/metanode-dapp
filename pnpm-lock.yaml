@@ -44,7 +44,7 @@ importers:
         specifier: ^0.0.6
         version: 0.0.6
       '@metanodejs/system-core':
-        specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core
+        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core
         version: link:../../../metanode-packages/packages/system-core
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
