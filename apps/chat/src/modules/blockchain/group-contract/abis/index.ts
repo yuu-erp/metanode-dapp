@@ -9,5 +9,6 @@ export const groupAbis = {
   getProcessedGroupMessages: group.find((item) => item.name === 'getProcessedGroupMessages'),
   editMessage: group.find((item) => item.name === 'editMessage'),
   deleteMessage: group.find((item) => item.name === 'deleteMessage'),
-  reactToMessage: group.find((item) => item.name === 'reactToMessage')
+  reactToMessage: group.find((item) => item.name === 'reactToMessage'),
+  groupName: group.find((item) => item.name === 'groupName')
 }

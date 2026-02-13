@@ -41,6 +41,8 @@ function ListMessageView({
     )
   }
 
+  console.log('thanhduy - message', { messages, account })
+
   return (
     <React.Fragment>
       {/* Danh sách tin nhắn - hiển thị từ cũ → mới (do flex-col-reverse) */}

@@ -114,4 +114,15 @@ export class GroupContract extends MtnContract {
       inputData
     })
   }
+
+  groupName(payload: TransactionPayload) {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'groupName',
+      abiData: groupAbis.groupName as any,
+      feeType: 'read'
+    })
+  }
 }
