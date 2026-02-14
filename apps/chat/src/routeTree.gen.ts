@@ -13,6 +13,7 @@ import { Route as WalletsRouteImport } from './routes/wallets'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
+import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedP2pIdRouteImport } from './routes/_authenticated/p2p.$id'
 import { Route as AuthenticatedGroupIdRouteImport } from './routes/_authenticated/group.$id'
 
@@ -36,6 +37,12 @@ const AuthenticatedSettingsIndexRoute =
     path: '/settings/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSettingsNotificationsRoute =
+  AuthenticatedSettingsNotificationsRouteImport.update({
+    id: '/settings/notifications',
+    path: '/settings/notifications',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedP2pIdRoute = AuthenticatedP2pIdRouteImport.update({
   id: '/p2p/$id',
   path: '/p2p/$id',
@@ -52,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/wallets': typeof WalletsRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
+  '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -59,6 +67,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
+  '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesById {
@@ -68,13 +77,26 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/group/$id': typeof AuthenticatedGroupIdRoute
   '/_authenticated/p2p/$id': typeof AuthenticatedP2pIdRoute
+  '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/wallets' | '/group/$id' | '/p2p/$id' | '/settings/'
+  fullPaths:
+    | '/'
+    | '/wallets'
+    | '/group/$id'
+    | '/p2p/$id'
+    | '/settings/notifications'
+    | '/settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/wallets' | '/' | '/group/$id' | '/p2p/$id' | '/settings'
+  to:
+    | '/wallets'
+    | '/'
+    | '/group/$id'
+    | '/p2p/$id'
+    | '/settings/notifications'
+    | '/settings'
   id:
     | '__root__'
     | '/_authenticated'
@@ -82,6 +104,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/group/$id'
     | '/_authenticated/p2p/$id'
+    | '/_authenticated/settings/notifications'
     | '/_authenticated/settings/'
   fileRoutesById: FileRoutesById
 }
@@ -120,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/notifications': {
+      id: '/_authenticated/settings/notifications'
+      path: '/settings/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof AuthenticatedSettingsNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/p2p/$id': {
       id: '/_authenticated/p2p/$id'
       path: '/p2p/$id'
@@ -141,6 +171,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedGroupIdRoute: typeof AuthenticatedGroupIdRoute
   AuthenticatedP2pIdRoute: typeof AuthenticatedP2pIdRoute
+  AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
 }
 
@@ -148,6 +179,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedGroupIdRoute: AuthenticatedGroupIdRoute,
   AuthenticatedP2pIdRoute: AuthenticatedP2pIdRoute,
+  AuthenticatedSettingsNotificationsRoute:
+    AuthenticatedSettingsNotificationsRoute,
   AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
 }
 

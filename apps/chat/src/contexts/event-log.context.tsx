@@ -14,17 +14,12 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
   React.useEffect(() => {
-    console.log('account', account)
     if (!account?.address || !account.contractAddress) return
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
     const meetingAddress = CONTRACT_ADDRESSES.meeting
     const factoryAddress = CONTRACT_ADDRESSES.factory
-    console.log('eventLogs', account.address, [
-      account.contractAddress,
-      meetingAddress,
-      factoryAddress
-    ])
+
     eventLog.registerEvent(account.address, [
       account.contractAddress,
       meetingAddress,
@@ -32,7 +27,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     ])
 
     const offMessageReceived = eventLog.on('MessageReceived', (data) => {
-      console.log('eventLog MessageReceived event:', data)
       if (data.sender === account.contractAddress) return
       eventBus.emit('message.received', { ...data, type: 'p2p' })
     })

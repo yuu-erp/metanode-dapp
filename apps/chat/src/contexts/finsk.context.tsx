@@ -12,6 +12,11 @@ const FinsdkProvider: React.FC<FinsdkProviderProps> = ({ children }) => {
 
   useEffect(() => {
     //@ts-ignore
+    if (!window.finSdk) {
+      setLoadingSdk(false)
+      return
+    }
+    //@ts-ignore
     window.finSdk.init({
       onProgress: (_percent: string) => {
         console.log('_percent', _percent)

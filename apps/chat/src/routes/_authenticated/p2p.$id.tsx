@@ -36,10 +36,7 @@ function RouteComponent() {
   return (
     <MessageActionProvider>
       <CopyMessageActionProvider>
-        <div
-          className="fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]"
-          style={containerStyle}
-        >
+        <div className="relative w-full flex flex-col h-full" style={containerStyle}>
           <ChatHeader
             name={conversation?.name}
             type={conversation?.conversationType}
