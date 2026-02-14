@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WalletsWindowRouteImport } from './routes/wallets-window'
 import { Route as WalletsRouteImport } from './routes/wallets'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -17,6 +18,11 @@ import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedP2pIdRouteImport } from './routes/_authenticated/p2p.$id'
 import { Route as AuthenticatedGroupIdRouteImport } from './routes/_authenticated/group.$id'
 
+const WalletsWindowRoute = WalletsWindowRouteImport.update({
+  id: '/wallets-window',
+  path: '/wallets-window',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WalletsRoute = WalletsRouteImport.update({
   id: '/wallets',
   path: '/wallets',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
+  '/wallets-window': typeof WalletsWindowRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
+  '/wallets-window': typeof WalletsWindowRoute
   '/': typeof AuthenticatedIndexRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
@@ -74,6 +82,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
+  '/wallets-window': typeof WalletsWindowRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/group/$id': typeof AuthenticatedGroupIdRoute
   '/_authenticated/p2p/$id': typeof AuthenticatedP2pIdRoute
@@ -85,16 +94,25 @@ export interface FileRouteTypes {
     | '/'
     | '/test'
     | '/wallets'
+    | '/wallets-window'
     | '/group/$id'
     | '/p2p/$id'
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/test' | '/wallets' | '/' | '/group/$id' | '/p2p/$id' | '/settings'
+  to:
+    | '/test'
+    | '/wallets'
+    | '/wallets-window'
+    | '/'
+    | '/group/$id'
+    | '/p2p/$id'
+    | '/settings'
   id:
     | '__root__'
     | '/_authenticated'
     | '/test'
     | '/wallets'
+    | '/wallets-window'
     | '/_authenticated/'
     | '/_authenticated/group/$id'
     | '/_authenticated/p2p/$id'
@@ -105,10 +123,18 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   TestRoute: typeof TestRoute
   WalletsRoute: typeof WalletsRoute
+  WalletsWindowRoute: typeof WalletsWindowRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wallets-window': {
+      id: '/wallets-window'
+      path: '/wallets-window'
+      fullPath: '/wallets-window'
+      preLoaderRoute: typeof WalletsWindowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/wallets': {
       id: '/wallets'
       path: '/wallets'
@@ -183,6 +209,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   TestRoute: TestRoute,
   WalletsRoute: WalletsRoute,
+  WalletsWindowRoute: WalletsWindowRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

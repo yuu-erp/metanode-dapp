@@ -8,7 +8,9 @@ export function BaseLayout() {
   return (
     <React.Fragment>
       <main className={cn('w-full h-full min-h-screen flex-1')}>
-        <Outlet />
+        <div className="w-full h-full min-h-screen flex-1">
+          <Outlet />
+        </div>
       </main>
       <Background />
     </React.Fragment>

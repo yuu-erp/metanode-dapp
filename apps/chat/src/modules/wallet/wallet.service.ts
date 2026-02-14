@@ -28,6 +28,15 @@ export class WalletService {
     address: string,
     message: string
   ): Promise<T> {
-    return await this.walletAdapter.decryptMessage<T>(publicKey, address, message)
+    const decrypted = await this.walletAdapter.decryptMessage<string>(publicKey, address, message)
+    try {
+      const parsed = JSON.parse(decrypted)
+      if (typeof parsed === 'object' && parsed !== null) {
+        return parsed as T
+      }
+      return decrypted as unknown as T
+    } catch {
+      return decrypted as unknown as T
+    }
   }
 }

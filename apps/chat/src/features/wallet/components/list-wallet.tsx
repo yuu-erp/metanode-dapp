@@ -18,7 +18,7 @@ function ListWallet({ wallets, ...props }: WalletListSliderProps) {
   if (!wallets?.length) return null
 
   return (
-    <div className="relative w-full h-full flex flex-col items-stretch relative shrink-0 basis-auto md:hidden">
+    <div className="relative w-full h-full flex flex-col items-stretch relative shrink-0 basis-auto">
       <Swiper
         slidesPerView={1.2}
         spaceBetween={-50}
