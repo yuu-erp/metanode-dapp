@@ -52,7 +52,7 @@ function ItemConversation({
       {...handlers}
       className={cn(
         'w-full flex items-center min-h-[56px] h-full',
-        'transition-all duration-300 ease-out',
+        'transition-all duration-300 ease-out hover:bg-black/20 rounded-2xl',
         isLongPressActive && 'bg-black/40',
         className
       )}

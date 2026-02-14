@@ -134,6 +134,7 @@ export class ConversationService {
 
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
+        console.log('[KHAIHOAN DEBUG CONVERSATION]----1402--- ', item)
         let conversationKey = ''
         let userProfile = { firstName: '', lastName: '', userName: '', avatar: '' }
         let lastMessageDecrypted: OnChainMessagePayload | undefined
@@ -151,14 +152,19 @@ export class ConversationService {
           const p2pInfo = await this.getP2PInfo(account.address, item.conversationId)
           conversationKey = p2pInfo.publicKey
           userProfile = p2pInfo.userProfile
-
+          console.log('[KHAIHOAN DEBUG CONVERSATION]----1402--- p2pInfo', p2pInfo)
           lastMessageDecrypted = await this.decryptP2PLatestMessageContent(
             account,
             item.latestMessageContent,
             conversationKey
-          ).catch(() => {
+          ).catch((err) => {
+            console.log('[KHAIHOAN DEBUG CONVERSATION]----1402--- lastMessageDecrypted catch', err)
             return undefined
           })
+          console.log(
+            '[KHAIHOAN DEBUG CONVERSATION]----1402--- lastMessageDecrypted',
+            lastMessageDecrypted
+          )
         }
 
         if (lastMessageDecrypted && lastMessageDecrypted.type === 'file') {
@@ -204,8 +210,9 @@ export class ConversationService {
     const groupAddresses = conversations
       .filter((item) => item.conversationType === 'group')
       .map((item) => item.conversationId)
-
-    this.eventLogContainer.eventLog.registerEvent(account.address, groupAddresses)
+    if (groupAddresses.length) {
+      this.eventLogContainer.eventLog.registerEvent(account.address, groupAddresses)
+    }
     await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
   }
 

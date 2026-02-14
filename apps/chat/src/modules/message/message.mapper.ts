@@ -134,6 +134,13 @@ export function mapperToMessage(raw: RawMessageSource): Message {
           (typeof raw.value === 'object' && raw.value ? (raw.value as any).address : undefined)
       }
     }
+    // @ts-ignore // BACKUP CHO CHAT CỦ
+    case 'TEXT': {
+      const content = String(
+        raw.value ?? raw.text ?? raw.content ?? '[Tin nhắn không hỗ trợ]'
+      ).trim()
+      return { ...base, type: 'text', content }
+    }
   }
 }
 

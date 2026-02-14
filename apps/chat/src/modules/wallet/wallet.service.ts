@@ -29,6 +29,7 @@ export class WalletService {
     message: string
   ): Promise<T> {
     const decrypted = await this.walletAdapter.decryptMessage<string>(publicKey, address, message)
+    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402 ----- decryptMessage', decrypted)
     try {
       const parsed = JSON.parse(decrypted)
       if (typeof parsed === 'object' && parsed !== null) {

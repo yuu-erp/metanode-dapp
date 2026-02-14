@@ -186,6 +186,7 @@
 
   body[data-scroll-locked='1'] [vaul-drawer-wrapper]#app {
     border-radius: 48px !important;
+    transform-origin: center bottom !important;
     /* transform-origin: center bottom !important; */
   }
 

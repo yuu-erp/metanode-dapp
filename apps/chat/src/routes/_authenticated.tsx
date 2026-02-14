@@ -15,12 +15,12 @@ export const Route = createFileRoute('/_authenticated')({
     try {
       const currentAccount = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
       if (!currentAccount || !currentAccount.isActive) {
-        throw redirect({ to: '/wallets-window' })
+        throw redirect({ to: '/wallets' })
       }
       return {}
     } catch (error) {
       console.error(error)
-      throw redirect({ to: '/wallets-window' })
+      throw redirect({ to: '/wallets' })
     }
   },
   component: RouteComponent

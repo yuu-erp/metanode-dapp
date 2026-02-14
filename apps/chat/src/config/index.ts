@@ -1,3 +1,7 @@
+export const APP_CONFIG = {
+  isDapp: import.meta.env.VITE_IS_DAPP === 'true'
+}
+
 export const CONTRACT_ADDRESSES = {
   factory: import.meta.env.VITE_FACTORY || '',
   file: import.meta.env.VITE_FILE || '',

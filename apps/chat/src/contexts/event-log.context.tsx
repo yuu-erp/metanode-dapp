@@ -1,5 +1,6 @@
 'use client'
 
+import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
 import { useCurrentAccount } from '@/shared/hooks'
 import * as React from 'react'
@@ -13,12 +14,17 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
   React.useEffect(() => {
+    console.log('account', account)
     if (!account?.address || !account.contractAddress) return
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
-    const meetingAddress = import.meta.env.VITE_MEETING
-    const factoryAddress = import.meta.env.VITE_FACTORY
-
+    const meetingAddress = CONTRACT_ADDRESSES.meeting
+    const factoryAddress = CONTRACT_ADDRESSES.factory
+    console.log('eventLogs', account.address, [
+      account.contractAddress,
+      meetingAddress,
+      factoryAddress
+    ])
     eventLog.registerEvent(account.address, [
       account.contractAddress,
       meetingAddress,
@@ -26,6 +32,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     ])
 
     const offMessageReceived = eventLog.on('MessageReceived', (data) => {
+      console.log('eventLog MessageReceived event:', data)
       if (data.sender === account.contractAddress) return
       eventBus.emit('message.received', { ...data, type: 'p2p' })
     })

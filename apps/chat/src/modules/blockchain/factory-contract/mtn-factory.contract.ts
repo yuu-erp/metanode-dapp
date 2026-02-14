@@ -1,5 +1,4 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
-import { CONTRACT_ADDRESSES } from '../config/contracts'
 import type { TransactionPayload } from '../types'
 import { factoryAbi } from './abis'
 import type {
@@ -9,6 +8,7 @@ import type {
   IsUsernameTakenInput,
   RegisterUserInput
 } from './types'
+import { CONTRACT_ADDRESSES } from '@/config'
 
 export class FactoryContract extends MtnContract {
   constructor() {

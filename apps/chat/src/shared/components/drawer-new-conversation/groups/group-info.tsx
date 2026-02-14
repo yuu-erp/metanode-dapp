@@ -24,7 +24,7 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
           </span>
         </div>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full">
           <label className="text-sm text-gray-400 mb-2 block ml-1">
             {t('drawer.groupName', { defaultValue: 'Group Name' })}
           </label>
@@ -37,7 +37,7 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
           />
         </div>
 
-        <div className="w-full max-w-sm flex flex-col gap-2 border-t border-white/10 pt-4 mt-2">
+        <div className="w-full flex flex-col gap-2 border-t border-white/10 pt-4 mt-2">
           <span className="text-sm text-gray-400 ml-1">
             {t('drawer.members', {
               count: selectedMembers.length,
