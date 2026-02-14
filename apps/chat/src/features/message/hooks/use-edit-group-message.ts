@@ -20,8 +20,6 @@ interface EditMessageVariables {
 export function useEditGroupMessage() {
   return useMutation<void, Error, EditMessageVariables>({
     mutationFn: async ({ account, conversation, messageOld, payload }) => {
-      console.log('thanhduy - useEditGroupMessage', conversation)
-
       // runtime safety (phòng khi ai đó bypass type)
       if (messageOld.type !== 'text') {
         throw new Error('Only text messages can be edited')

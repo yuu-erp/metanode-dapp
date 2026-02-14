@@ -860,7 +860,7 @@ export class MessageService {
         page
       }
     })
-
+    console.log('thanhduy - group rawMessages', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
@@ -1145,7 +1145,7 @@ export class MessageService {
     })
 
     const encryptEmoji = encodeBase64(emoji)
-
+    console.log('thanhduy - reactToMessage 1')
     await this.groupContract.reactToMessage({
       from: account.address,
       to: conversation.conversationId,
@@ -1154,5 +1154,6 @@ export class MessageService {
         reaction: encryptEmoji
       }
     })
+    console.log('thanhduy - reactToMessage 2')
   }
 }

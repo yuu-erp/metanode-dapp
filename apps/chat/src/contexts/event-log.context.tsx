@@ -68,7 +68,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offMessageEditedGroup = eventLog.on('MessageEditedGroup', (data) => {
-      console.log('thanhduy - MessageEditedGroup', data)
       eventBus.emit('message.editGroup', data)
     })
 
