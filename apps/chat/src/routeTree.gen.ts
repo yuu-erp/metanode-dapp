@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletsRouteImport } from './routes/wallets'
+import { Route as MeetingRouteImport } from './routes/meeting'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -20,6 +21,11 @@ import { Route as AuthenticatedGroupIdRouteImport } from './routes/_authenticate
 const WalletsRoute = WalletsRouteImport.update({
   id: '/wallets',
   path: '/wallets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingRoute = MeetingRouteImport.update({
+  id: '/meeting',
+  path: '/meeting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -56,6 +62,7 @@ const AuthenticatedGroupIdRoute = AuthenticatedGroupIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/meeting': typeof MeetingRoute
   '/wallets': typeof WalletsRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/meeting': typeof MeetingRoute
   '/wallets': typeof WalletsRoute
   '/': typeof AuthenticatedIndexRoute
   '/group/$id': typeof AuthenticatedGroupIdRoute
@@ -73,6 +81,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/meeting': typeof MeetingRoute
   '/wallets': typeof WalletsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/group/$id': typeof AuthenticatedGroupIdRoute
@@ -84,6 +93,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/meeting'
     | '/wallets'
     | '/group/$id'
     | '/p2p/$id'
@@ -91,6 +101,7 @@ export interface FileRouteTypes {
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/meeting'
     | '/wallets'
     | '/'
     | '/group/$id'
@@ -100,6 +111,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/meeting'
     | '/wallets'
     | '/_authenticated/'
     | '/_authenticated/group/$id'
@@ -110,6 +122,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  MeetingRoute: typeof MeetingRoute
   WalletsRoute: typeof WalletsRoute
 }
 
@@ -120,6 +133,13 @@ declare module '@tanstack/react-router' {
       path: '/wallets'
       fullPath: '/wallets'
       preLoaderRoute: typeof WalletsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meeting': {
+      id: '/meeting'
+      path: '/meeting'
+      fullPath: '/meeting'
+      preLoaderRoute: typeof MeetingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -190,6 +210,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  MeetingRoute: MeetingRoute,
   WalletsRoute: WalletsRoute,
 }
 export const routeTree = rootRouteImport

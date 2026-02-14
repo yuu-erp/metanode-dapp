@@ -16,6 +16,7 @@ import {
   updateMessageFilePath,
   updateMessageStatus
 } from '../message-cache.utils'
+import { formatAddress } from '@/shared/utils'
 
 export function MessageProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
@@ -97,6 +98,8 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       'message.received': async (e: AppEvents['message.received']) => {
         let message
         if (e.type === 'group') {
+          if (formatAddress(e.sender) === formatAddress(account.address)) return
+
           message = await safeGroupDecrypt({
             encryptedContent: e.encryptedContent,
             groupAddress: e.recipient,
@@ -147,7 +150,6 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
           (old) => {
-            console.log('thanhduy - applyMessageUpdate before', old)
             return applyMessageUpdate(old, {
               messageId: e.messageId,
               message: { ...message, id: e.messageId, isEdited: true }

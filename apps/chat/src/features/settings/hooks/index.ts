@@ -1,2 +1,5 @@
 export * from './use-log-out'
 export * from './use-load-accouns'
+export * from './use-detailed-settings'
+export * from './use-set-p2p-chat-enabled'
+export * from './use-set-reactions-enabled'

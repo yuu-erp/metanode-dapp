@@ -36,6 +36,7 @@ export function useReactToMessage() {
   return useMutation({
     mutationFn: async ({ account, conversation, payload }: ReactToMessageVariables) => {
       if (conversation.conversationType === 'group') {
+        console.log('thanhduy - useReactToMessage 1', payload)
         return reactGroupMessage(account, conversation, payload)
       }
       return reactToMessage(account, conversation, payload)

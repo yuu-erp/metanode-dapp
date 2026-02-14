@@ -16,94 +16,86 @@ interface ImportPrivateKeyProps {
   setIsLoading: Dispatch<SetStateAction<boolean>>
 }
 
-const ImportPrivateKey = memo(
-  ({ onBack, onNext, onCloseModal, setIsLoading }: ImportPrivateKeyProps) => {
-    const [priKey, setPriKey] = useState<string>('')
-    const [imageToShow, setImageToShow] = useState<string>('')
-    const [modalSuccess, setModalSuccess] = useState<boolean>(false)
+const ImportPrivateKey = memo(({ onBack, onCloseModal, setIsLoading }: ImportPrivateKeyProps) => {
+  const [priKey, setPriKey] = useState<string>('')
+  const [imageToShow, setImageToShow] = useState<string>('')
+  const [modalSuccess, setModalSuccess] = useState<boolean>(false)
 
-    const { onClose } = useLoginModalStore()
-    const { refetch } = useGetAllWallets()
+  const { onClose } = useLoginModalStore()
+  const { refetch } = useGetAllWallets()
 
-    const handleImportPK = useCallback(async () => {
-      setIsLoading(true)
+  const handleImportPK = useCallback(async () => {
+    setIsLoading(true)
 
-      if (!priKey && !imageToShow) {
-        toast.error('Enter or upload qr')
-        setIsLoading(false)
-        return
-      }
-
-      const trimmedKey = priKey?.trim()
-      const isValidPrivateKey = /^(0x)?[a-fA-F0-9]{64}$/.test(trimmedKey || '')
-
-      if (!isValidPrivateKey) {
-        toast.error('Invalid private key')
-        setIsLoading(false)
-        return
-      }
-
-      try {
-        const normalizedKey = trimmedKey!.startsWith('0x') ? trimmedKey! : `0x${trimmedKey!}`
-        const res: any = await createWalletFromPrivateKey({
-          privateKey: normalizedKey,
-          name: `wallet_${Date.now()}`,
-          backgroundImage: ''
-        })
-        console.log('REP IMPORT WALLET WITH PRIVATE KEY ----- ', res)
-        await refetch()
-        onClose()
-      } catch (err) {
-        toast.error('Create wallet faile')
-      }
-
+    if (!priKey && !imageToShow) {
+      toast.error('Enter or upload qr')
       setIsLoading(false)
-    }, [priKey, imageToShow])
+      return
+    }
 
-    return (
-      <>
-        <Container className="wrapper-content flex flex-col gap-3 overflow-y-auto text-[1.25rem]/[1.5rem] text-white">
-          <span className="font-customSemiBold text-[1.25rem]/[1.5rem]">
-            Import with Private Key
-          </span>
-          <Input
-            placeholder="Enter your private key"
-            value={priKey}
-            onInputChange={(e) => {
-              setPriKey(e.target.value)
-              setImageToShow('')
-            }}
-          />
+    const trimmedKey = priKey?.trim()
+    const isValidPrivateKey = /^(0x)?[a-fA-F0-9]{64}$/.test(trimmedKey || '')
 
-          <UploadQR
-            imageToShow={imageToShow}
-            setImageToShow={setImageToShow}
-            setPriKey={setPriKey}
-          />
-        </Container>
+    if (!isValidPrivateKey) {
+      toast.error('Invalid private key')
+      setIsLoading(false)
+      return
+    }
 
-        <ButtonBottom
-          title="Confirm"
-          className="pt-5"
-          onBack={() => onBack()}
-          onNext={handleImportPK}
+    try {
+      const normalizedKey = trimmedKey!.startsWith('0x') ? trimmedKey! : `0x${trimmedKey!}`
+      const res: any = await createWalletFromPrivateKey({
+        privateKey: normalizedKey,
+        name: `wallet_${Date.now()}`,
+        backgroundImage: ''
+      })
+      console.log('REP IMPORT WALLET WITH PRIVATE KEY ----- ', res)
+      await refetch()
+      onClose()
+    } catch (err) {
+      toast.error('Create wallet faile')
+    }
+
+    setIsLoading(false)
+  }, [priKey, imageToShow])
+
+  return (
+    <>
+      <Container className="wrapper-content flex flex-col gap-3 overflow-y-auto text-[1.25rem]/[1.5rem] text-white">
+        <span className="font-customSemiBold text-[1.25rem]/[1.5rem]">Import with Private Key</span>
+        <Input
+          placeholder="Enter your private key"
+          value={priKey}
+          onInputChange={(e) => {
+            setPriKey(e.target.value)
+            setImageToShow('')
+          }}
         />
 
-        {modalSuccess && (
-          <ModalSuccess
-            isImport
-            onClose={() => {
-              onBack()
-              setPriKey('')
-              setImageToShow('')
-              setModalSuccess(false)
-              onCloseModal()
-            }}
-          />
-        )}
-      </>
-    )
-  }
-)
+        <UploadQR imageToShow={imageToShow} setImageToShow={setImageToShow} setPriKey={setPriKey} />
+      </Container>
+
+      <ButtonBottom
+        title="Confirm"
+        className="pt-5"
+        onBack={() => onBack()}
+        onNext={handleImportPK}
+      />
+
+      {modalSuccess && (
+        <ModalSuccess
+          isImport
+          onClose={() => {
+            onBack()
+            setPriKey('')
+            setImageToShow('')
+            setModalSuccess(false)
+            onCloseModal()
+          }}
+        />
+      )}
+    </>
+  )
+})
 
 export default ImportPrivateKey

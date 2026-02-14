@@ -3,7 +3,6 @@ import type { Message } from '@/modules/message'
 import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
 import { MessagePreview } from '@/shared/components/message-render'
-import { Badge } from '@/shared/components/ui/badge'
 import { formatUpdatedAt } from '@/shared/helpers'
 import { useI18N, useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
@@ -81,14 +80,14 @@ function ItemConversation({
               {/* Priview message */}
               {lastMessage && <MessagePreview message={lastMessage} />}
             </div>
-            {unreadCount > 0 && (
+            {/* {unreadCount > 0 && (
               <Badge
                 className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
                 variant="secondary"
               >
                 {unreadCount > 999 ? '999+' : unreadCount}
               </Badge>
-            )}
+            )} */}
             {isPin && <PinIcon className="size-4" />}
           </div>
         </div>

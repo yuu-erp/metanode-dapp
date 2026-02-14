@@ -50,7 +50,7 @@ export function useInfiniteMessages({
           page: pageParam as number | undefined
         })
       }
-
+      console.log('thanhduy group message result', result)
       return result
     },
     initialPageParam: 1,

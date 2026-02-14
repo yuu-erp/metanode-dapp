@@ -12,7 +12,7 @@ function RouteComponent() {
   const navigate = useNavigate()
 
   return (
-    <div className={cn('w-full h-screen flex flex-col')}>
+    <div className={cn('w-full h-full flex flex-col')}>
       <WapperHeader>
         <div className="flex items-center gap-3 relative w-full">
           <button onClick={() => navigate({ to: '/settings' })} className="absolute left-0 p-2">

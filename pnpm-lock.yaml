@@ -61,6 +61,9 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
+      '@repo/chat-2':
+        specifier: /Users/lekhaihoan/Downloads/chat 2/packages/chat-2
+        version: link:../../../../../Downloads/chat 2/packages/chat-2
       '@tailwindcss/vite':
         specifier: ^4.0.6
         version: 4.1.18(vite@7.1.7(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))

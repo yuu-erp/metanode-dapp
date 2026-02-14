@@ -1,5 +1,5 @@
 import { cn } from '@/shared/lib'
-import { type Dispatch, memo, type SetStateAction, useCallback, useRef, useState } from 'react'
+import { type Dispatch, memo, type SetStateAction, useCallback, useState } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import ButtonBottom from './ButtonBottom'
 import Container from './Container'
@@ -8,7 +8,7 @@ import ModalSuccess from './ModalSuccess'
 interface BlockChainStepSeedPhraseProps {
   isImport?: boolean
   address?: string
-  seed: string[]
+  seed?: string[]
   onBack: () => void
   onNext: () => void
   onCloseModal: () => void
@@ -16,17 +16,8 @@ interface BlockChainStepSeedPhraseProps {
 }
 
 const BlockChainStepName = memo(
-  ({
-    isImport = false,
-    address = '',
-    seed,
-    onBack,
-    onCloseModal,
-    setIsLoading
-  }: BlockChainStepSeedPhraseProps) => {
-    const qrRef = useRef<any>(null)
-
-    const [prikey, setPriKey] = useState<string>('')
+  ({ isImport = false, address = '', onBack, onCloseModal }: BlockChainStepSeedPhraseProps) => {
+    const [prikey] = useState<string>('')
     const [modalSuccess, setModalSuccess] = useState<boolean>(false)
 
     const registerForm = useForm<any>({
@@ -35,9 +26,9 @@ const BlockChainStepName = memo(
 
     const { handleSubmit, control } = registerForm
 
-    const handlRegister = useCallback(async (values: any) => {}, [address])
+    const handlRegister = useCallback(async (_values: any) => {}, [address])
 
-    const submit = useCallback(async (values: any) => {}, [isImport])
+    const submit = useCallback(async (_values: any) => {}, [isImport])
 
     return (
       <>

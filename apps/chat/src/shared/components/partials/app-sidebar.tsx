@@ -1,17 +1,16 @@
 'use client'
 
-import * as React from 'react'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '../ui/sidebar'
-import StatusSync from '../status-sync'
-import { DrawerNewConversation } from '../drawer-new-conversation'
 import { ConversationList, SearchConversation } from '@/features/conversation'
 import { useI18N } from '@/shared/hooks'
-import AccountActivationNotice from '../account-activation-notice'
 import { Button } from '@headlessui/react'
-import { PhoneIcon, SettingsIcon, UserIcon } from 'lucide-react'
-import TotalUnreadcount from '../total-unreadcount'
-import { MessageIcon } from '../icons'
 import { useNavigate } from '@tanstack/react-router'
+import { PhoneIcon, SettingsIcon, UserIcon } from 'lucide-react'
+import * as React from 'react'
+import AccountActivationNotice from '../account-activation-notice'
+import { DrawerNewConversation } from '../drawer-new-conversation'
+import { MessageIcon } from '../icons'
+import StatusSync from '../status-sync'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '../ui/sidebar'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useI18N()
@@ -74,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 }}
                 onClick={() => navigate({ to: '/' })}
               >
-                <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" />
+                {/* <TotalUnreadc∏ount className="absolute top-1 right-1" variant="destructive" /> */}
                 <MessageIcon className="size-8 text-white" />
               </Button>
             </div>

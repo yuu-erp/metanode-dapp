@@ -3,6 +3,7 @@ import type { TransactionPayload } from '../types'
 import { userAbi } from './abis'
 import type {
   DeleteMessageV2Input,
+  DetailedSettings,
   EditMessageInput,
   GetFullInboxOutput,
   GetMessageByIdInput,
@@ -14,6 +15,8 @@ import type {
   SendMessageInput,
   SendMessageOutput,
   SetMeetingFactoryInput,
+  SetP2PChatEnabledInput,
+  SetReactionsEnabledInput,
   UserProfileOutput
 } from './types'
 
@@ -189,6 +192,41 @@ export class UserContract extends MtnContract {
       functionName: 'detailedSettings',
       abiData: userAbi.detailedSettings as any,
       feeType: 'read'
+    })
+  }
+
+  getDetailedSettings(payload: TransactionPayload): Promise<DetailedSettings> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getDetailedSettings',
+      abiData: userAbi.getDetailedSettings as any,
+      feeType: 'read'
+    })
+  }
+
+  setP2PChatEnabled(payload: TransactionPayload<SetP2PChatEnabledInput>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'setP2PChatEnabled',
+      abiData: userAbi.setP2PChatEnabled as any,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  setReactionsEnabled(payload: TransactionPayload<SetReactionsEnabledInput>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'setReactionsEnabled',
+      abiData: userAbi.setReactionsEnabled as any,
+      inputData,
+      feeType: 'sc'
     })
   }
 }

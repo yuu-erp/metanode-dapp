@@ -14,5 +14,8 @@ export const userAbi = {
   setMeetingFactory: userContract.find((item) => item.name === 'setMeetingFactory'),
   meetingFactoryAddress: userContract.find((item) => item.name === 'meetingFactoryAddress'),
   owner: userContract.find((item) => item.name === 'owner'),
-  detailedSettings: userContract.find((item) => item.name === 'detailedSettings')
+  detailedSettings: userContract.find((item) => item.name === 'detailedSettings'),
+  getDetailedSettings: userContract.find((item) => item.name === 'getDetailedSettings'),
+  setP2PChatEnabled: userContract.find((item) => item.name === 'setP2PChatEnabled'),
+  setReactionsEnabled: userContract.find((item) => item.name === 'setReactionsEnabled')
 }
