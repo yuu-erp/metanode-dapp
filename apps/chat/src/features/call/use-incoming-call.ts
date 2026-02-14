@@ -4,10 +4,13 @@ import { formatAddress } from '@/shared/utils'
 import { useEffect, useState } from 'react'
 import type { IncomingCallData } from './types'
 import type { EventMap } from '@/modules/eventlogs'
+import { chatClient } from '@/modules/call/client'
+import { useNavigate } from '@tanstack/react-router'
 
 export const useIncomingCall = () => {
   const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(null)
   const { data: account } = useCurrentAccount()
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (!account) return
@@ -33,12 +36,17 @@ export const useIncomingCall = () => {
   const acceptCall = async () => {
     if (!incomingCall || !account) return
     try {
-      container.callService.acceptCall(
+      const data = await container.callService.acceptCall(
         account,
         incomingCall.roomId,
         incomingCall.caller,
         incomingCall.callee
       )
+      //@ts-ignore
+      if (window?.finSdk) {
+        chatClient.useMeetingData.getState().setData(data)
+        navigate({ to: '/meeting' })
+      }
       setIncomingCall(null)
     } catch (error) {
       console.error('Failed to accept call:', error)

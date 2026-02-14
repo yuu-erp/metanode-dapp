@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletsWindowRouteImport } from './routes/wallets-window'
 import { Route as WalletsRouteImport } from './routes/wallets'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as MeetingRouteImport } from './routes/meeting'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authenticated/settings/index'
@@ -31,6 +32,11 @@ const WalletsRoute = WalletsRouteImport.update({
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeetingRoute = MeetingRouteImport.update({
+  id: '/meeting',
+  path: '/meeting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -61,6 +67,7 @@ const AuthenticatedGroupIdRoute = AuthenticatedGroupIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/meeting': typeof MeetingRoute
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/wallets-window': typeof WalletsWindowRoute
@@ -69,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/settings/': typeof AuthenticatedSettingsIndexRoute
 }
 export interface FileRoutesByTo {
+  '/meeting': typeof MeetingRoute
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/wallets-window': typeof WalletsWindowRoute
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/meeting': typeof MeetingRoute
   '/test': typeof TestRoute
   '/wallets': typeof WalletsRoute
   '/wallets-window': typeof WalletsWindowRoute
@@ -92,6 +101,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/meeting'
     | '/test'
     | '/wallets'
     | '/wallets-window'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/meeting'
     | '/test'
     | '/wallets'
     | '/wallets-window'
@@ -110,6 +121,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/meeting'
     | '/test'
     | '/wallets'
     | '/wallets-window'
@@ -121,6 +133,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  MeetingRoute: typeof MeetingRoute
   TestRoute: typeof TestRoute
   WalletsRoute: typeof WalletsRoute
   WalletsWindowRoute: typeof WalletsWindowRoute
@@ -147,6 +160,13 @@ declare module '@tanstack/react-router' {
       path: '/test'
       fullPath: '/test'
       preLoaderRoute: typeof TestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meeting': {
+      id: '/meeting'
+      path: '/meeting'
+      fullPath: '/meeting'
+      preLoaderRoute: typeof MeetingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -207,6 +227,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  MeetingRoute: MeetingRoute,
   TestRoute: TestRoute,
   WalletsRoute: WalletsRoute,
   WalletsWindowRoute: WalletsWindowRoute,
