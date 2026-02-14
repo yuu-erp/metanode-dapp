@@ -14,7 +14,7 @@ import * as React from 'react'
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
   avatar?: string
-  updatedAt: Date
+  updatedAt?: Date
   lastMessage?: Message
   isPin?: boolean
   type?: 'p2p' | 'private' | 'group'
@@ -73,7 +73,7 @@ function ItemConversation({
             </div>
             <div className="flex items-center gap-1">
               {isMine && <CheckIcon className="size-3" />}
-              <span>{formatUpdatedAt(updatedAt)}</span>
+              {updatedAt && <span>{formatUpdatedAt(updatedAt)}</span>}
             </div>
           </div>
           <div className="w-full flex items-center justify-between gap-3">

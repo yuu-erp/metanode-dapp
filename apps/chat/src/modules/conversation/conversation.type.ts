@@ -17,7 +17,7 @@ export interface Conversation {
   unreadCount?: number
   conversationType: ConversationType
   // Sync / sort
-  updatedAt: Date // nên dùng Date hoặc ISO string tùy bạn xử lý
+  updatedAt?: Date // nên dùng Date hoặc ISO string tùy bạn xử lý
 }
 
 export enum HistoryVisibility {

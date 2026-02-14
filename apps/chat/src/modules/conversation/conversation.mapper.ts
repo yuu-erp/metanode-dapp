@@ -16,8 +16,8 @@ export function mapperToConversation(raw: any): Conversation {
     conversationType: raw.conversationType as ConversationType,
     // Sync / sort
     updatedAt:
-      raw.latestMessageTimestamp === '0'
-        ? new Date(Math.floor(Date.now() / 1000) * 1000)
-        : new Date(Number(raw.latestMessageTimestamp ?? Math.floor(Date.now() / 1000)) * 1000)
+      !raw.latestMessageTimestamp || raw.latestMessageTimestamp === '0'
+        ? undefined
+        : new Date(Number(raw.latestMessageTimestamp) * 1000)
   }
 }
