@@ -32,10 +32,9 @@ interface BlockChainStepSeedPhraseProps {
 const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhraseProps) => {
   const qrRef = useRef<any>(null)
 
-  const [error, setError] = useState<string>('')
+  const [error] = useState<string>('')
   const [screen, setScreen] = useState<'random' | 'custom'>()
   const [seedPhrase, setSeedPhrase] = useState<Array<string>>([])
-  const [customSeedphrase, setCustomSeedphrase] = useState<string>('')
   const { onClose } = useLoginModalStore()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -57,7 +56,6 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
   const submitCustomSeed = useCallback((seeds: string[]) => {
     setSeedPhrase(seeds)
     setScreen('random')
-    setCustomSeedphrase('')
   }, [])
 
   const handleNext = useCallback(async () => {

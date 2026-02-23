@@ -16,7 +16,7 @@ function RouteComponent() {
   const { t } = useI18N()
   const [keyword, setKeyword] = React.useState('')
   return (
-    <div className="w-full h-screen flex flex-col sm:hidden">
+    <div className="w-full h-screen flex flex-col md:hidden">
       <WapperHeader>
         <div className="flex items-center justify-between gap-3 relative">
           <h1 className="text-xl font-bold">Chats</h1>

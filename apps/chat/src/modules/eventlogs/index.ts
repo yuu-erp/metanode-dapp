@@ -87,7 +87,7 @@ export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi
   private readonly _eventLog: EventLog<EventMap>
   constructor() {
-    console.log('KHỞI TẠO EVENT LOG CONTAINER')
+    console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
     this._decodeAbi = new DecodeAbi()
     this._decodeAbi.registerAbi(abi)
     this._eventLog = new EventLog<EventMap>(this._decodeAbi)
@@ -99,5 +99,9 @@ export class EventLogContainer {
 
   get decodeAbi(): DecodeAbi {
     return this._decodeAbi
+  }
+
+  public registerAbi() {
+    this._decodeAbi.registerAbi(abi)
   }
 }

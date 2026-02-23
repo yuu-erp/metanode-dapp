@@ -2,7 +2,6 @@
 import { useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import { MessageIcon, PhoneIcon, SettingsIcon, UserIcon } from '../icons'
-import TotalUnreadcount from '../total-unreadcount'
 import { Button } from '../ui/button'
 
 function NavbarMenu() {
@@ -10,7 +9,7 @@ function NavbarMenu() {
   return (
     <React.Fragment>
       <div
-        className="h-[84px] fixed left-5 bottom-5 right-5 bg-black/20 border-app rounded-full sm:hidden"
+        className="h-[84px] fixed left-5 bottom-5 right-5 bg-black/20 border-app rounded-full md:hidden"
         style={{
           boxShadow: '4px -4px 16px 0px #FFFFFF2E inset, 0px -2px 16px 0px #FFFFFF85 inset'
         }}
@@ -44,7 +43,7 @@ function NavbarMenu() {
               }}
               onClick={() => navigate({ to: '/' })}
             >
-              <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" />
+              {/* <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" /> */}
               <MessageIcon className="size-8" />
             </Button>
           </div>

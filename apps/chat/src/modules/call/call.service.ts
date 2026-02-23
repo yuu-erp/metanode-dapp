@@ -24,7 +24,7 @@ export class CallService {
         const timeout = setTimeout(() => {
           off()
           reject(new Error('Create call timeout'))
-        }, 5000)
+        }, 15000)
 
         const off = this.eventLogContainer.eventLog.on('RoomCreatedEvent', async (event) => {
           console.log('RoomCreatedEvent', event)

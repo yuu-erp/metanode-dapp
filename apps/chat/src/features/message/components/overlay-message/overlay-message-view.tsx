@@ -116,7 +116,7 @@ function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessa
               {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
               {/* <PinAction isPinned={isPinned} onClose={handlers.onPin} /> */}
-              <DropdownMenuSeparator className="bg-black/10" />
+              {/* <DropdownMenuSeparator className="bg-black/10" /> */}
               <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}
             </DropdownMenuContent>

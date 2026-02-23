@@ -8,7 +8,7 @@ import type {
   DownloadFileParams
 } from './types'
 import { fileAbis } from './abis'
-import { CONTRACT_ADDRESSES } from '../config/contracts'
+import { CONTRACT_ADDRESSES } from '@/config'
 
 export class FileContract extends MtnContract {
   constructor() {

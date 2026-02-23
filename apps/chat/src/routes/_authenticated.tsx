@@ -15,12 +15,12 @@ export const Route = createFileRoute('/_authenticated')({
     try {
       const currentAccount = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
       if (!currentAccount || !currentAccount.isActive) {
-        throw redirect({ to: '/wallets-window' })
+        throw redirect({ to: '/wallets' })
       }
       return {}
     } catch (error) {
       console.error(error)
-      throw redirect({ to: '/wallets-window' })
+      throw redirect({ to: '/wallets' })
     }
   },
   component: RouteComponent
@@ -46,7 +46,7 @@ function RouteComponent() {
               }
             >
               <AppSidebar />
-              <SidebarInset className="bg-transparent backdrop-blur-2xl">
+              <SidebarInset className="bg-transparent">
                 <div className="flex-1 flex flex-col min-w-0 relative">
                   <Outlet />
                   {showNavbar && <NavbarMenu />}

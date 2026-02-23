@@ -95,6 +95,7 @@ function InputMessageView(props: InputMessageViewProps) {
                     value={message}
                     onChange={(e) => onChangeMessage(e.target.value)}
                     onKeyDown={(e) => {
+                      if (e.nativeEvent.isComposing) return
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault()
                         onSend()

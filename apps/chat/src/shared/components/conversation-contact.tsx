@@ -21,7 +21,10 @@ function ConversationContact({
   return (
     <React.Fragment>
       <div
-        className={cn('flex flex-1 items-center gap-2 text-left text-sm h-full', className)}
+        className={cn(
+          'flex flex-1 items-center gap-2 text-left text-sm h-full max-h-[68px] overflow-hidden',
+          className
+        )}
         {...props}
       >
         <AvatarUser size="lg" url="" name={name} type={type} />

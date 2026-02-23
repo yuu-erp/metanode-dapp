@@ -8,6 +8,8 @@ import {
 } from '@/features/message'
 import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
+import { cn } from '@/shared/lib'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
@@ -20,6 +22,7 @@ function RouteComponent() {
   const { data: account } = useCurrentAccount()
   const { data: conversation } = useGetConversationId(id, 'group')
   const viewportHeight = useVisualViewport()
+  const isMobile = useIsMobile()
 
   const containerStyle = useMemo(() => {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
@@ -29,7 +32,11 @@ function RouteComponent() {
     <MessageActionProvider>
       <CopyMessageActionProvider>
         <div
-          className="fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]"
+          className={cn(
+            isMobile
+              ? 'fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]'
+              : 'relative w-full flex flex-col h-full'
+          )}
           style={containerStyle}
         >
           <ChatHeader

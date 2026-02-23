@@ -11,6 +11,8 @@ import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/sh
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useCallback, useMemo } from 'react'
 import { useCreateCall } from '@/features/call'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
+import { cn } from '@/shared/lib'
 
 export const Route = createFileRoute('/_authenticated/p2p/$id')({
   component: RouteComponent
@@ -21,6 +23,7 @@ function RouteComponent() {
   const { data: account } = useCurrentAccount()
   const { data: conversation } = useGetConversationId(id, 'p2p')
   const viewportHeight = useVisualViewport()
+  const isMobile = useIsMobile()
 
   const containerStyle = useMemo(() => {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
@@ -37,7 +40,11 @@ function RouteComponent() {
     <MessageActionProvider>
       <CopyMessageActionProvider>
         <div
-          className="fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]"
+          className={cn(
+            isMobile
+              ? 'fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]'
+              : 'relative w-full flex flex-col h-full'
+          )}
           style={containerStyle}
         >
           <ChatHeader

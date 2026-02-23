@@ -4,16 +4,18 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 export const useCreateCall = () => {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: async ({
-      account,
-      conversation
-    }: {
-      account: Account
-      conversation: Conversation
-    }) => {
+    mutationFn: async (
+      {
+        // account,
+        // conversation
+      }: {
+        account: Account
+        conversation: Conversation
+      }
+    ) => {
       // const data = await container.callService.createCall(account, conversation)
       // //@ts-ignore
       // if (window?.finSdk) {

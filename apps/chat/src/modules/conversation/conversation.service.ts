@@ -99,8 +99,13 @@ export class ConversationService {
     ])
     const privateKey = await getPrivateKeyFromDb(accountId)
     const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
+    console.log(
+      '[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- sharedKeyWithAdmin',
+      sharedKeyWithAdmin
+    )
     // @ts-ignore
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
+    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupKey', groupKey)
 
     return {
       admin,
@@ -131,15 +136,19 @@ export class ConversationService {
       from: account.address,
       to: account.contractAddress
     })
+    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- inboxs', inboxs)
 
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
         let conversationKey = ''
         let userProfile = { firstName: '', lastName: '', userName: '', avatar: '' }
         let lastMessageDecrypted: OnChainMessagePayload | undefined
+        console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- item', item.conversationType)
 
         if (item.conversationType === 'group') {
           const groupInfo = await this.getGroupInfo(account.address, item.conversationId)
+          console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupInfo', groupInfo)
+
           conversationKey = groupInfo.groupKey
           lastMessageDecrypted = await this.decryptGroupMessage(
             item.latestMessageContent,
@@ -151,7 +160,6 @@ export class ConversationService {
           const p2pInfo = await this.getP2PInfo(account.address, item.conversationId)
           conversationKey = p2pInfo.publicKey
           userProfile = p2pInfo.userProfile
-
           lastMessageDecrypted = await this.decryptP2PLatestMessageContent(
             account,
             item.latestMessageContent,
@@ -204,8 +212,9 @@ export class ConversationService {
     const groupAddresses = conversations
       .filter((item) => item.conversationType === 'group')
       .map((item) => item.conversationId)
-
-    this.eventLogContainer.eventLog.registerEvent(account.address, groupAddresses)
+    if (groupAddresses.length) {
+      this.eventLogContainer.eventLog.registerEvent(account.address, groupAddresses)
+    }
     await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
   }
 

@@ -70,7 +70,7 @@ function DefaultConversation({
       </HeaderSection>
       <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[130px]">
         {/* Telegram Actions */}
-        <div className="flex flex-col">
+        <div className="flex flex-col w-full">
           {/* New Group */}
           <button
             onClick={() => onChangeScreenType?.(ScreenType.NEW_GROUP)}

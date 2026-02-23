@@ -6,7 +6,7 @@ interface ModalSuccessProps {
   isImport?: boolean
 }
 
-const ModalSuccess = memo(({ onClose, isImport }: ModalSuccessProps) => {
+const ModalSuccess = memo(({ onClose }: ModalSuccessProps) => {
   return (
     <div className="fixed -left-5 -top-5 z-50 flex h-[110%] w-[114%] items-center justify-center bg-white/[.64] shadow-card-feature backdrop-blur-sm">
       <div className="relative flex w-[90%] flex-col items-center gap-3 rounded-3xl bg-white/80 py-10">

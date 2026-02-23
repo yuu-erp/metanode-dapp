@@ -89,3 +89,35 @@ export interface GetMessageByIdOutput {
 export interface SetMeetingFactoryInput {
   _newMeetingFactoryAddress: string
 }
+
+/*
+[
+          {
+            "internalType": "bool",
+            "name": "p2pChatEnabled",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "reactionsEnabled",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "showPreview",
+            "type": "bool"
+          }
+        ] */
+export interface DetailedSettings {
+  p2pChatEnabled: boolean
+  reactionsEnabled: boolean
+  showPreview: boolean
+}
+
+export interface SetP2PChatEnabledInput {
+  enabled: boolean
+}
+
+export interface SetReactionsEnabledInput {
+  enabled: boolean
+}

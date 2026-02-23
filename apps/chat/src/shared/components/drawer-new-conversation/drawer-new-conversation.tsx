@@ -7,6 +7,8 @@ import DefaultConversation from './default-conversatiom'
 import { NewGroup } from './groups'
 import { useCurrentAccount } from '@/shared/hooks'
 import { useGetConversations } from '../../../features/conversation/hooks'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
+import { Dialog, DialogContent, DialogTrigger } from '@/shared/components/ui/dialog'
 
 export enum ScreenType {
   DEFAULT = 'DEFAULT',
@@ -18,7 +20,9 @@ function DrawerNewConversation() {
   const { data: conversations } = useGetConversations(account?.address)
 
   const [screenType, setScreenType] = React.useState<ScreenType>(ScreenType.DEFAULT)
+
   const [open, setOpen] = React.useState(false)
+  const isMobile = useIsMobile()
 
   const onChangeScreenType = React.useCallback(
     (screenType: ScreenType) => setScreenType(screenType),
@@ -61,24 +65,39 @@ function DrawerNewConversation() {
     }
   }, [screenType, conversations, account, onChangeScreenType, onClose])
 
+  if (isMobile) {
+    return (
+      <Drawer.Root shouldScaleBackground open={open} onOpenChange={setOpen}>
+        <Drawer.Trigger asChild>
+          <button aria-label="New message">
+            <EditIcon className="size-7 text-white" />
+          </button>
+        </Drawer.Trigger>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/50" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
+            <div className="relative h-[90vh] rounded-t-[36px] bg-black/30 backdrop-blur-md border border-white/10 flex flex-col overflow-hidden">
+              <div className="w-full flex flex-col overflow-hidden">{renderScreen}</div>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    )
+  }
+
   return (
-    <Drawer.Root shouldScaleBackground open={open} onOpenChange={setOpen}>
-      <Drawer.Trigger asChild>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
         <button aria-label="New message">
           <EditIcon className="size-7 text-white" />
         </button>
-      </Drawer.Trigger>
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/50" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
-          <div className="relative h-[90vh] rounded-t-[36px] bg-black/30 backdrop-blur-md border border-white/10 flex flex-col overflow-hidden">
-            <div className="max-w-md mx-auto w-full flex flex-col overflow-hidden">
-              {renderScreen}
-            </div>
-          </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none text-white">
+        <div className="relative h-[600px] w-full rounded-2xl bg-black/30 backdrop-blur-md border border-white/10 flex flex-col overflow-hidden">
+          {renderScreen}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

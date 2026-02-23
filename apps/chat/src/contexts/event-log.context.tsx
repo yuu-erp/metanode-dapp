@@ -1,5 +1,6 @@
 'use client'
 
+import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
 import { useCurrentAccount } from '@/shared/hooks'
 import * as React from 'react'
@@ -16,8 +17,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     if (!account?.address || !account.contractAddress) return
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
-    const meetingAddress = import.meta.env.VITE_MEETING
-    const factoryAddress = import.meta.env.VITE_FACTORY
+    const meetingAddress = CONTRACT_ADDRESSES.meeting
+    const factoryAddress = CONTRACT_ADDRESSES.factory
 
     eventLog.registerEvent(account.address, [
       account.contractAddress,
