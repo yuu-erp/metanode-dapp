@@ -1,4 +1,3 @@
-import { chatClient } from '@/modules/call/client'
 import ButtonBase from '@/shared/components/button/button-base'
 import { useRouter } from '@tanstack/react-router'
 import { Phone } from 'lucide-react'
@@ -11,8 +10,8 @@ export const EndButton = memo(() => {
     <ButtonBase variant="icon" className="bg-[#ff0000]">
       <Phone
         onClick={() => {
-          chatClient.endCall()
-          router.history.back()
+          // chatClient.endCall()
+          // router.history.back()
         }}
       />
     </ButtonBase>

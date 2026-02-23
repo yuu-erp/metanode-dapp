@@ -1,3 +1,5 @@
+import type { HistoryVisibility } from '@/modules/conversation'
+
 export interface CheckUserContractInput {
   user: string
 }
@@ -24,4 +26,13 @@ export interface CreateGroupInput {
   groupAvatar: string
   encryptedInitialGroupKey: string
   initialPolicy: number
+}
+
+export type CreateAnonymousCommunityInput = {
+  groupName: string
+  groupAvatar: string
+  encryptedInitialGroupKey: string
+  initialPolicy: HistoryVisibility
+  avatarNormal: string
+  _globalDefaultAvatar: string
 }

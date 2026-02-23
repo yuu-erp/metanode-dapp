@@ -1,1 +1,1 @@
-export * from './group.contract'
+export * from './mtn-group.contract'

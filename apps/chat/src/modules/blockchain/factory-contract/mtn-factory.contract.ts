@@ -4,6 +4,7 @@ import type { TransactionPayload } from '../types'
 import { factoryAbi } from './abis'
 import type {
   CheckUserContractInput,
+  CreateAnonymousCommunityInput,
   CreateGroupInput,
   GetUserContractInput,
   IsUsernameTakenInput,
@@ -66,6 +67,19 @@ export class FactoryContract extends MtnContract {
       functionName: 'createGroup',
       feeType: 'sc',
       abiData: factoryAbi.createGroup
+    })
+  }
+
+  createAnonymousCommunity(
+    payload: TransactionPayload<CreateAnonymousCommunityInput>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'createAnonymousCommunity',
+      feeType: 'sc',
+      abiData: factoryAbi.createAnonymousCommunity
     })
   }
 }

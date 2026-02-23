@@ -15,11 +15,6 @@
         "internalType": "address",
         "name": "_communityGroupImplementation",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_meetFactory",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -92,6 +87,31 @@
       }
     ],
     "name": "GroupCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "groupId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "contractAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "RegularGroupDeleted",
     "type": "event"
   },
   {
@@ -228,6 +248,16 @@
         "internalType": "enum FactoryV3.HistoryVisibility",
         "name": "initialPolicy",
         "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "avatarNormal",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_globalDefaultAvatar",
+        "type": "string"
       }
     ],
     "name": "createAnonymousCommunity",
@@ -286,11 +316,43 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "delegateToContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "groupToDelete",
         "type": "address"
       }
     ],
     "name": "deleteAnonymousCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "groupId",
+        "type": "uint256"
+      }
+    ],
+    "name": "deleteGroup",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -336,6 +398,25 @@
       }
     ],
     "name": "getGroupContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_delegate",
+        "type": "address"
+      }
+    ],
+    "name": "getOwnerFromDelegate",
     "outputs": [
       {
         "internalType": "address",
@@ -436,19 +517,6 @@
   },
   {
     "inputs": [],
-    "name": "meetFactory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "notiFactoryAddress",
     "outputs": [
       {
@@ -534,6 +602,29 @@
       }
     ],
     "name": "sendNoti",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_delegate",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_isAdding",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "updateDelegateRegistration",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
