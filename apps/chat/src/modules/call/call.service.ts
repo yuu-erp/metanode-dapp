@@ -53,12 +53,10 @@ export class CallService {
       const query = await promise
       //@ts-ignore
       if (!window?.finSdk) {
-        await Promise.race([
-          sendCommand('startCallRTC', {
-            query: new URLSearchParams(query).toString()
-          }),
-          new Promise((resolve) => setTimeout(resolve, 2000))
-        ])
+        const data = await sendCommand('startCallRTC', {
+          query: new URLSearchParams(query).toString()
+        })
+        console.log('[CallService] Call created:', data)
       }
       return query
     } catch (error) {
