@@ -1,4 +1,5 @@
 'use client'
+import type { ConversationType } from '@/modules/conversation'
 import AvatarUser from '@/shared/components/avatar-user'
 import { useI18N } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
@@ -8,7 +9,7 @@ interface ConversationContactProps extends React.HTMLAttributes<HTMLDivElement> 
   avatar?: string
   name: string
   username?: string
-  type?: 'p2p' | 'group' | 'private'
+  type?: ConversationType
 }
 function ConversationContact({
   name,

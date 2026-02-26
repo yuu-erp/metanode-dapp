@@ -11,7 +11,7 @@ export class ConversationDexieDB extends Dexie implements ConversationDB {
   constructor(dbName = 'conversation_db') {
     super(dbName)
 
-    this.version(1).stores({
+    this.version(2).stores({
       conversations: `
         conversationId,
         accountId,

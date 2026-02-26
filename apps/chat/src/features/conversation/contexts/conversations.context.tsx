@@ -22,7 +22,6 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
       // Ensure message is fully typed PersistedMessage
       // If message comes from 'message.sent', it might be optimistic or confirmed.
       // If it comes from 'message.received', we need to decrypt first.
-
       await conversationService.updateWithLastMessage(message)
 
       queryClient.invalidateQueries({
@@ -40,11 +39,12 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
       try {
         let message
 
-        if (event.type === 'group') {
+        if (event.type === 'group' || event.type === 'anonymous_group') {
           message = await messageService.decryptMessageFromGroup(account, {
             messageId: event.messageId,
             encryptedContent: event.encryptedContent,
-            groupAddress: event.recipient
+            groupAddress: event.recipient,
+            type: event.type
           })
         } else {
           message = await messageService.decryptMessageFromPartner(account, {
@@ -74,17 +74,26 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
     [account, handleUpdateConversation]
   )
 
+  const onGroupJoined = React.useCallback(() => {
+    if (!account) return
+
+    container.conversationService.syncByAccount(account)
+  }, [account])
+
   React.useEffect(() => {
     if (!account) return
     const eventBus = container.eventBus
     eventBus.on('message.received', onConversationReceived)
     eventBus.on('message.create', onMessageCreate)
 
+    eventBus.on('group.joined', onGroupJoined)
+
     return () => {
       eventBus.off('message.received', onConversationReceived)
       eventBus.off('message.create', onMessageCreate)
+      eventBus.off('group.joined', onGroupJoined)
     }
-  }, [account, onConversationReceived, onMessageCreate])
+  }, [account, onConversationReceived, onMessageCreate, onGroupJoined])
   return <ConversationsContext.Provider value={{}}>{children}</ConversationsContext.Provider>
 }
 

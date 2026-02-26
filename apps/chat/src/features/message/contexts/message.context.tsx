@@ -17,6 +17,7 @@ import {
   updateMessageStatus
 } from '../message-cache.utils'
 import { formatAddress } from '@/shared/utils'
+import type { ConversationType } from '@/modules/conversation'
 
 export function MessageProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
@@ -40,9 +41,11 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       messageId: string
       groupAddress: string
       encryptedContent: string
+      type: ConversationType
     }): Promise<Message | null> => {
       try {
-        return await messageService.decryptMessageFromGroup(account, payload)
+        const rs = await messageService.decryptMessageFromGroup(account, payload)
+        return rs
       } catch (err) {
         console.error('[MessageProvider] Decrypt group failed:', err)
         return null
@@ -97,14 +100,16 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
 
       'message.received': async (e: AppEvents['message.received']) => {
         let message
-        if (e.type === 'group') {
+        if (e.type === 'group' || e.type === 'anonymous_group') {
           if (formatAddress(e.sender) === formatAddress(account.address)) return
 
           message = await safeGroupDecrypt({
             encryptedContent: e.encryptedContent,
             groupAddress: e.recipient,
-            messageId: e.messageId
+            messageId: e.messageId,
+            type: e.type
           })
+          message!.isMine = account.address === e.sender
         } else {
           message = await safeDecrypt(e)
         }
@@ -113,7 +118,9 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
 
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId),
-          (old) => insertMessage(old, message)
+          (old) => {
+            return insertMessage(old, message)
+          }
         )
       },
 
@@ -143,13 +150,15 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         const message = await safeGroupDecrypt({
           encryptedContent: e.newContent,
           groupAddress: e.groupAddress,
-          messageId: e.messageId
+          messageId: e.messageId,
+          type: e.type
         })
         if (!message) return
-
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(message.accountId, message.conversationId),
           (old) => {
+            //@ts-ignore
+            delete message.sender
             return applyMessageUpdate(old, {
               messageId: e.messageId,
               message: { ...message, id: e.messageId, isEdited: true }
@@ -161,6 +170,18 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         })
       },
 
+      'message.updateGroup': async (e: AppEvents['message.updateGroup']) => {
+        queryClient.setQueryData<InfiniteData<Message[]>>(
+          MESSAGE_QUERY_KEY.MESSAGES(e.message.accountId, e.message.conversationId),
+          (old) => {
+            return applyMessageUpdate(old, {
+              messageId: e.messageId,
+              message: { ...e.message, id: e.messageId, isEdited: true }
+            })
+          }
+        )
+      },
+
       'message.partnerdeleted': (e: AppEvents['message.partnerdeleted']) => {
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.sender),
@@ -170,7 +191,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
 
       'message.deleteGroup': (e: AppEvents['message.deleteGroup']) => {
         queryClient.setQueryData<InfiniteData<Message[]>>(
-          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.groupAddress),
+          MESSAGE_QUERY_KEY.MESSAGES(account.address, formatAddress(e.groupAddress)),
           (old) => applyMessageDelete(old, { messageId: e.messageId })
         )
       },
@@ -196,13 +217,14 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
       'reaction.group': (e: AppEvents['reaction.group']) => {
         queryClient.setQueryData<InfiniteData<Message[]>>(
-          MESSAGE_QUERY_KEY.MESSAGES(account.address, e.reactor),
-          (old) =>
-            applyReactionReceived(old, {
+          MESSAGE_QUERY_KEY.MESSAGES(formatAddress(account.address), formatAddress(e.reactor)),
+          (old) => {
+            return applyReactionReceived(old, {
               messageId: e.messageId,
               encodedEmoji: e.reaction,
               reactedByMe: e.reactor === account.contractAddress
             })
+          }
         )
       },
 
@@ -258,6 +280,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     eventBus.on('message.editGroup', handlers['message.editGroup'])
     eventBus.on('message.deleteGroup', handlers['message.deleteGroup'])
     eventBus.on('reaction.group', handlers['reaction.group'])
+    eventBus.on('message.updateGroup', handlers['message.updateGroup'])
 
     return () => {
       eventBus.off('message.create', handlers['message.create'])
@@ -274,6 +297,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       eventBus.off('message.editGroup', handlers['message.editGroup'])
       eventBus.off('message.deleteGroup', handlers['message.deleteGroup'])
       eventBus.off('reaction.group', handlers['reaction.group'])
+      eventBus.off('message.updateGroup', handlers['message.updateGroup'])
     }
   }, [account, handlers])
 

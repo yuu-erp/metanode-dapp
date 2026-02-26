@@ -1,4 +1,5 @@
 'use client'
+import type { ConversationType } from '@/modules/conversation'
 import { DrawerAddGroupMember } from '@/shared/components'
 import AvatarUser from '@/shared/components/avatar-user'
 import { VideoIcon } from '@/shared/components/icons'
@@ -13,19 +14,23 @@ interface ChatHeaderProps {
   avatar?: string
   name?: string
   username?: string
-  type?: 'p2p' | 'group' | 'private'
+  type?: ConversationType
   onVideoCall?: () => void
   isLoading?: boolean
+  isAdmin?: boolean
 }
 function ChatHeader({
   name = '',
   type = 'p2p',
   username,
   onVideoCall,
-  isLoading
+  isLoading,
+  isAdmin
 }: ChatHeaderProps) {
   const { t } = useI18N()
   const router = useRouter()
+  const isGroup = type === 'group' || type === 'anonymous_group'
+
   return (
     <WapperHeader alwaysScrolled position="sticky">
       <div className="flex items-center gap-2">
@@ -48,7 +53,7 @@ function ChatHeader({
           {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
-          {type !== 'private' && (
+          {type === 'p2p' && (
             <button onClick={onVideoCall} disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="size-6 text-white/80 animate-spin" />
@@ -57,7 +62,7 @@ function ChatHeader({
               )}
             </button>
           )}
-          {type === 'group' && <DrawerAddGroupMember />}
+          {isGroup && isAdmin && <DrawerAddGroupMember />}
           {/* <button>
             <EllipsisVertical className="size-7 text-white/80" />
           </button> */}

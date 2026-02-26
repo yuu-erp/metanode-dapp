@@ -41,14 +41,14 @@ importers:
         specifier: ^2.2.9
         version: 2.2.9(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@metanodejs/event-log':
-        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/event-log
-        version: link:../../../../../lekhaihoan/Documents/CONG_TY/metanode-packages/packages/event-log
+        specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log
+        version: link:../../../metanode-packages/packages/event-log
       '@metanodejs/mtn-contract':
-        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/mtn-contract
-        version: link:../../../../../lekhaihoan/Documents/CONG_TY/metanode-packages/packages/mtn-contract
+        specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract
+        version: link:../../../metanode-packages/packages/mtn-contract
       '@metanodejs/system-core':
-        specifier: /Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core
-        version: link:../../../../../lekhaihoan/Documents/CONG_TY/metanode-packages/packages/system-core
+        specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core
+        version: link:../../../metanode-packages/packages/system-core
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -62,8 +62,8 @@ importers:
         specifier: ^1.2.4
         version: 1.2.4(@types/react@19.2.14)(react@19.2.4)
       '@repo/chat-2':
-        specifier: /Users/lekhaihoan/Downloads/chat 2/packages/chat-2
-        version: link:../../../../../lekhaihoan/Downloads/chat 2/packages/chat-2
+        specifier: /Users/macbook/Documents/iBenefit/chat/packages/chat-2
+        version: link:../../../chat/packages/chat-2
       '@tailwindcss/vite':
         specifier: ^4.0.6
         version: 4.1.18(vite@7.1.7(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)(yaml@2.8.2))

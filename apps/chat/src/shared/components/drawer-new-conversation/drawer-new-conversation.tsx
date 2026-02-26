@@ -12,7 +12,8 @@ import { Dialog, DialogContent, DialogTrigger } from '@/shared/components/ui/dia
 
 export enum ScreenType {
   DEFAULT = 'DEFAULT',
-  NEW_GROUP = 'NEW_GROUP'
+  NEW_GROUP = 'NEW_GROUP',
+  NEW_ANONYMOUS_GROUP = 'NEW_ANONYMOUS_GROUP'
 }
 
 function DrawerNewConversation() {
@@ -52,6 +53,18 @@ function DrawerNewConversation() {
             conversations={conversations}
             account={account}
             onClose={onClose}
+            type="group"
+          />
+        )
+
+      case ScreenType.NEW_ANONYMOUS_GROUP:
+        return (
+          <NewGroup
+            onChangeScreenType={onChangeScreenType}
+            conversations={conversations}
+            account={account}
+            onClose={onClose}
+            type="anonymous_group"
           />
         )
       default:

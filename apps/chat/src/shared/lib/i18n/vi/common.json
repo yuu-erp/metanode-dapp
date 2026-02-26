@@ -29,6 +29,7 @@
   "drawer": {
     "newMessage": "Tin nhắn mới",
     "newGroup": "Nhóm mới",
+    "newAnonymousGroup": "Nhóm ẩn danh mới",
     "newContact": "Liên hệ mới",
     "newChannel": "Kênh mới",
     "groupInfo": "Thông tin nhóm",

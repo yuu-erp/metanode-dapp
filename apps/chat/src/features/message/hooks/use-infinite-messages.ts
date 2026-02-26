@@ -38,8 +38,10 @@ export function useInfiniteMessages({
       const messageService = container.messageService
       // Gọi service với beforeTimestamp để lấy tin nhắn cũ hơn
       let result: any[] = []
-
-      if (conversation.conversationType === 'group') {
+      if (
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+      ) {
         result = await messageService.getGroupMessages(account, conversation, {
           limit: pageSize,
           page: pageParam as number | undefined
@@ -50,7 +52,7 @@ export function useInfiniteMessages({
           page: pageParam as number | undefined
         })
       }
-      console.log('thanhduy group message result', result)
+
       return result
     },
     initialPageParam: 1,

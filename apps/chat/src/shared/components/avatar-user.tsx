@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { getAvatarFallback, getTelegramGradient } from '../helpers'
 import { BookmarkIcon } from './icons'
 import { cn } from '../lib'
+import type { ConversationType } from '@/modules/conversation'
 
 /* ---------------------------------- */
 /* Avatar variants (default sizes) */
@@ -63,7 +64,7 @@ interface AvatarUserProps
   extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof avatarVariants> {
   name: string
   url?: string
-  type?: 'p2p' | 'group' | 'private'
+  type?: ConversationType
   /** Custom sizes (px) */
   avatarSize?: number
   textSize?: number

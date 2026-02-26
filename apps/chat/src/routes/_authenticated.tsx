@@ -6,7 +6,7 @@ import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar'
-import { createCurrentAccountQueryOptions } from '@/shared/hooks'
+import { createCurrentAccountQueryOptions, useTitleNotification } from '@/shared/hooks'
 import { queryClient } from '@/shared/lib/react-query'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
 
@@ -31,6 +31,9 @@ const noNavbarRoutes = [/^\/p2p\/[^/]+$/, /^\/group\/[^/]+$/]
 function RouteComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const showNavbar = !noNavbarRoutes.some((regex) => regex.test(pathname))
+
+  useTitleNotification()
+
   return (
     <EventLogProvider>
       <ConversationsProvider>

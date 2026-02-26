@@ -29,6 +29,7 @@
   "drawer": {
     "newMessage": "New Message",
     "newGroup": "New Group",
+    "newAnonymousGroup": "New Anonymous Group",
     "newContact": "New Contact",
     "newChannel": "New Channel",
     "groupInfo": "Group Info",

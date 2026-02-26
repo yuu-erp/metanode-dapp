@@ -118,6 +118,7 @@ export function applyMessageUpdate(
 ): InfiniteData<Message[]> | undefined {
   return updatePages(old, (msg) => {
     // 1. Update chính message đó
+
     if (matchMessage(msg, { messageId: params.messageId })) {
       return { ...msg, ...params.message }
     }

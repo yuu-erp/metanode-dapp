@@ -27,6 +27,11 @@ export type AppEvents = {
     messageId: string
     message: PersistedMessage
   }
+  'message.updateGroup': {
+    conversationId: string
+    messageId: string
+    message: PersistedMessage
+  }
   'message.delete': {
     conversationId: string
     messageId: string
@@ -41,9 +46,15 @@ export type AppEvents = {
   'message.partneredited': EventMap['PartnerMessageEdited']
   'message.partnerdeleted': EventMap['PartnerMessageDeleted']
   // GROUP
-  'message.editGroup': EventMap['MessageEditedGroup']
-  'message.deleteGroup': EventMap['MessageDeletedGroup']
-  'reaction.group': EventMap['MessageReactedGroup']
+  'message.editGroup': EventMap['MessageEditedGroup'] & {
+    type: ConversationType
+  }
+  'message.deleteGroup': EventMap['MessageDeletedGroup'] & {
+    type: ConversationType
+  }
+  'reaction.group': EventMap['MessageReactedGroup'] & {
+    type: ConversationType
+  }
 
   // REACTIONS
   'reaction.create': {
@@ -65,6 +76,13 @@ export type AppEvents = {
   }
   // GROUP
   'group.created': EventMap['GroupCreated']
+  'group.joined': {
+    contractAddress: string
+  }
+
   // CALL
   'call.received': EventMap['CallReceived']
+  'noti:add': {
+    type: 'message' | 'reaction'
+  }
 }

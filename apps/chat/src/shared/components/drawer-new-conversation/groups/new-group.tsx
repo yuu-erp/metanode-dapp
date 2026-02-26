@@ -7,7 +7,7 @@ import { HeaderSection } from '../sections'
 import { Drawer } from 'vaul'
 import { CheckIcon, ChevronLeftIcon, Loader2Icon } from 'lucide-react'
 import { ScreenType } from '../drawer-new-conversation'
-import type { Conversation, PayloadAddMembers } from '@/modules/conversation'
+import type { Conversation, ConversationType, PayloadAddMembers } from '@/modules/conversation'
 import type { Account } from '@/modules/account'
 import { cn } from '@/shared/lib'
 import { Input } from '@/shared/components/ui/input'
@@ -24,9 +24,16 @@ interface NewGroupProps {
   conversations?: Conversation[]
   account?: Account
   onClose?: () => void
+  type?: ConversationType
 }
-function NewGroup({ onChangeScreenType, conversations = [], account, onClose }: NewGroupProps) {
-  const { mutateAsync: createGroup, isPending: isCreatingGroup } = useCreateGroup()
+function NewGroup({
+  onChangeScreenType,
+  conversations = [],
+  account,
+  onClose,
+  type = 'group'
+}: NewGroupProps) {
+  const { mutateAsync: createGroup, isPending: isCreatingGroup } = useCreateGroup(type)
   const { t } = useI18N()
 
   const [screenType, setScreenType] = React.useState<ScreenGroupType>(

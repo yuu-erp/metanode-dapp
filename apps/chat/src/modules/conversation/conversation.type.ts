@@ -1,6 +1,6 @@
 import type { Message } from '@/modules/message'
 
-export type ConversationType = 'p2p' | 'group' | 'private'
+export type ConversationType = 'p2p' | 'group' | 'private' | 'anonymous_group'
 
 export interface Conversation {
   // Identity
@@ -18,6 +18,9 @@ export interface Conversation {
   conversationType: ConversationType
   // Sync / sort
   updatedAt?: Date // nên dùng Date hoặc ISO string tùy bạn xử lý
+
+  admin?: string
+  isVerifed?: boolean
 }
 
 export enum HistoryVisibility {
@@ -33,7 +36,20 @@ export interface PayloadCreateGroup {
   members: PayloadAddMembers[]
 }
 
+export interface PayloadCreateGroup {
+  name: string
+  avatar?: string
+  policy?: HistoryVisibility
+  members: PayloadAddMembers[]
+  oldGroup?: OldGroupInput
+}
+
 export interface PayloadAddMembers {
   publicKey: string
   conversationId: string
+}
+
+export type OldGroupInput = {
+  avatar?: string
+  groupKey: string
 }

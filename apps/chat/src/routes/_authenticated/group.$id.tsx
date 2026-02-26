@@ -10,6 +10,7 @@ import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
+import { formatAddress } from '@/shared/utils'
 import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
@@ -27,7 +28,6 @@ function RouteComponent() {
   const containerStyle = useMemo(() => {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
-
   return (
     <MessageActionProvider>
       <CopyMessageActionProvider>
@@ -43,6 +43,9 @@ function RouteComponent() {
             name={conversation?.name}
             type={conversation?.conversationType}
             username={conversation?.username}
+            isAdmin={
+              formatAddress(conversation?.admin || '') === formatAddress(account?.address || '')
+            }
           />
           <PinMessages account={account} conversation={conversation as Conversation} />
           <ListMessage conversation={conversation as Conversation} account={account} />

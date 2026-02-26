@@ -4,6 +4,7 @@ import type { Message } from '@/modules/message'
 import { LoaderCircle } from 'lucide-react'
 import * as React from 'react'
 import MessageItem from '../item-message/item-message'
+import { formatAddress } from '@/shared/utils'
 
 interface ListMessageViewProps {
   messages: Message[]
@@ -44,15 +45,20 @@ function ListMessageView({
   return (
     <React.Fragment>
       {/* Danh sách tin nhắn - hiển thị từ cũ → mới (do flex-col-reverse) */}
-      {messages.map((message) => (
-        <MessageItem
-          key={message.id ?? message.clientId}
-          message={message}
-          isMine={message.sender === account?.contractAddress}
-          onSelectMessage={handleSelectMessage}
-          layoutId={`message-${message.id ?? message.clientId}`}
-        />
-      ))}
+      {messages.map((message) => {
+        return (
+          <MessageItem
+            key={message.id ?? message.clientId}
+            message={message}
+            isMine={
+              message?.isMine ??
+              formatAddress(message.sender) === formatAddress(account?.contractAddress || '')
+            }
+            onSelectMessage={handleSelectMessage}
+            layoutId={`message-${message.id ?? message.clientId}`}
+          />
+        )
+      })}
       {/* Trigger load more khi scroll lên đầu */}
       <div
         ref={loadMoreRef}

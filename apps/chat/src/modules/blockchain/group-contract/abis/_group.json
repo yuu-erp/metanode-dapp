@@ -1,78 +1,5 @@
 [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "encryptedKeyForNewMember",
-        "type": "string"
-      }
-    ],
-    "name": "addMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "trackName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "mid",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "streamNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "location",
-            "type": "string"
-          },
-          {
-            "internalType": "bool",
-            "name": "isPublished",
-            "type": "bool"
-          },
-          {
-            "internalType": "string",
-            "name": "sessionId",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "roomId",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct Track[]",
-        "name": "_tracks",
-        "type": "tuple[]"
-      },
-      {
-        "internalType": "string",
-        "name": "_sdpOffer",
-        "type": "string"
-      }
-    ],
-    "name": "addTracksToCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -98,17 +25,29 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "indexed": true,
         "internalType": "address",
-        "name": "_participant",
+        "name": "host",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "name": "banMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "AllHandsCleared",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -170,6 +109,37 @@
       }
     ],
     "name": "CallEndedSignal",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "participant",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reaction",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
+      }
+    ],
+    "name": "CallReactionSent",
     "type": "event"
   },
   {
@@ -297,44 +267,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "deleteMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "newEncryptedContent",
-        "type": "string"
-      }
-    ],
-    "name": "editMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "endCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -402,112 +334,6 @@
     ],
     "name": "HostChanged",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_factory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_admin",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_groupId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_groupName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_groupAvatar",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_encryptedInitialGroupKey",
-        "type": "string"
-      },
-      {
-        "internalType": "enum GroupChatV3.HistoryVisibility",
-        "name": "_initialPolicy",
-        "type": "uint8"
-      },
-      {
-        "internalType": "address",
-        "name": "_meetFactory",
-        "type": "address"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_personalSessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_password",
-        "type": "string"
-      }
-    ],
-    "name": "joinCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_participant",
-        "type": "address"
-      }
-    ],
-    "name": "kickFromCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "leaveCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "leaveGroup",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "messageIds",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "markMessagesAsRead",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -1031,169 +857,25 @@
     "inputs": [
       {
         "indexed": true,
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "participant",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "groupAddress",
-        "type": "address"
-      }
-    ],
-    "name": "ParticipantWaiting",
-    "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "string",
-        "name": "reaction",
-        "type": "string"
-      }
-    ],
-    "name": "reactToMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "callee",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "enum CallStatus",
-        "name": "status",
-        "type": "uint8"
-      }
-    ],
-    "name": "receiveCallSignal",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "initiator",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "otherParty",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "enum CallStatus",
-        "name": "status",
-        "type": "uint8"
-      }
-    ],
-    "name": "receiveEndCallSignal",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "caller",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "callee",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "enum CallStatus",
-        "name": "status",
-        "type": "uint8"
-      }
-    ],
-    "name": "receiveRejectCallSignal",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "user",
         "type": "address"
-      }
-    ],
-    "name": "removeMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string[]",
-        "name": "_mids",
-        "type": "string[]"
       },
       {
-        "internalType": "string",
-        "name": "_sdpOffer",
-        "type": "string"
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isRaiseHand",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
       }
     ],
-    "name": "removeTracksFromCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "RaiseHandUpdated",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -1231,29 +913,6 @@
     ],
     "name": "RequestMute",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_participant",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "_muteMic",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_muteCam",
-        "type": "bool"
-      }
-    ],
-    "name": "requestMuteMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -1331,100 +990,32 @@
     "type": "event"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "MAX_MESSAGES_PER_STORE",
+    "outputs": [
       {
-        "internalType": "string",
-        "name": "encryptedContent",
-        "type": "string"
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "address[]",
-        "name": "recipientOwners",
+        "name": "users",
         "type": "address[]"
-      }
-    ],
-    "name": "sendMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_message",
-        "type": "string"
-      }
-    ],
-    "name": "sendMessageGroup",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "enum GroupChatV3.HistoryVisibility",
-        "name": "_newPolicy",
-        "type": "uint8"
-      }
-    ],
-    "name": "setHistoryVisibility",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_sessionId",
-        "type": "string"
       },
       {
-        "internalType": "address",
-        "name": "technicalRoomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "linkMeet",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_password",
-        "type": "string"
+        "internalType": "string[]",
+        "name": "encryptedKeys",
+        "type": "string[]"
       }
     ],
-    "name": "startCallGroup",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "startScreenShare",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "stopScreenShare",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bool",
-        "name": "_isOn",
-        "type": "bool"
-      }
-    ],
-    "name": "toggleCamera",
+    "name": "addAllMember",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1433,68 +1024,16 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newAdmin",
+        "name": "user",
         "type": "address"
-      }
-    ],
-    "name": "transferAdmin",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newHost",
-        "type": "address"
-      }
-    ],
-    "name": "transferHost",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_participant",
-        "type": "address"
-      }
-    ],
-    "name": "unbanMember",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "unReactToMessage",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "_newName",
-        "type": "string"
       },
       {
         "internalType": "string",
-        "name": "_newAvatar",
+        "name": "encryptedKeyForNewMember",
         "type": "string"
       }
     ],
-    "name": "updateGroupInfo",
+    "name": "addMember",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1510,6 +1049,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      }
+    ],
+    "name": "banMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1587,6 +1139,19 @@
     "inputs": [
       {
         "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "deleteMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
       }
@@ -1600,6 +1165,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "newEncryptedContent",
+        "type": "string"
+      }
+    ],
+    "name": "editMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1623,6 +1206,13 @@
   },
   {
     "inputs": [],
+    "name": "endCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "factory",
     "outputs": [
       {
@@ -1637,6 +1227,19 @@
   {
     "inputs": [],
     "name": "getAllStoreAddresses",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getBannedMembersInSession",
     "outputs": [
       {
         "internalType": "address[]",
@@ -1930,6 +1533,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_isRaiseHand",
+        "type": "bool"
+      }
+    ],
+    "name": "handleRaiseHand",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "historyVisibilityPolicy",
     "outputs": [
@@ -1940,6 +1556,75 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      }
+    ],
+    "name": "hostLowerHand",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialAdmin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_factory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_admin",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_groupId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_groupName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_groupAvatar",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_encryptedInitialGroupKey",
+        "type": "string"
+      },
+      {
+        "internalType": "enum GroupChatV3.HistoryVisibility",
+        "name": "_initialPolicy",
+        "type": "uint8"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2015,29 +1700,56 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "MAX_MESSAGES_PER_STORE",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "internalType": "string",
+        "name": "_password",
+        "type": "string"
       }
     ],
-    "stateMutability": "view",
+    "name": "joinCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      }
+    ],
+    "name": "kickFromCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "meetFactory",
-    "outputs": [
+    "name": "leaveCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "leaveGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "contract MeetFactory",
-        "name": "",
-        "type": "address"
+        "internalType": "bytes32[]",
+        "name": "messageIds",
+        "type": "bytes32[]"
       }
     ],
-    "stateMutability": "view",
+    "name": "markMessagesAsRead",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -2189,6 +1901,274 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "string",
+        "name": "reaction",
+        "type": "string"
+      }
+    ],
+    "name": "reactToMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "initiator",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "otherParty",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveEndCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "enum CallStatus",
+        "name": "status",
+        "type": "uint8"
+      }
+    ],
+    "name": "receiveRejectCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "users",
+        "type": "address[]"
+      }
+    ],
+    "name": "removeAllMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "removeMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "_muteMic",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_muteCam",
+        "type": "bool"
+      }
+    ],
+    "name": "requestMuteMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_reaction",
+        "type": "string"
+      }
+    ],
+    "name": "sendCallReaction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "encryptedContent",
+        "type": "string"
+      },
+      {
+        "internalType": "address[]",
+        "name": "recipientOwners",
+        "type": "address[]"
+      }
+    ],
+    "name": "sendMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_message",
+        "type": "string"
+      }
+    ],
+    "name": "sendMessageGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum GroupChatV3.HistoryVisibility",
+        "name": "_newPolicy",
+        "type": "uint8"
+      }
+    ],
+    "name": "setHistoryVisibility",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "technicalRoomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "linkMeet",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_password",
+        "type": "string"
+      }
+    ],
+    "name": "startCallGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startScreenShare",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "stopScreenShare",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "_isOn",
+        "type": "bool"
+      }
+    ],
+    "name": "toggleCamera",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "totalMessageCount",
     "outputs": [
@@ -2199,6 +2179,76 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "transferAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_newHost",
+        "type": "address"
+      }
+    ],
+    "name": "transferHost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "unReactToMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      }
+    ],
+    "name": "unbanMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "_newName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_newAvatar",
+        "type": "string"
+      }
+    ],
+    "name": "updateGroupInfo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

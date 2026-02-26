@@ -35,8 +35,10 @@ interface ReactToMessageVariables {
 export function useReactToMessage() {
   return useMutation({
     mutationFn: async ({ account, conversation, payload }: ReactToMessageVariables) => {
-      if (conversation.conversationType === 'group') {
-        console.log('thanhduy - useReactToMessage 1', payload)
+      if (
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+      ) {
         return reactGroupMessage(account, conversation, payload)
       }
       return reactToMessage(account, conversation, payload)

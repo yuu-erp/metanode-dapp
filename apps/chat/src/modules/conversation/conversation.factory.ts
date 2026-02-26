@@ -1,10 +1,17 @@
 import { ConversationDexieDB } from './infrastructure/indexeddb/conversation.indexeddb'
 import { DexieConversationRepository } from './infrastructure/indexeddb/dexie-conversation.repository'
 import { ConversationService } from './conversation.service'
-import type { FactoryContract, GroupContract, UserContract } from '@/modules/blockchain'
+import type {
+  EkycContract,
+  FactoryContract,
+  GroupContract,
+  UserContract,
+  VerifyContract
+} from '@/modules/blockchain'
 import type { WalletService } from '@/modules/wallet'
 import type { FileCacheService } from '@/modules/file-cache'
 import type { EventLogContainer } from '../eventlogs'
+import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 
 export class ConversationFactory {
   static createService(
@@ -13,7 +20,10 @@ export class ConversationFactory {
     groupContract: GroupContract,
     walletService: WalletService,
     fileCacheService: FileCacheService,
-    eventLogContainer: EventLogContainer
+    eventLogContainer: EventLogContainer,
+    anonymousGroupContract: AnonymousGroupContract,
+    verifyContract: VerifyContract,
+    ekycContract: EkycContract
   ): ConversationService {
     const db = new ConversationDexieDB('conversations')
     const repository = new DexieConversationRepository(db)
@@ -24,7 +34,10 @@ export class ConversationFactory {
       groupContract,
       walletService,
       fileCacheService,
-      eventLogContainer
+      eventLogContainer,
+      anonymousGroupContract,
+      verifyContract,
+      ekycContract
     )
   }
 }

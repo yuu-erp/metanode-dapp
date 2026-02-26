@@ -84,6 +84,18 @@ function DefaultConversation({
 
           <div className="h-px bg-white/20 ml-10" />
 
+          <button
+            onClick={() => onChangeScreenType?.(ScreenType.NEW_ANONYMOUS_GROUP)}
+            className="w-full h-12 flex items-center gap-4 text-left transition"
+          >
+            <UserGroupIcon className="size-6 text-blue-500" />
+            <span className="font-medium text-blue-500">
+              {t('drawer.newAnonymousGroup', { defaultValue: 'New Anonymous Group' })}
+            </span>
+          </button>
+
+          <div className="h-px bg-white/20 ml-10" />
+
           {/* New Contact */}
           <button
             className="w-full h-12 flex items-center gap-4 text-left transition disabled:opacity-50 cursor-not-allowed"

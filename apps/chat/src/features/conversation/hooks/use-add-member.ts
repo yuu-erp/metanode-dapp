@@ -1,10 +1,10 @@
 import type { Account } from '@/modules/account'
-import type { Conversation, PayloadAddMembers } from '@/modules/conversation'
+import type { Conversation, ConversationType, PayloadAddMembers } from '@/modules/conversation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { container } from '@/container'
 import { CONVERSATION_QUERY_KEY } from '@/shared/lib/react-query'
 
-export function useAddMember() {
+export function useAddMember(converstaionType?: ConversationType) {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -17,12 +17,21 @@ export function useAddMember() {
       members: PayloadAddMembers[]
       group: Conversation
     }) => {
-      await container.conversationService.addMembers(
-        account,
-        group.conversationId,
-        group.conversationKey,
-        members
-      )
+      if (converstaionType === 'group') {
+        await container.conversationService.addMembers(
+          account,
+          group.conversationId,
+          group.conversationKey,
+          members
+        )
+      } else if (converstaionType === 'anonymous_group') {
+        await container.conversationService.addMembersInAnonymousGroup(
+          account,
+          group.conversationId,
+          group.conversationKey,
+          members
+        )
+      }
 
       return group.conversationId
     },

@@ -17,8 +17,11 @@ export function createGetConversationsQueryOptions(
     queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(accountId ?? ''),
     queryFn: async (): Promise<Conversation[]> => {
       if (!accountId) return []
+
       const conversationService = container.conversationService
-      return await conversationService.getConversationList(accountId)
+      const rs = await conversationService.getConversationList(accountId)
+
+      return rs
     },
     enabled: !!accountId
   }

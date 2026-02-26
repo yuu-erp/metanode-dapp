@@ -59,6 +59,7 @@ export class AccountService {
         }
       })
     }
+
     // 5. Lấy user contract address (luôn làm)
     const contractAddress = await this.factoryContract.getUserContract({
       from: address,
@@ -66,6 +67,7 @@ export class AccountService {
         user: address
       }
     })
+
     if (!contractAddress) {
       throw new Error('User contract not found')
     }

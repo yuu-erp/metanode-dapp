@@ -1,10 +1,12 @@
 import { AccountFactory, AccountService, AccountSyncStrategy } from '@/modules/account'
 import {
+  EkycContract,
   FactoryContract,
   FileContract,
   GroupContract,
   MettingContract,
-  UserContract
+  UserContract,
+  VerifyContract
 } from '@/modules/blockchain'
 import { CallService } from '@/modules/call'
 import {
@@ -26,6 +28,7 @@ import { SyncFactory, SyncManager } from '@/modules/sync'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
 import { EventLogContainer } from './modules/eventlogs'
 import type { AppEvents } from './types/app-events'
+import { AnonymousGroupContract } from './modules/blockchain/anonymous-group-contract'
 
 /**
  * AppContainer
@@ -41,11 +44,15 @@ class AppContainer {
   private readonly _walletService: WalletService
   private readonly _factoryContract: FactoryContract
   private readonly _userContract: UserContract
+  private readonly _anonymousGroupContract: AnonymousGroupContract
   private readonly _groupContract: GroupContract
   private readonly _fileContract: FileContract
   private readonly _mettingContract: MettingContract
   private readonly _eventLogContainer: EventLogContainer
   private readonly _eventBus: EventBusPort<AppEvents>
+  private readonly _verifyContract: VerifyContract
+  private readonly _ekycContract: EkycContract
+
   /* ================================
    * Application services
    * ================================ */
@@ -68,7 +75,9 @@ class AppContainer {
     this._mettingContract = new MettingContract()
     this._eventLogContainer = new EventLogContainer()
     this._eventBus = new MittEventBus<AppEvents>()
-
+    this._anonymousGroupContract = new AnonymousGroupContract()
+    this._verifyContract = new VerifyContract()
+    this._ekycContract = new EkycContract()
     // 5️⃣ Application Service (AccountService)
     this._accountService = AccountFactory.createService(
       this._walletService,
@@ -86,7 +95,10 @@ class AppContainer {
       this._groupContract,
       this._walletService,
       this._fileCacheService,
-      this._eventLogContainer
+      this._eventLogContainer,
+      this._anonymousGroupContract,
+      this._verifyContract,
+      this._ekycContract
     )
 
     this._messageService = MessageFactory.createService(
@@ -97,7 +109,8 @@ class AppContainer {
       this._walletService,
       this._eventBus,
       this._fileCacheService,
-      this.eventLogContainer
+      this.eventLogContainer,
+      this._anonymousGroupContract
     )
 
     this._fileTransferService = new FileTransferService()

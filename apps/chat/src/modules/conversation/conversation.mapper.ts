@@ -18,6 +18,8 @@ export function mapperToConversation(raw: any): Conversation {
     updatedAt:
       !raw.latestMessageTimestamp || raw.latestMessageTimestamp === '0'
         ? undefined
-        : new Date(Number(raw.latestMessageTimestamp) * 1000)
+        : new Date(Number(raw.latestMessageTimestamp) * 1000),
+    admin: raw.admin,
+    isVerifed: raw?.isVerifed
   }
 }

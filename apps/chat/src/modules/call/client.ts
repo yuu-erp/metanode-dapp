@@ -7,24 +7,17 @@ import { container } from '@/container'
 const meetingAddress = import.meta.env.VITE_MEETING
 const factoryAddress = import.meta.env.VITE_FACTORY
 
-const getPrivateKeyFromDb = async (address: string) => {
-  //@ts-ignore
-  const command = window?.finSdk
-  return (await SystemCore.send({ command, value: { address } }))?.privateKey
-}
-
-// export const chatClient = createChatModule({
-//   core: SystemCore,
-//   contractAddresses: {
-//     meeting: meetingAddress,
-//     factory: factoryAddress
-//   },
-//   coreFns: {
-//     ...coreFns,
-//     startCallRTCV2: (query: string) => coreFns.sendCommand('startCallRTC', { query }),
-//     getPrivateKeyFromDb
-//   },
-//   queryClient: queryClient,
-//   eventLogs: container.eventLogContainer.eventLog as any,
-//   decodeAbi: container.eventLogContainer.decodeAbi
-// })
+export const chatClient = createChatModule({
+  core: SystemCore,
+  contractAddresses: {
+    meeting: meetingAddress,
+    factory: factoryAddress
+  },
+  coreFns: {
+    ...coreFns,
+    startCallRTCV2: (query: string) => coreFns.sendCommand('startCallRTC', { query })
+  },
+  queryClient: queryClient,
+  eventLogs: container.eventLogContainer.eventLog as any,
+  decodeAbi: container.eventLogContainer.decodeAbi
+})

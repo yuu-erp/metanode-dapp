@@ -1,0 +1,2052 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isBuyAd",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
+      }
+    ],
+    "name": "AdStatsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "previousAdmin",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "AdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "beacon",
+        "type": "address"
+      }
+    ],
+    "name": "BeaconUpgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "CollateralDeposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "CollateralWithdrawn",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "level",
+        "type": "uint8"
+      }
+    ],
+    "name": "KYCUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum MerchantTier",
+        "name": "tier",
+        "type": "uint8"
+      }
+    ],
+    "name": "MerchantStatusGranted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "MerchantStatusRevoked",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "MerchantSuspended",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum MerchantTier",
+        "name": "oldTier",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum MerchantTier",
+        "name": "newTier",
+        "type": "uint8"
+      }
+    ],
+    "name": "MerchantTierUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "implementation",
+        "type": "address"
+      }
+    ],
+    "name": "Upgraded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "UserRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tier",
+        "type": "uint256"
+      }
+    ],
+    "name": "UserTierUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "MERCHANT_MIN_COLLATERAL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PRIORITY_MERCHANT_COLLATERAL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SUPER_MERCHANT_COLLATERAL",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum PAYMENT_METHOD",
+        "name": "paymentMethod",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "currency",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "accountNumber",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "swiftBIC",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankBranch",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "mobile",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "qrCode",
+        "type": "string"
+      }
+    ],
+    "name": "addPaymentMethod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "admin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "applyForMerchant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuyAd",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "canCreateAd",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "buyer",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "seller",
+        "type": "address"
+      }
+    ],
+    "name": "canCreateOrder",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "collateralDeposits",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "deletePaymentMethod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "depositCollateral",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum PAYMENT_METHOD",
+        "name": "paymentMethod",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "currency",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "accountNumber",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "swiftBIC",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankBranch",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "mobile",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "qrCode",
+        "type": "string"
+      }
+    ],
+    "name": "editPaymentMethod",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllPaymentMethod",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "currency",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "accountNumber",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "swiftBIC",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "bankName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "bankBranch",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "mobile",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "enum PAYMENT_METHOD",
+            "name": "paymentMethod",
+            "type": "uint8"
+          },
+          {
+            "internalType": "string",
+            "name": "qrCode",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct PaymentData[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getAllPaymentMethodUser",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "id",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "currency",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "accountNumber",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "swiftBIC",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "bankName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "bankBranch",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "mobile",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "email",
+            "type": "string"
+          },
+          {
+            "internalType": "enum PAYMENT_METHOD",
+            "name": "paymentMethod",
+            "type": "uint8"
+          },
+          {
+            "internalType": "string",
+            "name": "qrCode",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct PaymentData[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getInfoUser",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "avatar",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getMerchantLimits",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "maxAdAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "buyAdsPerCoin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sellAdsPerCoin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPendingOrdersPerAd",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalPendingOrders",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxPendingDisputes",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "maxTransactionsSamePerson",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "postingAdsFee",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct MerchantLimits",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getMerchantQualificationStatus",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "volumeQualified",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "tradeCountQualified",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getPostingAdsFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUser",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bool",
+            "name": "kycVerified",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint8",
+            "name": "kycLevel",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum UserRole",
+            "name": "role",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "isMerchant",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalTrades",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalVolume",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "successfulTrades",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "cancelledTrades",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "rating",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "ratingCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isSuspended",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastTradeTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "createAt",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "avatar",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "last30DaysTrades",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum MerchantTier",
+            "name": "merchantTier",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint256",
+            "name": "collateralDeposit",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pendingDisputes",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "averageReleaseTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "releaseCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "chatAdd",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct UserProfile",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "getUserAdStats",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "buyAds",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "sellAds",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalPendingOrders",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserCancellationRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserCompletionRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserSignupTime",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isRegistered",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "a",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "b",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "isSubset",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "isUserQualifiedForMerchant",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "paymentMethodIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "isValidPaymentMethod",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "kq",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "mAddToIds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "mIDToPaymentData",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "currency",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "accountNumber",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "swiftBIC",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankBranch",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "mobile",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "internalType": "enum PAYMENT_METHOD",
+        "name": "paymentMethod",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "qrCode",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "mUserPaymentDatas",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "currency",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "accountNumber",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "swiftBIC",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "bankBranch",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "mobile",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "email",
+        "type": "string"
+      },
+      {
+        "internalType": "enum PAYMENT_METHOD",
+        "name": "paymentMethod",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "qrCode",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum MerchantTier",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "name": "merchantLimits",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "maxAdAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "buyAdsPerCoin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "sellAdsPerCoin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxPendingOrdersPerAd",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalPendingOrders",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxPendingDisputes",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxTransactionsSamePerson",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "postingAdsFee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "merchantTradeThreshold",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "merchantVolumeThreshold",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "p2pTradingContract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proxiableUUID",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rating",
+        "type": "uint256"
+      }
+    ],
+    "name": "rateUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "avatar",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "chatAdd",
+        "type": "address"
+      }
+    ],
+    "name": "registerUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_admin",
+        "type": "address"
+      }
+    ],
+    "name": "setAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_p2pContract",
+        "type": "address"
+      }
+    ],
+    "name": "setP2PTradingContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "usdt",
+        "type": "address"
+      }
+    ],
+    "name": "setUsdt",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tier",
+        "type": "uint256"
+      }
+    ],
+    "name": "setUserTier",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "reason",
+        "type": "string"
+      }
+    ],
+    "name": "suspendMerchant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalIDPayment",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "tradeTimestamps",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "merchant",
+        "type": "address"
+      }
+    ],
+    "name": "unsuspendMerchant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isBuyAd",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "isCreate",
+        "type": "bool"
+      }
+    ],
+    "name": "updateAdStats",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isOpening",
+        "type": "bool"
+      }
+    ],
+    "name": "updateDisputeStats",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "level",
+        "type": "uint8"
+      }
+    ],
+    "name": "updateKYC",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum MerchantTier",
+        "name": "tier",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxAdAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "buyAdsPerCoin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "sellAdsPerCoin",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxPendingOrdersPerAd",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalPendingOrders",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxPendingDisputes",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "maxTransactionsSamePerson",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "postingAdsFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateMerchantLimits",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "qualified",
+        "type": "bool"
+      }
+    ],
+    "name": "updateMerchantStatus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "isIncrease",
+        "type": "bool"
+      }
+    ],
+    "name": "updatePendingOrderStats",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "avatar",
+        "type": "string"
+      }
+    ],
+    "name": "updateProfile",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user1",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "user2",
+        "type": "address"
+      }
+    ],
+    "name": "updateTransactionStats",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "volume",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isSuccessful",
+        "type": "bool"
+      }
+    ],
+    "name": "updateUserStats",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "upgradeTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
+      }
+    ],
+    "name": "upgradeToAndCall",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdtToken",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "userTier",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "users",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "kycVerified",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint8",
+        "name": "kycLevel",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum UserRole",
+        "name": "role",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "isMerchant",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalTrades",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalVolume",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "successfulTrades",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "cancelledTrades",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "rating",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "ratingCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isSuspended",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastTradeTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "createAt",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "avatar",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "last30DaysTrades",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum MerchantTier",
+        "name": "merchantTier",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "collateralDeposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pendingDisputes",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "averageReleaseTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "releaseCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "chatAdd",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawCollateral",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

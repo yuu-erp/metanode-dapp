@@ -1,3 +1,4 @@
+import { formatAddress } from '@/shared/utils'
 import type {
   BaseMessage,
   BaseOnChainPayload,
@@ -26,6 +27,7 @@ type RawMessageSource = Record<string, unknown> & {
   longitude?: number | string
   address?: string
   reactionSummary?: string
+  isMine?: boolean
 }
 
 /**
@@ -48,17 +50,18 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   const base: Omit<BaseMessage, 'type'> = {
     id: String(raw.messageId ?? raw.id ?? raw.clientId ?? Date.now()),
     clientId: String(raw.clientId ?? raw.localId ?? ''),
-    accountId: String(raw.accountId ?? raw.from ?? raw.sender ?? ''),
+    accountId: formatAddress(String(raw.accountId ?? raw.from ?? raw.sender ?? '')),
     sender: String(raw.sender ?? raw.from ?? raw.author ?? ''),
     recipient: String(raw.recipient ?? raw.to ?? ''),
     timestamp: Number(raw.timestamp ?? raw.createdAt ?? Date.now()),
-    conversationId: String(raw.conversationId ?? raw.topic ?? raw.chatId ?? ''),
+    conversationId: formatAddress(String(raw.conversationId ?? raw.topic ?? raw.chatId ?? '')),
     isEdited: Boolean(raw.isEdited ?? raw.edited ?? raw.editedAt),
     isDeleted: Boolean(raw.isDeleted ?? raw.deleted ?? false),
     status: mapStatus(raw.status ?? raw.isRead ?? raw.read),
     reactions: parseReactionSummary(raw.reactionSummary),
     replyTo: raw.replyTo ? mapReplyReference(raw.replyTo) : undefined,
-    forwardFrom: raw.forwardFrom ? String(raw.forwardFrom) : undefined
+    forwardFrom: raw.forwardFrom ? String(raw.forwardFrom) : undefined,
+    isMine: raw.isMine
   }
 
   switch (messageType) {

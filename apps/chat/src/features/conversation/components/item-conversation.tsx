@@ -1,4 +1,5 @@
 'use client'
+import type { ConversationType } from '@/modules/conversation'
 import type { Message } from '@/modules/message'
 import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
@@ -7,7 +8,7 @@ import { formatUpdatedAt } from '@/shared/helpers'
 import { useI18N, useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
-import { CheckIcon } from 'lucide-react'
+import { BadgeCheck, Check, CheckIcon, Divide } from 'lucide-react'
 import * as React from 'react'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -16,9 +17,10 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   updatedAt?: Date
   lastMessage?: Message
   isPin?: boolean
-  type?: 'p2p' | 'private' | 'group'
+  type?: ConversationType
   unreadCount?: number
   isMine?: boolean
+  isVerified?: boolean
 }
 function ItemConversation({
   name,
@@ -30,6 +32,7 @@ function ItemConversation({
   unreadCount = 0,
   className,
   isMine = false,
+  isVerified,
   ...props
 }: ItemConversationProps) {
   const { t } = useI18N()
@@ -67,8 +70,16 @@ function ItemConversation({
         <AvatarUser size="lg" url={avatar} name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight">
           <div className="w-full flex items-center justify-between gap-3">
-            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1">
-              {type === 'private' ? t(name) : name}
+            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1 flex flex-row gap-2 items-center">
+              <p>{type === 'private' ? t(name) : name}</p>
+              {!isVerified && (
+                <BadgeCheck
+                  className="text-blue-500 size-4"
+                  fill="#fff
+
+"
+                />
+              )}
             </div>
             <div className="flex items-center gap-1">
               {isMine && <CheckIcon className="size-3" />}

@@ -9,7 +9,7 @@ import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
 import '@/shared/lib/i18n'
-import { FinsdkProvider } from './contexts/finsk.context.tsx'
+import { FinsdkProvider } from './contexts/finsdk.context.tsx'
 
 // Create a new router instance
 const router = createRouter({

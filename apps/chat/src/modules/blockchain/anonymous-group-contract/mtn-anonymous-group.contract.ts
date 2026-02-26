@@ -54,13 +54,102 @@ export class AnonymousGroupContract extends MtnContract {
     })
   }
 
-  getProcessedGroupMessagesWithReactions(payload: TransactionPayload<{}>) {
-    const { from, to } = payload
-    return this.sendTransaction({
+  async getProcessedGroupMessagesWithReactions(payload: TransactionPayload<{}>) {
+    const { from, to, inputData } = payload
+
+    const rs = await this.sendTransaction({
       from,
       to,
       functionName: 'getProcessedGroupMessagesWithReactions',
       abiData: anonymousGroupAbi.getProcessedGroupMessagesWithReactions,
+      feeType: 'read',
+      inputData
+    })
+    return rs
+  }
+
+  addMember(
+    payload: TransactionPayload<{
+      addedBy: string
+      newMember: string
+      teamId: string
+      _alias: string
+      avatarUser: string
+      encryptedKeyForNewMember: string
+    }>
+  ) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'addMember',
+      abiData: anonymousGroupAbi.addMember,
+      feeType: 'sc',
+      inputData: inputData
+    })
+  }
+
+  reactToMessage(
+    payload: TransactionPayload<{
+      messageId: string
+      reaction: string
+    }>
+  ) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'reactToMessage',
+      abiData: anonymousGroupAbi.reactToMessage,
+      feeType: 'sc',
+      inputData: inputData
+    })
+  }
+
+  initialAdmin(payload: TransactionPayload<{}>) {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'initialAdmin',
+      abiData: anonymousGroupAbi.initialAdmin,
+      feeType: 'read'
+    })
+  }
+
+  groupName(payload: TransactionPayload<{}>) {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'groupName',
+      abiData: anonymousGroupAbi.groupName,
+      feeType: 'read'
+    })
+  }
+
+  getAllMembers(payload: TransactionPayload<{}>) {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getAllMembers',
+      abiData: anonymousGroupAbi.getAllMembers,
+      feeType: 'read'
+    })
+  }
+
+  getAliasMember(payload: TransactionPayload<{}>) {
+    const { from, to } = payload
+    return this.sendTransaction<{
+      memberAlias: string
+      teamId: string
+      avatarUser: string
+    }>({
+      from,
+      to,
+      functionName: 'getAliasMember',
+      abiData: anonymousGroupAbi.getAliasMember,
       feeType: 'read'
     })
   }

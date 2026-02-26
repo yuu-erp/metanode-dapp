@@ -74,6 +74,7 @@ export interface BaseMessage {
   reactions?: MessageReaction[]
   replyTo?: ReplyReference | OnChainReplyReference
   forwardFrom?: string
+  isMine?: boolean
 }
 
 // ============================================================================

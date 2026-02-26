@@ -34,6 +34,18 @@
         "internalType": "bytes32",
         "name": "messageId",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
     "name": "AnonymousMessageStored",
@@ -272,7 +284,7 @@
         "type": "uint8"
       }
     ],
-    "name": "HistoryVisibilityChanged",
+    "name": "HistoryVisibilityChangedAnonymous",
     "type": "event"
   },
   {
@@ -320,9 +332,15 @@
         "internalType": "uint256",
         "name": "teamId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MemberAdded",
+    "name": "MemberAddedAnonymous",
     "type": "event"
   },
   {
@@ -345,9 +363,15 @@
         "internalType": "string",
         "name": "newAlias",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MemberAliasUpdated",
+    "name": "MemberAliasUpdatedAnonymous",
     "type": "event"
   },
   {
@@ -420,9 +444,15 @@
         "internalType": "string",
         "name": "member",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MemberLeft",
+    "name": "MemberLeftAnonymous",
     "type": "event"
   },
   {
@@ -439,9 +469,15 @@
         "internalType": "string",
         "name": "member",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MemberRemoved",
+    "name": "MemberRemovedAnonymous",
     "type": "event"
   },
   {
@@ -464,9 +500,15 @@
         "internalType": "uint256",
         "name": "newTeamId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MemberTeamChanged",
+    "name": "MemberTeamChangedAnonymous",
     "type": "event"
   },
   {
@@ -516,7 +558,7 @@
         "type": "address"
       }
     ],
-    "name": "MessageDeleted",
+    "name": "MessageDeletedAnonymous",
     "type": "event"
   },
   {
@@ -541,7 +583,7 @@
         "type": "address"
       }
     ],
-    "name": "MessageEdited",
+    "name": "MessageEditedAnonymous",
     "type": "event"
   },
   {
@@ -558,9 +600,15 @@
         "internalType": "bool",
         "name": "isPinned",
         "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MessagePinned",
+    "name": "MessagePinnedAnonymous",
     "type": "event"
   },
   {
@@ -583,9 +631,15 @@
         "internalType": "string",
         "name": "reaction",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MessageReacted",
+    "name": "MessageReactedAnonymous",
     "type": "event"
   },
   {
@@ -602,9 +656,15 @@
         "internalType": "address",
         "name": "reader",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MessageRead",
+    "name": "MessageReadAnonymous",
     "type": "event"
   },
   {
@@ -621,9 +681,15 @@
         "internalType": "string",
         "name": "reactor",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "MessageUnReacted",
+    "name": "MessageUnReactedAnonymous",
     "type": "event"
   },
   {
@@ -640,9 +706,15 @@
         "internalType": "string",
         "name": "moderator",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "ModeratorGranted",
+    "name": "ModeratorGrantedAnonymous",
     "type": "event"
   },
   {
@@ -659,9 +731,15 @@
         "internalType": "string",
         "name": "moderator",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "ModeratorRevoked",
+    "name": "ModeratorRevokedAnonymous",
     "type": "event"
   },
   {
@@ -715,9 +793,15 @@
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "OwnershipTransferred",
+    "name": "OwnershipTransferredAnonymous",
     "type": "event"
   },
   {
@@ -1126,9 +1210,15 @@
         "internalType": "string",
         "name": "name",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
       }
     ],
-    "name": "TeamCreated",
+    "name": "TeamCreatedAnonymous",
     "type": "event"
   },
   {
@@ -1278,6 +1368,19 @@
     "name": "addMember",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "admin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1532,6 +1635,19 @@
         "internalType": "contract IFactoryV3",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAliasMember",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
     "stateMutability": "view",
@@ -1805,6 +1921,11 @@
         "internalType": "uint256",
         "name": "limit",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
       }
     ],
     "name": "getProcessedGroupMessagesWithReactions",

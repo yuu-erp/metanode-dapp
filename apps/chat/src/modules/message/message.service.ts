@@ -5,7 +5,7 @@ import type {
   GroupContract,
   UserContract
 } from '@/modules/blockchain'
-import type { Conversation } from '@/modules/conversation'
+import type { Conversation, ConversationType } from '@/modules/conversation'
 import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
 import { formatAddress, fulfilledPromises } from '@/shared/utils'
@@ -36,6 +36,7 @@ import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
 import type { EventLogContainer } from '../eventlogs'
+import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 
 export class MessageService {
   constructor(
@@ -46,7 +47,8 @@ export class MessageService {
     private readonly walletService: WalletService,
     private readonly eventBus: EventBusPort<AppEvents>,
     private readonly fileCacheService: FileCacheService,
-    private readonly eventLogContainer: EventLogContainer
+    private readonly eventLogContainer: EventLogContainer,
+    private readonly anonymousGroupContract: AnonymousGroupContract
   ) {}
 
   private fileProcessingWorker: Worker | null = null
@@ -66,7 +68,7 @@ export class MessageService {
         page
       }
     })
-    console.log('rawMessages', rawMessages)
+    console.log('rawMessages', { rawMessages, page, limit })
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
@@ -143,19 +145,32 @@ export class MessageService {
         }
       }
 
-      const sender = await this.factoryContract.getUserContract({
-        from: account.address,
-        inputData: { user: item.author }
-      })
+      const sender =
+        Number(item.author) === 0
+          ? ''
+          : await this.factoryContract.getUserContract({
+              from: account.address,
+              inputData: { user: item.author }
+            })
+      let isMine = undefined
+      if (conversation.conversationType === 'anonymous_group') {
+        const memberAlias = await this.anonymousGroupContract.getAliasMember({
+          from: account.address,
+          to: conversation.conversationId
+        })
+        isMine = memberAlias === item?.authorAlias
+      }
 
-      return mapperToMessage({
+      const rs = mapperToMessage({
         accountId: account.address,
         conversationId: conversation.conversationId,
         sender,
         ...item,
         ...decrypted,
-        replyTo
+        replyTo,
+        isMine
       })
+      return rs
     } catch (error) {
       console.error('[MessageService] Error processing message:', error)
       return undefined
@@ -852,15 +867,32 @@ export class MessageService {
     options?: { limit?: number; page?: number }
   ): Promise<Message[]> {
     const { limit = 50, page = 1 } = options ?? {}
-    const rawMessages = await this.groupContract.getProcessedGroupMessages({
-      from: account.address,
-      to: conversation.conversationId,
-      inputData: {
-        limit,
-        page
+    let rawMessages: any[] = []
+    if (conversation.conversationType === 'group') {
+      rawMessages = await this.groupContract.getProcessedGroupMessages({
+        from: account.address,
+        to: conversation.conversationId,
+        inputData: {
+          limit,
+          page
+        }
+      })
+    } else if (conversation.conversationType === 'anonymous_group') {
+      try {
+        rawMessages = await this.anonymousGroupContract.getProcessedGroupMessagesWithReactions({
+          from: account.address,
+          to: conversation.conversationId,
+          inputData: {
+            limit,
+            page,
+            sender: `0x${account.address}`
+          }
+        })
+      } catch (error) {
+        rawMessages = []
       }
-    })
-    console.log('thanhduy - group rawMessages', rawMessages)
+    }
+
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
@@ -944,21 +976,34 @@ export class MessageService {
     const stringifyMessage = JSON.stringify(messageOnChain)
 
     try {
+      let messageId = ''
       const encryptMessage = (await encryptAESGCM(conversation.conversationKey, stringifyMessage))
         ?.result
 
-      const recipientOwners = await this.getRecipientOwners(account, conversation)
-      const promise = this.sendGroupMessagePromise(account)
+      if (conversation.conversationType === 'group') {
+        const recipientOwners = await this.getRecipientOwners(account, conversation)
+        const promise = this.sendGroupMessagePromise(account)
 
-      await this.groupContract.sendMessage({
-        from: account.address,
-        to: conversation.conversationId,
-        inputData: {
-          encryptedContent: encryptMessage,
-          recipientOwners
-        }
-      })
-      const messageId = await promise
+        await this.groupContract.sendMessage({
+          from: account.address,
+          to: conversation.conversationId,
+          inputData: {
+            encryptedContent: encryptMessage,
+            recipientOwners
+          }
+        })
+        messageId = await promise
+      } else if (conversation.conversationType === 'anonymous_group') {
+        await this.anonymousGroupContract.sendMessage({
+          from: account.address,
+          to: conversation.conversationId,
+          inputData: {
+            encryptedContent: encryptMessage
+          }
+        })
+      } else {
+        throw new Error('Invalid conversation type for group message')
+      }
       this.eventBus.emit('message.sent', {
         accountId: account.address,
         conversationId: conversation.conversationId,
@@ -988,7 +1033,6 @@ export class MessageService {
     if (messageOld.type !== 'text') {
       throw new Error('Only text messages can be edited')
     }
-
     // ✏️ optimistic message (giữ nguyên id)
     const optimisticMessage: PersistedMessage = {
       ...messageOld,
@@ -1000,6 +1044,13 @@ export class MessageService {
       ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
     }
 
+    // 🔥 Optimistic UI update
+    this.eventBus.emit('message.updateGroup', {
+      conversationId: conversation.conversationId,
+      messageId: messageOld.id,
+      message: optimisticMessage
+    })
+
     // 🔗 map sang payload on-chain
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
     const stringifyMessage = JSON.stringify(messageOnChain)
@@ -1009,23 +1060,30 @@ export class MessageService {
 
     try {
       // 📡 gọi smart contract edit
-      await this.groupContract.editMessage({
+
+      const payload = {
         from: account.address,
         to: conversation.conversationId,
         inputData: {
           messageId: messageOld.id,
           newEncryptedContent: encryptMessage
         }
-      })
+      }
+
+      if (conversation.conversationType === 'group') {
+        await this.groupContract.editMessage(payload)
+      } else if (conversation.conversationType === 'anonymous_group') {
+        await this.anonymousGroupContract.editMessage(payload)
+      }
 
       // ✅ update status sent
-      this.eventBus.emit('message.status', {
-        accountId: account.address,
-        conversationId: conversation.conversationId,
-        clientId: messageOld.id,
-        messageId: messageOld.id,
-        status: 'delivered'
-      })
+      // this.eventBus.emit('message.status', {
+      //   accountId: account.address,
+      //   conversationId: conversation.conversationId,
+      //   clientId: messageOld.id,
+      //   messageId: messageOld.id,
+      //   status: 'delivered'
+      // })
     } catch (error) {
       // ❌ rollback / failed
       this.eventBus.emit('message.status', {
@@ -1045,17 +1103,31 @@ export class MessageService {
       messageId: string
       groupAddress: string
       encryptedContent: string
+      type: ConversationType
     }
   ) {
-    const { encryptedContent, messageId, groupAddress } = data
+    const { encryptedContent, messageId, groupAddress, type } = data
     //chỗ này trùng với bên conversation services
     const accountId = account.address
     const conversationId = groupAddress
 
-    const admin = await this.groupContract.admin({
-      from: accountId,
-      to: conversationId
-    })
+    if (type !== 'group' && type !== 'anonymous_group')
+      throw new Error('[decryptMessageFromGroup] Invalid type')
+
+    let admin = ''
+
+    if (type === 'group') {
+      admin = await this.groupContract.admin({
+        from: accountId,
+        to: conversationId
+      })
+    } else {
+      admin = await this.anonymousGroupContract.initialAdmin({
+        from: accountId,
+        to: conversationId
+      })
+    }
+
     const userContract = await this.factoryContract.getUserContract({
       from: accountId,
       inputData: {
@@ -1098,7 +1170,7 @@ export class MessageService {
         decryptMessage.filePath = URL.createObjectURL(fileDB.blob)
       }
     }
-    return mapperToMessage({
+    const decryptedMessage = mapperToMessage({
       ...decryptMessage,
       messageId,
       accountId: account.address,
@@ -1106,6 +1178,8 @@ export class MessageService {
       recipient: groupAddress,
       replyTo
     })
+
+    return decryptedMessage
   }
 
   async deleteGroupMessage(
@@ -1117,13 +1191,23 @@ export class MessageService {
       messageId: message.id,
       conversationId: conversation.conversationId
     })
-    await this.groupContract.deleteMessage({
-      from: account.address,
-      to: conversation.conversationId,
-      inputData: {
-        messageId: message.id
-      }
-    })
+    if (conversation.conversationType === 'group') {
+      await this.groupContract.deleteMessage({
+        from: account.address,
+        to: conversation.conversationId,
+        inputData: {
+          messageId: message.id
+        }
+      })
+    } else {
+      await this.anonymousGroupContract.deleteMessage({
+        from: account.address,
+        to: conversation.conversationId,
+        inputData: {
+          messageId: message.id
+        }
+      })
+    }
   }
 
   async reactGroupMessage(
@@ -1145,15 +1229,24 @@ export class MessageService {
     })
 
     const encryptEmoji = encodeBase64(emoji)
-    console.log('thanhduy - reactToMessage 1')
-    await this.groupContract.reactToMessage({
-      from: account.address,
-      to: conversation.conversationId,
-      inputData: {
-        messageId: messageId,
-        reaction: encryptEmoji
-      }
-    })
-    console.log('thanhduy - reactToMessage 2')
+    if (conversation.conversationType === 'group') {
+      await this.groupContract.reactToMessage({
+        from: account.address,
+        to: conversation.conversationId,
+        inputData: {
+          messageId: messageId,
+          reaction: encryptEmoji
+        }
+      })
+    } else {
+      await this.anonymousGroupContract.reactToMessage({
+        from: account.address,
+        to: conversation.conversationId,
+        inputData: {
+          messageId: messageId,
+          reaction: encryptEmoji
+        }
+      })
+    }
   }
 }

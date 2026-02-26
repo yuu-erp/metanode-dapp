@@ -1,7 +1,7 @@
 import { useAddMember, useGetConversations, useGetGroupMembers } from '@/features/conversation'
-import type { PayloadAddMembers } from '@/modules/conversation'
+import type { ConversationType, PayloadAddMembers } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useI18N } from '@/shared/hooks'
-import { useParams } from '@tanstack/react-router'
+import { useParams, useSearch } from '@tanstack/react-router'
 import { CheckIcon, Loader2Icon, Plus } from 'lucide-react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { Drawer } from 'vaul'
@@ -10,17 +10,25 @@ import { SelectMembers } from './groups'
 const DrawerAddGroupMember = memo(() => {
   const { id } = useParams({ from: '/_authenticated/group/$id' })
   const { t } = useI18N()
+  const search: { type: ConversationType } = useSearch({ from: '/_authenticated/group/$id' })
   const [open, setOpen] = React.useState(false)
   const { data: account } = useCurrentAccount()
   const { data: conversations = [] } = useGetConversations(account?.address)
   const [selectedMembers, setSelectedMembers] = React.useState<PayloadAddMembers[]>([])
-  const { data: conversation } = useGetConversationId(id, 'group')
-  const { data: groupMembers } = useGetGroupMembers(account?.address, conversation?.conversationId)
-  const { mutateAsync, isPending } = useAddMember()
+  const conversationType = search.type?.split('?')[0] as ConversationType
+  const { data: conversation } = useGetConversationId(id, conversationType)
 
+  const { data: groupMembers = [] } = useGetGroupMembers(
+    account?.address,
+    conversation?.conversationId,
+    conversationType
+  )
+  const { mutateAsync, isPending } = useAddMember(conversationType)
   const validConversations = useMemo(() => {
     if (!conversations || !groupMembers) return []
-    return conversations.filter((item) => !groupMembers.includes(item.conversationId))
+    return conversations.filter(
+      (item) => item.conversationType === 'p2p' && !groupMembers.includes(item.conversationId)
+    )
   }, [conversations, groupMembers])
 
   const handleSelectMember = React.useCallback((mem: PayloadAddMembers) => {

@@ -20,7 +20,10 @@ export function useDeleteMessage() {
   return useMutation<void, Error, DeleteMessageVariables>({
     mutationFn: async ({ account, conversation, message }) => {
       const messageService = container.messageService
-      if (conversation.conversationType === 'group') {
+      if (
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+      ) {
         return messageService.deleteGroupMessage(account, conversation, message)
       }
       return messageService.deleteMessage(account, conversation, message)

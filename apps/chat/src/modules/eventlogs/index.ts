@@ -82,6 +82,47 @@ export type EventMap = {
     messageId: string
     groupAddress: string
   }
+
+  AnonymousCommunityCreated: {
+    communityId: string
+    groupContract: string
+    creator: string
+  }
+
+  MessageEditedAnonymous: {
+    messageId: string
+    newEncryptedContent: string
+    groupAddress: string
+  }
+
+  AnonymousMessageStored: {
+    group: string
+    content: string
+    messageId: string
+    sender: string
+  }
+
+  MessageDeletedAnonymous: {
+    groupAddress: string
+    messageId: string
+  }
+
+  MessageReactedAnonymous: {
+    group: string
+    reaction: string
+    reactor: string
+    messageId: string
+  }
+
+  GroupJoined: {
+    user: string
+    groupId: string
+    groupContractAddress: string
+  }
+
+  JoinCommunityGroup: {
+    group: string
+  }
 }
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi
@@ -102,6 +143,6 @@ export class EventLogContainer {
   }
 
   public registerAbi() {
-    this._decodeAbi.registerAbi(abi)
+    return this._decodeAbi.registerAbi(abi)
   }
 }

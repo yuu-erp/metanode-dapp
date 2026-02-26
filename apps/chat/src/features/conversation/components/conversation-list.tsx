@@ -14,11 +14,9 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
   const { data: account } = useCurrentAccount()
 
   const { data: conversations = [] } = useGetConversations(account?.address)
-
   const filteredConversations = React.useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase()
     if (!keyword) return conversations
-
     return conversations.filter(
       (c) =>
         c.name.toLowerCase().includes(keyword) ||
@@ -30,10 +28,14 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
 
   const handleClickConversation = React.useCallback(
     (conversation: Conversation) => {
-      if (conversation.conversationType === 'group') {
+      if (
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+      ) {
         navigate({
           to: '/group/$id',
-          params: { id: conversation.conversationId }
+          params: { id: conversation.conversationId },
+          search: { type: conversation.conversationType }
         })
       } else {
         navigate({

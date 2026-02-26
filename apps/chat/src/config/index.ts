@@ -5,5 +5,7 @@ export const APP_CONFIG = {
 export const CONTRACT_ADDRESSES = {
   factory: import.meta.env.VITE_FACTORY || '',
   file: import.meta.env.VITE_FILE || '',
-  meeting: import.meta.env.VITE_MEETING || ''
+  meeting: import.meta.env.VITE_MEETING || '',
+  verify: import.meta.env.VITE_VERIFY || '',
+  ekyc: import.meta.env.VITE_EKYC || ''
 } as const

@@ -10,7 +10,7 @@ export class AccountDexieDB extends Dexie {
 
   constructor(dbName: string = 'account_db') {
     super(dbName)
-    this.version(1).stores({
+    this.version(2).stores({
       accounts: 'address, isActive'
     })
   }
