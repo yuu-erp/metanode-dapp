@@ -45,26 +45,6 @@ export class ConversationService {
 
   // ------------------------------------------------------------------
   // Private helpers
-  // ------------------------------------------------------------------
-  private async decryptP2PLatestMessageContent<T = OnChainMessagePayload>(
-    account: Account,
-    encryptedMessage: string,
-    conversationPublicKey: string
-  ): Promise<T> {
-    try {
-      return await this.walletService.decryptMessage(
-        conversationPublicKey,
-        account.address,
-        encryptedMessage
-      )
-    } catch {
-      return await this.walletService.decryptMessage(
-        account.publicKey,
-        account.address,
-        encryptedMessage
-      )
-    }
-  }
 
   private async decryptGroupMessage(encryptedMessage: string, groupKey: string) {
     function jsonParseSafe(value: any) {
@@ -79,36 +59,39 @@ export class ConversationService {
     return result
   }
 
-  private async getGroupInfo(accountId: string, conversationId: string) {
+  private async getGroupInfo(account: Account, conversationId: string) {
+    const { address: accountId, hiddenAddress } = account
+
     const admin = await this.groupContract.admin({
-      from: accountId,
+      from: hiddenAddress,
       to: conversationId
     })
 
     const userContract = await this.factoryContract.getUserContract({
-      from: accountId,
+      from: hiddenAddress,
       inputData: {
         user: admin
       }
     })
 
     const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
-      from: accountId,
+      from: hiddenAddress,
       to: conversationId,
       inputData: {}
     })
 
     const [publicKey, name] = await fulfilledPromises([
       this.userContract.publicKey({
-        from: accountId,
+        from: hiddenAddress,
         to: userContract
       }),
 
       this.groupContract.groupName({
-        from: accountId,
+        from: hiddenAddress,
         to: conversationId
       })
     ])
+
     const privateKey = await getPrivateKeyFromDb(accountId)
 
     const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
@@ -117,8 +100,9 @@ export class ConversationService {
       '[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- sharedKeyWithAdmin',
       sharedKeyWithAdmin
     )
-    // @ts-ignore
-    const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
+    let groupKey = ''
+    groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
+
     console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupKey', groupKey)
 
     return {
@@ -147,7 +131,7 @@ export class ConversationService {
       inputData: {}
     })
 
-    const [publicKey, name] = await fulfilledPromises([
+    const rs = await Promise.all([
       this.userContract.publicKey({
         from: accountId,
         to: userContract
@@ -157,16 +141,17 @@ export class ConversationService {
         from: accountId,
         to: conversationId
       })
-    ])
+    ]).catch((error) => {
+      console.log('thanhduy - groupInfo an danh errpr', error)
+      return []
+    })
+
+    console.log('thanhduy - groupInfo an danh 1.5', rs)
+    const [publicKey, name] = rs
     const privateKey = await getPrivateKeyFromDb(accountId)
     const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
-    console.log(
-      '[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- sharedKeyWithAdmin',
-      sharedKeyWithAdmin
-    )
-    // @ts-ignore
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
-    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupKey', groupKey)
+    console.log('thanhduy - getAnonymousGroupInfo 2')
 
     return {
       admin,
@@ -194,13 +179,13 @@ export class ConversationService {
 
   async syncByAccount(account: Account): Promise<void> {
     const inboxs = await this.userContract.getFullInbox({
-      from: account.address,
+      from: account.hiddenAddress,
       to: account.contractAddress
     })
-    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- inboxs', inboxs)
-
+    console.log('thanhduy - inboxs', inboxs)
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
+        let name = 'savedMessages'
         let groupInfo: any
         let conversationKey = ''
         let isVerifed: boolean | undefined
@@ -212,13 +197,13 @@ export class ConversationService {
         console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- item', item.conversationType)
         if (isGroup) {
           if (item.conversationType === 'group') {
-            groupInfo = await this.getGroupInfo(account.address, item.conversationId)
+            groupInfo = await this.getGroupInfo(account, item.conversationId)
           } else {
             groupInfo = await this.getAnonymousGroupInfo(account.address, item.conversationId)
           }
 
           console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupInfo', groupInfo)
-
+          name = item.name
           conversationKey = groupInfo.groupKey
           lastMessageDecrypted = await this.decryptGroupMessage(
             item.latestMessageContent,
@@ -227,11 +212,14 @@ export class ConversationService {
             return undefined
           })
         } else {
+          if (item.conversationId !== account.contractAddress) {
+            name = [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' ')
+          }
+
           const targetAddress = await this.userContract.owner({
             from: account.address,
             to: item.conversationId
           })
-
           const [p2pInfo, auth, ekyc] = await Promise.all([
             this.getP2PInfo(account.address, item.conversationId),
             this.verifyContract.authenticatedWallets({
@@ -247,16 +235,18 @@ export class ConversationService {
               }
             })
           ])
+
           isVerifed === auth && ekyc.kycVerified
           conversationKey = p2pInfo.publicKey
           userProfile = p2pInfo.userProfile
-          lastMessageDecrypted = await this.decryptP2PLatestMessageContent(
-            account,
-            item.latestMessageContent,
-            conversationKey
-          ).catch(() => {
-            return undefined
-          })
+
+          const decryptedPublicKey =
+            account.contractAddress === item.sender ? account.publicKey : p2pInfo.publicKey
+          lastMessageDecrypted = (await this.walletService
+            .decryptMessage(decryptedPublicKey, account.address, item.latestMessageContent)
+            .catch(() => {
+              return undefined
+            })) as any
         }
 
         if (lastMessageDecrypted && lastMessageDecrypted.type === 'file') {
@@ -265,21 +255,17 @@ export class ConversationService {
             lastMessageDecrypted.filePath = URL.createObjectURL(fileDB.blob)
           }
         }
+
         // Ideally, we should fetch the FULL message object if we want PersistedMessage.
         // But for list view, maybe we construct a partial one or the mapper handles it.
         // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
-        return mapperToConversation({
+        const rs = mapperToConversation({
           ...item,
           accountId: account.address,
           firstName: userProfile.firstName,
           lastName: userProfile.lastName,
           userName: userProfile.userName,
-          name:
-            item.conversationId === account.contractAddress
-              ? 'savedMessages'
-              : isGroup
-                ? item.name
-                : [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' '),
+          name,
           avatar: userProfile.avatar,
           conversationKey: conversationKey,
           conversationType:
@@ -291,6 +277,7 @@ export class ConversationService {
             ? undefined
             : mapperToMessage({
                 accountId: account.address,
+                account,
                 conversationId: item.conversationId,
                 timestamp: item.latestMessageTimestamp,
                 ...lastMessageDecrypted
@@ -298,34 +285,40 @@ export class ConversationService {
           admin: groupInfo?.admin,
           isVerifed
         })
+        return rs
       })
     )
 
     console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- conversations', conversations)
+    const finalConversations = conversations.filter(Boolean) as Conversation[]
 
-    await this.repository.bulkUpsert(conversations.filter(Boolean) as Conversation[])
+    await this.repository.bulkUpsert(finalConversations)
   }
 
   // ------------------------------------------------------------------
   // READ
   // ------------------------------------------------------------------
   async getConversationById(
-    accountId: string,
+    account: Account | undefined = undefined,
     conversationId: string,
     conversationType: ConversationType
   ): Promise<Conversation | undefined> {
+    if (!account) return
+
+    const { address: accountId, hiddenAddress } = account
     const conversationLocal = await this.repository.getById(accountId, conversationId)
     if (conversationLocal) return conversationLocal
+
     let conversation
     switch (conversationType) {
       case 'private':
       case 'p2p': {
         const userProfile = await this.userContract.userProfile({
-          from: accountId,
+          from: hiddenAddress,
           to: conversationId
         })
         const publicKey = await this.userContract.publicKey({
-          from: accountId,
+          from: hiddenAddress,
           to: conversationId
         })
         conversation = mapperToConversation({
@@ -338,36 +331,43 @@ export class ConversationService {
         break
       }
       case 'group': {
-        const groupInfo = await this.getGroupInfo(accountId, conversationId)
+        const groupInfo = await this.getGroupInfo(account, conversationId)
+
         conversation = mapperToConversation({
           conversationId,
           accountId,
           conversationKey: groupInfo.groupKey,
-          conversationType: 'group'
+          conversationType: 'group',
+          name: groupInfo.name
         })
 
         break
       }
       case 'anonymous_group': {
-        const groupInfo = await this.getAnonymousGroupInfo(accountId, conversationId)
+        console.log('thanhduy - groupInfo an danh 1', { account, conversationId })
 
+        const groupInfo = await this.getAnonymousGroupInfo(accountId, conversationId)
+        console.log('thanhduy - groupInfo an danh 2', groupInfo)
         conversation = mapperToConversation({
           conversationId,
           accountId,
           conversationKey: groupInfo.groupKey,
-          conversationType: 'anonymous_group'
+          conversationType: 'anonymous_group',
+          name: groupInfo.name
         })
         break
       }
     }
 
     if (!conversation) throw new Error('[getConversationById]: Invalid conversation')
+
     await this.repository.upsert(conversation)
     return conversation
   }
 
-  async getConversationList(accountId: string): Promise<Conversation[]> {
-    const data = await this.repository.getSortedByAccount(accountId)
+  async getConversationList(account?: Account): Promise<Conversation[]> {
+    if (!account) return []
+    const data = await this.repository.getSortedByAccount(account.address)
 
     console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP-getConversationList--- data', data)
     data.map(async (conversation) => {
@@ -377,7 +377,9 @@ export class ConversationService {
       )
         return
 
-      return this.eventLogContainer.eventLog.registerEvent(accountId, [conversation.conversationId])
+      return this.eventLogContainer.eventLog.registerEvent(account.hiddenAddress, [
+        conversation.conversationId
+      ])
     })
 
     return data
@@ -414,7 +416,7 @@ export class ConversationService {
 
   // ------------------------------------------------------------------
   // CLEAR (logout / switch account)
-  // ------------------------------------------------------------------
+  // ---------------------------------------------------------o---------
   async clearAccountData(accountId: string): Promise<void> {
     await this.repository.clearByAccount(accountId)
   }
@@ -459,6 +461,7 @@ export class ConversationService {
       unreadCount: account.contractAddress === conversationId ? 0 : (current.unreadCount ?? 0) + 1,
       lastMessage: mapperToMessage({
         accountId: account.address,
+        account,
         conversationId: current.conversationId,
         timestamp: new Date(Number(Math.floor(Date.now() / 1000)) * 1000),
         ...decryptedPayload
@@ -493,8 +496,11 @@ export class ConversationService {
     const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
     const groupKey = generateSecureId()
     const privateKey = await getPrivateKeyFromDb(account.address)
+
     const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
+
     const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+
     const promise = new Promise<any>((resolve) => {
       const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
         off()
@@ -506,7 +512,7 @@ export class ConversationService {
     })
 
     await this.factoryContract.createGroup({
-      from: account.address,
+      from: account.hiddenAddress,
       inputData: {
         groupName: name,
         groupAvatar: avatar,
@@ -514,6 +520,7 @@ export class ConversationService {
         initialPolicy: policy
       }
     })
+
     return await promise
   }
 
@@ -534,7 +541,7 @@ export class ConversationService {
       const { result: encryptedGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
       await this.groupContract.addMember({
         to: groupConversation,
-        from: account.address,
+        from: account.hiddenAddress,
         inputData: {
           user: addressMember,
           encryptedKeyForNewMember: encryptedGroupKey
@@ -603,7 +610,7 @@ export class ConversationService {
       const { publicKey, conversationId } = member
 
       const addressMember = await this.userContract.owner({
-        from: account.address,
+        from: account.hiddenAddress,
         to: conversationId
       })
 
@@ -613,7 +620,7 @@ export class ConversationService {
 
       await this.anonymousGroupContract.addMember({
         to: groupConversation,
-        from: account.address,
+        from: account.hiddenAddress,
         inputData: {
           addedBy: account.address,
           newMember: addressMember,
@@ -624,5 +631,29 @@ export class ConversationService {
         }
       })
     }
+  }
+
+  // ------------------------------------------------------------------
+  // WRITE
+  // ------------------------------------------------------------------
+
+  async setConversationById(
+    account: Account | undefined = undefined,
+    conversationId: string,
+    value: Partial<Conversation>
+  ): Promise<Conversation | undefined> {
+    if (!account) return
+
+    const { address: accountId } = account
+    const conversationLocal = await this.repository.getById(accountId, conversationId)
+    if (!conversationLocal) return
+
+    const updatedConversation: Conversation = {
+      ...conversationLocal,
+      ...value
+    }
+
+    await this.repository.upsert(updatedConversation)
+    return updatedConversation
   }
 }

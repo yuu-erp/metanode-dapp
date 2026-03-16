@@ -159,6 +159,25 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "contactAddress",
+        "type": "address"
+      }
+    ],
+    "name": "ContactRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "sender",
@@ -301,6 +320,12 @@
         "internalType": "bytes32",
         "name": "messageId",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
       }
     ],
     "name": "MessageDeleted",
@@ -320,6 +345,12 @@
         "internalType": "bytes32",
         "name": "messageId",
         "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
       }
     ],
     "name": "MessageEdited",
@@ -345,6 +376,12 @@
         "internalType": "string",
         "name": "reaction",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
       }
     ],
     "name": "MessageReacted",
@@ -487,6 +524,12 @@
         "indexed": false,
         "internalType": "address",
         "name": "reactor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "recipient",
         "type": "address"
       }
     ],
@@ -649,12 +692,6 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
         "name": "recipient",
         "type": "address"
       },
@@ -810,6 +847,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_contactAddress",
+        "type": "address"
+      }
+    ],
+    "name": "RemoveContact",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

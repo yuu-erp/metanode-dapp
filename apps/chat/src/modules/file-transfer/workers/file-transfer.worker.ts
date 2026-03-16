@@ -9,7 +9,7 @@
  * This avoids blocking the main thread during large file operations.
  */
 
-const CHUNK_SIZE = 16384 // 16KB
+const CHUNK_SIZE = 1384 // 16KB
 
 interface WorkerMessage {
   type: 'START_SEND' | 'NEXT_CHUNK' | 'RECEIVE_CHUNK' | 'FINISH_RECEIVE'

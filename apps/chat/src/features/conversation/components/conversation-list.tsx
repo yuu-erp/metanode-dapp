@@ -13,7 +13,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
   const navigate = useNavigate()
   const { data: account } = useCurrentAccount()
 
-  const { data: conversations = [] } = useGetConversations(account?.address)
+  const { data: conversations = [] } = useGetConversations(account)
   const filteredConversations = React.useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase()
     if (!keyword) return conversations
@@ -61,6 +61,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           type={item.conversationType}
           isPin={item.conversationType === 'private'}
           onClick={() => handleClickConversation(item)}
+          isVerified={item.isVerifed}
         />
       ))}
     </div>

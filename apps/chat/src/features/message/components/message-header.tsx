@@ -6,7 +6,7 @@ import { VideoIcon } from '@/shared/components/icons'
 import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
-import { useRouter } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { ChevronLeft, LoaderCircle } from 'lucide-react'
 import * as React from 'react'
 
@@ -28,13 +28,14 @@ function ChatHeader({
   isAdmin
 }: ChatHeaderProps) {
   const { t } = useI18N()
-  const router = useRouter()
+  const navigate = useNavigate()
+
   const isGroup = type === 'group' || type === 'anonymous_group'
 
   return (
     <WapperHeader alwaysScrolled position="sticky">
       <div className="flex items-center gap-2">
-        <button className="flex items-center gap-1" onClick={() => router.history.back()}>
+        <button className="flex items-center gap-1" onClick={() => navigate({ to: '/' })}>
           <ChevronLeft />
           <TotalUnreadcount variant="secondary" />
         </button>

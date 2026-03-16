@@ -19,14 +19,16 @@ export const queryClient = new QueryClient({
 
 export const SHARED_QUERY_KEY = {
   GET_ALL_WALLETS: ['getAllWallets'] as const,
-  INIT_PRIVATE_FEATURE: ['initPrivateFeature'] as const
+  INIT_PRIVATE_FEATURE: ['initPrivateFeature'] as const,
+  PLATFORM: ['platform'] as const
 }
 
 export const ACCOUNT_QUERY_KEY = {
   GET_CURRENT_ACCOUNT: ['getCurrentAccount'] as const,
   CHECK_USER_CONTRACT: (address: string) => ['checkUserContract', address] as const,
   LOAD_ACCOUNTS: ['loadAccounts'] as const,
-  USER_PROFILE: (conversationId: string) => ['userProfile', conversationId]
+  USER_PROFILE: (conversationId: string) => ['userProfile', conversationId],
+  CONTRACT_ADDRESS: (address: string) => ['contractAddress', address]
 }
 
 export const CONVERSATION_QUERY_KEY = {

@@ -17,7 +17,6 @@ import type { OverlayMessageHandlers } from './overlay-message.types'
 
 interface OverlayMessageViewProps {
   message: Message
-  isMine?: boolean
   onClose: () => void
   handlers: OverlayMessageHandlers
   isPinned: boolean
@@ -25,9 +24,10 @@ interface OverlayMessageViewProps {
 
 const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰']
 
-function OverlayMessageView({ message, isMine, onClose, handlers }: OverlayMessageViewProps) {
+function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
   const [open, setOpen] = React.useState(true)
+  const isMine = message.isMine
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === backdropRef.current) {

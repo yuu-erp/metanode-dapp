@@ -21,14 +21,22 @@ export function createGetConversationIdQueryOptions(
       const currentAccount = queryClient.getQueryData<Account>(
         ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
       )
+      console.log('thanhduy - createGetConversationIdQueryOptions 1', currentAccount)
       if (!currentAccount) return null
+
       const conversationService = container.conversationService
+      console.log('thanhduy - createGetConversationIdQueryOptions 2')
+
       const conversation = await conversationService.getConversationById(
-        currentAccount.address,
+        currentAccount,
         conversationId,
         conversationType
       )
+      console.log('thanhduy - createGetConversationIdQueryOptions 3', conversation)
+
       if (!conversation) return null
+      console.log('thanhduy - createGetConversationIdQueryOptions 4', conversation)
+
       return conversation
     },
     enabled: !!conversationId

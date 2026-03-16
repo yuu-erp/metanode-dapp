@@ -1,31 +1,21 @@
 import { container } from '@/container'
-import type { EventMap } from '@/modules/eventlogs'
+import type { MeetingViewInput } from '@/modules/meeting/meeting.type'
 import { useCurrentAccount } from '@/shared/hooks'
-import { formatAddress } from '@/shared/utils'
-import { useNavigate } from '@tanstack/react-router'
+import type { AppEvents } from '@/types/app-events'
 import { useEffect, useState } from 'react'
-import type { IncomingCallData } from './types'
-import { chatClient } from '@/modules/call/client'
+import { useGoToMeetingView } from '../meeting'
+import { useEventLog } from '../call-view'
+import { compareAddress } from '@/modules'
 
 export const useIncomingCall = () => {
-  const [incomingCall, setIncomingCall] = useState<IncomingCallData | null>(null)
+  const [incomingCall, setIncomingCall] = useState<MeetingViewInput | null>(null)
   const { data: account } = useCurrentAccount()
-  const navigate = useNavigate()
+  const { mutate } = useGoToMeetingView()
 
   useEffect(() => {
     if (!account) return
-    const handleCallReceived = async (event: EventMap['CallReceived']) => {
-      console.log('CallReceived event:', event, account)
-      if (formatAddress(event.callee) === formatAddress(account.contractAddress)) {
-        const userProfile = await container.callService.handleCallReceived(account, event.caller)
-        setIncomingCall({
-          caller: event.caller,
-          callee: event.callee,
-          roomId: event.roomId,
-          name: [userProfile.firstName, userProfile.lastName].join(' '),
-          avatar: userProfile.avatar
-        })
-      }
+    const handleCallReceived = async (event: AppEvents['call.received']) => {
+      setIncomingCall({ ...event, hiddenAddress: account.hiddenAddress })
     }
     container.eventBus.on('call.received', handleCallReceived)
     return () => {
@@ -35,27 +25,30 @@ export const useIncomingCall = () => {
 
   const acceptCall = async () => {
     if (!incomingCall || !account) return
-    try {
-      const data = await container.callService.acceptCall(
-        account,
-        incomingCall.roomId,
-        incomingCall.caller,
-        incomingCall.callee
-      )
-      //@ts-ignore
-      if (window?.finSdk) {
-        chatClient.useMeetingData.getState().setData(data)
-        navigate({ to: '/meeting' })
-      }
-      setIncomingCall(null)
-    } catch (error) {
-      console.error('Failed to accept call:', error)
-    }
+    mutate(incomingCall)
   }
 
-  const rejectCall = () => {
+  const rejectCall = async () => {
+    if (!account || !incomingCall) return
     setIncomingCall(null)
+    await container.meetingContract.rejectCall({
+      from: account.hiddenAddress,
+      inputData: {
+        _caller: incomingCall.caller,
+        _roomId: incomingCall.roomId!
+      }
+    })
   }
+
+  useEventLog('LeaveRequested', (data) => {
+    console.log('thanhduy - LeaveRequested', {
+      data,
+      incomingCall
+    })
+    if (!incomingCall) return
+    if (!compareAddress(data.roomId, incomingCall.roomId!)) return
+    setIncomingCall(null)
+  })
 
   return {
     incomingCall,

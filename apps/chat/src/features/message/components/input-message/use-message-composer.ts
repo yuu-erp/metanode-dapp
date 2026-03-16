@@ -18,7 +18,7 @@ interface UseMessageComposerParams {
 export function useMessageComposer({
   account,
   conversation,
-  isSending = false,
+  isSending,
   onSendText,
   onSendSticker,
   onEditMessage

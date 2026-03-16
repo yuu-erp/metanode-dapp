@@ -1,5 +1,9 @@
 import { DecodeAbi, EventLog } from '@metanodejs/event-log'
-import abi from './abi.json'
+import { userContract } from '../blockchain/user-contract/abis'
+import { groupContract } from '../blockchain/group-contract/abis'
+import { anonymousGroupContract } from '../blockchain/anonymous-group-contract/abis'
+import { factoryContract } from '../blockchain/factory-contract/abis'
+import { meetingContract } from '../blockchain/meeting-contract'
 
 export type EventMap = {
   MessageReceived: {
@@ -44,13 +48,7 @@ export type EventMap = {
     name: string
     creator: string
   }
-  FrontendEvent: {
-    seesionHash: string
-    roomId: string
-    sessionId: string
-    eventType: string
-    data: string
-  }
+
   LeftRoomEvent: {
     roomId: string
     sessionId: string
@@ -123,14 +121,128 @@ export type EventMap = {
   JoinCommunityGroup: {
     group: string
   }
+
+  PartnerMessageUnReacted: {
+    messageId: string
+    sender: string
+    recipient: string
+    reactor: string
+  }
+
+  MessageUnReactedGroup: {
+    messageId: string
+    reactor: string
+    groupAddress: string
+  }
+
+  MessageUnReactedAnonymous: {
+    messageId: string
+    reactor: string
+    group: string
+  }
+
+  ContactAdded: {
+    user: string
+    contact: string
+  }
+
+  receiveCallSignal: {
+    caller: string
+    callee: string
+    roomId: string
+    status: boolean
+  }
+
+  MessageSent: {
+    sender: string
+    recipient: string
+    messageId: string
+    encryptedContent: string
+    dataStoreAddress: string
+    messageNonce: string
+  }
+
+  MessageDeleted: {
+    messageId: string
+    deleter: string
+  }
+
+  MessageReacted: {
+    messageId: string
+    reactor: string
+    reaction: string
+    recipient: string
+  }
+
+  MessageUnReacted: {
+    messageId: string
+    reactor: string
+    recipient: string
+  }
+
+  MessageReadByMe: {
+    messageId: string
+    reader: string
+  }
+
+  MessageReadByPartner: {
+    messageId: string
+    reader: string
+  }
+
+  MessageReadAnonymous: {
+    messageId: string
+    reader: string
+    group: string
+  }
+
+  MessageRead: {
+    messageId: string
+    reader: string
+    groupAddress: string
+  }
+
+  RoomCreateRequested: {
+    requestId: string
+    requester: string
+    roomName: string
+    meet: string
+    roomId: string
+  }
+
+  FrontendEvent: {
+    roomId: string
+    toUser: string
+    eventType: string
+    data: string
+  }
+
+  LeaveRequested: {
+    roomId: string
+    requester: string
+    sessionId: string
+  }
+
+  CallRejected: {
+    caller: string
+    callee: string
+    roomId: string
+  }
 }
+
+const abi: any[] = [
+  ...userContract,
+  ...groupContract,
+  ...anonymousGroupContract,
+  ...meetingContract,
+  ...factoryContract
+].filter((item) => item?.type === 'event')
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi
   private readonly _eventLog: EventLog<EventMap>
   constructor() {
     console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
     this._decodeAbi = new DecodeAbi()
-    this._decodeAbi.registerAbi(abi)
     this._eventLog = new EventLog<EventMap>(this._decodeAbi)
   }
 
@@ -142,7 +254,9 @@ export class EventLogContainer {
     return this._decodeAbi
   }
 
-  public registerAbi() {
-    return this._decodeAbi.registerAbi(abi)
+  public async registerAbi() {
+    const rs = await this._decodeAbi.registerAbi(abi)
+
+    return rs
   }
 }

@@ -8,8 +8,6 @@ export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
 
 export interface MessageReaction {
   emoji: string
-  count: number
-  reactedByMe?: boolean
   users: string[]
 }
 

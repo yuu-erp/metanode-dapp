@@ -5,7 +5,6 @@ import type { DropdownMenuItem } from '@radix-ui/react-dropdown-menu'
 export interface OverlayMessageProps {
   onClose: () => void
   message: PersistedMessage
-  isMine?: boolean
   conversation?: Conversation
   account?: Account
 }

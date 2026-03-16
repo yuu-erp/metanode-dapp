@@ -1,10 +1,10 @@
 'use client'
+import { type VariantProps } from 'class-variance-authority'
 import * as React from 'react'
 import { useCurrentAccount } from '../hooks'
 import { useTotalUnreadCount } from '../hooks/conversations'
-import { Badge, badgeVariants } from './ui/badge'
-import { type VariantProps } from 'class-variance-authority'
 import { cn } from '../lib'
+import { Badge, badgeVariants } from './ui/badge'
 
 export interface TotalUnreadcountProps
   extends React.ComponentProps<'span'>, VariantProps<typeof badgeVariants> {
@@ -12,7 +12,8 @@ export interface TotalUnreadcountProps
 }
 function TotalUnreadcount({ className, ...props }: TotalUnreadcountProps) {
   const { data: currentAccount } = useCurrentAccount()
-  const { data: totalUnread = 0 } = useTotalUnreadCount(currentAccount?.address)
+  const { data: totalUnread = 0 } = useTotalUnreadCount(currentAccount)
+
   if (totalUnread === 0) return null
   return (
     <React.Fragment>

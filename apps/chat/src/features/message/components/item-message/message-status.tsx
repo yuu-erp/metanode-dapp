@@ -13,10 +13,10 @@ function MessageStatus({ status }: MessageStatusProps) {
       return <Check className="size-3.5 text-white" />
 
     case 'delivered':
-      return <CheckCheck className="size-3.5 text-white" />
+      return <Check className="size-3.5 text-white" />
 
     case 'read':
-      return <CheckCheck className="size-3.5 text-green-500" />
+      return <CheckCheck className="size-3.5" />
 
     case 'failed':
       return <AlertTriangle className="size-4 text-red-500" />

@@ -8,3 +8,4 @@ src/modules/
 ├─ notification/ # Push / in-app
 ├─ sync/ # Đồng bộ dữ liệu
 └─ system/ # App state, boot, config
+sendmessagecontext bùa do backend thiếu data

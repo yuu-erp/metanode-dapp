@@ -33,6 +33,12 @@ export function useViewInfiniteScroll({
     return () => observer.disconnect()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
+  React.useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return
+
+    fetchNextPage()
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
   const messages = React.useMemo(() => data?.pages.flat() ?? [], [data])
 
   console.log('LIST MESSAGE -----', messages)

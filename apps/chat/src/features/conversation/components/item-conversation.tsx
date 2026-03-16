@@ -1,14 +1,16 @@
 'use client'
+import { VerifiedIcon } from '@/assets/icons'
 import type { ConversationType } from '@/modules/conversation'
 import type { Message } from '@/modules/message'
 import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
 import { MessagePreview } from '@/shared/components/message-render'
+import { Badge } from '@/shared/components/ui/badge'
 import { formatUpdatedAt } from '@/shared/helpers'
 import { useI18N, useLongPress } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
-import { BadgeCheck, Check, CheckIcon, Divide } from 'lucide-react'
+import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -72,14 +74,7 @@ function ItemConversation({
           <div className="w-full flex items-center justify-between gap-3">
             <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1 flex flex-row gap-2 items-center">
               <p>{type === 'private' ? t(name) : name}</p>
-              {!isVerified && (
-                <BadgeCheck
-                  className="text-blue-500 size-4"
-                  fill="#fff
-
-"
-                />
-              )}
+              {isVerified && <VerifiedIcon className="size-4" />}
             </div>
             <div className="flex items-center gap-1">
               {isMine && <CheckIcon className="size-3" />}
@@ -91,14 +86,14 @@ function ItemConversation({
               {/* Priview message */}
               {lastMessage && <MessagePreview message={lastMessage} />}
             </div>
-            {/* {unreadCount > 0 && (
+            {unreadCount > 0 && (
               <Badge
                 className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
                 variant="secondary"
               >
                 {unreadCount > 999 ? '999+' : unreadCount}
               </Badge>
-            )} */}
+            )}
             {isPin && <PinIcon className="size-4" />}
           </div>
         </div>

@@ -1,3 +1,4 @@
+import { useGoToMeetingView } from '@/features/meeting'
 import {
   ChatHeader,
   CopyMessageActionProvider,
@@ -8,11 +9,10 @@ import {
 } from '@/features/message'
 import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
-import { createFileRoute, useParams } from '@tanstack/react-router'
-import { useCallback, useMemo } from 'react'
-import { useCreateCall } from '@/features/call'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
+import { createFileRoute, useParams } from '@tanstack/react-router'
+import { useMemo } from 'react'
 
 export const Route = createFileRoute('/_authenticated/p2p/$id')({
   component: RouteComponent
@@ -29,12 +29,20 @@ function RouteComponent() {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
 
-  const { mutate: createCall, isPending } = useCreateCall()
+  const { mutate: createCall, isPending } = useGoToMeetingView()
 
-  const handleVideoCall = useCallback(() => {
-    if (!account || !conversation) return
-    createCall({ account, conversation: conversation as Conversation })
-  }, [account, conversation, createCall])
+  const onVideoCall = () => {
+    if (!account || !conversation) throw new Error('[onVideoCall] Invalid input')
+    console.log('thanhduy - account', account)
+    createCall({
+      address: account.address,
+      caller: account.address,
+      callee: conversation.conversationId,
+      isCaller: true,
+      isMeet: false,
+      hiddenAddress: account.hiddenAddress
+    })
+  }
 
   return (
     <MessageActionProvider>
@@ -51,7 +59,7 @@ function RouteComponent() {
             name={conversation?.name}
             type={conversation?.conversationType}
             username={conversation?.username}
-            onVideoCall={handleVideoCall}
+            onVideoCall={onVideoCall}
             isLoading={isPending}
           />
           <PinMessages account={account} conversation={conversation as Conversation} />

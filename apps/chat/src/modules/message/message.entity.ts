@@ -118,7 +118,6 @@ export function createForwardPayload(message: PersistedMessage) {
   if (!message.id) {
     throw new Error('Cannot forward message without id')
   }
-
   const common = {
     forwardFrom: message.sender
   }
@@ -176,7 +175,7 @@ export function createForwardPayload(message: PersistedMessage) {
 
 export function createSendPayload(
   draft: ComposerDraft,
-  messageAction?: MessageAction
+  messageAction: MessageAction | undefined = undefined
 ): SendPayload {
   const replyTo =
     messageAction?.type === 'REPLY' ? createReplyReference(messageAction.message) : undefined

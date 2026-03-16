@@ -1,8 +1,8 @@
-import { AccountDexieDB } from './infrastructure/indexeddb/account.indexeddb'
-import { DexieAccountRepository } from './infrastructure/indexeddb/dexie-account.repository'
-import { AccountService } from './account.service'
 import type { FactoryContract, UserContract } from '@/modules/blockchain'
 import type { WalletService } from '@/modules/wallet'
+import { AccountService } from './account.service'
+import { AccountDexieDB } from './infrastructure/indexeddb/account.indexeddb'
+import { DexieAccountRepository } from './infrastructure/indexeddb/dexie-account.repository'
 
 export class AccountFactory {
   static createService(

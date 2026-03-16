@@ -2,8 +2,10 @@
 
 import { cn } from '@/shared/lib'
 import { handleBackgroundWallet } from '@/shared/utils'
+import { copyClipboard } from '@metanodejs/system-core'
 import { formatUnits } from 'ethers'
 import * as React from 'react'
+import { toast } from 'sonner'
 
 interface CardWalletProps extends React.HTMLAttributes<HTMLDivElement> {
   backgroundImage?: string
@@ -37,6 +39,15 @@ function CardWallet({
     }
   }, [totalBalanceString, decimals])
 
+  const onCopy = async () => {
+    if (window.finSdk) {
+      await navigator.clipboard.writeText(address)
+    } else {
+      await copyClipboard(address)
+    }
+    toast.success('Copy success')
+  }
+
   return (
     <div className={cn(className)} {...props}>
       <div
@@ -45,13 +56,16 @@ function CardWallet({
           background: handleBackgroundWallet(backgroundImage)
         }}
       >
-        <div className="flex w-full h-full flex-col justify-between p-5 gap-3">
+        <div className="flex w-full h-full flex-col justify-between p-5 gap-3 shadow-2xl">
           <div className="flex flex-col gap-2">
             {name && (
               <p className="font-bold text-xl [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)]">{name}</p>
             )}
             {address && (
-              <p className="line-clamp-2 break-all font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)]">
+              <p
+                className="line-clamp-2 break-all font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.6)] cursor-pointer"
+                onClick={onCopy}
+              >
                 0x{address}
               </p>
             )}

@@ -17,5 +17,17 @@ export const userAbi = {
   detailedSettings: userContract.find((item) => item.name === 'detailedSettings'),
   getDetailedSettings: userContract.find((item) => item.name === 'getDetailedSettings'),
   setP2PChatEnabled: userContract.find((item) => item.name === 'setP2PChatEnabled'),
-  setReactionsEnabled: userContract.find((item) => item.name === 'setReactionsEnabled')
+  setReactionsEnabled: userContract.find((item) => item.name === 'setReactionsEnabled'),
+  addDelegate: userContract.find((item) => item.name === 'addDelegate'),
+  getDelegates: userContract.find((item) => item.name === 'getDelegates'),
+  removeDelegate: userContract.find((item) => item.name === 'removeDelegate'),
+  unReactToMessage: userContract.find((item) => item.name === 'unReactToMessage'),
+  MessageDeleted: userContract.find((item) => item.name === 'MessageDeleted'),
+  MessageEdited: userContract.find((item) => item.name === 'MessageEdited'),
+  MessageReacted: userContract.find((item) => item.name === 'MessageReacted'),
+  MessageUnReacted: userContract.find((item) => item.name === 'MessageUnReacted'),
+  MessageSent: userContract.find((item) => item.name === 'MessageSent'),
+  markMessagesAsRead: userContract.find((item) => item.name === 'markMessagesAsRead')
 }
+
+export { userContract }

@@ -4,6 +4,7 @@ import { useGetUserProfile } from '@/shared/hooks/accounts'
 import AvatarUser from '@/shared/components/avatar-user'
 import { USER_DEFAULT } from '@/constants/navbar-menu.constant'
 import { cn } from '@/shared/lib'
+import { useCurrentConversationType } from '@/shared/hooks'
 
 interface ForwardMessageProps {
   forwardFrom?: string
@@ -12,11 +13,14 @@ interface ForwardMessageProps {
 function ForwardMessage({ forwardFrom, isMine }: ForwardMessageProps) {
   if (!forwardFrom) return null
   const { data: profile } = useGetUserProfile(forwardFrom)
+  const type = useCurrentConversationType()
   const displayName =
-    [profile?.firstName, profile?.lastName]
-      .map((v) => v?.trim())
-      .filter(Boolean)
-      .join(' ') || USER_DEFAULT
+    type === 'anonymous_group'
+      ? 'Forwarded message'
+      : [profile?.firstName, profile?.lastName]
+          .map((v) => v?.trim())
+          .filter(Boolean)
+          .join(' ') || USER_DEFAULT
   return (
     <div
       className={cn(

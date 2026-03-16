@@ -13,20 +13,23 @@ import { useScanQrcodeProfile } from '../../../features/conversation/hooks'
 import { ScreenType } from './drawer-new-conversation'
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
-import { useI18N } from '@/shared/hooks'
+import { useI18N, usePlatform } from '@/shared/hooks'
 
 interface DefaultConversationProps {
   conversations?: Conversation[]
   account?: Account
   onChangeScreenType?: (screenType: ScreenType) => void
+  onClose?: () => void
 }
 function DefaultConversation({
   conversations = [],
   account,
-  onChangeScreenType
+  onChangeScreenType,
+  onClose
 }: DefaultConversationProps) {
   const navigate = useNavigate()
   const { t } = useI18N()
+  const { isNotPc } = usePlatform()
 
   const { mutate } = useScanQrcodeProfile()
 
@@ -59,13 +62,15 @@ function DefaultConversation({
             className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
           />
 
-          <Button
-            type="button"
-            onClick={handleClickScanQR}
-            className="size-12 shrink-0 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-95"
-          >
-            <QrCode className="size-6 text-gray-100" />
-          </Button>
+          {isNotPc && (
+            <Button
+              type="button"
+              onClick={handleClickScanQR}
+              className="size-12 shrink-0 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-95"
+            >
+              <QrCode className="size-6 text-gray-100" />
+            </Button>
+          )}
         </div>
       </HeaderSection>
       <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[130px]">
@@ -98,8 +103,8 @@ function DefaultConversation({
 
           {/* New Contact */}
           <button
-            className="w-full h-12 flex items-center gap-4 text-left transition disabled:opacity-50 cursor-not-allowed"
-            disabled
+            className="w-full h-12 flex items-center gap-4 text-left transition "
+            onClick={() => onChangeScreenType?.(ScreenType.NEW_CONTACT)}
           >
             <UserAddIcon className="size-6 text-blue-500" />
             <span className="font-medium text-blue-500">
@@ -128,12 +133,13 @@ function DefaultConversation({
                 name={conversation.name}
                 username={conversation.username}
                 type={conversation.conversationType}
-                onClick={() =>
+                onClick={() => {
+                  onClose?.()
                   navigate({
                     to: '/p2p/$id',
                     params: { id: conversation.conversationId }
                   })
-                }
+                }}
               />
               <div className="h-px bg-white/20 ml-18" />
             </React.Fragment>

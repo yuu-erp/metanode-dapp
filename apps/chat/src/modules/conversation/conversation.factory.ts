@@ -1,6 +1,3 @@
-import { ConversationDexieDB } from './infrastructure/indexeddb/conversation.indexeddb'
-import { DexieConversationRepository } from './infrastructure/indexeddb/dexie-conversation.repository'
-import { ConversationService } from './conversation.service'
 import type {
   EkycContract,
   FactoryContract,
@@ -8,12 +5,17 @@ import type {
   UserContract,
   VerifyContract
 } from '@/modules/blockchain'
-import type { WalletService } from '@/modules/wallet'
 import type { FileCacheService } from '@/modules/file-cache'
-import type { EventLogContainer } from '../eventlogs'
+import type { WalletService } from '@/modules/wallet'
 import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
+import type { EventLogContainer } from '../eventlogs'
+import { ConversationService } from './conversation.service'
+import { ConversationDexieDB } from './infrastructure/indexeddb/conversation.indexeddb'
+import { DexieConversationRepository } from './infrastructure/indexeddb/dexie-conversation.repository'
 
 export class ConversationFactory {
+  static dbName = 'conversations'
+
   static createService(
     userContract: UserContract,
     factoryContract: FactoryContract,
@@ -25,7 +27,7 @@ export class ConversationFactory {
     verifyContract: VerifyContract,
     ekycContract: EkycContract
   ): ConversationService {
-    const db = new ConversationDexieDB('conversations')
+    const db = new ConversationDexieDB(this.dbName)
     const repository = new DexieConversationRepository(db)
     return new ConversationService(
       repository,

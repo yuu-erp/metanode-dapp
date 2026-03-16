@@ -1,7 +1,12 @@
 import { useAddMember, useGetConversations, useGetGroupMembers } from '@/features/conversation'
-import type { ConversationType, PayloadAddMembers } from '@/modules/conversation'
-import { useCurrentAccount, useGetConversationId, useI18N } from '@/shared/hooks'
-import { useParams, useSearch } from '@tanstack/react-router'
+import type { PayloadAddMembers } from '@/modules/conversation'
+import {
+  useCurrentAccount,
+  useCurrentConversationType,
+  useGetConversationId,
+  useI18N
+} from '@/shared/hooks'
+import { useParams } from '@tanstack/react-router'
 import { CheckIcon, Loader2Icon, Plus } from 'lucide-react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { Drawer } from 'vaul'
@@ -10,12 +15,11 @@ import { SelectMembers } from './groups'
 const DrawerAddGroupMember = memo(() => {
   const { id } = useParams({ from: '/_authenticated/group/$id' })
   const { t } = useI18N()
-  const search: { type: ConversationType } = useSearch({ from: '/_authenticated/group/$id' })
   const [open, setOpen] = React.useState(false)
   const { data: account } = useCurrentAccount()
-  const { data: conversations = [] } = useGetConversations(account?.address)
+  const { data: conversations = [] } = useGetConversations(account)
   const [selectedMembers, setSelectedMembers] = React.useState<PayloadAddMembers[]>([])
-  const conversationType = search.type?.split('?')[0] as ConversationType
+  const conversationType = useCurrentConversationType()
   const { data: conversation } = useGetConversationId(id, conversationType)
 
   const { data: groupMembers = [] } = useGetGroupMembers(

@@ -11,9 +11,9 @@ import { useEditGroupMessage, useSendGroupSticker, useSendGroupText } from '../.
 const InputMessageGroup = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
   ({ account, conversation }, ref) => {
     // TODO: Replace with Group specific hooks whenever available
-    const { sendText, isPending: isSendingText } = useSendGroupText()
-    const { sendSticker, isPending: isSendingSticker } = useSendGroupSticker()
-    const { mutate: editMessage, isPending: isEditing } = useEditGroupMessage()
+    const { sendText, isPending: _isSendingText } = useSendGroupText()
+    const { sendSticker, isPending: _isSendingSticker } = useSendGroupSticker()
+    const { mutate: editMessage, isPending: _isEditing } = useEditGroupMessage()
 
     const handleSendText = React.useCallback(
       (content: string, messageAction: MessageAction | null) => {
@@ -46,7 +46,8 @@ const InputMessageGroup = React.forwardRef<HTMLTextAreaElement, InputMessageProp
     const controller = useInputMessageController({
       account,
       conversation,
-      isSending: isSendingText || isSendingSticker || isEditing,
+      // isSending: isSendingText || isSendingSticker || isEditing,
+      isSending: false,
       onSendText: handleSendText,
       onSendSticker: handleSendSticker,
       onEditMessage: handleEditMessage

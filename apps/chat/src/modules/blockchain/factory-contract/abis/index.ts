@@ -15,3 +15,5 @@ export const factoryAbi = {
     (item) => item.name === 'createAnonymousCommunity'
   ) as any
 }
+
+export { factoryContract }

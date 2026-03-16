@@ -35,7 +35,6 @@ function NewGroup({
 }: NewGroupProps) {
   const { mutateAsync: createGroup, isPending: isCreatingGroup } = useCreateGroup(type)
   const { t } = useI18N()
-
   const [screenType, setScreenType] = React.useState<ScreenGroupType>(
     ScreenGroupType.SELECT_MEMBERS
   )

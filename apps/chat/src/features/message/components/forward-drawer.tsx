@@ -11,6 +11,7 @@ import { useSendMessage } from '../hooks'
 import { createForwardPayload, type MessageAction } from '@/modules/message'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
+import { useSendGroupMessage } from '../hooks/use-send-group-message'
 
 interface ForwardDrawerProps {
   open?: boolean
@@ -20,10 +21,11 @@ interface ForwardDrawerProps {
 function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
   const navigate = useNavigate()
   const { data: account } = useCurrentAccount()
-  const { data: conversations = [] } = useGetConversations(account?.address)
+  const { data: conversations = [] } = useGetConversations(account)
   const isMobile = useIsMobile()
 
-  const { mutate } = useSendMessage()
+  const sendMessage = useSendMessage()
+  const sendGroupMessage = useSendGroupMessage()
 
   const handleForwardMessage = React.useCallback(
     (conversation: Conversation) => async () => {
@@ -33,7 +35,13 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         ...messageAction.message,
         id: messageAction.message.id
       })
-      console.log('forwardPayload: ', forwardPayload)
+      console.log('forwardPayload: ', structuredClone(forwardPayload))
+      const mutate =
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+          ? sendGroupMessage.mutate
+          : sendMessage.mutate
+
       if (forwardPayload.type === 'text') {
         mutate({
           account,
@@ -75,9 +83,19 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         }
       }
       onClose?.()
-      navigate({ to: '/p2p/$id', params: { id: conversation.conversationId } })
+      const isGroup =
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+
+      navigate({
+        to: isGroup ? '/group/$id' : '/p2p/$id',
+        params: { id: conversation.conversationId },
+        search: {
+          type: conversation.conversationType
+        }
+      })
     },
-    [account, messageAction, mutate, navigate, onClose]
+    [account, messageAction, sendGroupMessage.mutate, sendMessage.mutate, navigate, onClose]
   )
 
   const renderContent = (

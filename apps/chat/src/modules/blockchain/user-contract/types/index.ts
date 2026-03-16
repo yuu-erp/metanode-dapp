@@ -16,6 +16,7 @@ export interface GetFullInboxOutput {
   latestMessageTimestamp: string
   unreadCount: string
   conversationType: string
+  sender: string
 }
 
 export interface GetProcessedP2PMessagesInput {

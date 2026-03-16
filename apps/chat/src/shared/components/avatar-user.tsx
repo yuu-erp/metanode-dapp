@@ -98,12 +98,14 @@ function AvatarUser({
 }: AvatarUserProps) {
   const isCustomAvatarSize = typeof avatarSize === 'number'
 
+  const isGroup = type === 'group' || type === 'anonymous_group'
+
   return (
     <Avatar
       className={cn(
         'rounded-full shrink-0',
         !isCustomAvatarSize && avatarVariants({ size }),
-        type === 'group' && 'rounded-2xl',
+        isGroup && 'rounded-2xl',
         className
       )}
       style={resolveSize(avatarSize)}
@@ -113,7 +115,7 @@ function AvatarUser({
       <AvatarFallback
         className={cn(
           'rounded-full flex items-center justify-center',
-          type === 'group' && 'rounded-2xl',
+          isGroup && 'rounded-2xl',
           !textSize && fallbackTextVariants({ size })
         )}
         style={{

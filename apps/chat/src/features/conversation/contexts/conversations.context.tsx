@@ -31,40 +31,6 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
     [account]
   )
 
-  const onConversationReceived = React.useCallback(
-    async (event: AppEvents['message.received']) => {
-      if (!account) return
-      const messageService = container.messageService
-
-      try {
-        let message
-
-        if (event.type === 'group' || event.type === 'anonymous_group') {
-          message = await messageService.decryptMessageFromGroup(account, {
-            messageId: event.messageId,
-            encryptedContent: event.encryptedContent,
-            groupAddress: event.recipient,
-            type: event.type
-          })
-        } else {
-          message = await messageService.decryptMessageFromPartner(account, {
-            encryptedContent: event.encryptedContent,
-            sender: event.sender,
-            messageId: event.messageId,
-            recipient: event.recipient
-          })
-        }
-
-        if (message) {
-          await handleUpdateConversation(message)
-        }
-      } catch (error) {
-        console.error('[ConversationsProvider] Error decrypting message:', error)
-      }
-    },
-    [account, handleUpdateConversation]
-  )
-
   const onMessageCreate = React.useCallback(
     async (event: AppEvents['message.create']) => {
       if (!account) return
@@ -74,26 +40,34 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
     [account, handleUpdateConversation]
   )
 
-  const onGroupJoined = React.useCallback(() => {
+  const syncConversations = React.useCallback(async () => {
     if (!account) return
+    await container.conversationService.syncByAccount(account)
+    queryClient.invalidateQueries({
+      queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
+    })
+  }, [account, queryClient, container])
 
-    container.conversationService.syncByAccount(account)
-  }, [account])
+  const onMessageUpsert = React.useCallback(
+    (e: AppEvents['message.add']) => {
+      handleUpdateConversation(e.message)
+    },
+    [account, handleUpdateConversation]
+  )
 
   React.useEffect(() => {
     if (!account) return
     const eventBus = container.eventBus
-    eventBus.on('message.received', onConversationReceived)
-    eventBus.on('message.create', onMessageCreate)
-
-    eventBus.on('group.joined', onGroupJoined)
+    eventBus.on('group.joined', syncConversations)
+    eventBus.on('user.added', syncConversations)
+    eventBus.on('message.add', onMessageUpsert)
 
     return () => {
-      eventBus.off('message.received', onConversationReceived)
-      eventBus.off('message.create', onMessageCreate)
-      eventBus.off('group.joined', onGroupJoined)
+      eventBus.off('group.joined', syncConversations)
+      eventBus.on('user.added', syncConversations)
+      eventBus.off('message.add', syncConversations)
     }
-  }, [account, onConversationReceived, onMessageCreate, onGroupJoined])
+  }, [account, onMessageCreate, syncConversations])
   return <ConversationsContext.Provider value={{}}>{children}</ConversationsContext.Provider>
 }
 

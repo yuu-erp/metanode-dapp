@@ -14,9 +14,6 @@ export function useCreateGroup(groupType: ConversationType) {
     mutationFn: async ({ account, payload }: { account: Account; payload: PayloadCreateGroup }) => {
       if (groupType === 'group') {
         const group = await container.conversationService.createGroup(account, payload)
-
-        // Sync to get the new group
-        await container.conversationService.syncByAccount(account)
         // Fetch latest list
         await container.conversationService.addMembers(
           account,
@@ -28,8 +25,6 @@ export function useCreateGroup(groupType: ConversationType) {
         return group.contractAddress
       } else if (groupType === 'anonymous_group') {
         const group = await container.conversationService.createAnonymousCommunity(account, payload)
-
-        await container.conversationService.syncByAccount(account)
 
         await container.conversationService.addMembersInAnonymousGroup(
           account,
@@ -45,6 +40,7 @@ export function useCreateGroup(groupType: ConversationType) {
       queryClient.invalidateQueries({
         queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(variables.account.address)
       })
+      console.log('thanhduy - navigate groupType', { groupType })
       navigate({
         to: '/group/$id',
         params: { id: _data! },

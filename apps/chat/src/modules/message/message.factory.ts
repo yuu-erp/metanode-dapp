@@ -7,10 +7,10 @@ import type {
 import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
 import type { AppEvents } from '@/types/app-events'
+import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 import type { FileCacheService } from '../file-cache'
 import { MessageService } from './message.service'
 import type { EventLogContainer } from '../eventlogs'
-import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 
 export class MessageFactory {
   static createService(
@@ -21,8 +21,8 @@ export class MessageFactory {
     walletService: WalletService,
     eventBus: EventBusPort<AppEvents>,
     fileCacheService: FileCacheService,
-    eventLogContainer: EventLogContainer,
-    anonymousGroupContract: AnonymousGroupContract
+    anonymousGroupContract: AnonymousGroupContract,
+    eventLogContainer: EventLogContainer
   ): MessageService {
     return new MessageService(
       userContract,
@@ -32,8 +32,8 @@ export class MessageFactory {
       walletService,
       eventBus,
       fileCacheService,
-      eventLogContainer,
-      anonymousGroupContract
+      anonymousGroupContract,
+      eventLogContainer
     )
   }
 }

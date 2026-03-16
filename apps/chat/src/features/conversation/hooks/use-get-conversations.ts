@@ -1,12 +1,13 @@
 'use client'
 
 import { container } from '@/container'
+import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
 import { CONVERSATION_QUERY_KEY } from '@/shared/lib/react-query'
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
 
 export function createGetConversationsQueryOptions(
-  accountId?: string
+  account?: Account
 ): UseQueryOptions<
   Conversation[],
   Error,
@@ -14,19 +15,17 @@ export function createGetConversationsQueryOptions(
   ReturnType<typeof CONVERSATION_QUERY_KEY.CONVERSATIONS>
 > {
   return {
-    queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(accountId ?? ''),
+    queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account?.address ?? ''),
     queryFn: async (): Promise<Conversation[]> => {
-      if (!accountId) return []
-
       const conversationService = container.conversationService
-      const rs = await conversationService.getConversationList(accountId)
+      const rs = await conversationService.getConversationList(account)
 
       return rs
     },
-    enabled: !!accountId
+    enabled: !!account
   }
 }
 
-export function useGetConversations(accountId?: string) {
-  return useQuery(createGetConversationsQueryOptions(accountId))
+export function useGetConversations(account?: Account) {
+  return useQuery(createGetConversationsQueryOptions(account))
 }

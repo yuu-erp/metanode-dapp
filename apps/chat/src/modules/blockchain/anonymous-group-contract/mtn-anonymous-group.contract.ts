@@ -141,6 +141,17 @@ export class AnonymousGroupContract extends MtnContract {
 
   getAliasMember(payload: TransactionPayload<{}>) {
     const { from, to } = payload
+    return this.sendTransaction<string>({
+      from,
+      to,
+      functionName: 'getAliasMember',
+      abiData: anonymousGroupAbi.getAliasMember,
+      feeType: 'read'
+    })
+  }
+
+  unReactToMessage(payload: TransactionPayload<{ messageId: string }>) {
+    const { from, to, inputData } = payload
     return this.sendTransaction<{
       memberAlias: string
       teamId: string
@@ -148,9 +159,43 @@ export class AnonymousGroupContract extends MtnContract {
     }>({
       from,
       to,
-      functionName: 'getAliasMember',
-      abiData: anonymousGroupAbi.getAliasMember,
-      feeType: 'read'
+      functionName: 'unReactToMessage',
+      abiData: anonymousGroupAbi.unReactToMessage,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  getMessageById(payload: TransactionPayload<{ _messageId: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<{
+      messageId: string
+      author: string
+      finalContent: string
+      timestamp: string
+      isDeleted: boolean
+      reactions: any[]
+      readBy: string[]
+      isEdited: true
+    }>({
+      from,
+      to,
+      functionName: 'getMessageById',
+      abiData: anonymousGroupAbi.getMessageById,
+      feeType: 'read',
+      inputData
+    })
+  }
+
+  markMessagesAsRead(payload: TransactionPayload<{ messageIds: string[] }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'markMessagesAsRead',
+      abiData: anonymousGroupAbi.markMessagesAsRead,
+      feeType: 'sc',
+      inputData
     })
   }
 }

@@ -229,4 +229,67 @@ export class UserContract extends MtnContract {
       feeType: 'sc'
     })
   }
+
+  addDelegate(payload: TransactionPayload<{ _delegate: string }>): Promise<void> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'addDelegate',
+      abiData: userAbi.addDelegate as any,
+      inputData,
+      feeType: 'sc'
+    })
+  }
+
+  getDelegates(payload: TransactionPayload<{}>): Promise<string[]> {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getDelegates',
+      abiData: userAbi.getDelegates as any,
+      feeType: 'read'
+    })
+  }
+
+  removeDelegate(payload: TransactionPayload<{ _delegate: string }>): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'removeDelegate',
+      abiData: userAbi.removeDelegate as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  unReactToMessage(
+    payload: TransactionPayload<{ partnerContract: string; messageId: string }>
+  ): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'unReactToMessage',
+      abiData: userAbi.unReactToMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  markMessagesAsRead(
+    payload: TransactionPayload<{ partnerContract: string; messageIds: string[] }>
+  ): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'markMessagesAsRead',
+      abiData: userAbi.markMessagesAsRead as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
 }

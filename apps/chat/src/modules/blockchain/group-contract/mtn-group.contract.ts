@@ -125,4 +125,49 @@ export class GroupContract extends MtnContract {
       feeType: 'read'
     })
   }
+
+  unReactToMessage(payload: TransactionPayload<{ messageId: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'unReactToMessage',
+      abiData: groupAbis.unReactToMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  getMessageById(payload: TransactionPayload<{ _messageId: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<{
+      messageId: string
+      author: string
+      finalContent: string
+      timestamp: string
+      isDeleted: boolean
+      reactions: any[]
+      readBy: string[]
+      isEdited: true
+    }>({
+      from,
+      to,
+      functionName: 'getMessageById',
+      abiData: groupAbis.getMessageById as any,
+      feeType: 'read',
+      inputData
+    })
+  }
+
+  markMessagesAsRead(payload: TransactionPayload<{ messageIds: string[] }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'markMessagesAsRead',
+      abiData: groupAbis.markMessagesAsRead as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
 }

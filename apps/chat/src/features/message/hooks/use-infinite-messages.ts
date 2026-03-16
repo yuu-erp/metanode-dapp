@@ -34,7 +34,7 @@ export function useInfiniteMessages({
     ),
     queryFn: async ({ pageParam = null }) => {
       if (!account || !conversation) return []
-
+      console.log('thanhduy - infinite message', conversation)
       const messageService = container.messageService
       // Gọi service với beforeTimestamp để lấy tin nhắn cũ hơn
       let result: any[] = []
@@ -52,7 +52,6 @@ export function useInfiniteMessages({
           page: pageParam as number | undefined
         })
       }
-
       return result
     },
     initialPageParam: 1,

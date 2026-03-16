@@ -12,9 +12,9 @@ import { type InputMessageProps, InputMessageView, useInputMessageController } f
 
 const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
   ({ account, conversation }, ref) => {
-    const { sendText, isPending: isSendingText } = useSendText()
-    const { sendSticker, isPending: isSendingSticker } = useSendSticker()
-    const { mutate: editMessage, isPending: isEditing } = useEditMessage()
+    const { sendText, isPending: _isSendingText } = useSendText()
+    const { sendSticker, isPending: _isSendingSticker } = useSendSticker()
+    const { mutate: editMessage, isPending: _isEditing } = useEditMessage()
 
     const handleSendText = React.useCallback(
       (content: string, messageAction: MessageAction | null) => {
@@ -35,10 +35,12 @@ const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>
     const handleEditMessage = React.useCallback(
       (messageOld: Message, content: string) => {
         if (!account || !conversation) return
+
         // Ensure message has ID before editing
         if (!messageOld.id) return
 
         const payload: EditTextPayload = { type: 'text', content }
+
         editMessage({ account, conversation, messageOld: messageOld as PersistedMessage, payload })
       },
       [account, conversation, editMessage]
@@ -47,7 +49,9 @@ const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>
     const controller = useInputMessageController({
       account,
       conversation,
-      isSending: isSendingText || isSendingSticker || isEditing,
+      // isSending: isSendingText || isSendingSticker || isEditing,
+      isSending: false,
+
       onSendText: handleSendText,
       onSendSticker: handleSendSticker,
       onEditMessage: handleEditMessage

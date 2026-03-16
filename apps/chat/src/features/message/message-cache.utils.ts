@@ -32,12 +32,6 @@ interface ApplyMessageSentParams {
   messageId: string
 }
 
-interface ApplyReactionReceivedParams {
-  messageId: string
-  encodedEmoji: string
-  reactedByMe: boolean
-}
-
 export function insertMessage(
   oldData: InfiniteData<Message[]> | undefined,
   message: Message
@@ -60,6 +54,35 @@ export function insertMessage(
     ...oldData,
     pages: [[message, ...firstPage], ...oldData.pages.slice(1)]
   }
+}
+
+export function applyMessageUpsert(
+  oldData: InfiniteData<Message[]> | undefined,
+  message: Partial<Message>,
+  clientId?: string
+) {
+  return updatePages(oldData, (msg: any) => {
+    if (!matchMessage(msg, { clientId, messageId: message.id })) return msg
+
+    const newMessage = { ...msg, ...message, sender: message.sender || msg.sender }
+    return newMessage
+  })
+}
+
+export function applyUpdateMessageId(
+  oldData: InfiniteData<Message[]> | undefined,
+  messageId: string,
+  clientId: string,
+  fildId?: string
+): InfiniteData<Message[]> | undefined {
+  return updatePages(oldData, (msg) => {
+    if (!matchMessage(msg, { clientId: clientId })) return msg
+    const newMsg = { ...msg, id: messageId, status: 'delivered' } as Message // Cast to avoid strict type issues with status literal
+    if (fildId && newMsg.type === 'file') {
+      newMsg.fileId = fildId
+    }
+    return newMsg
+  })
 }
 
 // Helpers
@@ -155,125 +178,131 @@ export function applyMessageDelete(
   })
 }
 
-// Reaction helper (common logic for both create and received, adjusted for isMe)
-function handleReaction(
+function handleRemoveReaction(
   reactions: MessageReaction[] | undefined,
-  emoji: string,
-  isMe: boolean
+  reactor: string
 ): MessageReaction[] {
-  const currentReactions = reactions ?? []
+  if (!reactions) return []
 
-  if (isMe) {
-    // Logic for applyReactionCreate (me reacting)
-    const myReaction = currentReactions.find((r) => r.reactedByMe)
+  const next: MessageReaction[] = []
 
-    // 🔁 click lại đúng emoji mình đã reaction → noop
-    if (myReaction?.emoji === emoji) {
-      return currentReactions
+  for (const r of reactions) {
+    const userIndex = r.users.findIndex((u) => u === reactor)
+
+    // reaction này không liên quan
+    if (userIndex === -1) {
+      next.push(r)
+      continue
     }
 
-    // ❌ bỏ reaction cũ của mình (nếu có)
-    let nextReactions = currentReactions
-      .map((r) => {
-        if (r.reactedByMe) {
-          // giảm count emoji cũ
-          if (r.count > 1) {
-            return { ...r, count: r.count - 1, reactedByMe: false }
-          }
-          return null
-        }
-        return r
-      })
-      .filter(Boolean) as MessageReaction[]
+    const newUsers = r.users.filter((u) => u !== reactor)
 
-    // ✅ thêm / tăng emoji mới
-    const existing = nextReactions.find((r) => r.emoji === emoji)
-
-    if (existing) {
-      nextReactions = nextReactions.map((r) =>
-        r.emoji === emoji ? { ...r, count: r.count + 1, reactedByMe: true } : r
-      )
-    } else {
-      nextReactions.push({
-        emoji,
-        count: 1,
-        reactedByMe: true,
-        users: []
-      })
+    // nếu không còn ai reaction emoji này nữa
+    if (newUsers.length <= 0) {
+      continue
     }
 
-    return nextReactions
-  } else {
-    // Logic for applyReactionReceived (opponent reacting)
-    const myReaction = currentReactions.find((r) => r.reactedByMe)
-    const opponentReaction = currentReactions.find((r) => !r.reactedByMe)
-
-    // 🔁 đối phương react trùng emoji của chính họ → noop
-    if (opponentReaction?.emoji === emoji) {
-      return currentReactions
-    }
-
-    // 🧠 nếu mình đã react cùng emoji → gộp count = 2
-    if (myReaction?.emoji === emoji) {
-      return [
-        {
-          emoji,
-          reactedByMe: true,
-          count: 2,
-          users: []
-        }
-      ]
-    }
-
-    // 🆕 đối phương react emoji khác
-    const newReactions: MessageReaction[] = []
-
-    if (myReaction) {
-      newReactions.push({
-        ...myReaction,
-        count: 1,
-        users: []
-      })
-    }
-
-    newReactions.push({
-      emoji,
-      reactedByMe: false,
-      count: myReaction ? 1 : 1,
-      users: []
+    next.push({
+      ...r,
+      users: newUsers
     })
-
-    return newReactions
   }
+
+  return next
 }
 
-export function applyReactionReceived(
+export function applyReactionRemoved(
   oldData: InfiniteData<Message[]> | undefined,
-  params: ApplyReactionReceivedParams
+  params: {
+    messageId: string
+    conversationId: string
+    reactor: string
+  }
 ): InfiniteData<Message[]> | undefined {
-  const emoji = decodeBase64(params.encodedEmoji)
-  const isMe = params.reactedByMe // Sử dụng param để quyết định logic (dù code gốc assume false, nhưng để linh hoạt)
-
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { messageId: params.messageId })) return msg
-    const newReactions = handleReaction(msg.reactions, emoji, isMe)
-    if (newReactions === msg.reactions) return msg // Optional: avoid update if no change
+
+    const newReactions = handleRemoveReaction(msg.reactions, params.reactor)
+
+    if (newReactions === msg.reactions) return msg
+
     return { ...msg, reactions: newReactions }
   })
 }
 
-export function applyReactionCreate(
+export function applyReactionUpsert(
   oldData: InfiniteData<Message[]> | undefined,
   params: {
     messageId: string
+    reactor: string
     emoji: string
+    isMine: boolean
   }
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { messageId: params.messageId })) return msg
-    const newReactions = handleReaction(msg.reactions, params.emoji, true)
-    if (newReactions === msg.reactions) return msg // Optional: avoid update if no change
-    return { ...msg, reactions: newReactions }
+
+    const reactions = msg.reactions ?? []
+    const { reactor } = params
+    const emoji = decodeBase64(params.emoji)
+
+    let changed = false
+    let next: MessageReaction[] = []
+
+    // 1️⃣ remove old reaction of this reactor (if any)
+    for (const r of reactions) {
+      if (!r.users.includes(reactor)) {
+        next.push(r)
+        continue
+      }
+
+      // 🔁 same emoji → noop
+      if (r.emoji === emoji) {
+        return msg
+      }
+
+      changed = true
+
+      const newUsers = r.users.filter((u) => u !== reactor)
+
+      // nếu vẫn còn người khác giữ emoji này
+      if (newUsers.length > 0) {
+        next.push({
+          ...r,
+          users: newUsers
+        })
+      }
+
+      // nếu không còn ai → drop reaction luôn
+    }
+
+    // 2️⃣ add / merge new emoji
+    const existingIndex = next.findIndex((r) => r.emoji === emoji)
+
+    if (existingIndex !== -1) {
+      const existing = next[existingIndex]
+
+      next[existingIndex] = {
+        ...existing,
+        users: [...existing.users, reactor]
+      }
+
+      changed = true
+    } else {
+      next.push({
+        emoji,
+        users: [reactor]
+      })
+
+      changed = true
+    }
+
+    if (!changed) return msg
+
+    return {
+      ...msg,
+      reactions: next
+    }
   })
 }
 

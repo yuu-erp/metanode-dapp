@@ -1,4 +1,5 @@
 import { formatAddress } from '@/shared/utils'
+import type { ConversationType } from '../conversation'
 import type {
   BaseMessage,
   BaseOnChainPayload,
@@ -11,6 +12,7 @@ import type {
   ReplyReference
 } from './message.type'
 import { decodeBase64 } from './utils'
+import type { Account } from '../account'
 
 // Helper type để check raw data
 type RawMessageSource = Record<string, unknown> & {
@@ -26,8 +28,13 @@ type RawMessageSource = Record<string, unknown> & {
   latitude?: number | string
   longitude?: number | string
   address?: string
-  reactionSummary?: string
+  reactionSummary?: any
   isMine?: boolean
+  conversationType?: ConversationType
+  conversationId?: string
+  accountId?: string
+  status?: MessageStatus
+  account?: Account
 }
 
 /**
@@ -45,6 +52,11 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   )
     ? (rawType as MessageType)
     : 'text'
+  console.log('thanhduy - reaction raw', raw)
+  const reactions =
+    raw.conversationType === 'anonymous_group' || raw.conversationType === 'group'
+      ? parseReactionForGroup(raw.reactionSummary)
+      : parseReactionSummary(raw.reactionSummary, raw.account!, raw.conversationId)
 
   // Xây dựng base fields chung
   const base: Omit<BaseMessage, 'type'> = {
@@ -58,7 +70,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
     isEdited: Boolean(raw.isEdited ?? raw.edited ?? raw.editedAt),
     isDeleted: Boolean(raw.isDeleted ?? raw.deleted ?? false),
     status: mapStatus(raw.status ?? raw.isRead ?? raw.read),
-    reactions: parseReactionSummary(raw.reactionSummary),
+    reactions,
     replyTo: raw.replyTo ? mapReplyReference(raw.replyTo) : undefined,
     forwardFrom: raw.forwardFrom ? String(raw.forwardFrom) : undefined,
     isMine: raw.isMine
@@ -223,13 +235,37 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
   }
 }
 
+export function parseReactionForGroup(
+  reactions: { reaction: string; reactor: string }[]
+): MessageReaction[] {
+  const reactionMap: Record<string, MessageReaction> = {}
+
+  reactions.forEach(({ reaction, reactor }) => {
+    if (!reactionMap[reaction]) {
+      reactionMap[reaction] = {
+        emoji: decodeBase64(reaction),
+        users: [reactor]
+      }
+    } else {
+      const obj = reactionMap[reaction]
+      obj.users.push(reactor)
+    }
+  })
+
+  return Object.values(reactionMap)
+}
+
 /**
  * Parse reaction summary dạng string (ví dụ: "me:base64emoji,friend:base64emoji2,...")
  */
-export function parseReactionSummary(summary?: string): MessageReaction[] {
+export function parseReactionSummary(
+  summary: string = '',
+  account: Account,
+  conversationId = ''
+): MessageReaction[] {
   if (!summary || typeof summary !== 'string') return []
-
-  const map = new Map<string, { count: number; reactedByMe: boolean }>()
+  console.log('thanhduy - summary', summary)
+  const map = new Map<string, MessageReaction>()
 
   summary.split(',').forEach((item) => {
     const trimmed = item.trim()
@@ -240,21 +276,21 @@ export function parseReactionSummary(summary?: string): MessageReaction[] {
 
     const emoji = decodeBase64(encodedEmoji.trim())
 
-    const entry = map.get(emoji) ?? { count: 0, reactedByMe: false }
-    entry.count += 1
-    if (who.trim().toLowerCase() === 'me') {
-      entry.reactedByMe = true
-    }
+    const isMe = who.trim().toLowerCase() === 'me'
 
+    let entry = map.get(emoji)
+    const newReactor = isMe ? account.contractAddress : conversationId
+    if (!entry) {
+      entry = { emoji, users: [newReactor] }
+    } else {
+      entry.users = [...entry.users]
+    }
     map.set(emoji, entry)
   })
 
-  return Array.from(map, ([emoji, { count, reactedByMe }]) => ({
-    emoji,
-    count,
-    ...(reactedByMe && { reactedByMe: true }),
-    users: []
-  }))
+  const rs = [...map.values()]
+
+  return rs
 }
 
 /**

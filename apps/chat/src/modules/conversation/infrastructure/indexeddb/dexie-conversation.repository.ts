@@ -26,7 +26,7 @@ export class DexieConversationRepository implements ConversationRepository {
       .equals(accountId)
       .reverse()
       .and((c) => c.conversationType !== 'private')
-      .toArray()
+      .sortBy('updatedAt')
 
     // 3️⃣ Gộp lại: private luôn ở trên
     return [...privateConversations, ...normalConversations]

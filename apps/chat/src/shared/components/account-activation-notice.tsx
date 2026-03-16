@@ -4,11 +4,13 @@ import { useCurrentAccount, useI18N } from '@/shared/hooks'
 import { useCheckUserContract } from '@/shared/hooks/accounts'
 import { AlertTriangle, MoveRight } from 'lucide-react'
 import * as React from 'react'
+import { useNavigate } from '@tanstack/react-router'
 
 function AccountActivationNotice() {
+  const navigate = useNavigate()
   const { t } = useI18N()
   const { data: currentAccount } = useCurrentAccount()
-  const { data: isActive, isLoading } = useCheckUserContract(currentAccount?.address)
+  const { data: isActive, isLoading } = useCheckUserContract(currentAccount)
   if (isLoading) return null
   if (typeof isActive === 'undefined') return null
   if (typeof isActive === 'boolean' && isActive) return null
@@ -32,12 +34,13 @@ function AccountActivationNotice() {
             onClick={async () => {
               try {
                 await Promise.all([
-                  Dexie.delete('account_db'),
-                  Dexie.delete('conversation_db'),
+                  Dexie.delete('conversations'),
                   Dexie.delete('message_db'),
-                  Dexie.delete('file_cache_db')
+                  Dexie.delete('file_cache_db'),
+                  Dexie.delete('accounts')
                 ])
-                window.location.reload()
+                navigate({ to: '/wallets' })
+                // window.location.reload()
               } catch (error) {
                 console.error('Failed to clear data:', error)
               }

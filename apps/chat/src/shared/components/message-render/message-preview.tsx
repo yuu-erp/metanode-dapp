@@ -1,4 +1,5 @@
 'use client'
+import { STICKERS } from '@/constants/stickers'
 import type { Message } from '@/modules/message'
 import { useI18N } from '@/shared/hooks'
 import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
@@ -11,6 +12,9 @@ type Props = {
 
 function MessagePreview({ message, className }: Props) {
   const { t } = useI18N()
+  const path = STICKERS.flatMap((i) => i.stickers).find(
+    (i) => message.type === 'sticker' && i.id === message.stickerId
+  )?.image
 
   switch (message.type) {
     case 'text':
@@ -19,7 +23,7 @@ function MessagePreview({ message, className }: Props) {
     case 'sticker':
       return (
         <span className="flex items-center gap-1 opacity-70 italic">
-          <img src={`/stickers/${message.stickerId}.png`} alt="" className="size-6 rounded-sm" />
+          <img src={path} alt="" className="size-6 rounded-sm" />
           {t('message.type.sticker', { defaultValue: '[Sticker]' })}
         </span>
       )

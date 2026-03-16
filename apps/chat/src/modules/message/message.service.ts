@@ -31,12 +31,14 @@ import type {
   ReplyReference,
   SendPayload
 } from '.'
+import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 import type { PushFileInfosParams } from '../blockchain/file-contract/types'
 import { createOptimisticMessage } from './message.entity'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
+import { asyncPriorityQueue } from '../realtime'
 import type { EventLogContainer } from '../eventlogs'
-import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
+import { MessageExtend } from './message.extend'
 
 export class MessageService {
   constructor(
@@ -47,11 +49,14 @@ export class MessageService {
     private readonly walletService: WalletService,
     private readonly eventBus: EventBusPort<AppEvents>,
     private readonly fileCacheService: FileCacheService,
-    private readonly eventLogContainer: EventLogContainer,
-    private readonly anonymousGroupContract: AnonymousGroupContract
-  ) {}
+    private readonly anonymousGroupContract: AnonymousGroupContract,
+    private readonly eventLogContainer: EventLogContainer
+  ) {
+    this.messageExtend = new MessageExtend(eventBus)
+  }
 
   private fileProcessingWorker: Worker | null = null
+  private messageExtend: MessageExtend
 
   async getProcessedP2PMessages(
     account: Account,
@@ -68,13 +73,12 @@ export class MessageService {
         page
       }
     })
-    console.log('rawMessages', { rawMessages, page, limit })
+    console.log('thanhduy - rawMessages', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
 
     const filteredMessages = messages.filter(Boolean) as Message[]
-
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
     if (account.contractAddress === conversation.conversationId) {
       return Array.from(new Map(filteredMessages.map((item) => [item.id, item])).values())
@@ -97,7 +101,6 @@ export class MessageService {
         account.address,
         item.finalContent
       )
-
       let replyTo = undefined
       if (decrypted.replyTo) {
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
@@ -107,68 +110,16 @@ export class MessageService {
         if (fileDB) {
           decrypted.filePath = URL.createObjectURL(fileDB.blob)
         }
-      }
-
-      return mapperToMessage({
-        accountId: account.address,
-        conversationId: conversation.conversationId,
-        ...item,
-        ...decrypted,
-        replyTo
-      })
-    } catch (error) {
-      console.error('[MessageService] Error processing message:', error)
-      return undefined
-    }
-  }
-
-  private async _processGroupMessage(
-    item: any,
-    account: Account,
-    conversation: Conversation
-  ): Promise<Message | undefined> {
-    try {
-      let decrypted = (await decryptAESGCM(conversation.conversationKey, item.finalContent))
-        ?.resultUtf8
-      if (typeof decrypted === 'string') {
-        decrypted = JSON.parse(decrypted)
-      }
-
-      let replyTo = undefined
-      if (decrypted.replyTo) {
-        replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
-      }
-      if (decrypted.type === 'file') {
-        const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
-        if (fileDB) {
-          decrypted.filePath = URL.createObjectURL(fileDB.blob)
-        }
-      }
-
-      const sender =
-        Number(item.author) === 0
-          ? ''
-          : await this.factoryContract.getUserContract({
-              from: account.address,
-              inputData: { user: item.author }
-            })
-      let isMine = undefined
-      if (conversation.conversationType === 'anonymous_group') {
-        const memberAlias = await this.anonymousGroupContract.getAliasMember({
-          from: account.address,
-          to: conversation.conversationId
-        })
-        isMine = memberAlias === item?.authorAlias
       }
 
       const rs = mapperToMessage({
         accountId: account.address,
+        account,
         conversationId: conversation.conversationId,
-        sender,
         ...item,
         ...decrypted,
         replyTo,
-        isMine
+        isMine: account.contractAddress === item.sender
       })
       return rs
     } catch (error) {
@@ -177,7 +128,81 @@ export class MessageService {
     }
   }
 
-  private async _inflateReplyTo(
+  private async decryptGroupMessage(key: string, content: string) {
+    let decrypted = (await decryptAESGCM(key, content))?.resultUtf8
+    if (typeof decrypted === 'string') {
+      decrypted = JSON.parse(decrypted)
+    }
+    return decrypted
+  }
+
+  private async _processGroupMessage(
+    item: any,
+    account: Account,
+    conversation: Conversation
+  ): Promise<Message | undefined> {
+    try {
+      const decrypted = await this.decryptGroupMessage(
+        conversation.conversationKey,
+        item.finalContent
+      )
+
+      let replyTo = undefined
+
+      if (decrypted.replyTo) {
+        const rs = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
+
+        replyTo = rs
+      }
+      if (decrypted.type === 'file') {
+        const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
+        if (fileDB) {
+          decrypted.filePath = URL.createObjectURL(fileDB.blob)
+        }
+      }
+
+      let sender = ''
+      if (conversation.conversationType === 'anonymous_group') {
+        sender = item.authorAlias
+      } else if (conversation.conversationType === 'group' && Number(item.author) !== 0) {
+        sender = item.author
+      }
+
+      let isMine = undefined
+      if (conversation.conversationType === 'anonymous_group') {
+        const memberAlias = await this.anonymousGroupContract.getAliasMember({
+          from: account.address,
+          to: conversation.conversationId
+        })
+        isMine = memberAlias === item?.authorAlias
+      } else if (conversation.conversationType === 'group') {
+        isMine = formatAddress(account.address) === formatAddress(item.author)
+      }
+
+      const isRead = item.readBy.length > 0
+
+      const rs = mapperToMessage({
+        address: account.address,
+        conversationId: conversation.conversationId,
+        sender,
+        ...item,
+        ...decrypted,
+        replyTo,
+        isMine,
+        conversationType: conversation.conversationType,
+        reactionSummary: item.reactions,
+        isRead: isRead,
+        account
+      })
+
+      return rs
+    } catch (error) {
+      console.error('[MessageService] Error processing message:', error)
+      return undefined
+    }
+  }
+
+  async _inflateReplyTo(
     replyTo: OnChainReplyReference,
     account: Account,
     conversation: Conversation
@@ -185,20 +210,47 @@ export class MessageService {
     try {
       const { messageId, sender } = replyTo
 
-      const replyMessage = await this.userContract.getMessageById({
-        from: account.address,
-        to: account.contractAddress,
-        inputData: { _messageId: messageId }
-      })
+      let decrypted = {}
 
-      const decryptionKey = await this._getDecryptionKey(sender, account, conversation)
+      if (conversation.conversationType === 'p2p') {
+        const replyMessage = await this.userContract.getMessageById({
+          from: account.address,
+          to: account.contractAddress,
+          inputData: { _messageId: messageId }
+        })
 
-      const decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
-        decryptionKey,
-        account.address,
-        replyMessage.encryptedContent
-      )
+        const decryptionKey = await this._getDecryptionKey(sender, account, conversation)
 
+        const { replyTo, ...decryptedData }: any =
+          await this.walletService.decryptMessage<OnChainMessagePayload>(
+            decryptionKey,
+            account.address,
+            replyMessage.encryptedContent
+          )
+
+        decrypted = decryptedData
+      } else if (
+        conversation.conversationType === 'group' ||
+        conversation.conversationType === 'anonymous_group'
+      ) {
+        const payload = {
+          from: account.address,
+          to: conversation.conversationId,
+          inputData: { _messageId: messageId }
+        }
+
+        const replyMessage =
+          conversation.conversationType === 'group'
+            ? await this.groupContract.getMessageById(payload)
+            : await this.anonymousGroupContract.getMessageById(payload)
+
+        const { replyTo, ...decryptedData } = await this.decryptGroupMessage(
+          conversation.conversationKey,
+          replyMessage.finalContent
+        )
+
+        decrypted = decryptedData
+      }
       return {
         messageId,
         sender,
@@ -230,7 +282,6 @@ export class MessageService {
     payload: SendPayload
   ): Promise<string> {
     const clientId = uuidv4()
-
     const optimisticMessage = createOptimisticMessage(
       {
         clientId,
@@ -245,57 +296,27 @@ export class MessageService {
       payload
     )
     // optimistic update
-    this.eventBus.emit('message.create', { message: optimisticMessage })
+    this.eventBus.emit('message.add', {
+      conversationId: conversation.conversationId,
+      message: optimisticMessage,
+      isMine: true,
+      conversationType: 'p2p'
+    })
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
     const stringifyMessage = JSON.stringify(messageOnChain)
 
-    const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
-      this.walletService.encryptMessage(
-        conversation.conversationKey,
-        account.address,
-        stringifyMessage
-      ),
-      this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
-    ])
-
-    try {
-      const result = await this.userContract.sendMessage({
-        from: account.address,
-        to: account.contractAddress,
-        inputData: {
-          _recipientContractAddress: conversation.conversationId,
-          _encryptedContentForSelf: encryptedForSelf,
-          _encryptedContentForRecipient: encryptedForRecipient
-        }
-      })
-
-      this.eventBus.emit('message.sent', {
-        accountId: account.address,
-        conversationId: conversation.conversationId,
-        clientId,
-        messageId: result.messageId
-      })
-
-      return result.messageId
-    } catch (error) {
-      this.eventBus.emit('message.status', {
-        accountId: account.address,
-        conversationId: conversation.conversationId,
-        clientId,
-        status: 'failed'
-      })
-      throw error
-    }
+    return await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
   }
 
-  async decryptMessageFromPartner(
+  async decryptMessageForP2p(
     account: Account,
     data: {
       encryptedContent: string
       sender: string
       messageId: string
       recipient: string
+      isMine?: boolean
     }
   ) {
     const { encryptedContent, sender, messageId, recipient } = data
@@ -317,7 +338,8 @@ export class MessageService {
       // However, _inflateReplyTo uses conversation.conversationId to check if it matches reply sender
       const mockConversation = {
         conversationId: sender,
-        conversationKey: publicKey // Use the fetched public key of the sender
+        conversationKey: publicKey, // Use the fetched public key of the sender
+        conversationType: 'p2p'
       } as Conversation
 
       replyTo = await this._inflateReplyTo(decryptMessage.replyTo, account, mockConversation)
@@ -332,10 +354,11 @@ export class MessageService {
       ...decryptMessage,
       messageId,
       accountId: account.address,
-      conversationId: sender,
+      conversationId: data.isMine ? recipient : sender,
       sender,
       recipient,
-      replyTo
+      replyTo,
+      isMine: data.isMine
     })
   }
 
@@ -350,14 +373,17 @@ export class MessageService {
     const { emoji, messageId } = payload
 
     // 🔥 optimistic UI
-    this.eventBus.emit('reaction.create', {
-      accountId: account.address,
-      conversationId: conversation.conversationId,
-      messageId,
-      emoji
-    })
 
     const encryptEmoji = encodeBase64(emoji)
+
+    this.eventBus.emit('reaction.upsert', {
+      messageId,
+      conversationId: conversation.conversationId,
+      reactor: account.contractAddress,
+      accountId: account.address,
+      emoji: encryptEmoji,
+      isMine: true
+    })
 
     await this.userContract.reactToMessage({
       from: account.address,
@@ -417,7 +443,7 @@ export class MessageService {
     try {
       // 📡 gọi smart contract edit
       await this.userContract.editMessage({
-        from: account.address,
+        from: account.hiddenAddress,
         to: account.contractAddress,
         inputData: {
           partnerContract: conversation.conversationId,
@@ -458,7 +484,7 @@ export class MessageService {
       conversationId: conversation.conversationId
     })
     await this.userContract.deleteMessageV2({
-      from: account.address,
+      from: account.hiddenAddress,
       to: account.contractAddress,
       inputData: {
         _messageId: message.id,
@@ -530,7 +556,12 @@ export class MessageService {
         )
 
         // optimistic update
-        this.eventBus.emit('message.create', { message: optimisticMessage })
+        this.eventBus.emit('message.add', {
+          conversationId: conversation.conversationId,
+          message: optimisticMessage,
+          isMine: true,
+          conversationType: conversation.conversationType
+        })
 
         preparedMessages.push({
           clientId,
@@ -556,7 +587,6 @@ export class MessageService {
         dataFile: file,
         preparedMessage: preparedMessages[index]
       }))
-      console.log('datas', datas)
 
       for (const data of datas) {
         if (!data.dataFile || !data.fileKey) continue
@@ -607,59 +637,7 @@ export class MessageService {
           const messageOnChain = mapperMessageToOnChain(optimisticMessage)
           const stringifyMessage = JSON.stringify(messageOnChain)
 
-          let messageId = ''
-
-          if (conversation.conversationType === 'group') {
-            const encryptedContent = await encryptAESGCM(
-              conversation.conversationKey,
-              stringifyMessage
-            )
-            const recipientOwners = await this.getRecipientOwners(account, conversation)
-            const promise = this.sendGroupMessagePromise(account)
-
-            await this.groupContract.sendMessage({
-              from: account.address,
-              to: conversation.conversationId,
-              inputData: {
-                encryptedContent,
-                recipientOwners
-              }
-            })
-            messageId = await promise
-          } else {
-            const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
-              this.walletService.encryptMessage(
-                conversation.conversationKey,
-                account.address,
-                stringifyMessage
-              ),
-              this.walletService.encryptMessage(
-                account.publicKey,
-                account.address,
-                stringifyMessage
-              )
-            ])
-
-            const result = await this.userContract.sendMessage({
-              from: account.address,
-              to: account.contractAddress,
-              inputData: {
-                _recipientContractAddress: conversation.conversationId,
-                _encryptedContentForSelf: encryptedForSelf,
-                _encryptedContentForRecipient: encryptedForRecipient
-              }
-            })
-
-            messageId = result.messageId
-          }
-
-          this.eventBus.emit('message.sent', {
-            accountId: account.address,
-            conversationId: conversation.conversationId,
-            clientId,
-            messageId: messageId,
-            fileId: data.fileKey
-          })
+          await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
         } catch (error) {
           console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
           this.eventBus.emit('message.status', {
@@ -892,10 +870,11 @@ export class MessageService {
         rawMessages = []
       }
     }
-
+    console.log('thanhduy - rawMessages 1', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
+    console.log('thanhduy - rawMessages 2', messages)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -935,19 +914,12 @@ export class MessageService {
       })
     )
 
-    const recipientOwners = userSettings.filter((i) => i.p2pChatEnabled).map((i) => i.address)
+    const recipientOwners = userSettings
+      .filter((i) => i.p2pChatEnabled)
+      .map((i) => i.address)
+      .filter((i) => i !== account.address)
 
     return recipientOwners
-  }
-
-  sendGroupMessagePromise(account: Account) {
-    return new Promise<string>((resolve) => {
-      const off = this.eventLogContainer.eventLog.on('MessageSentGroup', (data) => {
-        if (formatAddress(data.sender) !== formatAddress(account.address)) return
-        off()
-        resolve(data.messageId)
-      })
-    })
   }
 
   async sendGroupMessae(
@@ -955,6 +927,7 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
+    console.log('thanhduy - sendGroupMessae 1')
     const clientId = uuidv4()
     const optimisticMessage = createOptimisticMessage(
       {
@@ -969,58 +942,22 @@ export class MessageService {
       },
       payload
     )
+
     // optimistic update
-    this.eventBus.emit('message.create', { message: optimisticMessage })
+
+    this.eventBus.emit('message.add', {
+      conversationId: conversation.conversationId,
+      message: optimisticMessage,
+      isMine: true,
+      conversationType: conversation.conversationType
+    })
+
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
     const stringifyMessage = JSON.stringify(messageOnChain)
+    console.log('thanhduy - sendGroupMessae 2')
 
-    try {
-      let messageId = ''
-      const encryptMessage = (await encryptAESGCM(conversation.conversationKey, stringifyMessage))
-        ?.result
-
-      if (conversation.conversationType === 'group') {
-        const recipientOwners = await this.getRecipientOwners(account, conversation)
-        const promise = this.sendGroupMessagePromise(account)
-
-        await this.groupContract.sendMessage({
-          from: account.address,
-          to: conversation.conversationId,
-          inputData: {
-            encryptedContent: encryptMessage,
-            recipientOwners
-          }
-        })
-        messageId = await promise
-      } else if (conversation.conversationType === 'anonymous_group') {
-        await this.anonymousGroupContract.sendMessage({
-          from: account.address,
-          to: conversation.conversationId,
-          inputData: {
-            encryptedContent: encryptMessage
-          }
-        })
-      } else {
-        throw new Error('Invalid conversation type for group message')
-      }
-      this.eventBus.emit('message.sent', {
-        accountId: account.address,
-        conversationId: conversation.conversationId,
-        clientId,
-        messageId: messageId
-      })
-
-      return messageId
-    } catch (error) {
-      this.eventBus.emit('message.status', {
-        accountId: account.address,
-        conversationId: conversation.conversationId,
-        clientId,
-        status: 'failed'
-      })
-      throw error
-    }
+    return await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
   }
 
   async editGroupMessage(
@@ -1062,7 +999,7 @@ export class MessageService {
       // 📡 gọi smart contract edit
 
       const payload = {
-        from: account.address,
+        from: account.hiddenAddress,
         to: conversation.conversationId,
         inputData: {
           messageId: messageOld.id,
@@ -1104,6 +1041,8 @@ export class MessageService {
       groupAddress: string
       encryptedContent: string
       type: ConversationType
+      isMine?: boolean
+      sender?: string
     }
   ) {
     const { encryptedContent, messageId, groupAddress, type } = data
@@ -1115,6 +1054,7 @@ export class MessageService {
       throw new Error('[decryptMessageFromGroup] Invalid type')
 
     let admin = ''
+    let sender = data?.sender ?? ''
 
     if (type === 'group') {
       admin = await this.groupContract.admin({
@@ -1128,7 +1068,7 @@ export class MessageService {
       })
     }
 
-    const userContract = await this.factoryContract.getUserContract({
+    const adminUserContract = await this.factoryContract.getUserContract({
       from: accountId,
       inputData: {
         user: admin
@@ -1140,12 +1080,12 @@ export class MessageService {
       inputData: {}
     })
 
-    const publicKey = await this.userContract.publicKey({
+    const adminPublicKey = await this.userContract.publicKey({
       from: accountId,
-      to: userContract
+      to: adminUserContract
     })
     const privateKey = await getPrivateKeyFromDb(accountId)
-    const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
+    const sharedKeyWithAdmin = (await createECDHPassword(adminPublicKey, privateKey)).password
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
 
@@ -1159,11 +1099,13 @@ export class MessageService {
       // However, _inflateReplyTo uses conversation.conversationId to check if it matches reply sender
       const mockConversation = {
         conversationId: groupAddress,
-        conversationKey: publicKey // Use the fetched public key of the sender
+        conversationKey: groupKey, // Use the fetched public key of the sender
+        conversationType: data.type
       } as Conversation
 
       replyTo = await this._inflateReplyTo(decryptMessage.replyTo, account, mockConversation)
     }
+
     if (decryptMessage.type === 'file') {
       const fileDB = await this.fileCacheService.getFile(decryptMessage.fileId)
       if (fileDB) {
@@ -1176,7 +1118,10 @@ export class MessageService {
       accountId: account.address,
       conversationId: groupAddress,
       recipient: groupAddress,
-      replyTo
+      replyTo,
+      isMine: data.isMine,
+      sender,
+      account
     })
 
     return decryptedMessage
@@ -1193,7 +1138,7 @@ export class MessageService {
     })
     if (conversation.conversationType === 'group') {
       await this.groupContract.deleteMessage({
-        from: account.address,
+        from: account.hiddenAddress,
         to: conversation.conversationId,
         inputData: {
           messageId: message.id
@@ -1201,7 +1146,7 @@ export class MessageService {
       })
     } else {
       await this.anonymousGroupContract.deleteMessage({
-        from: account.address,
+        from: account.hiddenAddress,
         to: conversation.conversationId,
         inputData: {
           messageId: message.id
@@ -1221,32 +1166,161 @@ export class MessageService {
     const { emoji, messageId } = payload
 
     // 🔥 optimistic UI
-    this.eventBus.emit('reaction.create', {
-      accountId: account.address,
-      conversationId: conversation.conversationId,
-      messageId,
-      emoji
-    })
+    // this.eventBus.emit('reaction.upsert', {
+    //   conversationId: conversation.conversationId,
+    //   messageId: messageId,
+    //   reactor: account.address,
+    //   emoji: encodeBase64(emoji),
+    //   accountId: account.address
+    // })
 
     const encryptEmoji = encodeBase64(emoji)
-    if (conversation.conversationType === 'group') {
-      await this.groupContract.reactToMessage({
-        from: account.address,
-        to: conversation.conversationId,
-        inputData: {
-          messageId: messageId,
-          reaction: encryptEmoji
-        }
-      })
-    } else {
-      await this.anonymousGroupContract.reactToMessage({
-        from: account.address,
-        to: conversation.conversationId,
-        inputData: {
-          messageId: messageId,
-          reaction: encryptEmoji
-        }
-      })
+
+    const payloadData = {
+      from: account.hiddenAddress,
+      to: conversation.conversationId,
+      inputData: {
+        messageId: messageId,
+        reaction: encryptEmoji
+      }
     }
+
+    if (conversation.conversationType === 'group') {
+      await this.groupContract.reactToMessage(payloadData)
+    } else {
+      await this.anonymousGroupContract.reactToMessage(payloadData)
+    }
+  }
+
+  async unReactMessage(account: Account, conversation: Conversation, messageId: string) {
+    const payload = {
+      from: account.hiddenAddress,
+      to: conversation.conversationId,
+      inputData: { messageId }
+    }
+
+    if (conversation.conversationType === 'anonymous_group') {
+      await this.anonymousGroupContract.unReactToMessage(payload)
+    } else if (conversation.conversationType === 'group') {
+      await this.groupContract.unReactToMessage(payload)
+    } else if (conversation.conversationType === 'p2p') {
+      await this.userContract.unReactToMessage({
+        from: account.hiddenAddress,
+        to: account.contractAddress,
+        inputData: {
+          messageId,
+          partnerContract: conversation.conversationId
+        }
+      })
+    } else throw new Error('[UnreactToMessage] Invalid conversation type')
+  }
+
+  sendStringtifiedMessage(
+    account: Account,
+    conversation: Conversation,
+    stringifyMessage: string,
+    clientId: string
+  ) {
+    return asyncPriorityQueue.add(async () => {
+      console.log('thanhduy - sendStringtifiedMessage 1')
+      this.messageExtend.unsubscribe()
+      const { conversationType } = conversation
+      let promise: any
+
+      try {
+        const eventLog = this.eventLogContainer.eventLog
+
+        if (conversationType === 'p2p' || conversationType === 'private') {
+          promise = new Promise((resolve) => {
+            const off = eventLog.on('MessageSent', (data) => {
+              if (data.sender !== account.contractAddress) return
+              off()
+              resolve(data.messageId)
+            })
+          })
+
+          const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
+            this.walletService.encryptMessage(
+              conversation.conversationKey,
+              account.address,
+              stringifyMessage
+            ),
+            this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
+          ])
+
+          await this.userContract.sendMessage({
+            from: account.hiddenAddress,
+            to: account.contractAddress,
+            inputData: {
+              _recipientContractAddress: conversation.conversationId,
+              _encryptedContentForSelf: encryptedForSelf,
+              _encryptedContentForRecipient: encryptedForRecipient
+            }
+          })
+        } else {
+          console.log('thanhduy - sendStringtifiedMessage 2', conversationType)
+
+          const encryptMessage = (
+            await encryptAESGCM(conversation.conversationKey, stringifyMessage)
+          )?.result
+
+          if (conversationType === 'group') {
+            promise = new Promise((resolve) => {
+              const off = eventLog.on('MessageSentGroup', (data) => {
+                if (formatAddress(data.sender) !== formatAddress(account.address)) return
+                off()
+                resolve(data.messageId)
+              })
+            })
+
+            const recipientOwners = await this.getRecipientOwners(account, conversation)
+            await this.groupContract.sendMessage({
+              from: account.hiddenAddress,
+              to: conversation.conversationId,
+              inputData: {
+                encryptedContent: encryptMessage,
+                recipientOwners
+              }
+            })
+          } else if (conversationType === 'anonymous_group') {
+            promise = new Promise((resolve) => {
+              const off = eventLog.on('AnonymousMessageStored', (data) => {
+                if (data.sender !== account.address) return
+                off()
+                resolve(data.messageId)
+              })
+            })
+
+            await this.anonymousGroupContract.sendMessage({
+              from: account.hiddenAddress,
+              to: conversation.conversationId,
+              inputData: {
+                encryptedContent: encryptMessage
+              }
+            })
+          } else {
+            throw new Error('Invalid conversation type for group message')
+          }
+        }
+
+        const messageId = await promise
+        this.eventBus.emit('message.updateId', {
+          messageId,
+          clientId,
+          conversationId: conversation.conversationId
+        })
+
+        this.messageExtend.subscribe()
+        return messageId
+      } catch (error) {
+        this.eventBus.emit('message.status', {
+          accountId: account.address,
+          conversationId: conversation.conversationId,
+          clientId,
+          status: 'failed'
+        })
+        throw error
+      }
+    }, 'high')
   }
 }

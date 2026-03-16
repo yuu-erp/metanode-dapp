@@ -14,7 +14,11 @@ function ReplyMessage({ replyTo, isMine }: ReplyMessageProps) {
   return (
     <ReplyMessageView
       replyTo={replyTo}
-      replyToUser={[profile?.firstName, profile?.lastName].filter(Boolean).join(' ')}
+      replyToUser={
+        replyTo.sender.length < 40
+          ? replyTo.sender
+          : [profile?.firstName, profile?.lastName].filter(Boolean).join(' ')
+      }
       isMine={isMine}
     />
   )

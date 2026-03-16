@@ -3,7 +3,7 @@
 import * as React from 'react'
 import type { OverlayMessageHandlers, OverlayMessageProps } from './overlay-message.types'
 import { useCopyMessageAction, useMessageAction } from '../../contexts'
-import { useDeleteMessage, useReactToMessage } from '../../hooks'
+import { useDeleteMessage, useReactToMessage, useUnreactToMessage } from '../../hooks'
 import { useDownloadFile } from '../../hooks/use-download-file'
 import { useMessagePinStatus } from '../../hooks/use-message-pin-status'
 import OverlayMessageView from './overlay-message-view'
@@ -11,11 +11,14 @@ import OverlayMessageView from './overlay-message-view'
 import { container } from '@/container'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
+import { useIsMineReaction } from '@/shared/hooks'
+import { asyncPriorityQueue } from '@/modules/realtime'
 
-function OverlayMessage({ onClose, message, isMine, conversation, account }: OverlayMessageProps) {
+function OverlayMessage({ onClose, message, conversation, account }: OverlayMessageProps) {
   const { setMessageAction } = useMessageAction()
   const { copyMessage } = useCopyMessageAction()
-  const { mutate: mutateReactToMessage } = useReactToMessage()
+  const { mutateAsync: mutateReactToMessage } = useReactToMessage()
+  const { mutateAsync: mutateUnreactToMessage } = useUnreactToMessage()
   const { mutate: mutateDelete } = useDeleteMessage()
   const { downloadFile } = useDownloadFile()
   const { data: isPinned } = useMessagePinStatus(
@@ -24,6 +27,7 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
     message?.id || ''
   )
   const queryClient = useQueryClient()
+  const isMine = useIsMineReaction()
 
   console.log('isPinned: ', isPinned)
 
@@ -34,14 +38,30 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
       onReact: (emoji: string) => {
         if (!message?.id) return
         if (!account || !conversation) return
-        mutateReactToMessage({
-          account,
-          conversation,
-          payload: {
-            messageId: message.id,
-            emoji
+
+        const currentReaction = (message.reactions ?? []).find(isMine)
+
+        const shouldUnReact = currentReaction?.emoji === emoji
+
+        asyncPriorityQueue.add(async () => {
+          if (shouldUnReact) {
+            await mutateUnreactToMessage({
+              account,
+              conversation,
+              messageId: message.id
+            })
+          } else {
+            await mutateReactToMessage({
+              account,
+              conversation,
+              payload: {
+                messageId: message.id,
+                emoji
+              }
+            })
           }
-        })
+        }, 'high')
+
         handleClose()
       },
 
@@ -142,14 +162,14 @@ function OverlayMessage({ onClose, message, isMine, conversation, account }: Ove
       copyMessage,
       handleClose,
       downloadFile,
-      queryClient
+      queryClient,
+      isMine
     ]
   )
 
   return (
     <OverlayMessageView
       message={message}
-      isMine={isMine}
       handlers={handlers}
       isPinned={isPinned || false}
       onClose={handleClose}

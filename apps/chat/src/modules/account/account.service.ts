@@ -5,6 +5,7 @@ import type { AccountRepository } from './account.repository'
 import type { Account } from './account.types'
 import { detectNameFromWalletName, generateAvailableUsername } from './utils'
 import { formatAddress } from '@/shared/utils'
+import { getHiddenWallet } from '@metanodejs/system-core'
 
 export class AccountService {
   constructor(
@@ -27,7 +28,6 @@ export class AccountService {
   async registerUser(wallet: Wallet): Promise<Account> {
     const address = wallet.address
     // 1. Check on-chain
-
     const isRegistered = await this.factoryContract.checkUserContract({
       from: address,
       inputData: {
@@ -46,17 +46,18 @@ export class AccountService {
       )
 
       const { firstName, lastName } = detectNameFromWalletName(wallet.name)
+      const inputData = {
+        publicKey,
+        userName: username,
+        firstName,
+        lastName,
+        avatar: '',
+        bio: ''
+      }
 
       await this.factoryContract.registerUser({
         from: address,
-        inputData: {
-          publicKey,
-          userName: username,
-          firstName,
-          lastName,
-          avatar: '',
-          bio: ''
-        }
+        inputData
       })
     }
 
@@ -71,14 +72,31 @@ export class AccountService {
     if (!contractAddress) {
       throw new Error('User contract not found')
     }
-    // 6. Lấy profile từ on-chain
-    const profile = await this.userContract.userProfile({
+
+    const hiddenWallet = (await getHiddenWallet()).address
+
+    const existedDelegate = await this.userContract.getDelegates({
       from: address,
       to: contractAddress
     })
+
+    if (!existedDelegate.includes(hiddenWallet)) {
+      await this.userContract.addDelegate({
+        from: address,
+        to: contractAddress,
+        inputData: { _delegate: hiddenWallet }
+      })
+    }
+
+    // 6. Lấy profile từ on-chain
+    const profile = await this.userContract.userProfile({
+      from: hiddenWallet,
+      to: contractAddress
+    })
+
     // 7. Sync xuống local
     const account: Account = createAccount({
-      name: wallet.name,
+      name: `${profile.firstName} ${profile.lastName}`,
       address,
       username: profile.userName,
       contractAddress,
@@ -86,22 +104,32 @@ export class AccountService {
       firstName: profile.firstName,
       lastName: profile.lastName,
       avatar: profile.avatar,
-      bio: profile.bio
+      bio: profile.bio,
+      hiddenAddress: hiddenWallet
     })
+
     const activeAccount = activateAccount(account)
     await this.repository.upsert(activeAccount)
     await this.repository.setActive(address)
     return account
   }
 
-  async logout(): Promise<void> {
+  async logout(account?: Account): Promise<void> {
+    if (!account) return
+    const hiddenWallet = (await getHiddenWallet()).address
+    this.userContract.removeDelegate({
+      from: account.address,
+      to: account.contractAddress,
+      inputData: { _delegate: hiddenWallet }
+    })
+
     await this.repository.clearActive()
   }
 
-  async checkUserContract(address: string): Promise<boolean> {
+  async checkUserContract(account: Account): Promise<boolean> {
     return await this.factoryContract.checkUserContract({
-      from: address,
-      inputData: { user: address }
+      from: account.hiddenAddress,
+      inputData: { user: account.address }
     })
   }
 

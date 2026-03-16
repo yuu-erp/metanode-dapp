@@ -20,7 +20,8 @@ const variants = {
   constrait: 'bg-surface-constrait text-text-primary',
   primary: 'bg-surface-secondary text-text-primary',
   normal: 'px-3 h-[42px] bg-white/20 rounded-xl border-app',
-  icon: 'xl:size-[3rem] hidden size-[2.6rem] flex items-center justify-center rounded-full bg-black/20 shrink-0'
+  icon: 'xl:size-[3rem] hidden size-[2.6rem] flex items-center justify-center rounded-full bg-black/20 shrink-0',
+  submit: 'whitespace-nowrap w-[125px] h-10 border-app rounded-full'
 }
 
 const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonBaseProps>((props, ref) => {

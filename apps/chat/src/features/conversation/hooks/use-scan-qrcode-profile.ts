@@ -15,7 +15,7 @@ export function useScanQrcodeProfile() {
       const conversationService = container.conversationService
       const conversationId = JSON.parse(dataScan)
       const conversation = await conversationService.getConversationById(
-        account.address,
+        account,
         conversationId,
         'p2p'
       )

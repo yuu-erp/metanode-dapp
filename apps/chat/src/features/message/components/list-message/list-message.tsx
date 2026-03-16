@@ -8,6 +8,7 @@ import type { ListMessageProps } from './list-message-type'
 import ListMessageView from './list-message-view'
 import { useChatScroll } from './use-chat-scroll'
 import { useViewInfiniteScroll } from './use-view-infinite-scroll'
+import { useMarkAsRead } from '@/shared/hooks'
 
 function ListMessage({ conversation, account }: ListMessageProps) {
   // Infinite scroll
@@ -21,44 +22,45 @@ function ListMessage({ conversation, account }: ListMessageProps) {
     (message: PersistedMessage | null) => setMessageSelect(message),
     []
   )
-
+  useMarkAsRead(messages, conversation)
   return (
-    <div
-      ref={scrollRef}
-      onScroll={handleScroll}
-      className="flex flex-1 min-h-0 flex-col-reverse overflow-y-auto relative"
-      // Padding bottom 80px to account for absolute InputMessage
-      style={{ paddingBottom: '80px' }}
-      aria-live="polite"
-    >
-      {/* List message */}
-      <ListMessageView
-        messages={messages}
-        isLoading={isLoading}
-        isError={isError}
-        loadMoreRef={loadMoreRef}
-        isFetchingNextPage={isFetchingNextPage}
-        hasNextPage={hasNextPage}
-        account={account}
-        conversation={conversation}
-        // @ts-ignore
-        handleSelectMessage={handleSelectMessage}
-      />
-      {/* Button scroll to top */}
-      {showScrollBottom && <ButtonScrollToTop onClick={scrollToBottom} />}
-      {/* Overlay message */}
-      <AnimatePresence mode="wait" initial={false}>
-        {messageSelect && (
-          <OverlayMessage
-            message={messageSelect}
-            isMine={messageSelect.sender === account?.contractAddress}
-            onClose={() => handleSelectMessage(null)}
-            conversation={conversation}
-            account={account}
-          />
-        )}
-      </AnimatePresence>
-    </div>
+    <>
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex flex-1 min-h-0 flex-col-reverse overflow-y-auto relative"
+        // Padding bottom 80px to account for absolute InputMessage
+        style={{ paddingBottom: '80px' }}
+        aria-live="polite"
+      >
+        {/* List message */}
+        <ListMessageView
+          messages={messages}
+          isLoading={isLoading}
+          isError={isError}
+          loadMoreRef={loadMoreRef}
+          isFetchingNextPage={isFetchingNextPage}
+          hasNextPage={hasNextPage}
+          account={account}
+          conversation={conversation}
+          // @ts-ignore
+          handleSelectMessage={handleSelectMessage}
+        />
+        {/* Button scroll to top */}
+        {showScrollBottom && <ButtonScrollToTop onClick={scrollToBottom} />}
+        {/* Overlay message */}
+        <AnimatePresence mode="wait" initial={false}>
+          {messageSelect && (
+            <OverlayMessage
+              message={messageSelect}
+              onClose={() => handleSelectMessage(null)}
+              conversation={conversation}
+              account={account}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   )
 }
 

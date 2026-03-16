@@ -37,6 +37,7 @@ export class DexieAccountRepository implements AccountRepository {
     await this.db.accounts.toCollection().modify({ isActive: 0 })
 
     // 2. Lấy account theo address
+
     const dbAccount = await this.db.accounts.get(address)
     if (!dbAccount) throw new Error('Account not found')
 

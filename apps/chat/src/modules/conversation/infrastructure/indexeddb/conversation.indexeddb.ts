@@ -8,11 +8,12 @@ export interface ConversationDB {
 export class ConversationDexieDB extends Dexie implements ConversationDB {
   conversations!: Table<Conversation, string>
 
-  constructor(dbName = 'conversation_db') {
+  constructor(dbName = 'conversations') {
     super(dbName)
 
-    this.version(2).stores({
-      conversations: `
+    this.version(12)
+      .stores({
+        conversations: `
         conversationId,
         accountId,
         updatedAt,
@@ -20,6 +21,7 @@ export class ConversationDexieDB extends Dexie implements ConversationDB {
         [accountId+conversationId],
         [accountId+updatedAt]
       `
-    })
+      })
+      .upgrade(async () => {})
   }
 }

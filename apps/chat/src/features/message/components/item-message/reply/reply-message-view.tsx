@@ -34,6 +34,15 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
         'min-h-12 flex items-center gap-2 text-white rounded-md relative mb-1 py-1',
         isMine ? 'bg-blue-700' : 'bg-blue-200'
       )}
+      onClick={() => {
+        const el = document.querySelector(`[message-id="${replyTo.messageId}"]`)
+        if (!el) return
+
+        el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        })
+      }}
     >
       <span className="h-full w-[3px] rounded-l-md bg-blue-500 absolute left-0" />
 

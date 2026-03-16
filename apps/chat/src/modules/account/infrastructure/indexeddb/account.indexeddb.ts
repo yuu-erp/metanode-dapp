@@ -8,10 +8,12 @@ export interface AccountDB extends Omit<Account, 'isActive'> {
 export class AccountDexieDB extends Dexie {
   accounts!: Table<AccountDB, string> // primary key là address
 
-  constructor(dbName: string = 'account_db') {
+  constructor(dbName: string = 'accounts') {
     super(dbName)
-    this.version(2).stores({
-      accounts: 'address, isActive'
-    })
+    this.version(13)
+      .stores({
+        accounts: 'address, isActive'
+      })
+      .upgrade(async () => {})
   }
 }

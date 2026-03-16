@@ -5,7 +5,6 @@ import { useIncomingCall } from './use-incoming-call'
 
 export function IncomingCall() {
   const { incomingCall, acceptCall, rejectCall } = useIncomingCall()
-
   if (!incomingCall) return null
   return (
     <div
@@ -26,7 +25,7 @@ export function IncomingCall() {
       >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <AvatarUser name={incomingCall.name} size="lg" />
+            <AvatarUser name={incomingCall.caller} size="lg" />
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="relative flex h-2 w-2">
@@ -38,7 +37,7 @@ export function IncomingCall() {
                 </span>
               </div>
               <span className="font-semibold text-white text-lg truncate pr-2">
-                {incomingCall.name}
+                {incomingCall.caller}
               </span>
             </div>
           </div>

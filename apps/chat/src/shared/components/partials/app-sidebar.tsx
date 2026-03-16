@@ -11,6 +11,7 @@ import { DrawerNewConversation } from '../drawer-new-conversation'
 import { MessageIcon } from '../icons'
 import StatusSync from '../status-sync'
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader } from '../ui/sidebar'
+import TotalUnreadcount from '../total-unreadcount'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { t } = useI18N()
@@ -73,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 }}
                 onClick={() => navigate({ to: '/' })}
               >
-                {/* <TotalUnreadc∏ount className="absolute top-1 right-1" variant="destructive" /> */}
+                <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" />
                 <MessageIcon className="size-8 text-white" />
               </Button>
             </div>

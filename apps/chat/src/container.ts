@@ -4,11 +4,9 @@ import {
   FactoryContract,
   FileContract,
   GroupContract,
-  MettingContract,
   UserContract,
   VerifyContract
 } from '@/modules/blockchain'
-import { CallService } from '@/modules/call'
 import {
   ConversationFactory,
   ConversationService,
@@ -26,9 +24,12 @@ import {
 } from '@/modules/realtime-transport/realtime-transport.factory'
 import { SyncFactory, SyncManager } from '@/modules/sync'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
-import { EventLogContainer } from './modules/eventlogs'
-import type { AppEvents } from './types/app-events'
 import { AnonymousGroupContract } from './modules/blockchain/anonymous-group-contract'
+import { EventLogContainer } from './modules/eventlogs'
+import { MeetingFactory } from './modules/meeting/meeting.factory'
+import type { MeetingService } from './modules/meeting/meeting.service'
+import type { AppEvents } from './types/app-events'
+import { MeetingContract } from './modules/blockchain/meeting-contract'
 
 /**
  * AppContainer
@@ -47,11 +48,11 @@ class AppContainer {
   private readonly _anonymousGroupContract: AnonymousGroupContract
   private readonly _groupContract: GroupContract
   private readonly _fileContract: FileContract
-  private readonly _mettingContract: MettingContract
   private readonly _eventLogContainer: EventLogContainer
   private readonly _eventBus: EventBusPort<AppEvents>
   private readonly _verifyContract: VerifyContract
   private readonly _ekycContract: EkycContract
+  private readonly _meetingContract: MeetingContract
 
   /* ================================
    * Application services
@@ -59,11 +60,11 @@ class AppContainer {
   private readonly _accountService: AccountService
   private readonly _conversationService: ConversationService
   private readonly _messageService: MessageService
-  private readonly _callService: CallService
   private readonly _fileTransferService: FileTransferService
   private readonly _fileCacheService: FileCacheService
   private readonly _messagePinService: MessagePinService
   private readonly _realtimeTransportFactory: RealtimeTransportFactory
+  private readonly _meetingService: MeetingService
 
   constructor() {
     const nativeWalletAdapter = new NativeWalletAdapter()
@@ -72,12 +73,13 @@ class AppContainer {
     this._userContract = new UserContract()
     this._groupContract = new GroupContract()
     this._fileContract = new FileContract()
-    this._mettingContract = new MettingContract()
     this._eventLogContainer = new EventLogContainer()
     this._eventBus = new MittEventBus<AppEvents>()
     this._anonymousGroupContract = new AnonymousGroupContract()
     this._verifyContract = new VerifyContract()
     this._ekycContract = new EkycContract()
+    this._meetingContract = new MeetingContract()
+
     // 5️⃣ Application Service (AccountService)
     this._accountService = AccountFactory.createService(
       this._walletService,
@@ -109,21 +111,17 @@ class AppContainer {
       this._walletService,
       this._eventBus,
       this._fileCacheService,
-      this.eventLogContainer,
-      this._anonymousGroupContract
+      this._anonymousGroupContract,
+      this._eventLogContainer
     )
 
     this._fileTransferService = new FileTransferService()
     this._messagePinService = MessagePinFactory.createService()
-    this._callService = new CallService(
-      this._mettingContract,
-      this._userContract,
-      this._factoryContract,
-      this._eventLogContainer
-    )
 
     // 6️⃣ Realtime Transport Factory
     this._realtimeTransportFactory = getRealtimeTransportFactory()
+
+    this._meetingService = MeetingFactory.createService()
   }
 
   /* ================================
@@ -142,8 +140,16 @@ class AppContainer {
     return this._userContract
   }
 
-  get mettingContract(): MettingContract {
-    return this._mettingContract
+  get groupContract(): GroupContract {
+    return this._groupContract
+  }
+
+  get anonymousGroupContract(): AnonymousGroupContract {
+    return this._anonymousGroupContract
+  }
+
+  get meetingContract(): MeetingContract {
+    return this._meetingContract
   }
 
   get accountService(): AccountService {
@@ -170,10 +176,6 @@ class AppContainer {
     return this._messagePinService
   }
 
-  get callService(): CallService {
-    return this._callService
-  }
-
   get eventLogContainer(): EventLogContainer {
     return this._eventLogContainer
   }
@@ -188,6 +190,10 @@ class AppContainer {
 
   get sessionManager(): SessionManager {
     return this._realtimeTransportFactory.sessionManager
+  }
+
+  get meetingService(): MeetingService {
+    return this._meetingService
   }
 
   /* ================================

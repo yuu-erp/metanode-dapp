@@ -1,6 +1,7 @@
 'use client'
 import type { Message } from '@/modules/message'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
+import { useCurrentConversationType } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { motion } from 'framer-motion'
 import * as React from 'react'
@@ -12,6 +13,8 @@ import {
   ReplyMessage,
   type MessageItemProps
 } from '.'
+import { GroupMemberName } from './group/group-member-name'
+import { GroupMemberAvatar } from './group/group-member-avatar'
 
 export interface ItemMessageUIProps extends MessageItemProps<Message> {
   handlers: any
@@ -34,13 +37,19 @@ function ItemMessageUI({
   isFailed,
   ...props
 }: ItemMessageUIProps) {
+  const type = useCurrentConversationType()
+
+  const isInGroup = !isMine && (type === 'group' || type === 'anonymous_group')
+
   return (
     <motion.div
+      message-id={message.id}
       layoutId={layoutId}
-      className={`flex mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}
+      className={`flex gap-2 mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}
       {...handlers}
       {...props}
     >
+      {isInGroup && <GroupMemberAvatar sender={message.sender} />}
       <div
         className={cn(
           'max-w-[90%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',
@@ -55,7 +64,9 @@ function ItemMessageUI({
       >
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
         <ForwardMessage forwardFrom={message.forwardFrom} isMine={isMine} />
+        {isInGroup && <GroupMemberName sender={message.sender} />}
         <ItemMessageView message={message} isMine={isMine} />
+
         <div
           className={cn(
             'w-full flex items-end justify-between gap-3',

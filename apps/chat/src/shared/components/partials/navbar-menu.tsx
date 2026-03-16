@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import { MessageIcon, PhoneIcon, SettingsIcon, UserIcon } from '../icons'
 import { Button } from '../ui/button'
+import TotalUnreadcount from '../total-unreadcount'
 
 function NavbarMenu() {
   const navigate = useNavigate()
@@ -43,7 +44,7 @@ function NavbarMenu() {
               }}
               onClick={() => navigate({ to: '/' })}
             >
-              {/* <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" /> */}
+              <TotalUnreadcount className="absolute top-1 right-1" variant="destructive" />
               <MessageIcon className="size-8" />
             </Button>
           </div>

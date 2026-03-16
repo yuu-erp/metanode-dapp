@@ -7,7 +7,12 @@ import {
   PinMessages
 } from '@/features/message'
 import type { Conversation } from '@/modules/conversation'
-import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
+import {
+  useCurrentAccount,
+  useCurrentConversationType,
+  useGetConversationId,
+  useVisualViewport
+} from '@/shared/hooks'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
@@ -21,10 +26,12 @@ export const Route = createFileRoute('/_authenticated/group/$id')({
 function RouteComponent() {
   const { id } = useParams({ from: '/_authenticated/group/$id' })
   const { data: account } = useCurrentAccount()
-  const { data: conversation } = useGetConversationId(id, 'group')
+  const type = useCurrentConversationType()
+
+  const { data: conversation } = useGetConversationId(id, type)
+  console.log('thanhduy - group conversation', { conversation, type })
   const viewportHeight = useVisualViewport()
   const isMobile = useIsMobile()
-
   const containerStyle = useMemo(() => {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
@@ -42,7 +49,7 @@ function RouteComponent() {
           <ChatHeader
             name={conversation?.name}
             type={conversation?.conversationType}
-            username={conversation?.username}
+            username={conversation?.name}
             isAdmin={
               formatAddress(conversation?.admin || '') === formatAddress(account?.address || '')
             }

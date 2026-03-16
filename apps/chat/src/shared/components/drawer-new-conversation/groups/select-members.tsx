@@ -25,7 +25,7 @@ function SelectMembers({
           (item) => item.conversationId === conversation.conversationId
         )
         if (account?.contractAddress === conversation.conversationId) return null
-        if (conversation.conversationType === 'group') return null
+        if (conversation.conversationType !== 'p2p') return null
         return (
           <div
             key={conversation.conversationId}

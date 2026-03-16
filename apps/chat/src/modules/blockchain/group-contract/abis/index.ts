@@ -1,14 +1,21 @@
-import group from './_group.json'
+import groupContract from './group-contract.json'
 
 export const groupAbis = {
-  admin: group.find((item) => item.name === 'admin'),
-  addMember: group.find((item) => item.name === 'addMember'),
-  sendMessage: group.find((item) => item.name === 'sendMessage'),
-  getMyEncryptedGroupKey: group.find((item) => item.name === 'getMyEncryptedGroupKey'),
-  getMemberListGroup: group.find((item) => item.name === 'getMemberListGroup'),
-  getProcessedGroupMessages: group.find((item) => item.name === 'getProcessedGroupMessages'),
-  editMessage: group.find((item) => item.name === 'editMessage'),
-  deleteMessage: group.find((item) => item.name === 'deleteMessage'),
-  reactToMessage: group.find((item) => item.name === 'reactToMessage'),
-  groupName: group.find((item) => item.name === 'groupName')
+  admin: groupContract.find((item) => item.name === 'admin'),
+  addMember: groupContract.find((item) => item.name === 'addMember'),
+  sendMessage: groupContract.find((item) => item.name === 'sendMessage'),
+  getMyEncryptedGroupKey: groupContract.find((item) => item.name === 'getMyEncryptedGroupKey'),
+  getMemberListGroup: groupContract.find((item) => item.name === 'getMemberListGroup'),
+  getProcessedGroupMessages: groupContract.find(
+    (item) => item.name === 'getProcessedGroupMessages'
+  ),
+  editMessage: groupContract.find((item) => item.name === 'editMessage'),
+  deleteMessage: groupContract.find((item) => item.name === 'deleteMessage'),
+  reactToMessage: groupContract.find((item) => item.name === 'reactToMessage'),
+  groupName: groupContract.find((item) => item.name === 'groupName'),
+  unReactToMessage: groupContract.find((item) => item.name === 'unReactToMessage'),
+  getMessageById: groupContract.find((item) => item.name === 'getMessageById'),
+  markMessagesAsRead: groupContract.find((item) => item.name === 'markMessagesAsRead')
 }
+
+export { groupContract }

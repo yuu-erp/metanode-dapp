@@ -1,6 +1,6 @@
 'use client'
 import type { Message } from '@/modules/message'
-import { useLongPress } from '@/shared/hooks'
+import { useLongPress, usePlatform } from '@/shared/hooks'
 import { sendCommand } from '@metanodejs/system-core'
 import * as React from 'react'
 import { type MessageItemProps } from '.'
@@ -12,7 +12,10 @@ function useMessageLogic(
   isMine?: boolean,
   onSelectMessage?: (m: Message) => void
 ) {
-  const { handlers, isLongPressActive } = useLongPress({
+  const { isNotPc } = usePlatform()
+
+  // Long-press for mobile devices
+  const { handlers: longPressHandlers, isLongPressActive } = useLongPress({
     threshold: 250,
     shouldPreventDefault: true,
     movementThreshold: 12,
@@ -22,6 +25,19 @@ function useMessageLogic(
       sendCommand('vibrate')
     }
   })
+
+  // Context menu for PC
+  const handleContextMenu = React.useCallback(
+    (e: React.MouseEvent) => {
+      if (isNotPc) return
+      e.preventDefault()
+      onSelectMessage?.(message)
+    },
+    [isNotPc, message, onSelectMessage]
+  )
+
+  // Use long-press for mobile, context menu for PC
+  const handlers = isNotPc ? longPressHandlers : { onContextMenu: handleContextMenu }
 
   // status logic
   const isFailed = isMine && message.status === 'failed'

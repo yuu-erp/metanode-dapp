@@ -21,21 +21,22 @@ export function useSendGroupMessage() {
   return useMutation<string, Error, SendMessageVariables>({
     mutationFn: async ({ account, conversation, payload }) => {
       const messageService = container.messageService
+
       return messageService.sendGroupMessae(account, conversation, payload)
     },
 
     onMutate: ({ payload }) => {
-      console.log('[useSendMessage] sending:', payload.type)
+      console.log('[useSendGroupMessage] sending:', payload.type)
     },
 
     onSuccess: (messageId, variables) => {
       const { payload } = variables
-      console.log('[useSendMessage] Send message successfully ✅', payload.type, messageId)
+      console.log('[useSendGroupMessage] Send message successfully ✅', payload.type, messageId)
     },
 
     onError: (error, variables) => {
       const { payload } = variables
-      console.error('[useSendMessage] Send message error ❌', payload.type, error)
+      console.error('[useSendGroupMessage] Send message error ❌', payload.type, error)
     }
   })
 }

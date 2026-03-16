@@ -9,16 +9,18 @@ import { useCurrentAccount } from '@/shared/hooks'
 import { useGetConversations } from '../../../features/conversation/hooks'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { Dialog, DialogContent, DialogTrigger } from '@/shared/components/ui/dialog'
+import { NewContact } from './new-contact'
 
 export enum ScreenType {
   DEFAULT = 'DEFAULT',
   NEW_GROUP = 'NEW_GROUP',
-  NEW_ANONYMOUS_GROUP = 'NEW_ANONYMOUS_GROUP'
+  NEW_ANONYMOUS_GROUP = 'NEW_ANONYMOUS_GROUP',
+  NEW_CONTACT = 'NEW_CONTACT'
 }
 
 function DrawerNewConversation() {
   const { data: account } = useCurrentAccount()
-  const { data: conversations } = useGetConversations(account?.address)
+  const { data: conversations } = useGetConversations(account)
 
   const [screenType, setScreenType] = React.useState<ScreenType>(ScreenType.DEFAULT)
 
@@ -35,15 +37,18 @@ function DrawerNewConversation() {
     // Reset screen type after close animation
     setTimeout(() => setScreenType(ScreenType.DEFAULT), 300)
   }, [])
-
   const renderScreen = React.useMemo(() => {
     switch (screenType) {
+      case ScreenType.NEW_CONTACT:
+        return <NewContact onChangeScreenType={onChangeScreenType} onClose={onClose} />
+
       case ScreenType.DEFAULT:
         return (
           <DefaultConversation
             conversations={conversations}
             account={account}
             onChangeScreenType={onChangeScreenType}
+            onClose={onClose}
           />
         )
       case ScreenType.NEW_GROUP:

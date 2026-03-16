@@ -12,4 +12,6 @@ export interface Account {
   bio?: string
 
   isActive: boolean
+
+  hiddenAddress: string
 }
