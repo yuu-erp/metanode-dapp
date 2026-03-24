@@ -1,8 +1,9 @@
 type Task<T = any> = () => Promise<T> | T
-type Priority = 'high' | 'low'
+type Priority = 'high' | 'medium' | 'low'
 
 export class AsyncPriorityQueue {
   private highQueue: Array<() => Promise<void>> = []
+  private mediumQueue: Array<() => Promise<void>> = []
   private lowQueue: Array<() => Promise<void>> = []
   private isRunning = false
 
@@ -24,6 +25,8 @@ export class AsyncPriorityQueue {
 
       if (priority === 'high') {
         this.highQueue.push(wrappedTask)
+      } else if (priority === 'medium') {
+        this.mediumQueue.push(wrappedTask)
       } else {
         this.lowQueue.push(wrappedTask)
       }
@@ -39,8 +42,8 @@ export class AsyncPriorityQueue {
     if (this.isRunning) return
     this.isRunning = true
 
-    while (this.highQueue.length || this.lowQueue.length) {
-      const nextTask = this.highQueue.shift() ?? this.lowQueue.shift()
+    while (this.highQueue.length || this.mediumQueue.length || this.lowQueue.length) {
+      const nextTask = this.highQueue.shift() ?? this.mediumQueue.shift() ?? this.lowQueue.shift()
 
       if (!nextTask) break
 
@@ -55,7 +58,12 @@ export class AsyncPriorityQueue {
    * Wait until queue + current task finished
    */
   waitForIdle(): Promise<void> {
-    if (!this.isRunning && !this.highQueue.length && !this.lowQueue.length) {
+    if (
+      !this.isRunning &&
+      !this.highQueue.length &&
+      !this.mediumQueue.length &&
+      !this.lowQueue.length
+    ) {
       return Promise.resolve()
     }
 
@@ -76,12 +84,13 @@ export class AsyncPriorityQueue {
    */
   clearAll() {
     this.highQueue = []
+    this.mediumQueue = []
     this.lowQueue = []
   }
 
   private resolveIdle() {
     if (this.isRunning) return
-    if (this.highQueue.length || this.lowQueue.length) return
+    if (this.highQueue.length || this.lowQueue.length || this.mediumQueue.length) return
 
     this.idleResolvers.forEach((r) => r())
     this.idleResolvers = []

@@ -2,47 +2,42 @@ import { useGoToMeetingView } from '@/features/meeting'
 import {
   ChatHeader,
   CopyMessageActionProvider,
-  InputMessageP2P,
+  InputMessageGroup,
   ListMessage,
   MessageActionProvider,
   PinMessages
 } from '@/features/message'
 import type { Conversation } from '@/modules/conversation'
-import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
+import {
+  useCurrentAccount,
+  useCurrentConversationType,
+  useGetConversationId,
+  useVisualViewport
+} from '@/shared/hooks'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
-import { createFileRoute, redirect, useParams } from '@tanstack/react-router'
+import { createFileRoute, useParams } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
-export const Route = createFileRoute('/_authenticated/p2p/$id')({
-  component: RouteComponent,
-  beforeLoad: ({ params }) => {
-    const { id } = params
-
-    if (id.normalize().startsWith('0x')) {
-      throw redirect({
-        to: '/p2p/$id',
-        params: {
-          id: formatAddress(id)
-        }
-      })
-    }
-  }
+export const Route = createFileRoute('/_authenticated/$type/$id')({
+  component: RouteComponent
 })
 
 function RouteComponent() {
-  const { id } = useParams({ from: '/_authenticated/p2p/$id' })
+  const { id } = useParams({ from: '/_authenticated/$type/$id' })
   const { data: account } = useCurrentAccount()
-  const { data: conversation } = useGetConversationId(id, 'p2p')
+  const type = useCurrentConversationType()
+
+  const { data: conversation } = useGetConversationId(id, type)
   const viewportHeight = useVisualViewport()
   const isMobile = useIsMobile()
-
   const containerStyle = useMemo(() => {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
 
-  const { mutate: createCall, isPending } = useGoToMeetingView()
+  console.log('thanhduy - conversation', conversation)
+  const { mutate: createCall } = useGoToMeetingView()
 
   const onVideoCall = () => {
     if (!account || !conversation) throw new Error('[onVideoCall] Invalid input')
@@ -51,8 +46,9 @@ function RouteComponent() {
       caller: account.address,
       callee: conversation.conversationId,
       isCaller: true,
-      isMeet: false,
-      hiddenAddress: account.hiddenAddress
+      isMeet: true,
+      hiddenAddress: account.hiddenAddress,
+      conversationType: conversation.conversationType
     })
   }
 
@@ -68,15 +64,17 @@ function RouteComponent() {
           style={containerStyle}
         >
           <ChatHeader
+            onVideoCall={onVideoCall}
             name={conversation?.name}
             type={conversation?.conversationType}
-            username={conversation?.username}
-            onVideoCall={onVideoCall}
-            isLoading={isPending}
+            username={conversation?.name}
+            isAdmin={
+              formatAddress(conversation?.admin || '') === formatAddress(account?.address || '')
+            }
           />
           <PinMessages account={account} conversation={conversation as Conversation} />
           <ListMessage conversation={conversation as Conversation} account={account} />
-          <InputMessageP2P conversation={conversation as Conversation} account={account} />
+          <InputMessageGroup conversation={conversation as Conversation} account={account} />
         </div>
       </CopyMessageActionProvider>
     </MessageActionProvider>

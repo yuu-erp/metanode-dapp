@@ -11,6 +11,9 @@ export function useScanQrcodeProfile() {
   return useMutation({
     mutationFn: async (account: Account) => {
       // giả lập API scan QR
+      container.eventBus.emit('event.reload', false)
+      await new Promise<void>((res) => setTimeout(() => res(), 500))
+
       const dataScan = await scanQr()
       const conversationService = container.conversationService
       const conversationId = JSON.parse(dataScan)
@@ -25,10 +28,13 @@ export function useScanQrcodeProfile() {
 
     onSuccess: (conversation) => {
       console.log('[Scan QR] SUCCESS:', conversation)
+      container.eventBus.emit('event.reload', true)
+
       navigate({ to: '/p2p/$id', params: { id: conversation.conversationId } })
     },
 
     onError: (error) => {
+      container.eventBus.emit('event.reload', true)
       console.error('[Scan QR] ERROR:', error)
     }
   })

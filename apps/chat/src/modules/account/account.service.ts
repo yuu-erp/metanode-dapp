@@ -79,13 +79,16 @@ export class AccountService {
       from: address,
       to: contractAddress
     })
+    console.log('thanhduy - existedDelegate ', existedDelegate)
 
     if (!existedDelegate.includes(hiddenWallet)) {
+      console.log('thanhduy - add 1')
       await this.userContract.addDelegate({
         from: address,
         to: contractAddress,
         inputData: { _delegate: hiddenWallet }
       })
+      console.log('thanhduy - add 2')
     }
 
     // 6. Lấy profile từ on-chain

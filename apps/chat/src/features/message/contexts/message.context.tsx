@@ -275,6 +275,10 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         queryClient.setQueryData<{ pageParams: number; pages: Message[][] }>(
           MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
           (oldData) => {
+            console.log('thanhduy - message read', {
+              oldData,
+              ids: e.ids
+            })
             if (!oldData) return oldData
             return {
               ...oldData,

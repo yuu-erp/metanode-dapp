@@ -8,7 +8,8 @@ export const meetingAbi = {
   FrontendEvent: meetingContract.find((item) => item.name === 'FrontendEvent'),
   emitEventToBackend: meetingContract.find((item) => item.name === 'emitEventToBackend'),
   leaveRoom: meetingContract.find((item) => item.name === 'leaveRoom'),
-  rejectCall: meetingContract.find((item) => item.name === 'rejectCall')
+  rejectCall: meetingContract.find((item) => item.name === 'rejectCall'),
+  getRoomParticipants: meetingContract.find((item) => item.name === 'getRoomParticipants')
 }
 
 export { meetingContract }

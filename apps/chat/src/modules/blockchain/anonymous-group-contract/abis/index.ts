@@ -19,7 +19,8 @@ export const anonymousGroupAbi: Record<string, any> = {
   unReactToMessage: anonymousGroupContract.find((item) => item.name === 'unReactToMessage'),
   getMessageById: anonymousGroupContract.find((item) => item.name === 'getMessageById'),
   markMessagesAsRead: anonymousGroupContract.find((item) => item.name === 'markMessagesAsRead'),
-  groupName: anonymousGroupContract.find((item) => item.name === 'groupName')
+  groupName: anonymousGroupContract.find((item) => item.name === 'groupName'),
+  addManyMember: anonymousGroupContract.find((item) => item.name === 'addManyMember')
 }
 
 export { anonymousGroupContract }

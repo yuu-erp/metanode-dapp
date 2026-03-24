@@ -54,7 +54,7 @@ function ChatHeader({
           {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
-          {type === 'p2p' && (
+          {type !== 'private' && (
             <button onClick={onVideoCall} disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="size-6 text-white/80 animate-spin" />

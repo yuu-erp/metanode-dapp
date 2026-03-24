@@ -26,66 +26,6 @@
     "type": "error"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "trackName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "mid",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "location",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "streamNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isPublished",
-            "type": "bool"
-          },
-          {
-            "internalType": "string",
-            "name": "roomId",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IMeetingFactoryV2.Track[]",
-        "name": "_tracks",
-        "type": "tuple[]"
-      },
-      {
-        "internalType": "string",
-        "name": "_sdpOffer",
-        "type": "string"
-      }
-    ],
-    "name": "addTrack",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -148,89 +88,29 @@
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
         "internalType": "address",
-        "name": "_receiver",
+        "name": "caller",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "roomName",
-        "type": "string"
+        "indexed": true,
+        "internalType": "address",
+        "name": "callee",
+        "type": "address"
       },
       {
-        "internalType": "bool",
-        "name": "meet",
-        "type": "bool"
-      }
-    ],
-    "name": "createRoom",
-    "outputs": [
-      {
+        "indexed": true,
         "internalType": "address",
-        "name": "",
+        "name": "roomId",
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_sessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_eventType",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
-      }
-    ],
-    "name": "emitEventToBackend",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_toUser",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_eventType",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes",
-        "name": "_data",
-        "type": "bytes"
-      }
-    ],
-    "name": "emitEventToFrontend",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "name": "EndCallForCaller",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -262,24 +142,6 @@
     ],
     "name": "FrontendEvent",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "grantRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -345,61 +207,6 @@
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "trackName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "mid",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "location",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "streamNumber",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "isPublished",
-            "type": "bool"
-          },
-          {
-            "internalType": "string",
-            "name": "roomId",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct IMeetingFactoryV2.Track[]",
-        "name": "_initialTracks",
-        "type": "tuple[]"
-      },
-      {
-        "internalType": "string",
-        "name": "_sdpOffer",
-        "type": "string"
-      }
-    ],
-    "name": "joinRoom",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
@@ -419,120 +226,22 @@
         "internalType": "string",
         "name": "sessionId",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "end",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "meet",
+        "type": "bool"
       }
     ],
     "name": "LeaveRequested",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "otherParty",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "end",
-        "type": "bool"
-      }
-    ],
-    "name": "leaveRoom",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_caller",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_roomId",
-        "type": "address"
-      }
-    ],
-    "name": "rejectCall",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "roomId",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "internalType": "string[]",
-        "name": "mids",
-        "type": "string[]"
-      },
-      {
-        "internalType": "string",
-        "name": "sdpOffer",
-        "type": "string"
-      }
-    ],
-    "name": "removeTrack",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "callerConfirmation",
-        "type": "address"
-      }
-    ],
-    "name": "renounceRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "revokeRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
   },
   {
     "anonymous": false,
@@ -775,6 +484,151 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "trackName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "mid",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "location",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "streamNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPublished",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "roomId",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMeetingFactoryV2.Track[]",
+        "name": "_tracks",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_sdpOffer",
+        "type": "string"
+      }
+    ],
+    "name": "addTrack",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "roomName",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "meet",
+        "type": "bool"
+      }
+    ],
+    "name": "createRoom",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_eventType",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      }
+    ],
+    "name": "emitEventToBackend",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_toUser",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_eventType",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_data",
+        "type": "bytes"
+      }
+    ],
+    "name": "emitEventToFrontend",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -808,6 +662,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "grantRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -878,6 +750,99 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "trackName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "mid",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "location",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "streamNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPublished",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "roomId",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct IMeetingFactoryV2.Track[]",
+        "name": "_initialTracks",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "string",
+        "name": "_sdpOffer",
+        "type": "string"
+      }
+    ],
+    "name": "joinRoom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "otherParty",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "end",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "meet",
+        "type": "bool"
+      }
+    ],
+    "name": "leaveRoom",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "owner",
     "outputs": [
@@ -907,6 +872,88 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_caller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_roomId",
+        "type": "address"
+      }
+    ],
+    "name": "rejectCall",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "roomId",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sessionId",
+        "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "mids",
+        "type": "string[]"
+      },
+      {
+        "internalType": "string",
+        "name": "sdpOffer",
+        "type": "string"
+      }
+    ],
+    "name": "removeTrack",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "callerConfirmation",
+        "type": "address"
+      }
+    ],
+    "name": "renounceRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

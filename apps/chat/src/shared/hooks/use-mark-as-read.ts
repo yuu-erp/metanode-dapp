@@ -24,8 +24,6 @@ export function useMarkAsRead(messages: Message[], conversation?: Conversation) 
     queryClient.setQueryData(
       CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address),
       (old: Conversation[]) => {
-        console.log('thanhduy - conversation old', old)
-
         return old.map((item) =>
           item.conversationId === conversation.conversationId ? { ...item, unreadCount: 0 } : item
         )

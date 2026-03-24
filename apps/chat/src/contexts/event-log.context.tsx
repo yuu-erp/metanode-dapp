@@ -2,6 +2,7 @@
 
 import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
+import { compareAddress } from '@/modules/call'
 import { useCurrentAccount } from '@/shared/hooks'
 import { formatAddress } from '@/shared/utils'
 import * as React from 'react'
@@ -16,6 +17,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
   React.useEffect(() => {
     if (!account?.address || !account.contractAddress) return
+    console.log('thanhduy register event log')
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
     const meetingAddress = CONTRACT_ADDRESSES.meeting
@@ -43,18 +45,21 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('webrtc.datachannel.received', data)
     })
 
-    const offCallReceived = eventLog.on('CallReceived', (data) => {
-      console.log('eventLog CallReceived event:', {
-        data,
-        account
+    const offCallReceived = eventLog.on('CallReceived', async (data) => {
+      console.log('thanhduy - CallReceived', data)
+      const callerContractAddress = await container.factoryContract.getUserContract({
+        from: account.address,
+        inputData: { user: data.caller }
       })
+
       eventBus.emit('call.received', {
         address: account.address,
         callee: data.callee,
-        caller: data.caller,
+        caller: callerContractAddress,
         isCaller: formatAddress(data.caller) === formatAddress(account.address),
         isMeet: false,
-        roomId: data.roomId
+        roomId: data.roomId,
+        conversationType: 'p2p'
       })
     })
 
@@ -96,8 +101,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     //GROUP
     const offMessageSentGroup = eventLog.on('MessageSentGroup', async (data) => {
-      eventBus.emit('noti:add', { type: 'message' })
       const isMine = formatAddress(data.sender) === formatAddress(account.address)
+      console.log('thanhduy - MessageSentGroup', data)
+      eventBus.emit('noti:add', { type: 'message' })
 
       const message = await container.messageService.decryptMessageFromGroup(account, {
         encryptedContent: data.encryptedContent,
@@ -318,11 +324,22 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       })
     })
 
-    const off = eventLog.onEventLog((data) => {
-      console.log('thanhduy - event log data', data)
+    const offCallReceivedSignal = eventLog.on('CallReceivedSignal', (data) => {
+      console.log('thanhduy - CallReceivedSignal', data)
+      if (compareAddress(data.caller, account.address)) return
+      eventBus.emit('call.received', {
+        address: account.address,
+        callee: data.callee,
+        caller: data.caller,
+        isCaller: false,
+        isMeet: true,
+        roomId: data.roomId,
+        conversationType: 'group'
+      })
     })
 
     return () => {
+      offCallReceivedSignal()
       offMessageReadAnonymous()
       offMessageRead()
       offMessageReadByPartner()
@@ -350,7 +367,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       offMessageSent()
       offMessageDeleted()
       offMessageReacted()
-      off()
     }
   }, [account?.address, account?.contractAddress])
 

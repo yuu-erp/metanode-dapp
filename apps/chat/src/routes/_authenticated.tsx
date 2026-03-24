@@ -6,7 +6,7 @@ import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar'
 import { createCurrentAccountQueryOptions, useTitleNotification } from '@/shared/hooks'
-import { useForcedLogout } from '@/shared/hooks/accounts'
+import { useForcedLogout, useRegisterEventLog, useReloadOnNative } from '@/shared/hooks/accounts'
 import { queryClient } from '@/shared/lib/react-query'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
 
@@ -34,6 +34,8 @@ function RouteComponent() {
 
   useTitleNotification()
   useForcedLogout()
+  useRegisterEventLog()
+  useReloadOnNative()
 
   return (
     <ConversationsProvider>

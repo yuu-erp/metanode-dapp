@@ -33,9 +33,8 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
         conversation.conversationType === 'anonymous_group'
       ) {
         navigate({
-          to: '/group/$id',
-          params: { id: conversation.conversationId },
-          search: { type: conversation.conversationType }
+          to: '/$type/$id',
+          params: { id: conversation.conversationId, type: conversation.conversationType }
         })
       } else {
         navigate({

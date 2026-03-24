@@ -2,9 +2,22 @@ import AvatarUser from '@/shared/components/avatar-user'
 import { cn } from '@/shared/lib/utils'
 import { Phone, X } from 'lucide-react'
 import { useIncomingCall } from './use-incoming-call'
+import { useQuery } from '@tanstack/react-query'
+import { createGetConversationIdQueryOptions } from '@/shared/hooks'
 
 export function IncomingCall() {
   const { incomingCall, acceptCall, rejectCall } = useIncomingCall()
+  const type = incomingCall?.conversationType ?? ('' as any)
+  const conversationId = (type === 'p2p' ? incomingCall?.caller : incomingCall?.callee) ?? ''
+  const { data } = useQuery({
+    ...createGetConversationIdQueryOptions(conversationId, type),
+    enabled: !!incomingCall && !!type
+  })
+  console.log('thanhduy - incomoing', {
+    data,
+    incomingCall
+  })
+
   if (!incomingCall) return null
   return (
     <div
@@ -25,7 +38,7 @@ export function IncomingCall() {
       >
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <AvatarUser name={incomingCall.caller} size="lg" />
+            <AvatarUser name={data?.name ?? ''} size="lg" />
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="relative flex h-2 w-2">
@@ -36,9 +49,7 @@ export function IncomingCall() {
                   Incoming Call
                 </span>
               </div>
-              <span className="font-semibold text-white text-lg truncate pr-2">
-                {incomingCall.caller}
-              </span>
+              <span className="font-semibold text-white text-lg truncate pr-2">{data?.name}</span>
             </div>
           </div>
 

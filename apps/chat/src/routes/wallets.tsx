@@ -54,6 +54,16 @@ function RouteComponent() {
     [activeWallet]
   )
 
+  const onCreateWallet = () => {
+    onOpen()
+    setStep(1)
+  }
+
+  const onImportWallet = () => {
+    onOpen()
+    setStep(0)
+  }
+
   return (
     <React.Fragment>
       <div
@@ -76,7 +86,12 @@ function RouteComponent() {
           <div className="flex-1 py-14">
             <ListWallet wallets={data} onSlideChange={onChangeWallet} />
           </div>
-          <ButtonGroup onConnectWallet={handleConnectWallet} isLoading={isPending} />
+          <ButtonGroup
+            onConnectWallet={handleConnectWallet}
+            isLoading={isPending}
+            onCreateWallet={onCreateWallet}
+            onImportWallet={onImportWallet}
+          />
         </div>
       </div>
       <div className="p-5 w-full h-screen flex flex-col items-stretch basis-auto relative shrink-0 overflow-hidden z-0 hidden xl:flex">
@@ -104,10 +119,7 @@ function RouteComponent() {
               <div className="flex flex-1 h-full bg-white/10 rounded-full p-2 flex items-center justify-between">
                 <ButtonBase
                   className="whitespace-nowrap w-[125px] h-full bg-black/20 border-app rounded-full"
-                  onClick={() => {
-                    onOpen()
-                    setStep(1)
-                  }}
+                  onClick={onCreateWallet}
                 >
                   <span>Create Wallet</span>
                 </ButtonBase>
@@ -120,10 +132,7 @@ function RouteComponent() {
                 </ButtonBase>
                 <ButtonBase
                   className="whitespace-nowrap w-[125px] h-full bg-black/20 border-app rounded-full"
-                  onClick={() => {
-                    onOpen()
-                    setStep(0)
-                  }}
+                  onClick={onImportWallet}
                 >
                   <span>Import Wallet</span>
                 </ButtonBase>
@@ -131,8 +140,8 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-        <Login defaultStep={step} isOpenLogin={isOpen} onClose={onClose} />
       </div>
+      <Login defaultStep={step} isOpenLogin={isOpen} onClose={onClose} />
     </React.Fragment>
   )
 }

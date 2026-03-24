@@ -7,14 +7,16 @@ export function useGoToMeetingView() {
   const navigate = useNavigate()
 
   return useMutation({
-    mutationFn: async (input: MeetingViewInput) => {
+    mutationFn: async (input: MeetingViewInput & any) => {
       //@ts-ignore
       if (window?.finSdk) {
         // navigate({ to: '/meeting', search: input })
-        // const query = new URLSearchParams(input as any).toString()
-        // window.location.href = `http://localhost:5173/#/?${query}`
+        //@ts-ignore
+        // const port = input?.new ? '5174' : '5173'
+        const query = new URLSearchParams(input as any).toString()
+        // window.location.href = `http://localhost:${port}/#/?${query}`
         // window.location.href = `https://call.fi.ai/#/?${query}`
-        setTimeout(() => navigate({ to: '/call', search: input }), 2000)
+        navigate({ to: '/call', search: input })
       } else {
         await Promise.race([
           sendCommand('startCallRTC', {

@@ -1,2 +1,2 @@
 export * from './event-log.context'
-export * from './finsdk.context'
+export * from './fin-sdk.context'

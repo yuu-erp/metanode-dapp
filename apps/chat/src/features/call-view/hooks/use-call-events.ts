@@ -1,15 +1,12 @@
 import { container } from '@/container'
+import { setAnswerSDP, setOfferSDP } from '@metanodejs/system-core'
+import { callActions, callStore, useCall } from '../../../modules/call/call.store'
 import {
-  callContext,
   compareAddress,
   decodeDataFromBackend,
   encodeDataToBackend,
-  eventBus,
-  ICE_SERVERS,
-  useCallStore
-} from '@/modules'
-import { setAnswerSDP, setOfferSDP } from '@metanodejs/system-core'
-import { useRef } from 'react'
+  ICE_SERVERS
+} from '../../../modules/call/lib'
 import { useEventLog } from './use-event-log'
 
 export type JoinAnswerData = {
@@ -22,15 +19,17 @@ export type PullTrackData = {
   requiresImmediateRenegotiation: boolean
   sessionId: string
   sourceUser: string
+  tracks: { location: string; mid: string; trackName: string }[]
 }
 
 const contract = container.meetingContract
+const eventBus = container.eventBus
 
 export function useCallEvents() {
-  const userSourceSet = useRef(new Set<string>())
+  const localPc = useCall((s) => s.localPc)
 
   async function emitSdpAnswerToBackend(sdp_answer: string, sessionId: string) {
-    const { address, roomId, hiddenAddress } = callContext
+    const { address, roomId, hiddenAddress } = callStore.getState()
 
     const sdpAnswerData = {
       ToUser: address,
@@ -49,19 +48,21 @@ export function useCallEvents() {
   }
 
   async function connectLocal(sdp_answer: string, sessionId: string) {
-    const { localPc, localTracks, roomId, hiddenAddress } = callContext
-    useCallStore.setState({ loadingStatus: 'Start connect local...' })
+    const { localTracks, roomId, hiddenAddress } = callStore.getState()
+    if (!localPc) return
+    callActions.setMessage('Set remote desc from server...')
     if (window.finSdk) {
       await localPc.setRemoteDescription({ type: 'answer', sdp: sdp_answer })
     } else {
       await setAnswerSDP(sdp_answer)
     }
+    callActions.setMessage('Emit set answer to backend...')
     await emitSdpAnswerToBackend(sdp_answer, sessionId)
 
     const addTrackData = {
       Track: localTracks
     }
-    eventBus.emit('connect-local', '[emit-backend] connect local')
+    callActions.setMessage('Emit add track to backend...')
     await contract.emitEventToBackend({
       from: hiddenAddress,
       inputData: {
@@ -71,17 +72,15 @@ export function useCallEvents() {
         _data: encodeDataToBackend(addTrackData)
       }
     })
-    useCallStore.setState({ loadingStatus: 'Finish connect local...' })
-
-    eventBus.emit('connect-local', '[emit-backend] add local track')
+    callActions.setMessage('Connect local success...')
   }
 
   async function connectRemote(sdp_offer: string, sessionId: string) {
-    const { localPc } = callContext
-    useCallStore.setState({ loadingStatus: 'Start connect remote...' })
+    callActions.setMessage('Start connect remote...')
 
     let sdpAnswer = ''
     if (window.finSdk) {
+      if (!localPc) return
       const pc = localPc
 
       await pc.setRemoteDescription({ type: 'offer', sdp: sdp_offer })
@@ -91,52 +90,48 @@ export function useCallEvents() {
     } else {
       sdpAnswer = await setOfferSDP(sdp_offer, ICE_SERVERS)
     }
+    callActions.setMessage('Emit set remote answer to backend...')
 
     await emitSdpAnswerToBackend(sdpAnswer, sessionId)
-    useCallStore.setState({ loadingStatus: 'Finish connect remote...' })
+    callActions.setMessage('Finish connect remote...')
   }
 
   useEventLog('FrontendEvent', async (event) => {
-    const { hiddenAddress } = callContext
-    const sources = userSourceSet.current
-
+    const { hiddenAddress } = callStore.getState()
     const decodeData = decodeDataFromBackend(event.data)
-
-    console.log('thanhduy - decodeData', {
-      decodeData,
-      event
-    })
 
     if (!compareAddress(event.toUser, hiddenAddress)) return
 
     switch (event.eventType) {
       case 'JOIN_ANSWER': {
         const data = decodeData as JoinAnswerData
-        callContext.setState({ localSessionId: data.sessionId })
+        callStore.setState({ sessionId: data.sessionId })
         await connectLocal(data.sessionDescription.sdp!, data.sessionId)
         break
       }
       case 'PULL_TRACK_FROM_NEW_PERSON_JOIN': {
         const data = decodeData as PullTrackData
-        if (sources.has(data.sourceUser)) {
-        } else {
-          sources.add(data.sourceUser)
-        }
-        callContext.setState({ remoteSessionId: data.sessionId })
+        eventBus.emit('call.update-mid-per-user', {
+          user: data.sourceUser,
+          mids: data.tracks.map((t) => t.mid)
+        })
+
         await connectRemote(data.sessionDescription.sdp!, data.sessionId)
         break
       }
 
       case 'PULL_TRACK_WHEN_ME_JOIN': {
         const data = decodeData as PullTrackData
-        callContext.setState({ remoteSessionId: data.sessionId })
+        eventBus.emit('call.update-mid-per-user', {
+          user: data.sourceUser,
+          mids: data.tracks.map((t) => t.mid)
+        })
         await connectRemote(data.sessionDescription.sdp!, data.sessionId)
         break
       }
 
       case 'PULL_TRACK_FROM_REJOINED_USER': {
         const data = decodeData as PullTrackData
-        callContext.setState({ remoteSessionId: data.sessionId })
         await connectRemote(data.sessionDescription.sdp!, data.sessionId)
         break
       }
@@ -144,25 +139,36 @@ export function useCallEvents() {
   })
 
   useEventLog('LeaveRequested', (data) => {
-    const { isMeet, roomId } = callContext
-    if (isMeet || !roomId || !compareAddress(roomId, data.roomId)) return
+    const { isMeet, roomId } = callStore.getState()
+    if (!roomId || !compareAddress(roomId, data.roomId)) return
+    if (isMeet) {
+      eventBus.emit('call.remove-user', {
+        user: data.requester
+      })
+
+      return
+    }
     eventBus.emit('call.end', null)
   })
 
   useEventLog('CallRejected', (data) => {
-    const { isMeet, roomId } = callContext
-    if (isMeet || !roomId || !compareAddress(roomId, data.roomId)) return
+    const { isMeet, roomId } = callStore.getState()
+    if (isMeet || !compareAddress(roomId, data.roomId)) return
     eventBus.emit('call.end', null)
   })
 
-  useEventLog('CallReceived', (data) => {
-    const { hiddenAddress } = callContext
-    container.meetingContract.rejectCall({
-      from: hiddenAddress,
-      inputData: {
-        _caller: data.caller,
-        _roomId: data.roomId
-      }
-    })
+  useEventLog('CallReceived', async (data) => {
+    const { hiddenAddress } = callStore.getState()
+
+    const cb = () =>
+      container.meetingContract.rejectCall({
+        from: hiddenAddress,
+        inputData: {
+          _caller: data.caller,
+          _roomId: data.roomId
+        }
+      })
+
+    await cb()
   })
 }

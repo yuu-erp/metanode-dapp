@@ -89,6 +89,26 @@ export class AnonymousGroupContract extends MtnContract {
     })
   }
 
+  addManyMember(
+    payload: TransactionPayload<{
+      addedBy: string
+      newMembers: string[]
+      teamId: string
+      avatarUser: string
+      encryptedKeys: string[]
+    }>
+  ) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'addManyMember',
+      abiData: anonymousGroupAbi.addManyMember,
+      feeType: 'sc',
+      inputData: inputData
+    })
+  }
+
   reactToMessage(
     payload: TransactionPayload<{
       messageId: string

@@ -1,3 +1,5 @@
+import type { ConversationType } from '../conversation'
+
 export type MeetingData = {
   caller: string
   callee: string
@@ -15,4 +17,5 @@ export type MeetingViewInput = {
   address: string
   roomId?: string
   hiddenAddress: string
+  conversationType: ConversationType
 }

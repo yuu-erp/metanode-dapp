@@ -8,15 +8,22 @@ import { LoaderCircle } from 'lucide-react'
 interface ButtonGroupProps {
   onConnectWallet?: () => void
   isLoading?: boolean
+  onCreateWallet?: () => void
+  onImportWallet?: () => void
 }
-function ButtonGroup({ onConnectWallet, isLoading }: ButtonGroupProps) {
+function ButtonGroup({
+  onConnectWallet,
+  isLoading,
+  onCreateWallet,
+  onImportWallet
+}: ButtonGroupProps) {
   const { t } = useI18N()
   return (
     <React.Fragment>
       {/* Mobile */}
       <div className="grid grid-cols-2 gap-3 pb-6 px-3">
-        <ButtonCreateWallet />
-        <ButtonImportWallet />
+        <ButtonCreateWallet onClick={onCreateWallet} />
+        <ButtonImportWallet onClick={onImportWallet} />
         <Button
           type="button"
           disabled={isLoading}

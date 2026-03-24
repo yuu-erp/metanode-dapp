@@ -111,6 +111,14 @@ export type AppEvents = {
 
   // CALL
   'call.received': Omit<MeetingViewInput, 'hiddenAddress'>
+  'call.update-mid-per-user': {
+    user: string
+    mids: string[]
+  }
+  'call.end': null
+  'call.remove-user': {
+    user: string
+  }
 
   //USER
   'user.added': null
@@ -143,4 +151,6 @@ export type AppEvents = {
     conversationType: ConversationType
     isMine: boolean
   }
+
+  'event.reload': boolean
 }

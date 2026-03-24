@@ -40,13 +40,9 @@ export function useCreateGroup(groupType: ConversationType) {
       queryClient.invalidateQueries({
         queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(variables.account.address)
       })
-      console.log('thanhduy - navigate groupType', { groupType })
       navigate({
-        to: '/group/$id',
-        params: { id: _data! },
-        search: {
-          type: groupType
-        }
+        to: '/$type/$id',
+        params: { id: _data!, type: groupType }
       })
     },
     onError: (error) => {

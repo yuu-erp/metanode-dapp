@@ -52,7 +52,6 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   )
     ? (rawType as MessageType)
     : 'text'
-  console.log('thanhduy - reaction raw', raw)
   const reactions =
     raw.conversationType === 'anonymous_group' || raw.conversationType === 'group'
       ? parseReactionForGroup(raw.reactionSummary)
@@ -264,7 +263,6 @@ export function parseReactionSummary(
   conversationId = ''
 ): MessageReaction[] {
   if (!summary || typeof summary !== 'string') return []
-  console.log('thanhduy - summary', summary)
   const map = new Map<string, MessageReaction>()
 
   summary.split(',').forEach((item) => {

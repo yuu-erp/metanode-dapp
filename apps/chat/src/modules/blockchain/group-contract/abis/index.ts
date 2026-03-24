@@ -15,7 +15,8 @@ export const groupAbis = {
   groupName: groupContract.find((item) => item.name === 'groupName'),
   unReactToMessage: groupContract.find((item) => item.name === 'unReactToMessage'),
   getMessageById: groupContract.find((item) => item.name === 'getMessageById'),
-  markMessagesAsRead: groupContract.find((item) => item.name === 'markMessagesAsRead')
+  markMessagesAsRead: groupContract.find((item) => item.name === 'markMessagesAsRead'),
+  addAllMember: groupContract.find((item) => item.name === 'addAllMember')
 }
 
 export { groupContract }

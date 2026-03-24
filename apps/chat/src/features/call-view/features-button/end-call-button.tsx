@@ -11,8 +11,10 @@ export const EndCallButton = memo(({}: EndCallButtonProps) => {
   useEventBus('call.end', () => mutate())
 
   return (
-    <Button size={'icon'} variant={'destructive'} onClick={() => mutate()} loading={isPending}>
-      <PhoneOff />
-    </Button>
+    <>
+      <Button size={'icon'} variant={'destructive'} onClick={() => mutate()} loading={isPending}>
+        <PhoneOff />
+      </Button>
+    </>
   )
 })

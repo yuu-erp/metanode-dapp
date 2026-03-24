@@ -28,7 +28,7 @@ export function useTitleNotification() {
     return () => {
       container.eventBus.off('noti:add', handler)
     }
-  }, [settings])
+  }, [settings?.p2pChatEnabled, settings?.reactionsEnabled])
 
   // reset count khi user quay lại tab
   useEffect(() => {
@@ -45,6 +45,7 @@ export function useTitleNotification() {
     }
   }, [])
 
+  console.log('thanhduy - count', count)
   // update title
   useEffect(() => {
     const baseTitle = 'App chat'

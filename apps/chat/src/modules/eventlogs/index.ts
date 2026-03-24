@@ -6,6 +6,13 @@ import { factoryContract } from '../blockchain/factory-contract/abis'
 import { meetingContract } from '../blockchain/meeting-contract'
 
 export type EventMap = {
+  CallReceivedSignal: {
+    caller: string
+    callee: string
+    roomId: string
+    status: string
+  }
+
   MessageReceived: {
     dataStoreAddress: string
     encryptedContent: string
@@ -256,7 +263,8 @@ export class EventLogContainer {
 
   public async registerAbi() {
     const rs = await this._decodeAbi.registerAbi(abi)
-
     return rs
   }
 }
+
+//"69564194512df04ed7ff00da058f08e573181f53006105e99cd7ca64d927bc0f"

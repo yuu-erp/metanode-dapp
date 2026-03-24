@@ -27,11 +27,12 @@ export type ReqEmitEventToBackend = {
 }
 
 export type ReqLeaveRoom = {
-  requestId: string
   roomId: string
+  sender: string
   sessionId: string
   otherParty: string
   end: boolean
+  meet: boolean
 }
 
 export type ReqRejectCall = {
@@ -106,7 +107,7 @@ export class MeetingContract extends MtnContract {
           inputData,
           feeType: 'sc'
         }),
-      'high'
+      'medium'
     )
   }
 
@@ -123,5 +124,20 @@ export class MeetingContract extends MtnContract {
         }),
       'high'
     )
+  }
+
+  getRoomParticipants(
+    payload: TransactionPayload<{
+      roomId: string
+    }>
+  ): Promise<string[]> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      functionName: 'getRoomParticipants',
+      abiData: meetingAbi.getRoomParticipants as any,
+      inputData,
+      feeType: 'read'
+    })
   }
 }

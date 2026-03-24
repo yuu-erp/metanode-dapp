@@ -13,7 +13,7 @@ import { Drawer } from 'vaul'
 import { SelectMembers } from './groups'
 
 const DrawerAddGroupMember = memo(() => {
-  const { id } = useParams({ from: '/_authenticated/group/$id' })
+  const { id } = useParams({ from: '/_authenticated/$type/$id' })
   const { t } = useI18N()
   const [open, setOpen] = React.useState(false)
   const { data: account } = useCurrentAccount()

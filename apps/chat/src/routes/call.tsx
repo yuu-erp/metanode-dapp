@@ -1,5 +1,7 @@
 import { CallContainer } from '@/features/call-view/call-container'
-import { callContext } from '@/modules'
+import { ReloadCallDialog } from '@/features/call-view/reload-call-dialog'
+import { callStore } from '@/modules/call'
+import { formatAddress } from '@/shared/utils'
 import { createFileRoute, useSearch } from '@tanstack/react-router'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -19,17 +21,22 @@ function RouteComponent() {
   }, [])
 
   useEffect(() => {
-    callContext.setState({
-      caller: search?.caller ?? '',
-      callee: search?.callee ?? '',
-      address: search?.address ?? '',
+    callStore.setState({
+      caller: formatAddress(search?.caller),
+      callee: formatAddress(search?.callee),
+      address: formatAddress(search?.address),
       isMeet: getBooleanValue(search?.isMeet),
       isCaller: getBooleanValue(search?.isCaller),
-      roomId: search?.roomId ?? '',
-      hiddenAddress: search?.hiddenAddress ?? ''
+      roomId: formatAddress(search?.roomId),
+      hiddenAddress: formatAddress(search?.hiddenAddress)
     })
     setLoading(false)
   }, [])
 
-  return <>{loading ? null : <CallContainer />}</>
+  return (
+    <>
+      {loading ? null : <CallContainer />}
+      <ReloadCallDialog />
+    </>
+  )
 }

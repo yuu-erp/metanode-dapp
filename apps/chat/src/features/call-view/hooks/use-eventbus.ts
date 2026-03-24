@@ -1,4 +1,5 @@
-import { eventBus, type AppEvents } from '@/modules'
+import { container } from '@/container'
+import type { AppEvents } from '@/types/app-events'
 import { useEffect, useRef } from 'react'
 
 export function useEventBus<K extends keyof AppEvents>(name: K, cb: (e: AppEvents[K]) => void) {
@@ -9,7 +10,7 @@ export function useEventBus<K extends keyof AppEvents>(name: K, cb: (e: AppEvent
   return useEffect(() => {
     const cb = cbRef.current
 
-    eventBus.on(name, cb)
-    return () => eventBus.off(name, cb)
+    container.eventBus.on(name, cb)
+    return () => container.eventBus.off(name, cb)
   }, [])
 }

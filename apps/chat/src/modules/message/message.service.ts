@@ -73,7 +73,6 @@ export class MessageService {
         page
       }
     })
-    console.log('thanhduy - rawMessages', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
@@ -870,11 +869,9 @@ export class MessageService {
         rawMessages = []
       }
     }
-    console.log('thanhduy - rawMessages 1', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
-    console.log('thanhduy - rawMessages 2', messages)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -927,7 +924,6 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
-    console.log('thanhduy - sendGroupMessae 1')
     const clientId = uuidv4()
     const optimisticMessage = createOptimisticMessage(
       {
@@ -955,7 +951,6 @@ export class MessageService {
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
     const stringifyMessage = JSON.stringify(messageOnChain)
-    console.log('thanhduy - sendGroupMessae 2')
 
     return await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
   }
@@ -1222,10 +1217,18 @@ export class MessageService {
     clientId: string
   ) {
     return asyncPriorityQueue.add(async () => {
-      console.log('thanhduy - sendStringtifiedMessage 1')
       this.messageExtend.unsubscribe()
       const { conversationType } = conversation
       let promise: any
+
+      const updateMessageId = async () => {
+        const messageId = await promise
+        this.eventBus.emit('message.updateId', {
+          messageId,
+          clientId,
+          conversationId: conversation.conversationId
+        })
+      }
 
       try {
         const eventLog = this.eventLogContainer.eventLog
@@ -1238,6 +1241,7 @@ export class MessageService {
               resolve(data.messageId)
             })
           })
+          updateMessageId()
 
           const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
             this.walletService.encryptMessage(
@@ -1258,8 +1262,6 @@ export class MessageService {
             }
           })
         } else {
-          console.log('thanhduy - sendStringtifiedMessage 2', conversationType)
-
           const encryptMessage = (
             await encryptAESGCM(conversation.conversationKey, stringifyMessage)
           )?.result
@@ -1272,8 +1274,10 @@ export class MessageService {
                 resolve(data.messageId)
               })
             })
+            updateMessageId()
 
             const recipientOwners = await this.getRecipientOwners(account, conversation)
+            console.log('thanhduy - recipientOwners', recipientOwners)
             await this.groupContract.sendMessage({
               from: account.hiddenAddress,
               to: conversation.conversationId,
@@ -1303,15 +1307,8 @@ export class MessageService {
           }
         }
 
-        const messageId = await promise
-        this.eventBus.emit('message.updateId', {
-          messageId,
-          clientId,
-          conversationId: conversation.conversationId
-        })
-
         this.messageExtend.subscribe()
-        return messageId
+        return ''
       } catch (error) {
         this.eventBus.emit('message.status', {
           accountId: account.address,

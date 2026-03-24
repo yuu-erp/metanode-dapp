@@ -88,11 +88,8 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         conversation.conversationType === 'anonymous_group'
 
       navigate({
-        to: isGroup ? '/group/$id' : '/p2p/$id',
-        params: { id: conversation.conversationId },
-        search: {
-          type: conversation.conversationType
-        }
+        to: isGroup ? '/$type/$id' : '/p2p/$id',
+        params: { id: conversation.conversationId, type: conversation.conversationType }
       })
     },
     [account, messageAction, sendGroupMessage.mutate, sendMessage.mutate, navigate, onClose]

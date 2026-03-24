@@ -42,7 +42,6 @@ export class ConversationService {
     private readonly verifyContract: VerifyContract,
     private readonly ekycContract: EkycContract
   ) {}
-
   // ------------------------------------------------------------------
   // Private helpers
 
@@ -141,17 +140,14 @@ export class ConversationService {
         from: accountId,
         to: conversationId
       })
-    ]).catch((error) => {
-      console.log('thanhduy - groupInfo an danh errpr', error)
+    ]).catch(() => {
       return []
     })
 
-    console.log('thanhduy - groupInfo an danh 1.5', rs)
     const [publicKey, name] = rs
     const privateKey = await getPrivateKeyFromDb(accountId)
     const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
-    console.log('thanhduy - getAnonymousGroupInfo 2')
 
     return {
       admin,
@@ -182,7 +178,6 @@ export class ConversationService {
       from: account.hiddenAddress,
       to: account.contractAddress
     })
-    console.log('thanhduy - inboxs', inboxs)
     const conversations = await fulfilledPromises(
       inboxs.map(async (item) => {
         let name = 'savedMessages'
@@ -344,10 +339,7 @@ export class ConversationService {
         break
       }
       case 'anonymous_group': {
-        console.log('thanhduy - groupInfo an danh 1', { account, conversationId })
-
         const groupInfo = await this.getAnonymousGroupInfo(accountId, conversationId)
-        console.log('thanhduy - groupInfo an danh 2', groupInfo)
         conversation = mapperToConversation({
           conversationId,
           accountId,
@@ -370,17 +362,6 @@ export class ConversationService {
     const data = await this.repository.getSortedByAccount(account.address)
 
     console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP-getConversationList--- data', data)
-    data.map(async (conversation) => {
-      if (
-        conversation.conversationType !== 'group' &&
-        conversation.conversationType !== 'anonymous_group'
-      )
-        return
-
-      return this.eventLogContainer.eventLog.registerEvent(account.hiddenAddress, [
-        conversation.conversationId
-      ])
-    })
 
     return data
   }
@@ -531,6 +512,9 @@ export class ConversationService {
     members: PayloadAddMembers[]
   ) {
     const privateKeyAdmin = await getPrivateKeyFromDb(account.address)
+    const users: string[] = []
+    const encryptedKeys: string[] = []
+
     for (const member of members) {
       const { publicKey, conversationId } = member
       const addressMember = await this.userContract.owner({
@@ -539,15 +523,18 @@ export class ConversationService {
       })
       const { password: sharedSecrect } = await createECDHPassword(publicKey, privateKeyAdmin)
       const { result: encryptedGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
-      await this.groupContract.addMember({
-        to: groupConversation,
-        from: account.hiddenAddress,
-        inputData: {
-          user: addressMember,
-          encryptedKeyForNewMember: encryptedGroupKey
-        }
-      })
+      users.push(addressMember)
+      encryptedKeys.push(encryptedGroupKey)
     }
+
+    await this.groupContract.addAllMember({
+      to: groupConversation,
+      from: account.hiddenAddress,
+      inputData: {
+        users,
+        encryptedKeys
+      }
+    })
   }
 
   // ------------------------------------------------------------------
@@ -606,6 +593,9 @@ export class ConversationService {
     members: PayloadAddMembers[]
   ) {
     const privateKeyAdmin = await getPrivateKeyFromDb(account.address)
+    const newMembers: string[] = []
+    const encryptedKeys: string[] = []
+
     for (const member of members) {
       const { publicKey, conversationId } = member
 
@@ -617,20 +607,21 @@ export class ConversationService {
       const { password: sharedSecrect } = await createECDHPassword(publicKey, privateKeyAdmin)
 
       const { result: encryptedGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
-
-      await this.anonymousGroupContract.addMember({
-        to: groupConversation,
-        from: account.hiddenAddress,
-        inputData: {
-          addedBy: account.address,
-          newMember: addressMember,
-          teamId: '0',
-          _alias: '',
-          avatarUser: '',
-          encryptedKeyForNewMember: encryptedGroupKey
-        }
-      })
+      newMembers.push(addressMember)
+      encryptedKeys.push(encryptedGroupKey)
     }
+
+    await this.anonymousGroupContract.addManyMember({
+      to: groupConversation,
+      from: account.hiddenAddress,
+      inputData: {
+        addedBy: account.address,
+        newMembers,
+        teamId: '0',
+        avatarUser: '',
+        encryptedKeys
+      }
+    })
   }
 
   // ------------------------------------------------------------------

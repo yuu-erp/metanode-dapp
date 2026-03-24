@@ -7,10 +7,13 @@ export function useEventLog<K extends keyof EventMap>(name: K, cb: (e: EventMap[
 
   cbRef.current = cb
 
-  return useEffect(() => {
-    const cb = cbRef.current
+  useEffect(() => {
+    const handler = (e: EventMap[K]) => {
+      cbRef.current(e)
+    }
 
-    const off = container.eventLogContainer.eventLog.on(name as any, cb)
+    const off = container.eventLogContainer.eventLog.on(name as any, handler)
+
     return () => off()
-  }, [])
+  }, [name])
 }

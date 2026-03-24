@@ -9,7 +9,7 @@ import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
 import '@/shared/lib/i18n'
-import { FinsdkProvider } from './contexts/finsdk.context.tsx'
+import { FinSdkProvider } from './contexts/fin-sdk.context.tsx'
 
 // Create a new router instance
 const router = createRouter({
@@ -34,11 +34,11 @@ const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
-    <FinsdkProvider>
+    <FinSdkProvider>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-    </FinsdkProvider>
+    </FinSdkProvider>
   )
 }
 

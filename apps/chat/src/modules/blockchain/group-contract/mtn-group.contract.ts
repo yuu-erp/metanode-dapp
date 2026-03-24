@@ -41,6 +41,18 @@ export class GroupContract extends MtnContract {
     })
   }
 
+  addAllMember(payload: TransactionPayload<{ users: string[]; encryptedKeys: string[] }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'addAllMember',
+      abiData: groupAbis.addAllMember as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
   sendMessage(
     payload: TransactionPayload<{ encryptedContent: string; recipientOwners: string[] }>
   ) {

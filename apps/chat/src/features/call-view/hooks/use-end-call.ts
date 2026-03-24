@@ -1,5 +1,5 @@
 import { container } from '@/container'
-import { callContext, randomBytes32, useCallStore } from '@/modules'
+import { callActions, callStore } from '@/modules/call'
 import { endCall } from '@metanodejs/system-core'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
@@ -9,19 +9,19 @@ export function useEndCall() {
 
   return useMutation({
     mutationFn: async () => {
-      const { address, callee, isMeet, caller, isCaller, roomId, sessionId } = callContext
-      console.log('thanhduy - callContext', callContext)
+      const { callee, isMeet, caller, isCaller, roomId, sessionId, hiddenAddress } =
+        callStore.getState()
       const conversationId = isMeet ? callee : isCaller ? callee : caller
-      callContext.reset()
-      useCallStore.getState().reset()
+      callActions.cleanup()
       await container.meetingContract.leaveRoom({
-        from: address,
+        from: hiddenAddress,
         inputData: {
           end: false,
           otherParty: conversationId,
-          requestId: randomBytes32(),
+          sender: hiddenAddress,
           roomId,
-          sessionId
+          sessionId,
+          meet: isMeet
         }
       })
 

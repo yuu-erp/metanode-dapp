@@ -5,17 +5,22 @@ import type { AppEvents } from '@/types/app-events'
 import { useEffect, useState } from 'react'
 import { useGoToMeetingView } from '../meeting'
 import { useEventLog } from '../call-view'
-import { compareAddress } from '@/modules'
+import { compareAddress } from '@/modules/call/lib'
+import { formatAddress } from '@/shared/utils'
 
 export const useIncomingCall = () => {
   const [incomingCall, setIncomingCall] = useState<MeetingViewInput | null>(null)
   const { data: account } = useCurrentAccount()
   const { mutate } = useGoToMeetingView()
-
+  console.log('thanhduy - incomingCall', incomingCall)
   useEffect(() => {
     if (!account) return
     const handleCallReceived = async (event: AppEvents['call.received']) => {
-      setIncomingCall({ ...event, hiddenAddress: account.hiddenAddress })
+      setIncomingCall({
+        ...event,
+        roomId: formatAddress(event.roomId ?? ''),
+        hiddenAddress: account.hiddenAddress
+      })
     }
     container.eventBus.on('call.received', handleCallReceived)
     return () => {
@@ -41,10 +46,6 @@ export const useIncomingCall = () => {
   }
 
   useEventLog('LeaveRequested', (data) => {
-    console.log('thanhduy - LeaveRequested', {
-      data,
-      incomingCall
-    })
     if (!incomingCall) return
     if (!compareAddress(data.roomId, incomingCall.roomId!)) return
     setIncomingCall(null)
