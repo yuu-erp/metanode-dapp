@@ -3,6 +3,11 @@
 import { useMemo } from 'react'
 import { useGetUserProfile } from '@/shared/hooks/accounts'
 import type { MessageAction } from '@/modules/message'
+import {
+  useCurrentConversationType,
+  useGetConversationByAddress,
+  useGetConversationIdByAddress
+} from '@/shared/hooks'
 
 interface MessageActionViewData {
   title: string
@@ -13,12 +18,15 @@ export function useBuildMessageActionViewData(
   action: MessageAction | null
 ): MessageActionViewData | null {
   if (!action) return null
+  const type = useCurrentConversationType()
 
   const message = action.message
 
   const replyUserId = action.type === 'REPLY' ? message.sender : undefined
+  console.log('replyUserId', replyUserId)
+  const conversationId = useGetConversationIdByAddress(replyUserId ?? '', type === 'group')
 
-  const { data: profile } = useGetUserProfile(replyUserId)
+  const { data: profile } = useGetUserProfile(type === 'group' ? conversationId : replyUserId)
 
   return useMemo(() => {
     switch (action.type) {
@@ -30,7 +38,9 @@ export function useBuildMessageActionViewData(
 
       case 'REPLY': {
         const fullName =
-          [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Unknown'
+          type === 'anonymous_group'
+            ? replyUserId
+            : [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Unknown'
 
         return {
           title: `Reply to ${fullName}`,

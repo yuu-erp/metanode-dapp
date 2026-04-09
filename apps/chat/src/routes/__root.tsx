@@ -1,21 +1,12 @@
-import { container } from '@/container'
 import { EventLogProvider } from '@/contexts'
+import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
+import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
 import { BaseLayout } from '@/shared/layouts'
 import { createRootRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
 import { Toaster } from 'sonner'
 
 export const Route = createRootRoute({
   component: () => {
-    useEffect(() => {
-      const off = container.eventLogContainer.eventLog.onEventLog((data) => {
-        console.log('thanhduy - eventlog data', data)
-      })
-      return () => {
-        off()
-      }
-    }, [])
-
     return (
       <>
         {/* <button
@@ -28,11 +19,9 @@ export const Route = createRootRoute({
               // const rootWallet = 'e344be071d8102fb5b3c41d253ab79e9a1a9c201' //phone
 
               // const newAddress = (await createWalletFast(true)).address
-              const newAddress = '9faf2fc357d5623c2f4e70d87f524035b42d08db'
-              // console.log('thanhduy - newAddress 1')
+              const newAddress = '0e9f9af3c4d44b77d51f8e5b03d5481ed7c3a73d'
 
               // const newAddress = (await getHiddenWallet()).address
-              console.log('thanhduy - newAddress 2', newAddress)
               await sendTransaction({ from: rootWallet, to: newAddress, value: 1 + '0'.repeat(14) })
               toast.success('create success')
             } catch (error) {
@@ -40,6 +29,8 @@ export const Route = createRootRoute({
             }
           }}
         ></button> */}
+        <MeetingJoinByUrlModal />
+        <MeetingUrlModal />
         <EventLogProvider>
           <BaseLayout />
           <Toaster

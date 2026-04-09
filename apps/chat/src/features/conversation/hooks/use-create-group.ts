@@ -15,6 +15,7 @@ export function useCreateGroup(groupType: ConversationType) {
       if (groupType === 'group') {
         const group = await container.conversationService.createGroup(account, payload)
         // Fetch latest list
+
         await container.conversationService.addMembers(
           account,
           group.contractAddress,

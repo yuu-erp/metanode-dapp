@@ -9,7 +9,14 @@ export const meetingAbi = {
   emitEventToBackend: meetingContract.find((item) => item.name === 'emitEventToBackend'),
   leaveRoom: meetingContract.find((item) => item.name === 'leaveRoom'),
   rejectCall: meetingContract.find((item) => item.name === 'rejectCall'),
-  getRoomParticipants: meetingContract.find((item) => item.name === 'getRoomParticipants')
+  getRoomParticipants: meetingContract.find((item) => item.name === 'getRoomParticipants'),
+  rooms: meetingContract.find((item) => item.name === 'rooms'),
+  sendCallReaction: meetingContract.find((item) => item.name === 'sendCallReaction'),
+  approveParticipant: meetingContract.find((item) => item.name === 'approveParticipant'),
+  rejectParticipant: meetingContract.find((item) => item.name === 'rejectParticipant'),
+  handleRaiseHand: meetingContract.find((item) => item.name === 'handleRaiseHand'),
+  getRoomParticipantOwner: meetingContract.find((item) => item.name === 'getRoomParticipantOwner'),
+  toggleCamera: meetingContract.find((item) => item.name === 'toggleCamera')
 }
 
 export { meetingContract }

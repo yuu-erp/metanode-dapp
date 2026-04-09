@@ -1,4 +1,3 @@
-import { useGoToMeetingView } from '@/features/meeting'
 import {
   ChatHeader,
   CopyMessageActionProvider,
@@ -14,14 +13,28 @@ import {
   useGetConversationId,
   useVisualViewport
 } from '@/shared/hooks'
+import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
-import { createFileRoute, useParams } from '@tanstack/react-router'
+import { createFileRoute, redirect, useParams } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
 export const Route = createFileRoute('/_authenticated/$type/$id')({
-  component: RouteComponent
+  component: RouteComponent,
+  beforeLoad: ({ params }) => {
+    const { id } = params
+
+    if (id.normalize().startsWith('0x')) {
+      throw redirect({
+        to: '/$type/$id',
+        params: {
+          ...params,
+          id: formatAddress(id)
+        }
+      })
+    }
+  }
 })
 
 function RouteComponent() {
@@ -36,7 +49,6 @@ function RouteComponent() {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
 
-  console.log('thanhduy - conversation', conversation)
   const { mutate: createCall } = useGoToMeetingView()
 
   const onVideoCall = () => {
@@ -47,7 +59,6 @@ function RouteComponent() {
       callee: conversation.conversationId,
       isCaller: true,
       isMeet: true,
-      hiddenAddress: account.hiddenAddress,
       conversationType: conversation.conversationType
     })
   }

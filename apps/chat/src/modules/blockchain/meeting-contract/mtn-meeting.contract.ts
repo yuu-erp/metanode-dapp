@@ -17,6 +17,7 @@ export type ReqJoinRoom = {
   roomId: string
   _sdpOffer: string
   _initialTracks: ReqTrack[]
+  owner: string
 }
 
 export type ReqEmitEventToBackend = {
@@ -33,6 +34,7 @@ export type ReqLeaveRoom = {
   otherParty: string
   end: boolean
   meet: boolean
+  owner: string
 }
 
 export type ReqRejectCall = {
@@ -50,6 +52,8 @@ export class MeetingContract extends MtnContract {
       _receiver: string
       roomName: string
       meet: boolean
+      isLockRoom: boolean
+      owner: string
     }>
   ): Promise<{}> {
     const { from, inputData } = payload
@@ -139,5 +143,164 @@ export class MeetingContract extends MtnContract {
       inputData,
       feeType: 'read'
     })
+  }
+
+  rooms(
+    payload: TransactionPayload<{
+      '': string
+    }>
+  ): Promise<{
+    exists: boolean
+    active: boolean
+    creator: string
+    name: string
+    createdAtBlock: string
+  }> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      functionName: 'rooms',
+      abiData: meetingAbi.rooms as any,
+      inputData,
+      feeType: 'read'
+    })
+  }
+
+  addTrack(
+    payload: TransactionPayload<{
+      roomId: string
+      _tracks: ReqTrack[]
+      _sdpOffer: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'addTrack',
+          abiData: meetingAbi.addTrack as any,
+          inputData,
+          feeType: 'sc'
+        }),
+      'medium'
+    )
+  }
+
+  sendCallReaction(
+    payload: TransactionPayload<{
+      roomId: string
+      _reaction: string
+      owner: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'sendCallReaction',
+          abiData: meetingAbi.sendCallReaction as any,
+          inputData,
+          feeType: 'sc'
+        }),
+      'low'
+    )
+  }
+
+  approveParticipant(
+    payload: TransactionPayload<{
+      roomId: string
+      _participant: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'approveParticipant',
+          abiData: meetingAbi.approveParticipant as any,
+          inputData,
+          feeType: 'sc'
+        }),
+      'low'
+    )
+  }
+
+  rejectParticipant(
+    payload: TransactionPayload<{
+      roomId: string
+      _participant: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'rejectParticipant',
+          abiData: meetingAbi.rejectParticipant as any,
+          inputData,
+          feeType: 'sc'
+        }),
+      'low'
+    )
+  }
+
+  handleRaiseHand(
+    payload: TransactionPayload<{
+      roomId: string
+      _isRaiseHand: boolean
+      owner: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'handleRaiseHand',
+          abiData: meetingAbi.handleRaiseHand as any,
+          inputData,
+          feeType: 'sc'
+        }),
+      'low'
+    )
+  }
+
+  getRoomParticipantOwner(
+    payload: TransactionPayload<{
+      roomId: string
+    }>
+  ): Promise<string> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      functionName: 'getRoomParticipantOwner',
+      abiData: meetingAbi.getRoomParticipantOwner as any,
+      inputData,
+      feeType: 'read'
+    })
+  }
+
+  toggleCamera(
+    payload: TransactionPayload<{
+      roomId: string
+      _isOn: boolean
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'toggleCamera',
+          abiData: meetingAbi.toggleCamera as any,
+          inputData,
+          feeType: 'sc'
+        }),
+      'low'
+    )
   }
 }

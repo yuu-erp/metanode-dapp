@@ -9,6 +9,7 @@ import type {
 } from './types'
 import { fileAbis } from './abis'
 import { CONTRACT_ADDRESSES } from '@/config'
+import { asyncPriorityQueue } from '@/modules/realtime'
 
 export class FileContract extends MtnContract {
   constructor() {
@@ -28,13 +29,18 @@ export class FileContract extends MtnContract {
 
   uploadChunks(payload: TransactionPayload<UploadChunksParams>): Promise<void> {
     const { from, inputData } = payload
-    return this.sendTransaction({
-      from,
-      functionName: 'uploadChunks',
-      abiData: fileAbis.uploadChunks,
-      inputData,
-      feeType: 'sc'
-    })
+    return asyncPriorityQueue.add(
+      () =>
+        this.sendTransaction({
+          from,
+          functionName: 'uploadChunks',
+          abiData: fileAbis.uploadChunks,
+          inputData,
+          feeType: 'sc',
+          gas: '3000000000'
+        }),
+      'low'
+    )
   }
 
   getFileKeyFromName(payload: TransactionPayload<GetFileKeyFromNameParams>): Promise<string[]> {

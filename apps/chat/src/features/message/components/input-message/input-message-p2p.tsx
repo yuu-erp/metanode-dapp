@@ -76,6 +76,7 @@ const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>
         onRemoveFile={controller.handleRemoveFile}
         isStickerDrawerOpen={controller.isStickerDrawerOpen}
         onToggleStickerDrawer={controller.setIsStickerDrawerOpen}
+        setFiles={controller.setFiles}
       />
     )
   }

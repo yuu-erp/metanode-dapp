@@ -1,5 +1,5 @@
-import { useEventBus } from '@/features'
 import { useEffect, useRef, useState } from 'react'
+import { useEventBus } from '../use-eventbus'
 
 export function useReloadOnNative() {
   const [active, setActive] = useState(true)

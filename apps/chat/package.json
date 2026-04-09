@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@app/call": "workspace:*",
     "@headlessui/react": "^2.2.9",
     "@metanodejs/event-log": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log",
     "@metanodejs/mtn-contract": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract",
@@ -73,5 +74,11 @@
     "vite": "7.1.7",
     "vitest": "^3.0.5",
     "web-vitals": "^5.1.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@tanstack/react-query": "5.90.12",
+      "@tanstack/query-core": "5.90.12"
+    }
   }
 }

@@ -5,7 +5,7 @@ import Login from '@/features/wallet/components/login'
 import ButtonBase from '@/shared/components/button/button-base'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
-import { queryClient } from '@/shared/lib/react-query'
+import { ACCOUNT_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { useLoginModalStore } from '@/shared/stores/login-modal.store'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import React from 'react'
@@ -49,10 +49,16 @@ function RouteComponent() {
     setActiveIndex(swiper.realIndex)
   }, [])
 
-  const handleConnectWallet = useCallback(
-    async () => await mutateAsync(activeWallet),
-    [activeWallet]
-  )
+  const handleConnectWallet = useCallback(async () => {
+    console.log('thanhduy - connect wallet 1')
+
+    await mutateAsync(activeWallet)
+    console.log('thanhduy - connect wallet 2')
+    queryClient.invalidateQueries({
+      queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
+    })
+    console.log('thanhduy - connect wallet 3')
+  }, [activeWallet])
 
   const onCreateWallet = () => {
     onOpen()

@@ -16,6 +16,5 @@ export type MeetingViewInput = {
   isCaller: boolean
   address: string
   roomId?: string
-  hiddenAddress: string
   conversationType: ConversationType
 }

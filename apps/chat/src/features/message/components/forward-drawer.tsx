@@ -2,7 +2,7 @@
 import { useGetConversations } from '@/features/conversation'
 import type { Conversation } from '@/modules/conversation'
 import ConversationContact from '@/shared/components/conversation-contact'
-import { useCurrentAccount } from '@/shared/hooks'
+import { useCurrentAccount, useCurrentConversationType } from '@/shared/hooks'
 import { useNavigate } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 import * as React from 'react'
@@ -12,6 +12,7 @@ import { createForwardPayload, type MessageAction } from '@/modules/message'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
 import { useSendGroupMessage } from '../hooks/use-send-group-message'
+import { container } from '@/container'
 
 interface ForwardDrawerProps {
   open?: boolean
@@ -26,6 +27,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
 
   const sendMessage = useSendMessage()
   const sendGroupMessage = useSendGroupMessage()
+  const type = useCurrentConversationType()
 
   const handleForwardMessage = React.useCallback(
     (conversation: Conversation) => async () => {
@@ -35,6 +37,15 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         ...messageAction.message,
         id: messageAction.message.id
       })
+
+      if (type === 'group') {
+        forwardPayload.forwardFrom = await container.factoryContract.getUserContract({
+          from: account.hiddenAddress,
+          inputData: {
+            user: forwardPayload.forwardFrom
+          }
+        })
+      }
       console.log('forwardPayload: ', structuredClone(forwardPayload))
       const mutate =
         conversation.conversationType === 'group' ||

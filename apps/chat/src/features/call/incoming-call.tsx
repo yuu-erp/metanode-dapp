@@ -13,10 +13,6 @@ export function IncomingCall() {
     ...createGetConversationIdQueryOptions(conversationId, type),
     enabled: !!incomingCall && !!type
   })
-  console.log('thanhduy - incomoing', {
-    data,
-    incomingCall
-  })
 
   if (!incomingCall) return null
   return (

@@ -72,7 +72,6 @@ const StandardItemMessage = React.memo((props: MessageItemProps<Message>) => {
   const logic = useMessageLogic(message, isMine, onSelectMessage)
 
   const isSticker = message.type === 'sticker'
-
   return <ItemMessageUI {...props} {...logic} isSticker={isSticker} />
 })
 

@@ -7,7 +7,7 @@ export interface UseAttachmentPickerOptions {
 
 export function useAttachmentPicker(options?: UseAttachmentPickerOptions) {
   const { open, FileInput } = useFilePicker({
-    accept: 'image/*,video/*,application/pdf,*/*',
+    // accept: 'image/*,video/*,application/pdf,*/*',
     multiple: true,
     onSelect: (files) => {
       options?.onSelect?.(files)

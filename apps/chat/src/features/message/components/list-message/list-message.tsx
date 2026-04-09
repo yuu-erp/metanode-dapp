@@ -23,6 +23,8 @@ function ListMessage({ conversation, account }: ListMessageProps) {
     []
   )
   useMarkAsRead(messages, conversation)
+
+  console.log('thanhduy - messages', messages)
   return (
     <>
       <div

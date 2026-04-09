@@ -1,4 +1,3 @@
-import { useGoToMeetingView } from '@/features/meeting'
 import {
   ChatHeader,
   CopyMessageActionProvider,
@@ -9,6 +8,7 @@ import {
 } from '@/features/message'
 import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
+import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
@@ -52,7 +52,7 @@ function RouteComponent() {
       callee: conversation.conversationId,
       isCaller: true,
       isMeet: false,
-      hiddenAddress: account.hiddenAddress
+      conversationType: 'p2p'
     })
   }
 

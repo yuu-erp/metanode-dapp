@@ -1,10 +1,10 @@
 'use client'
-import * as React from 'react'
-import { useGetUserProfile } from '@/shared/hooks/accounts'
-import AvatarUser from '@/shared/components/avatar-user'
 import { USER_DEFAULT } from '@/constants/navbar-menu.constant'
-import { cn } from '@/shared/lib'
+import AvatarUser from '@/shared/components/avatar-user'
 import { useCurrentConversationType } from '@/shared/hooks'
+import { useGetUserProfile } from '@/shared/hooks/accounts'
+import { cn } from '@/shared/lib'
+import * as React from 'react'
 
 interface ForwardMessageProps {
   forwardFrom?: string
@@ -14,6 +14,7 @@ function ForwardMessage({ forwardFrom, isMine }: ForwardMessageProps) {
   if (!forwardFrom) return null
   const { data: profile } = useGetUserProfile(forwardFrom)
   const type = useCurrentConversationType()
+
   const displayName =
     type === 'anonymous_group'
       ? 'Forwarded message'
@@ -21,6 +22,7 @@ function ForwardMessage({ forwardFrom, isMine }: ForwardMessageProps) {
           .map((v) => v?.trim())
           .filter(Boolean)
           .join(' ') || USER_DEFAULT
+
   return (
     <div
       className={cn(

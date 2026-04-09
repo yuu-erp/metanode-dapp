@@ -1,19 +1,21 @@
 'use client'
 
-import * as React from 'react'
-import { HeaderSection } from './sections'
-import { Drawer } from 'vaul'
-import { Megaphone, QrCode, X } from 'lucide-react'
-import type { Conversation } from '@/modules/conversation'
-import { UserAddIcon, UserGroupIcon } from '@/shared/components/icons'
-import ConversationContact from '@/shared/components/conversation-contact'
 import type { Account } from '@/modules/account'
+import type { Conversation } from '@/modules/conversation'
+import ConversationContact from '@/shared/components/conversation-contact'
+import { UserAddIcon, UserGroupIcon } from '@/shared/components/icons'
+import { Button } from '@/shared/components/ui/button'
+import { Input } from '@/shared/components/ui/input'
+import { useI18N, usePlatform } from '@/shared/hooks'
+import { useCreateMeeting } from '@/shared/hooks/call/use-create-meeting'
 import { useNavigate } from '@tanstack/react-router'
+import { Megaphone, QrCode, Video, X } from 'lucide-react'
+import * as React from 'react'
+import { Drawer } from 'vaul'
 import { useScanQrcodeProfile } from '../../../features/conversation/hooks'
 import { ScreenType } from './drawer-new-conversation'
-import { Input } from '@/shared/components/ui/input'
-import { Button } from '@/shared/components/ui/button'
-import { useI18N, usePlatform } from '@/shared/hooks'
+import { HeaderSection } from './sections'
+import { cn } from '@/shared/lib'
 
 interface DefaultConversationProps {
   conversations?: Conversation[]
@@ -37,6 +39,8 @@ function DefaultConversation({
     if (!account) return
     mutate(account)
   }, [account, mutate])
+
+  const { onGoMeeting, onJoinLink } = useCreateMeeting(account, onClose)
 
   return (
     <React.Fragment>
@@ -109,6 +113,30 @@ function DefaultConversation({
             <UserAddIcon className="size-6 text-blue-500" />
             <span className="font-medium text-blue-500">
               {t('drawer.newContact', { defaultValue: 'New Contact' })}
+            </span>
+          </button>
+
+          <div className="h-px bg-white/20 ml-10" />
+
+          <button
+            className={cn('w-full h-12 flex items-center gap-4 text-left transition ')}
+            onClick={onGoMeeting}
+          >
+            <Video className="size-6 text-blue-500" />
+            <span className="font-medium text-blue-500">
+              {t('drawer.newMeeting', { defaultValue: 'New Meeting' })}
+            </span>
+          </button>
+
+          <div className="h-px bg-white/20 ml-10" />
+
+          <button
+            className={cn('w-full h-12 flex items-center gap-4 text-left transition ')}
+            onClick={onJoinLink}
+          >
+            <Video className="size-6 text-blue-500" />
+            <span className="font-medium text-blue-500">
+              {t('drawer.newMeetingByUrl', { defaultValue: 'New Meeting By Url' })}
             </span>
           </button>
 

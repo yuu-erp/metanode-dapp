@@ -9,7 +9,6 @@ import {
 } from '@/shared/components/ui/dropdown-menu'
 import { cn } from '@/shared/lib'
 import { motion } from 'framer-motion'
-import { SmilePlus } from 'lucide-react'
 import * as React from 'react'
 import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction, SaveAction } from '.'
 import { ItemMessage } from '../item-message'
@@ -81,9 +80,9 @@ function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewPr
                       {emoji}
                     </button>
                   ))}
-                  <button className="text-black hover:text-white">
+                  {/* <button className="text-black hover:text-white">
                     <SmilePlus className="size-5" />
-                  </button>
+                  </button> */}
                 </motion.div>
                 <ItemMessage
                   layoutId={`message-${message.id ?? message.clientId}`}

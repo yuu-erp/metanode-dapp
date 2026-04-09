@@ -31,6 +31,8 @@
     "newGroup": "Nhóm mới",
     "newAnonymousGroup": "Nhóm ẩn danh mới",
     "newContact": "Liên hệ mới",
+    "newMeeting": "Cuộc họp mới",
+    "newMeetingByUrl": "Link họp mới",
     "newChannel": "Kênh mới",
     "groupInfo": "Thông tin nhóm",
     "selectMembers": "{{count}} Đã chọn",

@@ -6,11 +6,45 @@ import { factoryContract } from '../blockchain/factory-contract/abis'
 import { meetingContract } from '../blockchain/meeting-contract'
 
 export type EventMap = {
+  CameraStatusChanged: {
+    roomId: string
+    user: string
+    isOn: boolean
+  }
+
+  ParticipantRejected: {
+    roomId: string
+    participant: string
+    rejectedBy: string
+  }
+
+  RaiseHandUpdated: {
+    roomId: string
+    user: string
+    isRaised: boolean
+    timestamp: number
+    owner: string
+  }
+
+  CallReactionSent: {
+    roomId: string
+    sender: string
+    reaction: string
+    owner: string
+  }
+
+  JoinRequestPending: {
+    roomId: string
+    participant: string
+    owner: string
+  }
+
   CallReceivedSignal: {
     caller: string
     callee: string
     roomId: string
     status: string
+    owner: string
   }
 
   MessageReceived: {
@@ -65,6 +99,7 @@ export type EventMap = {
     callee: string
     roomId: string
     status: string
+    owner: string
   }
   MessageSentGroup: {
     messageId: string

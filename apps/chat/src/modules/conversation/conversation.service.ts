@@ -305,6 +305,7 @@ export class ConversationService {
     if (conversationLocal) return conversationLocal
 
     let conversation
+
     switch (conversationType) {
       case 'private':
       case 'p2p': {

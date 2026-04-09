@@ -1,10 +1,9 @@
 'use client'
 
-import * as React from 'react'
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
 import type { Message, MessageAction } from '@/modules/message'
-import { toast } from 'sonner'
+import * as React from 'react'
 import { useSendFile } from '../../hooks'
 import { useAttachmentPicker } from './use-attachment-picker'
 import { useChatInputLayout } from './use-chat-input-layout'
@@ -43,11 +42,11 @@ export function useInputMessageController({
   const attachment = useAttachmentPicker({
     onSelect: (newFiles) =>
       setFiles((prev) => {
-        const totalSize = [...prev, ...newFiles].reduce((acc, file) => acc + file.size, 0)
-        if (totalSize > 10 * 1024 * 1024) {
-          toast.error('Total file size must not exceed 10MB')
-          return prev
-        }
+        // const totalSize = [...prev, ...newFiles].reduce((acc, file) => acc + file.size, 0)
+        // // if (totalSize > 10 * 1024 * 1024) {
+        // //   toast.error('Total file size must not exceed 10MB')
+        // //   return prev
+        // // }
         return [...prev, ...newFiles]
       })
   })
@@ -69,10 +68,10 @@ export function useInputMessageController({
 
     const totalSize = files.reduce((acc, file) => acc + file.size, 0)
     console.log('totalSize', totalSize)
-    if (totalSize > 10 * 1024 * 1024) {
-      toast.error('Total file size must not exceed 10MB')
-      return
-    }
+    // if (totalSize > 10 * 1024 * 1024) {
+    //   toast.error('Total file size must not exceed 10MB')
+    //   return
+    // }
 
     sendFile({ account, conversation, files })
     setFiles([])
@@ -109,6 +108,7 @@ export function useInputMessageController({
 
     // UI state
     isStickerDrawerOpen,
-    setIsStickerDrawerOpen
+    setIsStickerDrawerOpen,
+    setFiles
   }
 }

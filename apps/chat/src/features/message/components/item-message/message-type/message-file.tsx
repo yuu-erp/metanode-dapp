@@ -17,10 +17,13 @@ function MessageFile({ message, isMine }: Props) {
   const handleDownload = React.useCallback(
     async (e: React.MouseEvent) => {
       e.stopPropagation()
+      console.log('thanhduy - handle download file', message)
       if (message.filePath) {
+        console.log('thanhduy - case 1')
         window.open(message.filePath, '_blank')
         return
       }
+      console.log('thanhduy - case 2')
 
       // If no fileId (e.g. optimistic), try to use ID but it might fail if not on chain yet
       const fileId = message.fileId || message.id

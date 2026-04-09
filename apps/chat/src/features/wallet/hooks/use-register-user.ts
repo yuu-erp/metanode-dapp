@@ -20,10 +20,10 @@ export function useRegisterUser() {
       return account.address
     },
     onSuccess: (address) => {
-      queryClient.removeQueries({
+      queryClient.invalidateQueries({
         queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
       })
-      queryClient.removeQueries({
+      queryClient.invalidateQueries({
         queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(address)
       })
       navigate({ to: '/' })

@@ -18,7 +18,6 @@ export function createGetConversationIdQueryOptions(
   return {
     queryKey: CONVERSATION_QUERY_KEY.CONVERSATION(conversationId),
     queryFn: async (): Promise<Conversation | null> => {
-      console.log('thanhduy - huhu ', { conversationId, conversationType })
       const currentAccount = queryClient.getQueryData<Account>(
         ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
       )
@@ -33,7 +32,6 @@ export function createGetConversationIdQueryOptions(
       )
 
       if (!conversation) return null
-
       return conversation
     },
     enabled: !!conversationId

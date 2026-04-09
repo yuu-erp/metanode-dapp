@@ -10,7 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletsRouteImport } from './routes/wallets'
-import { Route as MeetingRouteImport } from './routes/meeting'
+import { Route as SetupMeetingRouteImport } from './routes/setup-meeting'
+import { Route as ErrorRouteImport } from './routes/error'
 import { Route as CallRouteImport } from './routes/call'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
@@ -24,9 +25,14 @@ const WalletsRoute = WalletsRouteImport.update({
   path: '/wallets',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MeetingRoute = MeetingRouteImport.update({
-  id: '/meeting',
-  path: '/meeting',
+const SetupMeetingRoute = SetupMeetingRouteImport.update({
+  id: '/setup-meeting',
+  path: '/setup-meeting',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ErrorRoute = ErrorRouteImport.update({
+  id: '/error',
+  path: '/error',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CallRoute = CallRouteImport.update({
@@ -69,7 +75,8 @@ const AuthenticatedTypeIdRoute = AuthenticatedTypeIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/call': typeof CallRoute
-  '/meeting': typeof MeetingRoute
+  '/error': typeof ErrorRoute
+  '/setup-meeting': typeof SetupMeetingRoute
   '/wallets': typeof WalletsRoute
   '/$type/$id': typeof AuthenticatedTypeIdRoute
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
@@ -78,7 +85,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/call': typeof CallRoute
-  '/meeting': typeof MeetingRoute
+  '/error': typeof ErrorRoute
+  '/setup-meeting': typeof SetupMeetingRoute
   '/wallets': typeof WalletsRoute
   '/': typeof AuthenticatedIndexRoute
   '/$type/$id': typeof AuthenticatedTypeIdRoute
@@ -90,7 +98,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/call': typeof CallRoute
-  '/meeting': typeof MeetingRoute
+  '/error': typeof ErrorRoute
+  '/setup-meeting': typeof SetupMeetingRoute
   '/wallets': typeof WalletsRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/$type/$id': typeof AuthenticatedTypeIdRoute
@@ -103,7 +112,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/call'
-    | '/meeting'
+    | '/error'
+    | '/setup-meeting'
     | '/wallets'
     | '/$type/$id'
     | '/p2p/$id'
@@ -112,7 +122,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/call'
-    | '/meeting'
+    | '/error'
+    | '/setup-meeting'
     | '/wallets'
     | '/'
     | '/$type/$id'
@@ -123,7 +134,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/call'
-    | '/meeting'
+    | '/error'
+    | '/setup-meeting'
     | '/wallets'
     | '/_authenticated/'
     | '/_authenticated/$type/$id'
@@ -135,7 +147,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   CallRoute: typeof CallRoute
-  MeetingRoute: typeof MeetingRoute
+  ErrorRoute: typeof ErrorRoute
+  SetupMeetingRoute: typeof SetupMeetingRoute
   WalletsRoute: typeof WalletsRoute
 }
 
@@ -148,11 +161,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/meeting': {
-      id: '/meeting'
-      path: '/meeting'
-      fullPath: '/meeting'
-      preLoaderRoute: typeof MeetingRouteImport
+    '/setup-meeting': {
+      id: '/setup-meeting'
+      path: '/setup-meeting'
+      fullPath: '/setup-meeting'
+      preLoaderRoute: typeof SetupMeetingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/error': {
+      id: '/error'
+      path: '/error'
+      fullPath: '/error'
+      preLoaderRoute: typeof ErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/call': {
@@ -231,7 +251,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   CallRoute: CallRoute,
-  MeetingRoute: MeetingRoute,
+  ErrorRoute: ErrorRoute,
+  SetupMeetingRoute: SetupMeetingRoute,
   WalletsRoute: WalletsRoute,
 }
 export const routeTree = rootRouteImport

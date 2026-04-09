@@ -6,6 +6,7 @@ import type { Account } from './account.types'
 import { detectNameFromWalletName, generateAvailableUsername } from './utils'
 import { formatAddress } from '@/shared/utils'
 import { getHiddenWallet } from '@metanodejs/system-core'
+import { compareAddress } from '@/shared/lib'
 
 export class AccountService {
   constructor(
@@ -25,7 +26,7 @@ export class AccountService {
     return account
   }
 
-  async registerUser(wallet: Wallet): Promise<Account> {
+  async registerUser(wallet: Wallet, name?: string): Promise<Account> {
     const address = wallet.address
     // 1. Check on-chain
     const isRegistered = await this.factoryContract.checkUserContract({
@@ -49,7 +50,7 @@ export class AccountService {
       const inputData = {
         publicKey,
         userName: username,
-        firstName,
+        firstName: name ?? firstName,
         lastName,
         avatar: '',
         bio: ''
@@ -79,16 +80,13 @@ export class AccountService {
       from: address,
       to: contractAddress
     })
-    console.log('thanhduy - existedDelegate ', existedDelegate)
 
-    if (!existedDelegate.includes(hiddenWallet)) {
-      console.log('thanhduy - add 1')
+    if (!existedDelegate.includes(hiddenWallet) && !compareAddress(address, hiddenWallet)) {
       await this.userContract.addDelegate({
         from: address,
         to: contractAddress,
         inputData: { _delegate: hiddenWallet }
       })
-      console.log('thanhduy - add 2')
     }
 
     // 6. Lấy profile từ on-chain

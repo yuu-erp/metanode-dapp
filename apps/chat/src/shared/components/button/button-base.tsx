@@ -16,7 +16,7 @@ export interface ButtonBaseProps extends Omit<
 }
 
 const variants = {
-  default: 'whitespace-nowrap w-[125px] h-full bg-black/20 border-app rounded-full',
+  default: 'whitespace-nowrap w-[125px] h-10 bg-black/20 border-app rounded-full',
   constrait: 'bg-surface-constrait text-text-primary',
   primary: 'bg-surface-secondary text-text-primary',
   normal: 'px-3 h-[42px] bg-white/20 rounded-xl border-app',

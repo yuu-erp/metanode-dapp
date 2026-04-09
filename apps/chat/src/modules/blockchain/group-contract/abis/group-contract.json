@@ -97,15 +97,15 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
-        "indexed": false,
         "internalType": "enum CallStatus",
         "name": "status",
         "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "CallEndedSignal",
@@ -168,6 +168,12 @@
         "internalType": "enum CallStatus",
         "name": "status",
         "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "CallReceivedSignal",
@@ -193,6 +199,12 @@
         "internalType": "enum CallStatus",
         "name": "status",
         "type": "uint8"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "CallRejectedByPartner",
@@ -1059,6 +1071,19 @@
         "type": "address"
       }
     ],
+    "name": "approveParticipant",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      }
+    ],
     "name": "banMember",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -1117,6 +1142,11 @@
         "internalType": "bytes32",
         "name": "password",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "isApprovalRequired",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1703,6 +1733,30 @@
     "inputs": [
       {
         "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "isWaitingInSession",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
         "name": "_password",
         "type": "string"
       }
@@ -1939,6 +1993,11 @@
         "internalType": "enum CallStatus",
         "name": "status",
         "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "receiveCallSignal",
@@ -1964,14 +2023,14 @@
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "sessionId",
-        "type": "string"
-      },
-      {
         "internalType": "enum CallStatus",
         "name": "status",
         "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "receiveEndCallSignal",
@@ -2000,9 +2059,27 @@
         "internalType": "enum CallStatus",
         "name": "status",
         "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       }
     ],
     "name": "receiveRejectCallSignal",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_participant",
+        "type": "address"
+      }
+    ],
+    "name": "rejectParticipant",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

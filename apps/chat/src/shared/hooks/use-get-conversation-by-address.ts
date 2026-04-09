@@ -3,25 +3,30 @@ import type { ConversationType } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { ACCOUNT_QUERY_KEY } from '@/shared/lib/react-query'
 import { useQuery } from '@tanstack/react-query'
-import { isAddress } from 'ethers'
 
-export function useGetConversationByAddress(address: string, type: ConversationType) {
+export function useGetConversationIdByAddress(user: string, enable?: boolean) {
   const { data: account } = useCurrentAccount()
-
   const { data: contractAddress } = useQuery({
-    queryKey: ACCOUNT_QUERY_KEY.CONTRACT_ADDRESS(address),
-    enabled: !!address && !!account,
+    queryKey: ACCOUNT_QUERY_KEY.USER_BY_ADDRESS(user),
+    enabled: !!user || (typeof enable === 'boolean' && enable),
     queryFn: () => {
-      if (!isAddress(address)) return
-
       return container.factoryContract.getUserContract({
         from: account!.hiddenAddress,
         inputData: {
-          user: address
+          user: user
         }
       })
     }
   })
+  return contractAddress
+}
+
+export function useGetConversationByAddress(
+  address: string,
+  type: ConversationType,
+  enabled = true
+) {
+  const contractAddress = useGetConversationIdByAddress(address, enabled)
 
   const { data } = useGetConversationId(contractAddress ?? '', type)
 

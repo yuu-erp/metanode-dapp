@@ -11,6 +11,7 @@ import { useLoginModalStore } from '@/shared/stores/login-modal.store'
 import { useGetAllWallets } from '@/features/wallet/hooks'
 import { createWallet, getSeed } from '@metanodejs/system-core'
 import { seedPhraseToString } from '@/shared/utils/createwallet'
+import Input from './Input'
 
 const ItemSeedPhrase = memo(({ content, index }: { content: string; index: number }) => {
   return (
@@ -36,6 +37,7 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
   const [screen, setScreen] = useState<'random' | 'custom'>()
   const [seedPhrase, setSeedPhrase] = useState<Array<string>>([])
   const { onClose } = useLoginModalStore()
+  const [name, setName] = useState<string>('')
 
   const [isLoading, setIsLoading] = useState(false)
 
@@ -59,11 +61,15 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
   }, [])
 
   const handleNext = useCallback(async () => {
+    if (!name) {
+      return toast.error('Enter name please')
+    }
     setIsLoading(true)
+
     try {
       const wallet = await createWallet({
         seed: seedPhrase,
-        name: `wallet-${Date.now()}`,
+        name: name,
         backgroundImage: ''
       })
       console.log('wallet', wallet)
@@ -74,7 +80,7 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
     } finally {
       setIsLoading(false)
     }
-  }, [onNext, seedPhrase])
+  }, [onNext, seedPhrase, name])
 
   const downloadSeedPhraseQR = useCallback(async () => {
     if (qrRef.current === null) return
@@ -112,6 +118,11 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
           <span className="font-customSemiBold text-[1.25rem]/[1.625rem]">
             Create with Seed Phrase!
           </span>
+          <Input
+            value={name}
+            onInputChange={(e) => setName(e.target.value)}
+            placeholder="Enter name..."
+          />
           <span className="text-[0.875rem]/[1.375rem] text-white/[.64]">
             Please save these 24 words on a piece of paper. This seed will allow you to sign in your
             account.

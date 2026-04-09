@@ -3,23 +3,22 @@ import type { MeetingViewInput } from '@/modules/meeting/meeting.type'
 import { useCurrentAccount } from '@/shared/hooks'
 import type { AppEvents } from '@/types/app-events'
 import { useEffect, useState } from 'react'
-import { useGoToMeetingView } from '../meeting'
-import { useEventLog } from '../call-view'
-import { compareAddress } from '@/modules/call/lib'
 import { formatAddress } from '@/shared/utils'
+import { useEventLog } from '@/shared/hooks/use-event-log'
+import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
+import { compareAddress } from '@/shared/lib'
 
 export const useIncomingCall = () => {
   const [incomingCall, setIncomingCall] = useState<MeetingViewInput | null>(null)
   const { data: account } = useCurrentAccount()
   const { mutate } = useGoToMeetingView()
-  console.log('thanhduy - incomingCall', incomingCall)
   useEffect(() => {
+    console.log('  1', account)
     if (!account) return
     const handleCallReceived = async (event: AppEvents['call.received']) => {
       setIncomingCall({
         ...event,
-        roomId: formatAddress(event.roomId ?? ''),
-        hiddenAddress: account.hiddenAddress
+        roomId: formatAddress(event.roomId ?? '')
       })
     }
     container.eventBus.on('call.received', handleCallReceived)

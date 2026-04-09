@@ -120,6 +120,11 @@ export type AppEvents = {
     user: string
   }
 
+  'call.joined': {
+    roomId: string
+    user: string
+  }
+
   //USER
   'user.added': null
 
@@ -153,4 +158,9 @@ export type AppEvents = {
   }
 
   'event.reload': boolean
+  'call.raise-hand': {
+    isRaised: boolean
+    address: string
+    hiddenAddress: string
+  }
 }

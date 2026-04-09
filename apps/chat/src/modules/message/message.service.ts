@@ -12,7 +12,6 @@ import { formatAddress, fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
 import {
   createECDHPassword,
-  createFileWithBuffer,
   decryptAESGCM,
   encryptAESGCM,
   getPrivateKeyFromDb,
@@ -21,6 +20,7 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import type { FileCacheService } from '../file-cache'
 // MESSAGE MODULES
+import { container } from '@/container'
 import { createHashWithBuffer } from '@metanodejs/system-core'
 import type {
   EditTextPayload,
@@ -33,12 +33,13 @@ import type {
 } from '.'
 import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 import type { PushFileInfosParams } from '../blockchain/file-contract/types'
+import type { EventLogContainer } from '../eventlogs'
+import { asyncPriorityQueue } from '../realtime'
+import { createPathFromBlob } from './file.service'
 import { createOptimisticMessage } from './message.entity'
+import { MessageExtend } from './message.extend'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
-import { asyncPriorityQueue } from '../realtime'
-import type { EventLogContainer } from '../eventlogs'
-import { MessageExtend } from './message.extend'
 
 export class MessageService {
   constructor(
@@ -596,8 +597,9 @@ export class MessageService {
         try {
           const { chunkData, chunkHash } = await this._splitFileIntoChunks(data.dataFile)
           // CHIA thành từng nhóm 7 CHUNK
-          const chunkDataBatches = this._chunkArray(chunkData, 7)
-          const chunkHashBatches = this._chunkArray(chunkHash, 7)
+          const chunkSize = 275
+          const chunkDataBatches = this._chunkArray(chunkData, chunkSize)
+          const chunkHashBatches = this._chunkArray(chunkHash, chunkSize)
 
           for (let i = 0; i < chunkDataBatches.length; i++) {
             const batchData = chunkDataBatches[i]
@@ -636,7 +638,13 @@ export class MessageService {
           const messageOnChain = mapperMessageToOnChain(optimisticMessage)
           const stringifyMessage = JSON.stringify(messageOnChain)
 
-          await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
+          await this.sendStringtifiedMessage(
+            account,
+            conversation,
+            stringifyMessage,
+            clientId,
+            data.fileKey
+          )
         } catch (error) {
           console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
           this.eventBus.emit('message.status', {
@@ -701,31 +709,21 @@ export class MessageService {
     fileKey: string,
     fileName: string,
     mimeType: string,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
+    skipCache = false,
+    chunkLimit = 500,
+    concurrency = 10
   ): Promise<void> {
     try {
-      // 0. Check cache first
+      // 0. Check cache
       const cachedFile = await this.fileCacheService.getFile(fileKey)
-      if (cachedFile) {
+
+      if (cachedFile && !skipCache) {
         let path = cachedFile.filePath
 
-        // If filePath is missing (legacy cache), re-create to get path
         if (!path) {
-          const arrayBuffer = await cachedFile.blob.arrayBuffer()
-          // Prepare name/ext logic similar to below
-          const dotIndex = fileName.lastIndexOf('.')
-          const name = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName
-          const ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : ''
+          path = await createPathFromBlob(cachedFile.blob, fileName)
 
-          const result = await createFileWithBuffer(
-            name,
-            'message',
-            ext,
-            Array.from(new Uint8Array(arrayBuffer))
-          )
-          path = result.path
-
-          // Update cache with new path
           await this.fileCacheService.saveFile(
             fileKey,
             cachedFile.blob,
@@ -733,6 +731,7 @@ export class MessageService {
             fileName,
             path
           )
+
           this.eventBus.emit('file.cached', {
             fileKey,
             filePath: URL.createObjectURL(cachedFile.blob)
@@ -743,96 +742,100 @@ export class MessageService {
         return
       }
 
-      // 1. Get file info to know total chunks
-      // @ts-ignore
+      // 1. Get file info
       const { infos } = await this.fileContract.getFilesInfo({
         from: account.address,
         inputData: { fileKeys: [fileKey] }
       })
-      if (!infos) {
-        throw new Error('File not found on chain')
-      }
-      // @ts-ignore
-      const { totalChunks } = infos[0]
-      const totalChunksNum = Number(totalChunks)
 
-      // 2. Download chunks in batches
-      const chunks: Uint8Array[] = []
-      const BATCH_SIZE = 5 // Adjust concurrency as needed
+      if (!infos) throw new Error('File not found on chain')
+
+      const totalChunksNum = Number(infos[0].totalChunks)
+
+      // 2. Prepare
+      const chunks: Uint8Array[] = new Array(totalChunksNum)
       let downloadedChunks = 0
 
-      for (let i = 0; i < totalChunksNum; i += BATCH_SIZE) {
-        const batchPromises = []
-        const currentBatchLimit = Math.min(BATCH_SIZE, totalChunksNum - i)
+      // 3. Create tasks (batch by chunkLimit)
+      const tasks: Array<() => Promise<void>> = []
 
-        for (let j = 0; j < currentBatchLimit; j++) {
-          const chunkIndex = i + j
-          batchPromises.push(
-            this.fileContract
-              .downloadFile({
-                from: account.address,
-                inputData: {
-                  fileKey,
-                  start: chunkIndex,
-                  limit: 1 // Fetch 1 chunk at a time
-                }
-              })
-              .then((result: any) => {
-                // result is string[] because downloadFile returns bytes[]
-                // Since we requested limit=1, we expect an array with 1 hex string
-                const hexString = Array.isArray(result) ? result[0] : result
+      for (let i = 0; i < totalChunksNum; i += chunkLimit) {
+        tasks.push(async () => {
+          const currentLimit = Math.min(chunkLimit, totalChunksNum - i)
 
-                // hexString is something like "0x1234..."
-                const rawHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString
-                // Convert hex string to Uint8Array
-                const bytes = new Uint8Array(
-                  (rawHex.match(/[\da-f]{2}/gi) || []).map((h: string) => parseInt(h, 16))
-                )
-                return { index: chunkIndex, data: bytes }
-              })
-          )
-        }
+          const result: any = await this.fileContract.downloadFile({
+            from: account.address,
+            inputData: {
+              fileKey,
+              start: i,
+              limit: currentLimit
+            }
+          })
 
-        const batchResults = await Promise.all(batchPromises)
+          const hexArray = Array.isArray(result) ? result : [result]
 
-        // Store results in order
-        batchResults.forEach((res) => {
-          chunks[res.index] = res.data
+          hexArray.forEach((hexString: string, idx: number) => {
+            const rawHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString
+
+            const bytes = new Uint8Array(
+              (rawHex.match(/[\da-f]{2}/gi) || []).map((h: string) => parseInt(h, 16))
+            )
+
+            chunks[i + idx] = bytes
+          })
+
+          downloadedChunks += currentLimit
+
+          if (onProgress) {
+            const percent = Math.floor((downloadedChunks / totalChunksNum) * 100)
+            onProgress(percent)
+          }
         })
-
-        downloadedChunks += currentBatchLimit
-        const progress = Math.min(100, Math.floor((downloadedChunks / totalChunksNum) * 100))
-        if (onProgress) onProgress(progress)
       }
 
-      // 3. Save file using createFileWithBuffer
-      const totalSize = chunks.reduce((acc, chunk) => acc + chunk.length, 0)
+      // 4. Run with concurrency control
+      const executing = new Set<Promise<void>>()
+
+      for (const task of tasks) {
+        const p = task().then(() => executing.delete(p))
+        executing.add(p)
+
+        if (executing.size >= concurrency) {
+          await Promise.race(executing)
+        }
+      }
+
+      await Promise.all(executing)
+
+      // 5. Combine chunks
+      const totalSize = chunks.reduce((acc, c) => acc + c.length, 0)
       const combinedBuffer = new Uint8Array(totalSize)
+
       let offset = 0
       for (const chunk of chunks) {
         combinedBuffer.set(chunk, offset)
         offset += chunk.length
       }
 
-      const dotIndex = fileName.lastIndexOf('.')
-      const name = dotIndex !== -1 ? fileName.substring(0, dotIndex) : fileName
-      const ext = dotIndex !== -1 ? fileName.substring(dotIndex + 1) : ''
-      const { path } = await createFileWithBuffer(name, 'message', ext, Array.from(combinedBuffer))
+      const blob = new Blob([combinedBuffer], { type: mimeType })
+      const path = await createPathFromBlob(blob, fileName)
+
+      // 6. Cache full file
       try {
-        const blob = new Blob([combinedBuffer], { type: mimeType })
         await this.fileCacheService.saveFile(fileKey, blob, mimeType, fileName, path)
+
         this.eventBus.emit('file.cached', {
           fileKey,
           filePath: URL.createObjectURL(blob)
         })
-      } catch (error) {
-        console.error('[MessageService] Failed to cache downloaded file:', error)
+      } catch (err) {
+        console.error('[cache failed]', err)
       }
-      await share({ type: 'file', path, title: fileName })
 
-      // Cache the downloaded file
+      // 7. Share
+      await share({ type: 'file', path, title: fileName })
     } catch (error) {
-      console.error('[MessageService] Download file failed:', error)
+      console.error('[Download failed]', error)
       throw error
     }
   }
@@ -911,10 +914,8 @@ export class MessageService {
       })
     )
 
-    const recipientOwners = userSettings
-      .filter((i) => i.p2pChatEnabled)
-      .map((i) => i.address)
-      .filter((i) => i !== account.address)
+    const recipientOwners = userSettings.filter((i) => i.p2pChatEnabled).map((i) => i.address)
+    // .filter((i) => i !== account.address)
 
     return recipientOwners
   }
@@ -934,7 +935,8 @@ export class MessageService {
         recipient: conversation.conversationId,
         timestamp: Date.now(),
         ...(payload.replyTo && { replyTo: payload.replyTo }),
-        ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
+        ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom }),
+        isMine: true
       },
       payload
     )
@@ -1214,7 +1216,8 @@ export class MessageService {
     account: Account,
     conversation: Conversation,
     stringifyMessage: string,
-    clientId: string
+    clientId: string,
+    fileKey?: string
   ) {
     return asyncPriorityQueue.add(async () => {
       this.messageExtend.unsubscribe()
@@ -1223,10 +1226,12 @@ export class MessageService {
 
       const updateMessageId = async () => {
         const messageId = await promise
+
         this.eventBus.emit('message.updateId', {
           messageId,
           clientId,
-          conversationId: conversation.conversationId
+          conversationId: conversation.conversationId,
+          fileId: fileKey
         })
       }
 
@@ -1277,7 +1282,6 @@ export class MessageService {
             updateMessageId()
 
             const recipientOwners = await this.getRecipientOwners(account, conversation)
-            console.log('thanhduy - recipientOwners', recipientOwners)
             await this.groupContract.sendMessage({
               from: account.hiddenAddress,
               to: conversation.conversationId,
@@ -1288,8 +1292,13 @@ export class MessageService {
             })
           } else if (conversationType === 'anonymous_group') {
             promise = new Promise((resolve) => {
-              const off = eventLog.on('AnonymousMessageStored', (data) => {
-                if (data.sender !== account.address) return
+              const off = eventLog.on('AnonymousMessageStored', async (data) => {
+                const alias = await container.anonymousGroupContract.getAliasMember({
+                  from: account.address,
+                  to: conversation.conversationId
+                })
+
+                if (data.sender !== alias) return
                 off()
                 resolve(data.messageId)
               })
@@ -1302,6 +1311,7 @@ export class MessageService {
                 encryptedContent: encryptMessage
               }
             })
+            await updateMessageId()
           } else {
             throw new Error('Invalid conversation type for group message')
           }

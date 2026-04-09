@@ -1,11 +1,10 @@
 'use client'
 
+import { useCopy } from '@/shared/hooks/use-copy'
 import { cn } from '@/shared/lib'
 import { handleBackgroundWallet } from '@/shared/utils'
-import { copyClipboard } from '@metanodejs/system-core'
 import { formatUnits } from 'ethers'
 import * as React from 'react'
-import { toast } from 'sonner'
 
 interface CardWalletProps extends React.HTMLAttributes<HTMLDivElement> {
   backgroundImage?: string
@@ -39,14 +38,7 @@ function CardWallet({
     }
   }, [totalBalanceString, decimals])
 
-  const onCopy = async () => {
-    if (window.finSdk) {
-      await navigator.clipboard.writeText(address)
-    } else {
-      await copyClipboard(address)
-    }
-    toast.success('Copy success')
-  }
+  const onCopy = useCopy(address)
 
   return (
     <div className={cn(className)} {...props}>

@@ -40,7 +40,6 @@ function ItemMessageUI({
   const type = useCurrentConversationType()
 
   const isInGroup = !isMine && (type === 'group' || type === 'anonymous_group')
-
   return (
     <motion.div
       message-id={message.id}
@@ -52,7 +51,7 @@ function ItemMessageUI({
       {isInGroup && <GroupMemberAvatar sender={message.sender} />}
       <div
         className={cn(
-          'max-w-[90%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',
+          'max-w-[70%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',
           'transition-all duration-300 ease-out',
           isLongPressActive && 'scale-90',
           isMine
@@ -64,7 +63,7 @@ function ItemMessageUI({
       >
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
         <ForwardMessage forwardFrom={message.forwardFrom} isMine={isMine} />
-        {isInGroup && <GroupMemberName sender={message.sender} />}
+        {isInGroup && !isMine && <GroupMemberName sender={message.sender} />}
         <ItemMessageView message={message} isMine={isMine} />
 
         <div

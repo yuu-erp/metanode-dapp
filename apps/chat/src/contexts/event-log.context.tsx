@@ -2,8 +2,8 @@
 
 import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
-import { compareAddress } from '@/modules/call'
 import { useCurrentAccount } from '@/shared/hooks'
+import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
 import * as React from 'react'
 import { createContext, useContext } from 'react'
@@ -15,9 +15,14 @@ const EventLogContext = createContext<EventLogState | undefined>(undefined)
 export function EventLogProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
+  const [load, setLoad] = React.useState(false)
+  console.log('thanhduy register eventlog 0', account)
+
   React.useEffect(() => {
+    console.log('thanhduy register eventlog 1', account)
     if (!account?.address || !account.contractAddress) return
-    console.log('thanhduy register event log')
+    console.log('thanhduy register eventlog 2')
+
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
     const meetingAddress = CONTRACT_ADDRESSES.meeting
@@ -46,10 +51,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offCallReceived = eventLog.on('CallReceived', async (data) => {
-      console.log('thanhduy - CallReceived', data)
       const callerContractAddress = await container.factoryContract.getUserContract({
         from: account.address,
-        inputData: { user: data.caller }
+        inputData: { user: data.owner }
       })
 
       eventBus.emit('call.received', {
@@ -102,7 +106,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     //GROUP
     const offMessageSentGroup = eventLog.on('MessageSentGroup', async (data) => {
       const isMine = formatAddress(data.sender) === formatAddress(account.address)
-      console.log('thanhduy - MessageSentGroup', data)
       eventBus.emit('noti:add', { type: 'message' })
 
       const message = await container.messageService.decryptMessageFromGroup(account, {
@@ -262,8 +265,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('user.added', null)
     })
 
-    const offMessageDeleted = eventLog.on('MessageDeleted', (data) => {
-      console.log('thanhduy - offMessageDeleted', data)
+    const offMessageDeleted = eventLog.on('MessageDeleted', () => {
       // eventBus.emit('user.added', null)
     })
 
@@ -325,7 +327,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offCallReceivedSignal = eventLog.on('CallReceivedSignal', (data) => {
-      console.log('thanhduy - CallReceivedSignal', data)
       if (compareAddress(data.caller, account.address)) return
       eventBus.emit('call.received', {
         address: account.address,
@@ -371,10 +372,13 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
   }, [account?.address, account?.contractAddress])
 
   React.useEffect(() => {
-    container.eventLogContainer.registerAbi()
+    Promise.race([
+      container.eventLogContainer.registerAbi(),
+      new Promise((res) => setTimeout(() => res(true), 2000))
+    ]).then(() => setLoad(true))
   }, [])
 
-  return <EventLogContext.Provider value={{}}>{children}</EventLogContext.Provider>
+  return <EventLogContext.Provider value={{}}>{load ? children : null}</EventLogContext.Provider>
 }
 
 export function useEventLog() {

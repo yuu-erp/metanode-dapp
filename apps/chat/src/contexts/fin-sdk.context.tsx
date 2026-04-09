@@ -64,8 +64,7 @@ export const FinSdkProvider = ({ children }: PropsWithChildren) => {
 
     const initialize = async () => {
       const isDev = import.meta.env.DEV
-
-      if (!isDev) setLoading(false)
+      if (!isDev) return setLoading(false)
       const isWeb = !(await checkPlatform())
 
       if (!isWeb) return setLoading(false)

@@ -45,7 +45,6 @@ export function useTitleNotification() {
     }
   }, [])
 
-  console.log('thanhduy - count', count)
   // update title
   useEffect(() => {
     const baseTitle = 'App chat'

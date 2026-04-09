@@ -7,6 +7,10 @@ import * as React from 'react'
 import { InputMessageAction } from '.'
 import { SelectedFileList } from './selected-file-list'
 import { StickerDrawer } from './sticker-drawer'
+import { usePlatform } from '@/shared/hooks'
+import { chooseGalery, getBase64FromPath, takePicture } from '@metanodejs/system-core'
+import { PopoverForAndroid } from '../popover-for-android'
+import { base64ToFile } from '@/shared/lib'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
@@ -27,6 +31,7 @@ export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivEleme
   onRemoveFile: (index: number) => void
   isStickerDrawerOpen: boolean
   onToggleStickerDrawer: (open: boolean) => void
+  setFiles: (files: File[]) => void
 }
 
 function InputMessageView(props: InputMessageViewProps) {
@@ -46,8 +51,29 @@ function InputMessageView(props: InputMessageViewProps) {
     onRemoveFile,
     isStickerDrawerOpen,
     onToggleStickerDrawer,
+    setFiles,
     ...propsDiv
   } = props
+
+  const { data } = usePlatform()
+
+  const handleSetFile = async (path: string) => {
+    const formatPath = path.replace('image://img.m.pro', '')
+    const base64 = (await getBase64FromPath(formatPath)).base64
+    const file = base64ToFile(base64, 'image.jpg', 'image/jpeg')
+
+    setFiles([file])
+  }
+
+  const handleSelectFiles = async () => {
+    const path = (await chooseGalery()).path
+    await handleSetFile(path)
+  }
+
+  const handleTakePicture = async () => {
+    const path = (await takePicture()).path
+    await handleSetFile(path)
+  }
 
   return (
     <div
@@ -58,13 +84,44 @@ function InputMessageView(props: InputMessageViewProps) {
       <div className="pb-5">
         <div className="w-full min-h-[72px] h-full flex items-end gap-1 px-2">
           {/* Attach */}
-          <button
-            type="button"
-            onClick={onOpenFilePicker}
-            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+          <PopoverForAndroid
+            content={(close) => (
+              <div className="flex flex-col gap-2 items-start">
+                <button
+                  onClick={async () => {
+                    close()
+                    await handleSelectFiles()
+                  }}
+                >
+                  Chọn ảnh
+                </button>
+                <button
+                  onClick={async () => {
+                    close()
+                    onOpenFilePicker()
+                  }}
+                >
+                  Chọn file
+                </button>
+                <button
+                  onClick={async () => {
+                    close()
+                    await handleTakePicture()
+                  }}
+                >
+                  Mở camera / media
+                </button>
+              </div>
+            )}
           >
-            <Paperclip className="text-white/80" />
-          </button>
+            <button
+              type="button"
+              onClick={data !== 'ANDROID' ? onOpenFilePicker : undefined}
+              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+            >
+              <Paperclip className="text-white/80" />
+            </button>
+          </PopoverForAndroid>
 
           {FileInput}
 
