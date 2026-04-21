@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, ReactNode, useContext, useEffect, useState } from 'react'
 import { Callbacks, setCallbacks, setEventLog } from '~/clients'
-import { RegisterEventLog, useInitLocalMedia, useInitRoomInfo } from '~/hooks'
+import { RegisterEventLog, useInitLocalMedia, useInitRoomInfo, useRegisterEventLog } from '~/hooks'
 import { EventLogManager } from './EventLogManager'
 import { EventBusRequest } from '~/clients/event-log/core'
 import { getStatusConnected } from '@metanodejs/system-core'
@@ -29,7 +29,7 @@ export const CallProvider = ({
 }: CallProviderProps) => {
   const roomReady = useInitRoomInfo(search, meetingAddress)
   const mediaReady = useInitLocalMedia()
-  // const eventLogReady = useRegisterEventLog(registerEventLog, meetingAddress);
+  const eventLogReady = useRegisterEventLog(registerEventLog, meetingAddress)
   const [_ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export const CallProvider = ({
   return (
     <callContext.Provider value={{}}>
       {ready ? children : fallBack}
-      {ready && <EventLogManager />}
+      {ready && eventLogReady && <EventLogManager />}
     </callContext.Provider>
   )
 }

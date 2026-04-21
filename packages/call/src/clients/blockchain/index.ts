@@ -15,7 +15,7 @@ import {
 import { makePiority } from '../async-piority'
 
 function createBlockchainFactory() {
-  const transport = new ContractTransport(SystemCore.send)
+  const transport = new ContractTransport()
 
   const meetingClient = new ContractClient(transport, meetingAbi)
 

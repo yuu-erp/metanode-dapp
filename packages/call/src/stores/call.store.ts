@@ -1,3 +1,4 @@
+import { isCameraOn, isMicMuted } from '@metanodejs/system-core'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
 import { UserSource } from '~/@types'
@@ -17,6 +18,7 @@ export type CallActions = {
   reset: () => void
   toggleEnabled: (source: UserSource, value: boolean) => void
   toggleRequester: (user: string, value: boolean) => void
+  initEnable: () => void
 }
 
 export type CallStore = CallState & CallActions
@@ -39,6 +41,15 @@ export const callStore = create<CallStore>()(
     ...initialState,
     allowed: { ...defaultUserSourceState },
     enabled: { ...defaultUserSourceState },
+    initEnable: async () => {
+      const camOn = await isCameraOn()
+      const micMute = await isMicMuted()
+      set((s) => {
+        s.enabled.camera = camOn
+        s.enabled.microphone = micMute
+      })
+    },
+
     toggleRequester: (user, value) => {
       set((s) => {
         const exist = s.requesters.includes(user)
@@ -62,6 +73,7 @@ export const callStore = create<CallStore>()(
     },
 
     fetchPermission: async () => {
+      if (window.finSdk) return
       const [camera, microphone] = await Promise.all([
         navigator.permissions.query({ name: 'camera' }),
         navigator.permissions.query({ name: 'microphone' })

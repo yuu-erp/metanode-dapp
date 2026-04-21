@@ -27,7 +27,8 @@ export function useHandleRemoteTracks() {
       const streamKey = midToStreamKeys[mid]
       console.log('thanhduy - track 3', {
         streamKey,
-        midToStreamKeys
+        midToStreamKeys,
+        mid
       })
 
       if (!streamKey) return

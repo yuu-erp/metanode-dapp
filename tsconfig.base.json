@@ -14,6 +14,7 @@
       "@shared/otel": ["shared/otel/src"],
       "@shared/types": ["shared/types/src"],
       "@shared/http": ["shared/http/src"]
-    }
+    },
+    "ignoreDeprecations": "6.0"
   }
 }

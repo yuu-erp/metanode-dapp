@@ -1,3 +1,4 @@
+import { SystemCore } from '@metanodejs/system-core'
 import { configs } from './config'
 import type { AbiItem, CallInput, FeeType, SendSystemCore, TransactionInput } from './types'
 import { coerceBooleanStrings, generateInputArray, parseIfJson } from './utils'
@@ -5,7 +6,7 @@ import { coerceBooleanStrings, generateInputArray, parseIfJson } from './utils'
 export class ContractTransport {
   private hash = ''
 
-  constructor(private send: SendSystemCore) {}
+  constructor() {}
 
   get isWeb() {
     return typeof window !== 'undefined' && (window as any).finSdk
@@ -35,7 +36,7 @@ export class ContractTransport {
   }
 
   private async sendByNative(payload: any) {
-    const result = await this.send({
+    const result = await SystemCore.send({
       command: 'executeSmartContract',
       value: payload
     })
