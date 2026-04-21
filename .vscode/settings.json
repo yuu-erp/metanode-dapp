@@ -52,17 +52,5 @@
   "editor.fontSize": 14,
   "editor.lineHeight": 22,
   "editor.renderWhitespace": "all",
-  "liveServer.settings.port": 5503,
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "vscode.css-language-features"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "vscode.json-language-features"
-  }
+  "liveServer.settings.port": 5502
 }
