@@ -1,9 +1,0 @@
-{
-  "bankQrPayment": "Thanh toán qua QR Ngân hàng",
-  "qrExpiresIn": "QR sẽ hết hạn trong",
-  "topUpSuccess": "Nạp thành công!",
-  "ipRequired": "IP không được để trống",
-  "invalidIP": "IP không hợp lệ",
-  "confirmDeleteWorkstation": "Bạn muốn xoá máy trạm",
-  "deleteWorkstationPermanentlyWarning": "Hành động này sẽ xoá máy trạm này vĩnh viễn"
-}
