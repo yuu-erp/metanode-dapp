@@ -1,0 +1,39 @@
+import type { Message } from '@/modules/message'
+
+export type ConversationType = 'p2p' | 'group' | 'private'
+
+export interface Conversation {
+  // Identity
+  conversationId: string // primary key
+  conversationKey: string
+  accountId: string // ← Quan trọng: account/wallet hiện tại sở hữu conversation này
+  // UI display (snapshot)
+  name: string
+  avatar?: string
+  username: string
+  // Last message snapshot (cho hiển thị nhanh trong list)
+  lastMessage?: Message
+  // State
+  unreadCount?: number
+  conversationType: ConversationType
+  // Sync / sort
+  updatedAt: Date // nên dùng Date hoặc ISO string tùy bạn xử lý
+}
+
+export enum HistoryVisibility {
+  HIDDEN,
+  LAST_100,
+  VISIBLE
+}
+
+export interface PayloadCreateGroup {
+  name: string
+  avatar?: string
+  policy?: HistoryVisibility
+  members: PayloadAddMembers[]
+}
+
+export interface PayloadAddMembers {
+  publicKey: string
+  conversationId: string
+}

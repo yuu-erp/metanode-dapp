@@ -1,0 +1,65 @@
+{
+  "menu": {
+    "general": {
+      "title": "General",
+      "content": "Mode and languages"
+    },
+    "node": {
+      "title": "Node",
+      "content": "Node, network and notifications"
+    },
+    "sharedDapps": {
+      "title": "Shared D-Apps",
+      "content": "Total D-Apps"
+    },
+    "sharedWallets": {
+      "title": "Shared Wallets",
+      "content": "Total Wallets"
+    },
+    "wallpaper": {
+      "title": "Wallpaper",
+      "content": "Custom wallpaper"
+    },
+    "notification": {
+      "title": "Notification",
+      "content": "Custom notification"
+    },
+    "security": {
+      "title": "Security",
+      "content": "Face ID, Touch ID and Pincode"
+    },
+    "backupRestore": {
+      "title": "Backup & Restore",
+      "content": "Create backup file"
+    },
+    "meAI": {
+      "title": "Me AI",
+      "content": "AI & Search"
+    }
+  },
+  "settings": "Settings",
+  "manageProfile": "Manage profile",
+  "signedIn": "Signed in",
+  "chooseYourProfile": "Choose your profile",
+  "otherProfiles": "Other profiles",
+  "switchProfile": "Switch profiles",
+  "loginWithHiddenProfile": "Log in with hidden profile",
+  "label": {
+    "password": "Password",
+    "enterPassword": "Enter password",
+    "confirmPassword": "Confirm password",
+    "username": "Username",
+    "enterUsername": "Enter Username"
+  },
+  "btn": {
+    "login": "Login",
+    "loginContent": "Username, password",
+    "hide": "Hide",
+    "hideContent": "Hide Profile",
+    "unHide": "Unhide",
+    "unHideContent": "Unhide profile",
+    "delete": "Delete",
+    "deleteContent": "Delete profile",
+    "continue": "Continue"
+  }
+}

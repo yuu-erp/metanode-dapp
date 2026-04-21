@@ -24,7 +24,32 @@
 const config = {
   extends: ['@commitlint/config-conventional'],
   rules: {
+    'type-enum': [
+      2,
+      'always',
+      ['feat', 'fix', 'refactor', 'style', 'test', 'docs', 'chore', 'perf', 'ci', 'revert'],
+    ],
+    'scope-enum': [
+      2,
+      'always',
+      [
+        'launcher', // ✨ apps/launcher-cyber
+        'chat', // 💬 apps/chat
+        'first-login', // 🔑 apps/first-login
+        'setting', // ⚙️ apps/setting
+        'packages', // 📦 shared packages
+        'tooling', // 🔧 husky, eslint, tsconfig, etc.
+        'contracts', // 📜 smart contracts
+        'ui', // 🎨 shared UI components
+        'deps', // ⬆️  dependency updates
+        'ci', // 👷 CI/CD
+        'release', // 🚀 versioning & changelogs
+      ],
+    ],
+    'scope-empty': [1, 'never'], // warn if no scope
     'header-max-length': [2, 'always', 200],
+    'body-max-line-length': [2, 'always', 200],
+    'subject-full-stop': [0, 'never', '.'], // allow trailing period
   },
 }
 

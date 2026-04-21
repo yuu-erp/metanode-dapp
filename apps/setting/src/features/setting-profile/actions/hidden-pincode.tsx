@@ -1,0 +1,25 @@
+'use client'
+import * as React from 'react'
+import ItemSetting from '@/shared/components/item-setting'
+import { images } from '@/assets/images'
+import { ChevronRight } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+
+function HiddenPincode() {
+  const navigate = useNavigate()
+  return (
+    <ItemSetting
+      img={images.pincode}
+      title="Hidden Pincode"
+      isDivider
+      rightNode={
+        <div className="flex items-center gap-1 text-muted-foreground text-sm font-semibold">
+          <ChevronRight className="size-5" />
+        </div>
+      }
+      onClick={() => navigate({ to: '/' })}
+    />
+  )
+}
+
+export default React.memo(HiddenPincode)

@@ -1,0 +1,54 @@
+{
+  "btn": {
+    "importWallet": "Nhập ví hiện có",
+    "createWallet": "Tạo ví mới",
+    "connectWallet": "Kết nối ví"
+  },
+  "title": {
+    "connectMainWallet": "Kết nối <1>ví chính</1>"
+  },
+  "status": {
+    "connecting": "Đang kết nối…",
+    "updating": "Đang đồng bộ…",
+    "error": "Mất kết nối. Đang thử lại…"
+  },
+  "accountActivationNotice": {
+    "title": "Xác nhận kích hoạt tài khoản",
+    "description": "Việc kích hoạt tài khoản sẽ triển khai lại hợp đồng (contract) mới cho bạn. Do đó, toàn bộ dữ liệu hiện tại liên kết với contract cũ có thể không còn khả dụng.",
+    "warning": "Hành động này không thể hoàn tác.",
+    "note": "Vui lòng đảm bảo bạn đã sao lưu hoặc không còn dữ liệu quan trọng trước khi tiếp tục.",
+    "btn": {
+      "confirm": "Tôi hiểu và tiếp tục",
+      "cancel": "Huỷ",
+      "activateNow": "Kích hoạt ngay"
+    }
+  },
+  "conversationSearch": {
+    "placeholder": "Tìm kiếm cuộc trò chuyện..."
+  },
+  "drawer": {
+    "newMessage": "Tin nhắn mới",
+    "newGroup": "Nhóm mới",
+    "newContact": "Liên hệ mới",
+    "newChannel": "Kênh mới",
+    "groupInfo": "Thông tin nhóm",
+    "selectMembers": "{{count}} Đã chọn",
+    "groupName": "Tên nhóm",
+    "enterGroupName": "Nhập tên nhóm",
+    "members": "{{count}} thành viên"
+  },
+  "search": {
+    "addressOrUsername": "Tìm kiếm địa chỉ hoặc tên người dùng"
+  },
+  "pinnedMessage": "Tin nhắn được ghim",
+  "savedMessages": "Tin nhắn đã lưu",
+  "message": {
+    "type": {
+      "sticker": "[Nhãn dán]",
+      "file": "[Tệp]",
+      "voice": "[Tin nhắn thoại]",
+      "location": "[Vị trí]",
+      "photo": "[Hình ảnh]"
+    }
+  }
+}
