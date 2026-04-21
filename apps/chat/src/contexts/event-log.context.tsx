@@ -2,6 +2,7 @@
 
 import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
+import { pushNoti } from '@/modules/noti'
 import { useCurrentAccount } from '@/shared/hooks'
 import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
@@ -95,6 +96,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
         recipient: data.recipient,
         isMine: false
       })
+      console.log('message', message)
+      //@ts-ignore
+      pushNoti('Chat P2P', message.content)
       eventBus.emit('message.add', {
         conversationId: data.sender,
         conversationType: 'p2p',
@@ -126,6 +130,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       if (isMine) {
         eventBus.emit('message.send.bua', payload)
       } else {
+        //@ts-ignore
+        pushNoti('Chat Group', message.content)
         eventBus.emit('message.receive.bua', payload)
       }
     })
@@ -157,6 +163,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       if (isMine) {
         eventBus.emit('message.send.bua', payload)
       } else {
+        //@ts-ignore
+        pushNoti('Chat anonymous group', message.content)
         eventBus.emit('message.receive.bua', payload)
       }
     })

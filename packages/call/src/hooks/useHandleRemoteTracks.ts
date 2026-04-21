@@ -28,7 +28,8 @@ export function useHandleRemoteTracks() {
       console.log('thanhduy - track 3', {
         streamKey,
         midToStreamKeys,
-        mid
+        mid,
+        now: performance.now()
       })
 
       if (!streamKey) return

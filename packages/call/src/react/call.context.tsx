@@ -29,7 +29,6 @@ export const CallProvider = ({
 }: CallProviderProps) => {
   const roomReady = useInitRoomInfo(search, meetingAddress)
   const mediaReady = useInitLocalMedia()
-  const eventLogReady = useRegisterEventLog(registerEventLog, meetingAddress)
   const [_ready, setReady] = useState(false)
 
   useEffect(() => {
@@ -43,7 +42,7 @@ export const CallProvider = ({
   return (
     <callContext.Provider value={{}}>
       {ready ? children : fallBack}
-      {ready && eventLogReady && <EventLogManager />}
+      {ready && <EventLogManager />}
     </callContext.Provider>
   )
 }
