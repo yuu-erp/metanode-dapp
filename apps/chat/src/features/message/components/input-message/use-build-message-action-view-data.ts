@@ -1,13 +1,9 @@
 'use client'
 
-import { useMemo } from 'react'
-import { useGetUserProfile } from '@/shared/hooks/accounts'
 import type { MessageAction } from '@/modules/message'
-import {
-  useCurrentConversationType,
-  useGetConversationByAddress,
-  useGetConversationIdByAddress
-} from '@/shared/hooks'
+import { useCurrentConversationType, useGetConversationIdByAddress } from '@/shared/hooks'
+import { useGetUserProfile } from '@/shared/hooks/accounts'
+import { useMemo } from 'react'
 
 interface MessageActionViewData {
   title: string

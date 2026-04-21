@@ -106,12 +106,13 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
       },
 
       onSave: () => {
-        console.log('thanhduy - onSave 1', message)
         if (message.type !== 'file' || !message.fileId) return
-        console.log('thanhduy - onSave 2')
-
-        const mimeType = message.mimeType || 'application/octet-stream'
-        downloadFile(message.id, message.fileId, message.fileName || 'file', mimeType, true)
+        console.log('thanhduy on save')
+        // const mimeType = message.mimeType || 'application/octet-stream'
+        // downloadFile(message.id, message.fileId, message.fileName || 'file', mimeType, true)
+        container.eventBus.emit('file.download', {
+          messageId: message.id
+        })
 
         handleClose()
       },

@@ -1,11 +1,33 @@
-import { setOfferSDP } from '@metanodejs/system-core'
+import { sendCommand } from '@metanodejs/system-core'
 import { onFatal } from '~/clients'
 import { ICE_SERVERS } from '~/configs'
 import { rtcStore } from '~/stores'
 
-export async function createAnswer(sdpOffer: string) {
+export type CreateAnswerMetadata = {
+  sourceUser?: string
+  eventType?: string
+  sessionId?: string
+  tracks?: Array<{
+    location?: string
+    mid: string
+    trackName: string
+    streamNumber?: number
+    isPublished?: boolean
+    roomId?: string
+    source?: string
+    streamKey?: string
+  }>
+}
+
+export async function createAnswer(sdpOffer: string, metadata: CreateAnswerMetadata = {}) {
   if (!window.finSdk) {
-    return await setOfferSDP(sdpOffer, ICE_SERVERS)
+    return (
+      await sendCommand('setOfferSDP', {
+        sdp: sdpOffer,
+        iceServers: ICE_SERVERS,
+        ...metadata
+      })
+    )?.sdp
   }
 
   const { pc } = rtcStore.getState()

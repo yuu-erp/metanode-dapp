@@ -505,8 +505,13 @@ export class MessageService {
       for (const file of files) {
         const clientId = uuidv4()
         const arrayBuffer = await file.arrayBuffer()
-        const buffer = Array.from(new Uint8Array(arrayBuffer))
+        console.log('thanhduy - arrayBuffer', arrayBuffer)
+        const _buffer = new Uint8Array(arrayBuffer)
+        console.log('thanhduy - _buffer', _buffer)
+        const buffer = Array.from(_buffer)
+        console.log('thanhduy - buffer', buffer)
         const { hash } = await createHashWithBuffer({ buffer })
+        console.log('thanhduy - hash', hash)
         const timestamp = Date.now()
         const sanitizedFileName = file.name
           .split('.')
@@ -710,15 +715,14 @@ export class MessageService {
     fileName: string,
     mimeType: string,
     onProgress?: (percent: number) => void,
-    skipCache = false,
     chunkLimit = 500,
-    concurrency = 10
+    concurrency = 4
   ): Promise<void> {
     try {
       // 0. Check cache
       const cachedFile = await this.fileCacheService.getFile(fileKey)
 
-      if (cachedFile && !skipCache) {
+      if (cachedFile) {
         let path = cachedFile.filePath
 
         if (!path) {
@@ -736,13 +740,18 @@ export class MessageService {
             fileKey,
             filePath: URL.createObjectURL(cachedFile.blob)
           })
+        } else {
+          await createPathFromBlob(cachedFile.blob, fileName)
         }
 
-        await share({ type: 'file', path, title: fileName })
+        if (!window?.finSdk) {
+          await share({ type: 'file', path, title: fileName })
+        }
         return
       }
-
+      console.log('thanhduy - download 1', performance.now())
       // 1. Get file info
+      //@ts-ignore
       const { infos } = await this.fileContract.getFilesInfo({
         from: account.address,
         inputData: { fileKeys: [fileKey] }
@@ -797,6 +806,7 @@ export class MessageService {
       const executing = new Set<Promise<void>>()
 
       for (const task of tasks) {
+        //@ts-ignore
         const p = task().then(() => executing.delete(p))
         executing.add(p)
 
@@ -819,6 +829,7 @@ export class MessageService {
 
       const blob = new Blob([combinedBuffer], { type: mimeType })
       const path = await createPathFromBlob(blob, fileName)
+      console.log('thanhduy - download 2', performance.now())
 
       // 6. Cache full file
       try {

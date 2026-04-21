@@ -6,7 +6,7 @@ export type GroupMemberNameProps = {
 }
 export const GroupMemberName = memo(({ sender }: GroupMemberNameProps) => {
   const type = useCurrentConversationType()
-  const user = useGetConversationByAddress(sender, 'p2p')
+  const user = useGetConversationByAddress(sender, 'p2p', true, false)
 
   return <div className="text-xs font-bold">{type === 'anonymous_group' ? sender : user?.name}</div>
 })

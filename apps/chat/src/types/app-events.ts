@@ -163,4 +163,7 @@ export type AppEvents = {
     address: string
     hiddenAddress: string
   }
+  'file.download': {
+    messageId: string
+  }
 }

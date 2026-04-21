@@ -52,18 +52,20 @@ function RouteComponent() {
             (await getUserByAddress(myAddress, user)).name
           }
         >
-          <div className="size-full overflow-hidden flex flex-col p-1">
-            <div className="flex items-center gap-3 justify-end p-3">
-              <RaiseHandUsers />
-              <JoinRequest />
-              <MembersInCall />
-            </div>
-            <div className="flex-1 w-full overflow-hidden ">
-              {isMeet ? <CallGroup /> : <Call1v1 />}
-            </div>
+          {window.finSdk ? (
+            <div className="size-full overflow-hidden flex flex-col p-1">
+              <div className="flex items-center gap-3 justify-end p-3">
+                <RaiseHandUsers />
+                <JoinRequest />
+                <MembersInCall />
+              </div>
+              <div className="flex-1 w-full overflow-hidden ">
+                {isMeet ? <CallGroup /> : <Call1v1 />}
+              </div>
 
-            {/* <MyDebug /> */}
-          </div>
+              {/* <MyDebug /> */}
+            </div>
+          ) : null}
         </CallProvider>
       </div>
       <CallLoading />

@@ -296,13 +296,16 @@ export class ConversationService {
   async getConversationById(
     account: Account | undefined = undefined,
     conversationId: string,
-    conversationType: ConversationType
+    conversationType: ConversationType,
+    useDb = true
   ): Promise<Conversation | undefined> {
     if (!account) return
 
     const { address: accountId, hiddenAddress } = account
-    const conversationLocal = await this.repository.getById(accountId, conversationId)
-    if (conversationLocal) return conversationLocal
+    if (useDb) {
+      const conversationLocal = await this.repository.getById(accountId, conversationId)
+      if (conversationLocal) return conversationLocal
+    }
 
     let conversation
 
@@ -354,7 +357,9 @@ export class ConversationService {
 
     if (!conversation) throw new Error('[getConversationById]: Invalid conversation')
 
-    await this.repository.upsert(conversation)
+    if (useDb) {
+      await this.repository.upsert(conversation)
+    }
     return conversation
   }
 

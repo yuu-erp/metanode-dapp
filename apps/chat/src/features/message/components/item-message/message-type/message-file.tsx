@@ -3,23 +3,24 @@ import type { Message } from '@/modules/message'
 import { File, Download, Loader2 } from 'lucide-react'
 import { cn } from '@/shared/lib'
 import { useDownloadFile } from '@/features/message/hooks/use-download-file'
+import { useEventBus } from '@/shared/hooks/use-eventbus'
 
 type Props = {
   message: Extract<Message, { type: 'file' }>
   isMine?: boolean
+  isOverlay?: boolean
 }
 
-function MessageFile({ message, isMine }: Props) {
+function MessageFile({ message, isMine, isOverlay }: Props) {
   const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
 
-  const isDownloadingThis = isDownloading && downloadedFileId === (message.fileId || message.id)
+  console.log('thanhduy render comp', message)
 
+  const isDownloadingThis = isDownloading && downloadedFileId === (message.fileId || message.id)
   const handleDownload = React.useCallback(
-    async (e: React.MouseEvent) => {
-      e.stopPropagation()
-      console.log('thanhduy - handle download file', message)
+    async (e?: React.MouseEvent) => {
+      e?.stopPropagation()
       if (message.filePath) {
-        console.log('thanhduy - case 1')
         window.open(message.filePath, '_blank')
         return
       }
@@ -53,6 +54,20 @@ function MessageFile({ message, isMine }: Props) {
     // Otherwise assume base64 and prepend prefix
     return `data:${message.mimeType};base64,${raw}`
   }, [message.filePath, message.mimeType])
+
+  useEventBus('file.download', async (e) => {
+    if (isOverlay) return
+    if (e.messageId !== message.id) {
+      console.log('thanhduy - file.download 1.1', { e, message })
+      return
+    } else {
+      console.log('thanhduy - file.download 1.2', { e, message })
+    }
+    const fileId = message.fileId || message.id
+    if (!fileId) return
+    console.log('thanhduy - file.download 2')
+    await downloadFile(fileId, fileId, message.fileName, message.mimeType)
+  })
 
   if ((isImage || isVideo) && mediaSrc) {
     return (

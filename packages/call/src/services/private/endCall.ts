@@ -26,7 +26,7 @@ export async function enCallAndCloseView() {
     onLogError(error)
   } finally {
     if (window.finSdk) {
-      if (location.hash === '#/call') {
+      if (location.hash.startsWith('#/call')) {
         getCallback('onEndCall')()
       }
     } else {

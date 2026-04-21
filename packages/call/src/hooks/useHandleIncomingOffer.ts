@@ -23,22 +23,28 @@ export function useHandleIncomingOffer() {
       //handle track
       const grouped: Record<string, string[]> = {}
       console.log('thanhduy - incoming offer', data.tracks)
-      data.tracks.forEach((t, i) => {
-        const source: StreamSource = i < 2 ? 'user' : 'display'
+      const tracksForNative = data.tracks.map((track, index) => {
+        const source: StreamSource = index < 2 ? 'user' : 'display'
         const streamKey = toStreamKey(user, source)
 
-        ;(grouped[streamKey] ||= []).push(t.mid)
-        console.log('thanhduy - setMidToStreamKey', { mid: t.mid, streamKey })
-        mediaActions.setMidToStreamKey(t.mid, streamKey)
+        return {
+          ...track,
+          source,
+          streamKey
+        }
       })
 
       Object.entries(grouped).forEach(([streamKey, mids]) => {
         mediaActions.setStreamMids(streamKey, mids)
       })
       //xu li backend
-      console.log('thanhduy - sdpString', sdpString)
       const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
-      const sdpAnswer = await createAnswer(offer.sdp!)
+      const sdpAnswer = await createAnswer(offer.sdp!, {
+        sourceUser: user,
+        eventType: e.eventType,
+        sessionId: data.sessionId,
+        tracks: tracksForNative
+      })
       await emitSetAnswer(sdpAnswer)
     },
     (e) =>

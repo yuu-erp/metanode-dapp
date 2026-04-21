@@ -24,11 +24,12 @@ export function useGetConversationIdByAddress(user: string, enable?: boolean) {
 export function useGetConversationByAddress(
   address: string,
   type: ConversationType,
-  enabled = true
+  enabled = true,
+  useDb?: boolean
 ) {
   const contractAddress = useGetConversationIdByAddress(address, enabled)
 
-  const { data } = useGetConversationId(contractAddress ?? '', type)
+  const { data } = useGetConversationId(contractAddress ?? '', type, useDb)
 
   return data
 }

@@ -7,10 +7,12 @@ export function useEventBus<K extends keyof AppEvents>(name: K, cb: (e: AppEvent
 
   cbRef.current = cb
 
-  return useEffect(() => {
-    const cb = cbRef.current
+  useEffect(() => {
+    const handler = (e: AppEvents[K]) => {
+      cbRef.current(e)
+    }
 
-    container.eventBus.on(name, cb)
-    return () => container.eventBus.off(name, cb)
-  }, [])
+    container.eventBus.on(name, handler)
+    return () => container.eventBus.off(name, handler)
+  }, [name])
 }

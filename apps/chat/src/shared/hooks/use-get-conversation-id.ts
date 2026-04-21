@@ -8,7 +8,8 @@ import { ACCOUNT_QUERY_KEY, CONVERSATION_QUERY_KEY, queryClient } from '../lib/r
 
 export function createGetConversationIdQueryOptions(
   conversationId: string,
-  conversationType: ConversationType
+  conversationType: ConversationType,
+  useDb?: boolean
 ): UseQueryOptions<
   Conversation | null,
   Error,
@@ -28,7 +29,8 @@ export function createGetConversationIdQueryOptions(
       const conversation = await conversationService.getConversationById(
         currentAccount,
         conversationId,
-        conversationType
+        conversationType,
+        useDb
       )
 
       if (!conversation) return null
@@ -38,6 +40,10 @@ export function createGetConversationIdQueryOptions(
   }
 }
 
-export function useGetConversationId(conversationId: string, conversationType: ConversationType) {
-  return useQuery(createGetConversationIdQueryOptions(conversationId, conversationType))
+export function useGetConversationId(
+  conversationId: string,
+  conversationType: ConversationType,
+  useDb?: boolean
+) {
+  return useQuery(createGetConversationIdQueryOptions(conversationId, conversationType, useDb))
 }

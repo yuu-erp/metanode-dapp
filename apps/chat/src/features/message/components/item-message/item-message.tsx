@@ -47,25 +47,31 @@ function useMessageLogic(
 
 // --- Specialized Wrappers ---
 
-const FileItemMessage = React.memo((props: MessageItemProps<Message>) => {
-  const { message, isMine, onSelectMessage } = props
-  const logic = useMessageLogic(message, isMine, onSelectMessage)
+const FileItemMessage = React.memo(
+  (
+    props: MessageItemProps<Message> & {
+      isOverlay?: boolean
+    }
+  ) => {
+    const { message, isMine, onSelectMessage } = props
+    const logic = useMessageLogic(message, isMine, onSelectMessage)
 
-  const isImage = React.useMemo(() => {
-    if (message.type !== 'file') return false
-    if (!message.mimeType.startsWith('image/')) return false
-    // use cachedFile (async) or filePath (sync) to determing if image styling applies
-    return !!message.filePath
-  }, [message])
+    const isImage = React.useMemo(() => {
+      if (message.type !== 'file') return false
+      if (!message.mimeType.startsWith('image/')) return false
+      // use cachedFile (async) or filePath (sync) to determing if image styling applies
+      return !!message.filePath
+    }, [message])
 
-  const isVideo = React.useMemo(() => {
-    if (message.type !== 'file') return false
-    if (!message.mimeType.startsWith('video/')) return false
-    return !!message.filePath
-  }, [message])
+    const isVideo = React.useMemo(() => {
+      if (message.type !== 'file') return false
+      if (!message.mimeType.startsWith('video/')) return false
+      return !!message.filePath
+    }, [message])
 
-  return <ItemMessageUI {...props} {...logic} isImage={isImage} isVideo={isVideo} />
-})
+    return <ItemMessageUI {...props} {...logic} isImage={isImage} isVideo={isVideo} />
+  }
+)
 
 const StandardItemMessage = React.memo((props: MessageItemProps<Message>) => {
   const { message, isMine, onSelectMessage } = props
@@ -77,7 +83,11 @@ const StandardItemMessage = React.memo((props: MessageItemProps<Message>) => {
 
 // --- Main Component ---
 
-function ItemMessage(props: MessageItemProps<Message>) {
+function ItemMessage(
+  props: MessageItemProps<Message> & {
+    isOverlay?: boolean
+  }
+) {
   if (props.message.type === 'file') {
     return <FileItemMessage {...props} />
   }

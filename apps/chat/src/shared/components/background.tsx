@@ -1,8 +1,12 @@
 'use client'
 import { images } from '@/assets/images'
+import { useLocation } from '@tanstack/react-router'
 import * as React from 'react'
 
 function Background() {
+  const { pathname } = useLocation()
+  if (pathname === '/call') return null
+
   return (
     <div className="fixed inset-0 -z-[1] bg-black">
       <img

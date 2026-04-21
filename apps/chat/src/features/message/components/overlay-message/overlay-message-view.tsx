@@ -88,6 +88,7 @@ function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewPr
                   layoutId={`message-${message.id ?? message.clientId}`}
                   message={message}
                   isMine={isMine}
+                  isOverlay={true}
                 />
               </div>
             </DropdownMenuTrigger>
