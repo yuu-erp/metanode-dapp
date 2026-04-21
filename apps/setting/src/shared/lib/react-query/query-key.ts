@@ -1,6 +1,0 @@
-export const QUERY_KEY = {
-  GET_ALL_PROFILE: ['GET_ALL_PROFILE'],
-  GET_MY_SETTING: ['GET_MY_SETTING'],
-  GET_CURRENT_PROFILE: ['GET_CURRENT_PROFILE'],
-  GET_DAPP_TO_SHARE: ['getDappToShare']
-} as const
