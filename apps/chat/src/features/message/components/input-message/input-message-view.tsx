@@ -89,7 +89,11 @@ function InputMessageView(props: InputMessageViewProps) {
   }
 
   async function handleSelectFile() {
-    setFileData([await sendCommand('get-file', {})])
+    console.log('select file 1', performance.now())
+    const file = await sendCommand('get-file', {})
+    console.log('select file 2', performance.now())
+
+    setFileData([file])
   }
 
   return (
@@ -135,6 +139,7 @@ function InputMessageView(props: InputMessageViewProps) {
             <button
               type="button"
               onClick={!data ? onOpenFilePicker : undefined}
+              // onClick={onOpenFilePicker}
               className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
             >
               <Paperclip className="text-white/80" />
@@ -226,7 +231,7 @@ function InputMessageView(props: InputMessageViewProps) {
                     <StickerIcon className="text-white/80" />
                   </button>
 
-                  {message.trim() || files.length > 0 ? (
+                  {message.trim() || files.length > 0 || fileData.length > 0 ? (
                     <button
                       disabled={isPending}
                       onClick={onSend}
@@ -241,7 +246,7 @@ function InputMessageView(props: InputMessageViewProps) {
           </div>
 
           {/* Mic */}
-          {!message.trim() && files.length === 0 && (
+          {!message.trim() && files.length === 0 && fileData.length === 0 && (
             <button className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80">
               <Mic className="text-white/80" />
             </button>

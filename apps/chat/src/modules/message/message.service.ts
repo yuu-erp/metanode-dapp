@@ -34,6 +34,7 @@ import { createOptimisticMessage } from './message.entity'
 import { MessageExtend } from './message.extend'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
+import { getFileInfo, normalizePath } from '@/shared/lib'
 
 export class MessageService {
   constructor(
@@ -496,8 +497,12 @@ export class MessageService {
     })
   }
 
-  async sendFile(account: Account, conversation: Conversation, files: File[]): Promise<void> {
+  async sendFile(account: Account, conversation: Conversation, files: any[]): Promise<void> {
     try {
+      console.log('thanhduy - sendFile 1', files)
+      if (!files.length) throw new Error('Invalid files length')
+      console.log('thanhduy - sendFile 2')
+
       const fileInfos: PushFileInfosParams['infos'] = []
       const fileNames: string[] = []
       const preparedMessages: {
@@ -506,19 +511,18 @@ export class MessageService {
       }[] = []
 
       for (const file of files) {
-        console.log('sendFile - 1')
         const clientId = uuidv4()
+        const info = getFileInfo(file)
 
         const payload: SendPayload = {
           type: 'file',
           fileId: '', // Placeholder, will be updated after upload
-          fileName: file.name,
-          mimeType: file.type,
-          size: file.size,
+          fileName: info.name,
+          mimeType: info.ext,
+          size: info.size,
           filePath: '',
           file
         }
-        console.log('sendFile - 2')
 
         const optimisticMessage = createOptimisticMessage(
           {
@@ -531,7 +535,7 @@ export class MessageService {
           },
           {
             ...payload,
-            filePath: URL.createObjectURL(file)
+            filePath: file?.path ?? URL.createObjectURL(file)
           }
         )
         console.log('sendFile - 3', optimisticMessage)
@@ -544,37 +548,42 @@ export class MessageService {
           conversationType: conversation.conversationType
         })
 
+        console.log('thanhduy file', file)
+
         let hash: any
-        const arrayBuffer = await file.arrayBuffer()
-        const _buffer = new Uint8Array(arrayBuffer)
+        if (file instanceof File) {
+          const arrayBuffer = await file.arrayBuffer()
+          const _buffer = new Uint8Array(arrayBuffer)
 
-        const buffer = Array.from(_buffer)
+          const buffer = Array.from(_buffer)
 
-        hash = (await createHashWithBuffer({ buffer })).hash
-        // if (window?.finSdk) {
-        //   hash = await computeFileHash(file)
-        // } else {
+          hash = (await createHashWithBuffer({ buffer })).hash
+        } else {
+          const path = normalizePath(file.path)
+          if (!path) throw new Error('[messaeg.service][sendFile][Invalid path]')
+          console.log('thanhduy - hash 1', path)
 
-        // }
+          hash = (await sendCommand('createHashFromFile', { path })).hash
+        }
 
         const timestamp = Date.now()
-        const sanitizedFileName = file.name
+        const sanitizedFileName = info.name
           .split('.')
           .slice(0, -1)
           .join('.')
           .replace(/\s+/g, '_')
           .replace(/[^\w\-_.]/g, '')
-        const fileNameWithTimestamp = `${sanitizedFileName}_${timestamp}.${file.name.split('.').pop() || ''}`
+        const fileNameWithTimestamp = `${sanitizedFileName}_${timestamp}.${info.name.split('.').pop() || ''}`
 
         fileNames.push(fileNameWithTimestamp)
         fileInfos.push({
           owner: account.address,
           hash: '0x' + hash,
-          contentLen: file.size,
+          contentLen: info.size,
           totalChunks: Math.ceil(file.size / 1024),
           expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year
           name: fileNameWithTimestamp,
-          ext: file.name.split('.').pop() || '',
+          ext: info.name.split('.').pop() || '',
           status: 0,
           contentDisposition: '',
           contentID: ''

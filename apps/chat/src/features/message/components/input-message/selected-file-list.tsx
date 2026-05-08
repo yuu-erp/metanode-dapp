@@ -77,18 +77,21 @@ export function SelectedFileList({
 
 const FileDataItem = ({ fileData, onRemove }: { fileData: any; onRemove: () => any }) => {
   const preview = fileData.path?.startsWith('image://img.m.pro')
-  console.log('thanhduy - fileData', fileData)
-  console.log('thanhduy - fileData 2', preview)
+  const { path = '', name = '', size = 0 } = fileData
 
   return (
     <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 group">
       <div className="flex items-center justify-center size-12 rounded-xl bg-white/10 shrink-0 overflow-hidden">
-        <FileIcon className="size-4 text-white/80" />
+        {preview ? (
+          <img src={path} alt={'image'} className="size-full object-cover" />
+        ) : (
+          <FileIcon className="size-4 text-white/80" />
+        )}
       </div>
 
       <div className="flex-1 min-w-0 flex flex-col justify-center">
-        {/* <p className="text-sm font-medium text-white/90 truncate">{file.name}</p> */}
-        {/* <p className="text-xs text-white/50">{formatBytes(file.size)}</p> */}
+        {!!name && <p className="text-sm font-medium text-white/90 truncate">{name}</p>}
+        {!!size && <p className="text-xs text-white/50">{formatBytes(+size)}</p>}
       </div>
 
       <button

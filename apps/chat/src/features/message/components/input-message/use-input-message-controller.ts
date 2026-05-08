@@ -46,7 +46,6 @@ export function useInputMessageController({
 
   const attachment = useAttachmentPicker({
     onSelect: (newFiles) => {
-      console.log('thanhduy - onSelect', newFiles)
       setFiles((prev) => {
         // const totalSize = [...prev, ...newFiles].reduce((acc, file) => acc + file.size, 0)
         // // if (totalSize > 10 * 1024 * 1024) {
@@ -75,20 +74,20 @@ export function useInputMessageController({
   }, [])
 
   const handleSendFile = React.useCallback(() => {
-    if (!account || !conversation || !files.length) return
-
-    sendFile({ account, conversation, files })
+    if (!account || !conversation || (!files.length && !fileData.length)) return
+    const _files = fileData.length ? fileData : files
+    sendFile({ account, conversation, files: _files })
     setFiles([])
-  }, [account, conversation, files, sendFile])
+  }, [account, conversation, files, sendFile, fileData])
 
   const handleSend = React.useCallback(() => {
-    if (files.length > 0) {
+    if (files.length > 0 || fileData.length > 0) {
       handleSendFile()
     }
     if (composer.message.trim()) {
       composer.sendText()
     }
-  }, [files.length, handleSendFile, composer.message, composer.sendText])
+  }, [files.length, handleSendFile, composer.message, composer.sendText, fileData.length])
 
   return {
     // State & Refs

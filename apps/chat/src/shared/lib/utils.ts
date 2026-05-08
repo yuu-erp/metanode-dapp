@@ -178,3 +178,39 @@ export function buildRawValue(display: string, mentions: Mention[]) {
 
   return raw
 }
+
+export function getFileInfo(input: any | File) {
+  if (input instanceof File) {
+    return {
+      name: input.name,
+      size: input.size,
+      ext: input.type
+    }
+  }
+  const path = input.path
+  if (!path) throw new Error('Get file info: Invalid Path')
+  // Lấy phần cuối cùng sau dấu "/"
+  const fileName = path.split('/').pop() || ''
+
+  // Tìm vị trí dấu "." cuối cùng
+  const lastDotIndex = fileName.lastIndexOf('.')
+
+  // Không có đuôi file
+  if (lastDotIndex === -1) {
+    return {
+      name: fileName,
+      ext: '',
+      size: 0
+    }
+  }
+
+  return {
+    name: fileName.slice(0, lastDotIndex),
+    ext: fileName.slice(lastDotIndex + 1),
+    size: 0
+  }
+}
+
+export function normalizePath(path: string) {
+  return path.startsWith('image://img.m.pro') ? path.replace('image://img.m.pro', '') : path
+}
