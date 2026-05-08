@@ -63,6 +63,13 @@ export function createOptimisticMessage(
         longitude: payload.longitude,
         ...(payload.address !== undefined && { address: payload.address })
       } satisfies Message
+
+    case 'system':
+      return {
+        ...common,
+        type: 'system',
+        eventName: payload.eventName
+      } satisfies Message
   }
 }
 
@@ -110,6 +117,13 @@ export function createReplyReference(message: PersistedMessage): ReplyReference 
         latitude: message.latitude,
         longitude: message.longitude,
         address: message.address
+      }
+
+    case 'system':
+      return {
+        ...common,
+        type: 'system',
+        eventName: message.eventName
       }
   }
 }
@@ -163,6 +177,13 @@ export function createForwardPayload(message: PersistedMessage) {
         latitude: message.latitude,
         longitude: message.longitude,
         address: message.address
+      }
+
+    case 'system':
+      return {
+        ...common,
+        type: 'system',
+        eventName: message.eventName
       }
 
     default: {

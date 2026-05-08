@@ -132,7 +132,9 @@ function NewGroup({
           </button>
           <div className="flex flex-col items-center">
             <Drawer.Title className="text-gray-100 font-semibold text-lg">
-              {t('drawer.newGroup', { defaultValue: 'New Group' })}
+              {type === 'group'
+                ? t('drawer.newGroup', { defaultValue: 'New Group' })
+                : t('drawer.newAnonymousGroup', { defaultValue: 'New Anonymous Group' })}
             </Drawer.Title>
             <span className="text-gray-400 text-sm">
               {screenType === ScreenGroupType.GROUP_INFO

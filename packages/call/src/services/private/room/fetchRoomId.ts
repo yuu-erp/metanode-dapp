@@ -16,13 +16,10 @@ export async function fetchRoomId() {
     isLockRoom: callee === '0x',
     owner: address
   })
-  console.log('thanhduy - fetchRoomId 5')
 
   const _roomId = (await promise).roomId
-  console.log('thanhduy - fetchRoomId 6')
 
   roomStore.setState({ roomId: _roomId })
-  console.log('thanhduy - fetchRoomId 7')
 
   return _roomId
 }

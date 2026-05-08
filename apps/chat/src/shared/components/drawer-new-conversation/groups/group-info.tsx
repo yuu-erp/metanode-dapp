@@ -18,7 +18,7 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
     <React.Fragment>
       <div className="flex flex-col items-center pt-8 gap-6">
         {/* Avatar Upload Placeholder */}
-        <div className="size-24 rounded-full bg-blue-500/20 text-blue-500 flex items-center justify-center border-2 border-dashed border-blue-500/50 cursor-pointer hover:bg-blue-500/30 transition">
+        <div className="size-24 rounded-full bg-blue-500/20 text-[#3b82f6] flex items-center justify-center border-2 border-dashed border-blue-500/50 cursor-pointer hover:bg-blue-500/30 transition">
           <span className="text-2xl font-bold">
             {groupName ? groupName.charAt(0).toUpperCase() : '?'}
           </span>

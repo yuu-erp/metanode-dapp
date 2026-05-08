@@ -61,6 +61,7 @@ export class FactoryContract extends MtnContract {
 
   createGroup(payload: TransactionPayload<CreateGroupInput>): Promise<void> {
     const { from, inputData } = payload
+    console.log('thanhduy - factoryAbi.createGroup', factoryAbi.createGroup)
     return this.sendTransaction({
       from,
       inputData,
@@ -80,6 +81,27 @@ export class FactoryContract extends MtnContract {
       functionName: 'createAnonymousCommunity',
       feeType: 'sc',
       abiData: factoryAbi.createAnonymousCommunity
+    })
+  }
+  deleteGroup(payload: TransactionPayload<{ groupId: string }>): Promise<void> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'deleteGroup',
+      feeType: 'sc',
+      abiData: factoryAbi.deleteGroup
+    })
+  }
+
+  deleteAnonymousCommunity(payload: TransactionPayload<{ groupToDelete: string }>): Promise<void> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'deleteAnonymousCommunity',
+      feeType: 'sc',
+      abiData: factoryAbi.deleteAnonymousCommunity
     })
   }
 }

@@ -129,8 +129,8 @@ export function useLongPress({
     onTouchStart: start,
     onTouchEnd: end,
     onTouchCancel: cancel,
-    onTouchMove: move,
-    onContextMenu: (e: React.MouseEvent) => e.preventDefault()
+    onTouchMove: move
+    // onContextMenu: (e: React.MouseEvent) => e.preventDefault()
   }
 
   return {

@@ -7,6 +7,7 @@ import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar'
 import { createCurrentAccountQueryOptions, useTitleNotification } from '@/shared/hooks'
 import { useForcedLogout, useRegisterEventLog, useReloadOnNative } from '@/shared/hooks/accounts'
+import { useSyncContractsAddressess } from '@/shared/hooks/accounts/use-sync-contracts-addressess'
 import { queryClient } from '@/shared/lib/react-query'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
 
@@ -36,6 +37,7 @@ function RouteComponent() {
   useForcedLogout()
   useRegisterEventLog()
   useReloadOnNative()
+  useSyncContractsAddressess()
 
   return (
     <ConversationsProvider>

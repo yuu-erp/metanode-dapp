@@ -1,5 +1,6 @@
 'use client'
 import type { ReplyReference } from '@/modules/message'
+import { useScrollToMessageItem } from '@/shared/hooks/use-scroll-to-message-item'
 import { cn } from '@/shared/lib'
 import * as React from 'react'
 import ReplyMessageFile from './reply-message-file'
@@ -13,6 +14,8 @@ interface ReplyMessageViewProps {
 }
 
 function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: ReplyMessageViewProps) {
+  const scrollTo = useScrollToMessageItem(replyTo.messageId)
+
   const replyPreview = React.useMemo(() => {
     switch (replyTo.type) {
       case 'text':
@@ -34,15 +37,7 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
         'min-h-12 flex items-center gap-2 text-white rounded-md relative mb-1 py-1',
         isMine ? 'bg-blue-700' : 'bg-blue-200'
       )}
-      onClick={() => {
-        const el = document.querySelector(`[message-id="${replyTo.messageId}"]`)
-        if (!el) return
-
-        el.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        })
-      }}
+      onClick={scrollTo}
     >
       <span className="h-full w-[3px] rounded-l-md bg-blue-500 absolute left-0" />
 
@@ -51,7 +46,7 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
           <div
             className={cn(
               'text-sm font-semibold line-clamp-1',
-              isMine ? 'text-blue-400' : 'text-blue-500'
+              isMine ? 'text-blue-400' : 'text-[#3b82f6]'
             )}
           >
             Reply to {replyToUser}

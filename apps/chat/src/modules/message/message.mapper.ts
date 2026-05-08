@@ -35,6 +35,7 @@ type RawMessageSource = Record<string, unknown> & {
   accountId?: string
   status?: MessageStatus
   account?: Account
+  eventName?: string
 }
 
 /**
@@ -47,9 +48,14 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   }
 
   const rawType = String(raw.type ?? 'text').toLowerCase()
-  const messageType: MessageType = ['text', 'sticker', 'file', 'voice', 'location'].includes(
-    rawType
-  )
+  const messageType: MessageType = [
+    'text',
+    'sticker',
+    'file',
+    'voice',
+    'location',
+    'system'
+  ].includes(rawType)
     ? (rawType as MessageType)
     : 'text'
   const reactions =
@@ -148,6 +154,10 @@ export function mapperToMessage(raw: RawMessageSource): Message {
           (typeof raw.value === 'object' && raw.value ? (raw.value as any).address : undefined)
       }
     }
+    case 'system': {
+      return { ...base, type: 'system', eventName: raw.eventName || ('' as any) }
+    }
+
     // @ts-ignore // BACKUP CHO CHAT CỦ
     case 'TEXT': {
       const content = String(
@@ -230,6 +240,12 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
         latitude: message.latitude,
         longitude: message.longitude,
         ...(message.address !== undefined && { address: message.address })
+      } as OnChainMessagePayload
+    case 'system':
+      return {
+        ...base,
+        type: 'system',
+        eventName: message.eventName
       } as OnChainMessagePayload
   }
 }

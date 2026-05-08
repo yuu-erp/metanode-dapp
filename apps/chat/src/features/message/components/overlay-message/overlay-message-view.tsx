@@ -13,6 +13,7 @@ import * as React from 'react'
 import { CopyAction, DeleteAction, EditAction, ForwardAction, ReplyAction, SaveAction } from '.'
 import { ItemMessage } from '../item-message'
 import type { OverlayMessageHandlers } from './overlay-message.types'
+import PinAction from './pin.action'
 
 interface OverlayMessageViewProps {
   message: Message
@@ -23,7 +24,7 @@ interface OverlayMessageViewProps {
 
 const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰']
 
-function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewProps) {
+function OverlayMessageView({ message, onClose, handlers, isPinned }: OverlayMessageViewProps) {
   const backdropRef = React.useRef<HTMLDivElement>(null)
   const [open, setOpen] = React.useState(true)
   const isMine = message.isMine
@@ -34,6 +35,7 @@ function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewPr
       onClose()
     }
   }
+  console.log('thanhduy - OverlayMessageView', message)
 
   return (
     <motion.div
@@ -64,7 +66,7 @@ function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewPr
               <div className="inline-block w-full relative">
                 <motion.div
                   className={cn(
-                    'sticky top-20 w-fit bg-white/80 mb-3 backdrop-blur-md rounded-full px-2 py-1 flex gap-3 shadow-xl pointer-events-auto z-10',
+                    'sticky top-20 w-fit bg-white/80 mb-3 backdrop-blur-md-app rounded-full px-2 py-1 flex gap-3 shadow-xl pointer-events-auto z-10',
                     isMine ? 'ml-auto mr-2' : 'ml-2'
                   )}
                   initial={{ scale: 0.6, opacity: 0 }}
@@ -95,7 +97,7 @@ function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewPr
 
             <DropdownMenuContent
               align={isMine ? 'end' : 'start'}
-              className="w-64 ml-2 mr-2 shadow-xl bg-white/80 backdrop-blur-md border-none rounded-2xl"
+              className="w-64 ml-2 mr-2 shadow-xl bg-white/80 backdrop-blur-md-app border-none rounded-2xl"
               onClick={(e) => e.stopPropagation()}
               onCloseAutoFocus={(e) => e.preventDefault()}
               onEscapeKeyDown={(e) => e.preventDefault()}
@@ -113,9 +115,10 @@ function OverlayMessageView({ message, onClose, handlers }: OverlayMessageViewPr
                   <SaveAction onClose={handlers.onSave} />
                 </React.Fragment>
               )}
+
               {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
-              {/* <PinAction isPinned={isPinned} onClose={handlers.onPin} /> */}
+              <PinAction isPinned={isPinned} onClose={handlers.onPin} />
               {/* <DropdownMenuSeparator className="bg-black/10" /> */}
               <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}

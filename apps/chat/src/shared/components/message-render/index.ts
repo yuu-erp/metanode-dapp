@@ -1,6 +1,6 @@
 export { default as MessagePreview } from './message-preview'
 export { default as MessageRender } from './message-render'
-export { default as MessageText } from './message-text'
+export { default as MessageText, TextContentWithMentions } from './message-text'
 export { default as MessageSticker } from './message-sticker'
 export { default as MessageFile } from './message-file'
 export { default as MessageVoice } from './message-voice'

@@ -26,7 +26,7 @@ const ImportPrivateKey = memo(({ onBack, onCloseModal, setIsLoading }: ImportPri
 
   const handleImportPK = useCallback(async () => {
     setIsLoading(true)
-
+    console.log('[debug] - handleImportPK', { priKey, imageToShow })
     if (!priKey && !imageToShow) {
       toast.error('Enter or upload qr')
       setIsLoading(false)
@@ -35,7 +35,7 @@ const ImportPrivateKey = memo(({ onBack, onCloseModal, setIsLoading }: ImportPri
 
     const trimmedKey = priKey?.trim()
     const isValidPrivateKey = /^(0x)?[a-fA-F0-9]{64}$/.test(trimmedKey || '')
-
+    console.log('[debug] - isValidPrivateKey', { isValidPrivateKey })
     if (!isValidPrivateKey) {
       toast.error('Invalid private key')
       setIsLoading(false)
@@ -43,16 +43,17 @@ const ImportPrivateKey = memo(({ onBack, onCloseModal, setIsLoading }: ImportPri
     }
 
     try {
-      const normalizedKey = trimmedKey!.startsWith('0x') ? trimmedKey! : `0x${trimmedKey!}`
       const res: any = await createWalletFromPrivateKey({
-        privateKey: normalizedKey,
+        privateKey: trimmedKey,
         name: `wallet_${Date.now()}`,
         backgroundImage: ''
       })
+
       console.log('REP IMPORT WALLET WITH PRIVATE KEY ----- ', res)
       await refetch()
       onClose()
     } catch (err) {
+      console.error('create wallet failed: ', err)
       toast.error('Create wallet faile')
     }
 

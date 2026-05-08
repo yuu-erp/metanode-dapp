@@ -218,4 +218,28 @@ export class AnonymousGroupContract extends MtnContract {
       inputData
     })
   }
+
+  pinMessage(payload: TransactionPayload<{ messageId: string; isPinned: boolean }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'pinMessage',
+      abiData: anonymousGroupAbi.pinMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  userToPublicKeyAdmin(payload: TransactionPayload<{ '': string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string>({
+      from,
+      to,
+      functionName: 'userToPublicKeyAdmin',
+      abiData: anonymousGroupAbi.userToPublicKeyAdmin as any,
+      feeType: 'read',
+      inputData
+    })
+  }
 }

@@ -1,12 +1,27 @@
+import { LeaveGroupDialog } from '@/components/leave-group-dialog'
+import { WindowButtons } from '@/components/window-buttons'
 import { EventLogProvider } from '@/contexts'
 import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
+import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
+import { SystemCore } from '@metanodejs/system-core'
 import { createRootRoute } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { Toaster } from 'sonner'
+console.log('APP CHAT V - 1.0 =====>')
 
 export const Route = createRootRoute({
   component: () => {
+    useEffect(() => {
+      const cb = (e: any) => {
+        console.log('app chat log event log: ', e)
+      }
+
+      SystemCore.on('EventLogs', cb)
+      return () => SystemCore.removeEventListener('EventLogs', cb)
+    }, [])
+
     return (
       <>
         {/* <button
@@ -29,6 +44,10 @@ export const Route = createRootRoute({
             }
           }}
         ></button> */}
+        {/* <Test /> */}
+        <WindowButtons />
+        <LeaveGroupDialog />
+        <DrawerAddGroupMember />
         <MeetingJoinByUrlModal />
         <MeetingUrlModal />
         <EventLogProvider>

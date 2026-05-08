@@ -19,6 +19,7 @@ import { Route as AuthenticatedSettingsIndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedSettingsNotificationsRouteImport } from './routes/_authenticated/settings/notifications'
 import { Route as AuthenticatedP2pIdRouteImport } from './routes/_authenticated/p2p.$id'
 import { Route as AuthenticatedTypeIdRouteImport } from './routes/_authenticated/$type.$id'
+import { Route as AuthenticatedDetailTypeIdRouteImport } from './routes/_authenticated/detail.$type.$id'
 
 const WalletsRoute = WalletsRouteImport.update({
   id: '/wallets',
@@ -71,6 +72,12 @@ const AuthenticatedTypeIdRoute = AuthenticatedTypeIdRouteImport.update({
   path: '/$type/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDetailTypeIdRoute =
+  AuthenticatedDetailTypeIdRouteImport.update({
+    id: '/detail/$type/$id',
+    path: '/detail/$type/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/detail/$type/$id': typeof AuthenticatedDetailTypeIdRoute
 }
 export interface FileRoutesByTo {
   '/call': typeof CallRoute
@@ -93,6 +101,7 @@ export interface FileRoutesByTo {
   '/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/settings': typeof AuthenticatedSettingsIndexRoute
+  '/detail/$type/$id': typeof AuthenticatedDetailTypeIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,6 +115,7 @@ export interface FileRoutesById {
   '/_authenticated/p2p/$id': typeof AuthenticatedP2pIdRoute
   '/_authenticated/settings/notifications': typeof AuthenticatedSettingsNotificationsRoute
   '/_authenticated/settings/': typeof AuthenticatedSettingsIndexRoute
+  '/_authenticated/detail/$type/$id': typeof AuthenticatedDetailTypeIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/p2p/$id'
     | '/settings/notifications'
     | '/settings/'
+    | '/detail/$type/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/call'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/p2p/$id'
     | '/settings/notifications'
     | '/settings'
+    | '/detail/$type/$id'
   id:
     | '__root__'
     | '/_authenticated'
@@ -142,6 +154,7 @@ export interface FileRouteTypes {
     | '/_authenticated/p2p/$id'
     | '/_authenticated/settings/notifications'
     | '/_authenticated/settings/'
+    | '/_authenticated/detail/$type/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTypeIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/detail/$type/$id': {
+      id: '/_authenticated/detail/$type/$id'
+      path: '/detail/$type/$id'
+      fullPath: '/detail/$type/$id'
+      preLoaderRoute: typeof AuthenticatedDetailTypeIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -233,6 +253,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedP2pIdRoute: typeof AuthenticatedP2pIdRoute
   AuthenticatedSettingsNotificationsRoute: typeof AuthenticatedSettingsNotificationsRoute
   AuthenticatedSettingsIndexRoute: typeof AuthenticatedSettingsIndexRoute
+  AuthenticatedDetailTypeIdRoute: typeof AuthenticatedDetailTypeIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -242,6 +263,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsNotificationsRoute:
     AuthenticatedSettingsNotificationsRoute,
   AuthenticatedSettingsIndexRoute: AuthenticatedSettingsIndexRoute,
+  AuthenticatedDetailTypeIdRoute: AuthenticatedDetailTypeIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

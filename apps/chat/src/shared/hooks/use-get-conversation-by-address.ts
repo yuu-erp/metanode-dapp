@@ -16,7 +16,8 @@ export function useGetConversationIdByAddress(user: string, enable?: boolean) {
           user: user
         }
       })
-    }
+    },
+    staleTime: 1000 * 60 * 5 // 5 minutes
   })
   return contractAddress
 }
@@ -32,4 +33,13 @@ export function useGetConversationByAddress(
   const { data } = useGetConversationId(contractAddress ?? '', type, useDb)
 
   return data
+}
+
+export function useUserByAddress(address: string) {
+  const contractAddress = useGetConversationIdByAddress(address)
+  return useUser(contractAddress)
+}
+
+export function useUser(contractAddress?: string) {
+  return useGetConversationId(contractAddress ?? '', 'p2p', false)
 }

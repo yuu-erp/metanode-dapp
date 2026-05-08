@@ -38,7 +38,8 @@ export const CONVERSATION_QUERY_KEY = {
   CONVERSATIONS: (accountId: string) => ['conversations', accountId] as const,
   CONVERSATION: (conversationId: string) => ['conversation', conversationId] as const,
   GROUP_MEMBERS: (conversationId: string) => ['groupMembers', conversationId] as const,
-  PROFILE: (conversationId: string) => ['profile', conversationId] as const
+  PROFILE: (conversationId: string) => ['profile', conversationId] as const,
+  PINED_MESSAGE: (conversationId: string) => ['pineDMessage', conversationId] as const
 }
 
 export const MESSAGE_QUERY_KEY = {
@@ -52,4 +53,8 @@ export const FILE_CACHE_QUERY_KEY = {
 export const CALL_QUERY_KEY = {
   PARTICIPANT: () => ['paripant'] as const,
   USER: (hiddenAddress: string) => ['participant-owner', hiddenAddress] as const
+}
+
+export const GROUP_QUERY_KEY = {
+  ADMIN: (conversationId: string) => ['admin', conversationId] as const
 }

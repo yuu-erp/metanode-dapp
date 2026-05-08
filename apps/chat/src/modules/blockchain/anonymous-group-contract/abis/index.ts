@@ -20,7 +20,9 @@ export const anonymousGroupAbi: Record<string, any> = {
   getMessageById: anonymousGroupContract.find((item) => item.name === 'getMessageById'),
   markMessagesAsRead: anonymousGroupContract.find((item) => item.name === 'markMessagesAsRead'),
   groupName: anonymousGroupContract.find((item) => item.name === 'groupName'),
-  addManyMember: anonymousGroupContract.find((item) => item.name === 'addManyMember')
+  addManyMember: anonymousGroupContract.find((item) => item.name === 'addManyMember'),
+  pinMessage: anonymousGroupContract.find((item) => item.name === 'pinMessage'),
+  userToPublicKeyAdmin: anonymousGroupContract.find((item) => item.name === 'userToPublicKeyAdmin')
 }
 
 export { anonymousGroupContract }

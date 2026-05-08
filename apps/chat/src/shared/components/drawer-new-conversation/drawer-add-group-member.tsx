@@ -1,33 +1,28 @@
 import { useAddMember, useGetConversations, useGetGroupMembers } from '@/features/conversation'
 import type { PayloadAddMembers } from '@/modules/conversation'
-import {
-  useCurrentAccount,
-  useCurrentConversationType,
-  useGetConversationId,
-  useI18N
-} from '@/shared/hooks'
-import { useParams } from '@tanstack/react-router'
-import { CheckIcon, Loader2Icon, Plus } from 'lucide-react'
+import { useCurrentAccount, useGetConversationId, useI18N } from '@/shared/hooks'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
+import { addGroupActions, useAddGroup } from '@/stores'
+import { CheckIcon, Loader2Icon } from 'lucide-react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { Drawer } from 'vaul'
 import { SelectMembers } from './groups'
 
 const DrawerAddGroupMember = memo(() => {
-  const { id } = useParams({ from: '/_authenticated/$type/$id' })
+  const { id, type } = useConversationParams()
   const { t } = useI18N()
-  const [open, setOpen] = React.useState(false)
   const { data: account } = useCurrentAccount()
   const { data: conversations = [] } = useGetConversations(account)
   const [selectedMembers, setSelectedMembers] = React.useState<PayloadAddMembers[]>([])
-  const conversationType = useCurrentConversationType()
-  const { data: conversation } = useGetConversationId(id, conversationType)
+  const { data: conversation } = useGetConversationId(id, type)
+  const open = useAddGroup((s) => s.open)
 
   const { data: groupMembers = [] } = useGetGroupMembers(
     account?.address,
     conversation?.conversationId,
-    conversationType
+    type
   )
-  const { mutateAsync, isPending } = useAddMember(conversationType)
+  const { mutateAsync, isPending } = useAddMember(type)
   const validConversations = useMemo(() => {
     if (!conversations || !groupMembers) return []
     return conversations.filter(
@@ -50,20 +45,15 @@ const DrawerAddGroupMember = memo(() => {
       members: selectedMembers,
       group: conversation!
     })
-    setOpen(false)
+    addGroupActions.setOpen(false)
   }, [account, selectedMembers, conversation])
 
   return (
-    <Drawer.Root shouldScaleBackground open={open} onOpenChange={setOpen}>
-      <Drawer.Trigger asChild>
-        <button aria-label="New message">
-          <Plus className="size-7 text-white" />
-        </button>
-      </Drawer.Trigger>
+    <Drawer.Root shouldScaleBackground open={open} onOpenChange={addGroupActions.setOpen}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/50" />
         <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
-          <div className="relative h-[90vh] rounded-t-[36px] bg-black/30 backdrop-blur-md border border-white/10 flex flex-col overflow-hidden">
+          <div className="relative h-[90vh] rounded-t-[36px] bg-black/30 backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
             <div className="max-w-md mx-auto w-full flex flex-col overflow-hidden">
               <div className="flex flex-col items-center pt-5 relative">
                 <Drawer.Title className="text-gray-100 font-semibold text-lg">

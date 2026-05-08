@@ -88,3 +88,93 @@ export function downloadFile({
 
   return url
 }
+
+export type Mention = {
+  id: string
+  display: string
+}
+
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+/** Cùng quy tắc @display\\b với buildRawValue — dùng cho highlight trong ô nhập */
+/** Token lưu trong DB / gửi lên chain: chỉ id, không kèm tên (tên có thể đổi). */
+export function formatStoredMentionToken(id: string) {
+  return `@(${id})`
+}
+
+export type MessageContentPart = { type: 'text'; value: string } | { type: 'mention'; id: string }
+
+/**
+ * Tách nội dung tin nhắn: text thường + mention.
+ * Hỗ trợ `@(id)` (mới) và `@[tên](id)` (legacy).
+ */
+export function splitMessageContentWithMentions(text: string): MessageContentPart[] {
+  const re = /@\(([^)]+)\)|@\[([^\]]*)\]\(([^)]+)\)/g
+  const parts: MessageContentPart[] = []
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) {
+      parts.push({ type: 'text', value: text.slice(last, m.index) })
+    }
+    const id = m[1] ?? m[3]
+    if (id) parts.push({ type: 'mention', id })
+    last = m.index + m[0].length
+  }
+  if (last < text.length) {
+    parts.push({ type: 'text', value: text.slice(last) })
+  }
+  return parts
+}
+
+export function getMentionHighlightSegments(
+  text: string,
+  mentions: Mention[]
+): Array<{ text: string; highlight: boolean }> {
+  if (!text) return []
+  if (!mentions.length) return [{ text, highlight: false }]
+
+  type Range = { start: number; end: number }
+  const ranges: Range[] = []
+  for (const m of mentions) {
+    if (!m.display) continue
+    const re = new RegExp(`@${escapeRegExp(m.display)}\\b`, 'g')
+    let match: RegExpExecArray | null
+    while ((match = re.exec(text)) !== null) {
+      ranges.push({ start: match.index, end: match.index + match[0].length })
+    }
+  }
+  if (!ranges.length) return [{ text, highlight: false }]
+
+  ranges.sort((a, b) => a.start - b.start || a.end - b.end)
+  const merged: Range[] = []
+  for (const r of ranges) {
+    const last = merged[merged.length - 1]
+    if (!last || r.start >= last.end) merged.push({ ...r })
+    else last.end = Math.max(last.end, r.end)
+  }
+
+  const segments: Array<{ text: string; highlight: boolean }> = []
+  let i = 0
+  for (const r of merged) {
+    if (r.start > i) segments.push({ text: text.slice(i, r.start), highlight: false })
+    segments.push({ text: text.slice(r.start, r.end), highlight: true })
+    i = r.end
+  }
+  if (i < text.length) segments.push({ text: text.slice(i), highlight: false })
+  return segments
+}
+
+export function buildRawValue(display: string, mentions: Mention[]) {
+  let raw = display
+
+  for (const m of mentions) {
+    if (!m.display || !m.id) continue
+    const regex = new RegExp(`@${escapeRegExp(m.display)}\\b`, 'g')
+    raw = raw.replace(regex, formatStoredMentionToken(m.id))
+  }
+
+  return raw
+}

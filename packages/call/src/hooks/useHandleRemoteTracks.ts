@@ -1,4 +1,4 @@
-import { use, useEffect } from 'react'
+import { useEffect } from 'react'
 import { attachTrackToStream } from '~/services'
 import {
   callStore,
@@ -25,18 +25,10 @@ export function useHandleRemoteTracks() {
       }
 
       const streamKey = midToStreamKeys[mid]
-      console.log('thanhduy - track 3', {
-        streamKey,
-        midToStreamKeys,
-        mid,
-        now: performance.now()
-      })
 
       if (!streamKey) return
       if (streamKey.endsWith('user')) {
-        console.log('thanhduy - end track 1', streamKey)
         const user = streamKey.split('_')[0]
-        console.log('thanhduy - end track 2', user)
 
         track.onended = () => {
           track.onended = null

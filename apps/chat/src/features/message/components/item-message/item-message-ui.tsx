@@ -1,7 +1,7 @@
 'use client'
 import type { Message } from '@/modules/message'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
-import { useCurrentConversationType } from '@/shared/hooks'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { cn } from '@/shared/lib'
 import { motion } from 'framer-motion'
 import * as React from 'react'
@@ -13,8 +13,9 @@ import {
   ReplyMessage,
   type MessageItemProps
 } from '.'
-import { GroupMemberName } from './group/group-member-name'
 import { GroupMemberAvatar } from './group/group-member-avatar'
+import { GroupMemberName } from './group/group-member-name'
+import { PinIcon } from 'lucide-react'
 
 export interface ItemMessageUIProps extends MessageItemProps<Message> {
   handlers: any
@@ -24,6 +25,7 @@ export interface ItemMessageUIProps extends MessageItemProps<Message> {
   isSticker?: boolean
   isFailed?: boolean
   isOverlay?: boolean
+  isPinned?: boolean
 }
 
 function ItemMessageUI({
@@ -37,10 +39,10 @@ function ItemMessageUI({
   isSticker,
   isFailed,
   isOverlay,
+  isPinned,
   ...props
 }: ItemMessageUIProps) {
-  const type = useCurrentConversationType()
-
+  const { type } = useConversationParams()
   const isInGroup = !isMine && (type === 'group' || type === 'anonymous_group')
   return (
     <motion.div
@@ -86,6 +88,7 @@ function ItemMessageUI({
                 'bg-black/40 backdrop-blur-sm p-0.5 pl-1 rounded-full text-white'
             )}
           >
+            {isPinned && <PinIcon className="size-3" />}
             {message.isEdited && <span>edited</span>}
             <span>{formatMessageTime(message.timestamp)}</span>
             {isMine && <MessageStatus status={message.status} />}

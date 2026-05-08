@@ -6,7 +6,9 @@ import ConversationContact from '@/shared/components/conversation-contact'
 import { UserAddIcon, UserGroupIcon } from '@/shared/components/icons'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
-import { useI18N, usePlatform } from '@/shared/hooks'
+import { useI18N } from '@/shared/hooks'
+import { usePlatform } from '@/hooks/core/use-platform'
+
 import { useCreateMeeting } from '@/shared/hooks/call/use-create-meeting'
 import { useNavigate } from '@tanstack/react-router'
 import { Megaphone, QrCode, Video, X } from 'lucide-react'
@@ -85,8 +87,8 @@ function DefaultConversation({
             onClick={() => onChangeScreenType?.(ScreenType.NEW_GROUP)}
             className="w-full h-12 flex items-center gap-4 text-left transition"
           >
-            <UserGroupIcon className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">
+            <UserGroupIcon className="size-6 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
               {t('drawer.newGroup', { defaultValue: 'New Group' })}
             </span>
           </button>
@@ -97,8 +99,8 @@ function DefaultConversation({
             onClick={() => onChangeScreenType?.(ScreenType.NEW_ANONYMOUS_GROUP)}
             className="w-full h-12 flex items-center gap-4 text-left transition"
           >
-            <UserGroupIcon className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">
+            <UserGroupIcon className="size-6 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
               {t('drawer.newAnonymousGroup', { defaultValue: 'New Anonymous Group' })}
             </span>
           </button>
@@ -110,8 +112,8 @@ function DefaultConversation({
             className="w-full h-12 flex items-center gap-4 text-left transition "
             onClick={() => onChangeScreenType?.(ScreenType.NEW_CONTACT)}
           >
-            <UserAddIcon className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">
+            <UserAddIcon className="size-6 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
               {t('drawer.newContact', { defaultValue: 'New Contact' })}
             </span>
           </button>
@@ -122,8 +124,8 @@ function DefaultConversation({
             className={cn('w-full h-12 flex items-center gap-4 text-left transition ')}
             onClick={onGoMeeting}
           >
-            <Video className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">
+            <Video className="size-6 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
               {t('drawer.newMeeting', { defaultValue: 'New Meeting' })}
             </span>
           </button>
@@ -134,8 +136,8 @@ function DefaultConversation({
             className={cn('w-full h-12 flex items-center gap-4 text-left transition ')}
             onClick={onJoinLink}
           >
-            <Video className="size-6 text-blue-500" />
-            <span className="font-medium text-blue-500">
+            <Video className="size-6 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
               {t('drawer.newMeetingByUrl', { defaultValue: 'New Meeting By Url' })}
             </span>
           </button>
@@ -147,8 +149,8 @@ function DefaultConversation({
             className="w-full h-14 flex items-center gap-4 text-left transition disabled:opacity-50 cursor-not-allowed"
             disabled
           >
-            <Megaphone className="size-5 text-blue-500" />
-            <span className="font-medium text-blue-500">
+            <Megaphone className="size-5 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
               {t('drawer.newChannel', { defaultValue: 'New Channel' })}
             </span>
           </button>

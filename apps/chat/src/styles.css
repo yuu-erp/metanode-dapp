@@ -318,3 +318,23 @@
 .animate-float {
   animation: floatUp 3s ease-out forwards;
 }
+
+@utility backdrop-blur-sm-app {
+  backdrop-filter: blur(4px);
+}
+
+@utility backdrop-blur-md-app {
+  backdrop-filter: blur(8px);
+}
+
+@utility backdrop-blur-lg-app {
+  backdrop-filter: blur(16px);
+}
+
+@utility backdrop-blur-xl-app {
+  backdrop-filter: blur(24px);
+}
+
+@utility backdrop-blur-none-app {
+  backdrop-filter: none;
+}

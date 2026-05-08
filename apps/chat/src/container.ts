@@ -30,6 +30,10 @@ import { MeetingFactory } from './modules/meeting/meeting.factory'
 import type { MeetingService } from './modules/meeting/meeting.service'
 import type { AppEvents } from './types/app-events'
 import { MeetingContract } from './modules/blockchain/meeting-contract'
+import { contracts, type ContractsType } from 'chat-react'
+import { userContract } from './modules/blockchain/user-contract/abis'
+import { factoryContract } from './modules/blockchain/factory-contract/abis'
+import { Contracts } from './modules/blockchain/contracts'
 
 /**
  * AppContainer
@@ -66,6 +70,8 @@ class AppContainer {
   private readonly _realtimeTransportFactory: RealtimeTransportFactory
   private readonly _meetingService: MeetingService
 
+  private readonly contracts: Contracts
+
   constructor() {
     const nativeWalletAdapter = new NativeWalletAdapter()
     this._walletService = new WalletService(nativeWalletAdapter)
@@ -79,6 +85,12 @@ class AppContainer {
     this._verifyContract = new VerifyContract()
     this._ekycContract = new EkycContract()
     this._meetingContract = new MeetingContract()
+
+    this.contracts = new Contracts(
+      this._userContract,
+      this._groupContract,
+      this._anonymousGroupContract
+    )
 
     // 5️⃣ Application Service (AccountService)
     this._accountService = AccountFactory.createService(
@@ -116,7 +128,7 @@ class AppContainer {
     )
 
     this._fileTransferService = new FileTransferService()
-    this._messagePinService = MessagePinFactory.createService()
+    this._messagePinService = MessagePinFactory.createService(this.contracts)
 
     // 6️⃣ Realtime Transport Factory
     this._realtimeTransportFactory = getRealtimeTransportFactory()
@@ -232,3 +244,13 @@ class AppContainer {
  * JS module guarantee: chỉ khởi tạo 1 lần
  */
 export const container = new AppContainer()
+contracts.init({
+  user: userContract,
+  factory: factoryContract
+})
+
+export const chatContracts = contracts as ContractsType<{
+  factory: {
+    getUserContract: [{ user: string }, string]
+  }
+}>

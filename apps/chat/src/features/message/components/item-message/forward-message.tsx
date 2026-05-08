@@ -1,8 +1,8 @@
 'use client'
 import { USER_DEFAULT } from '@/constants/navbar-menu.constant'
 import AvatarUser from '@/shared/components/avatar-user'
-import { useCurrentConversationType } from '@/shared/hooks'
 import { useGetUserProfile } from '@/shared/hooks/accounts'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { cn } from '@/shared/lib'
 import * as React from 'react'
 
@@ -13,7 +13,7 @@ interface ForwardMessageProps {
 function ForwardMessage({ forwardFrom, isMine }: ForwardMessageProps) {
   if (!forwardFrom) return null
   const { data: profile } = useGetUserProfile(forwardFrom)
-  const type = useCurrentConversationType()
+  const { type } = useConversationParams()
 
   const displayName =
     type === 'anonymous_group'

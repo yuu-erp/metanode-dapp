@@ -22,13 +22,12 @@ export function useHandleIncomingOffer() {
 
       //handle track
       const grouped: Record<string, string[]> = {}
-      console.log('thanhduy - incoming offer', {
-        tracks: data.tracks,
-        now: performance.now()
-      })
+
       const tracksForNative = data.tracks.map((track, index) => {
         const source: StreamSource = index < 2 ? 'user' : 'display'
         const streamKey = toStreamKey(user, source)
+        ;(grouped[streamKey] ||= []).push(track.mid)
+        mediaActions.setMidToStreamKey(track.mid, streamKey)
 
         return {
           ...track,
@@ -38,22 +37,18 @@ export function useHandleIncomingOffer() {
       })
 
       Object.entries(grouped).forEach(([streamKey, mids]) => {
-        console.log('thanhduy - huhu', { streamKey, mids })
         mediaActions.setStreamMids(streamKey, mids)
       })
 
-      console.log('thanhduy - test ', mediaStore.getState().midToStreamKeys)
       //xu li backend
       const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
-      setTimeout(async () => {
-        const sdpAnswer = await createAnswer(offer.sdp!, {
-          sourceUser: user,
-          eventType: e.eventType,
-          sessionId: data.sessionId,
-          tracks: tracksForNative
-        })
-        await emitSetAnswer(sdpAnswer)
-      }, 500)
+      const sdpAnswer = await createAnswer(offer.sdp!, {
+        sourceUser: user,
+        eventType: e.eventType,
+        sessionId: data.sessionId,
+        tracks: tracksForNative
+      })
+      await emitSetAnswer(sdpAnswer)
     },
     (e) =>
       roomActions.isEventOwnedByMe(e, e.toUser) &&

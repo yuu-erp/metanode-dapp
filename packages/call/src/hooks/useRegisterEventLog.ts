@@ -11,7 +11,6 @@ export function useRegisterEventLog(registerEventLog: RegisterEventLog, meetingA
   useEffect(() => {
     if (!address || !meetingAddress) return
     withTimeout(async () => {
-      console.log('thanhduy - regoster event log ', { address, meetingAddress })
       await registerEventLog(address, [meetingAddress])
     }).then(() => setLoad(true))
   }, [address, meetingAddress])

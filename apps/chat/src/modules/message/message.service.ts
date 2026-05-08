@@ -10,18 +10,12 @@ import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
 import { formatAddress, fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
-import {
-  createECDHPassword,
-  decryptAESGCM,
-  encryptAESGCM,
-  getPrivateKeyFromDb,
-  share
-} from '@metanodejs/system-core'
+import { decryptAESGCM, encryptAESGCM, share } from '@metanodejs/system-core'
 import { v4 as uuidv4 } from 'uuid'
 import type { FileCacheService } from '../file-cache'
 // MESSAGE MODULES
 import { container } from '@/container'
-import { createHashWithBuffer } from '@metanodejs/system-core'
+import { createHashWithBuffer, getPrivateKeyFromDb, sendCommand } from '@metanodejs/system-core'
 import type {
   EditTextPayload,
   Message,
@@ -74,9 +68,11 @@ export class MessageService {
         page
       }
     })
+    console.log('thanhduy - getProcessedP2PMessages 1', rawMessages)
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
+    console.log('thanhduy - getProcessedP2PMessages 2', messages)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -93,6 +89,7 @@ export class MessageService {
     conversation: Conversation
   ): Promise<Message | undefined> {
     try {
+      console.log('thanhduy - _processP2PMessage 1')
       const isIncoming = item.sender === conversation.conversationId
       const decryptionKey = isIncoming ? conversation.conversationKey : account.publicKey
 
@@ -101,10 +98,16 @@ export class MessageService {
         account.address,
         item.finalContent
       )
+      console.log('thanhduy - _processP2PMessage 2', decrypted)
+
       let replyTo = undefined
       if (decrypted.replyTo) {
+        console.log('thanhduy - _processP2PMessage 3')
+
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
       }
+      console.log('thanhduy - _processP2PMessage 4')
+
       if (decrypted.type === 'file') {
         const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
         if (fileDB) {
@@ -503,15 +506,57 @@ export class MessageService {
       }[] = []
 
       for (const file of files) {
+        console.log('sendFile - 1')
         const clientId = uuidv4()
+
+        const payload: SendPayload = {
+          type: 'file',
+          fileId: '', // Placeholder, will be updated after upload
+          fileName: file.name,
+          mimeType: file.type,
+          size: file.size,
+          filePath: '',
+          file
+        }
+        console.log('sendFile - 2')
+
+        const optimisticMessage = createOptimisticMessage(
+          {
+            clientId,
+            accountId: account.address,
+            conversationId: conversation.conversationId,
+            sender: account.contractAddress,
+            recipient: account.contractAddress,
+            timestamp: Date.now()
+          },
+          {
+            ...payload,
+            filePath: URL.createObjectURL(file)
+          }
+        )
+        console.log('sendFile - 3', optimisticMessage)
+
+        // optimistic update
+        this.eventBus.emit('message.add', {
+          conversationId: conversation.conversationId,
+          message: optimisticMessage,
+          isMine: true,
+          conversationType: conversation.conversationType
+        })
+
+        let hash: any
         const arrayBuffer = await file.arrayBuffer()
-        console.log('thanhduy - arrayBuffer', arrayBuffer)
         const _buffer = new Uint8Array(arrayBuffer)
-        console.log('thanhduy - _buffer', _buffer)
+
         const buffer = Array.from(_buffer)
-        console.log('thanhduy - buffer', buffer)
-        const { hash } = await createHashWithBuffer({ buffer })
-        console.log('thanhduy - hash', hash)
+
+        hash = (await createHashWithBuffer({ buffer })).hash
+        // if (window?.finSdk) {
+        //   hash = await computeFileHash(file)
+        // } else {
+
+        // }
+
         const timestamp = Date.now()
         const sanitizedFileName = file.name
           .split('.')
@@ -533,39 +578,6 @@ export class MessageService {
           status: 0,
           contentDisposition: '',
           contentID: ''
-        })
-
-        const payload: SendPayload = {
-          type: 'file',
-          fileId: '', // Placeholder, will be updated after upload
-          fileName: file.name,
-          mimeType: file.type,
-          size: file.size,
-          filePath: '',
-          file
-        }
-
-        const optimisticMessage = createOptimisticMessage(
-          {
-            clientId,
-            accountId: account.address,
-            conversationId: conversation.conversationId,
-            sender: account.contractAddress,
-            recipient: account.contractAddress,
-            timestamp: Date.now()
-          },
-          {
-            ...payload,
-            filePath: URL.createObjectURL(file)
-          }
-        )
-
-        // optimistic update
-        this.eventBus.emit('message.add', {
-          conversationId: conversation.conversationId,
-          message: optimisticMessage,
-          isMine: true,
-          conversationType: conversation.conversationType
         })
 
         preparedMessages.push({
@@ -715,7 +727,7 @@ export class MessageService {
     fileName: string,
     mimeType: string,
     onProgress?: (percent: number) => void,
-    chunkLimit = 500,
+    chunkLimit = 50,
     concurrency = 4
   ): Promise<void> {
     try {
@@ -749,7 +761,7 @@ export class MessageService {
         }
         return
       }
-      console.log('thanhduy - download 1', performance.now())
+
       // 1. Get file info
       //@ts-ignore
       const { infos } = await this.fileContract.getFilesInfo({
@@ -829,7 +841,6 @@ export class MessageService {
 
       const blob = new Blob([combinedBuffer], { type: mimeType })
       const path = await createPathFromBlob(blob, fileName)
-      console.log('thanhduy - download 2', performance.now())
 
       // 6. Cache full file
       try {
@@ -925,10 +936,13 @@ export class MessageService {
       })
     )
 
-    const recipientOwners = userSettings.filter((i) => i.p2pChatEnabled).map((i) => i.address)
+    const enabledUsers = userSettings.filter((i) => i.p2pChatEnabled)
+    const recipientOwners = enabledUsers.map((i) => i.address)
+    const recipientContracts = enabledUsers.map((i) => i.contractAddress)
+
     // .filter((i) => i !== account.address)
 
-    return recipientOwners
+    return { recipientOwners, recipientContracts }
   }
 
   async sendGroupMessae(
@@ -936,13 +950,24 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
+    console.log('thanhduy - send group message 1')
     const clientId = uuidv4()
+    let sender = account.contractAddress
+    if (conversation.conversationType === 'anonymous_group') {
+      sender = await this.anonymousGroupContract.getAliasMember({
+        from: account.address,
+        to: conversation.conversationId
+      })
+    }
+
+    console.log('thanhduy - send group message 2')
+
     const optimisticMessage = createOptimisticMessage(
       {
         clientId,
         accountId: account.address,
         conversationId: conversation.conversationId,
-        sender: account.contractAddress,
+        sender,
         recipient: conversation.conversationId,
         timestamp: Date.now(),
         ...(payload.replyTo && { replyTo: payload.replyTo }),
@@ -953,13 +978,16 @@ export class MessageService {
     )
 
     // optimistic update
-
-    this.eventBus.emit('message.add', {
+    const messageAdd = {
       conversationId: conversation.conversationId,
       message: optimisticMessage,
       isMine: true,
       conversationType: conversation.conversationType
-    })
+    }
+
+    console.log('thanhduy - send group message 3', messageAdd)
+
+    this.eventBus.emit('message.add', messageAdd)
 
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
@@ -1042,6 +1070,23 @@ export class MessageService {
     }
   }
 
+  async handleCreateECDHPassword(address: string, publicKey: string) {
+    let pass: any
+    if (window.finSdk) {
+      pass = await sendCommand('createECDHPassword', {
+        address: address,
+        publicKey: publicKey
+      })
+    } else {
+      const privateKey = await getPrivateKeyFromDb(address)
+      pass = await sendCommand('createECDHPassword', {
+        privateKey,
+        publicKey: publicKey
+      })
+    }
+    return pass.password
+  }
+
   async decryptMessageFromGroup(
     account: Account,
     data: {
@@ -1053,6 +1098,8 @@ export class MessageService {
       sender?: string
     }
   ) {
+    console.log('thanhduy - decrypt 1', { account, data })
+
     const { encryptedContent, messageId, groupAddress, type } = data
     //chỗ này trùng với bên conversation services
     const accountId = account.address
@@ -1061,43 +1108,43 @@ export class MessageService {
     if (type !== 'group' && type !== 'anonymous_group')
       throw new Error('[decryptMessageFromGroup] Invalid type')
 
-    let admin = ''
     let sender = data?.sender ?? ''
+    console.log('thanhduy - decrypt 2', { accountId, conversationId })
 
-    if (type === 'group') {
-      admin = await this.groupContract.admin({
-        from: accountId,
-        to: conversationId
-      })
-    } else {
-      admin = await this.anonymousGroupContract.initialAdmin({
-        from: accountId,
-        to: conversationId
-      })
-    }
-
-    const adminUserContract = await this.factoryContract.getUserContract({
-      from: accountId,
-      inputData: {
-        user: admin
-      }
-    })
     const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
       from: accountId,
       to: conversationId,
       inputData: {}
     })
 
-    const adminPublicKey = await this.userContract.publicKey({
-      from: accountId,
-      to: adminUserContract
-    })
-    const privateKey = await getPrivateKeyFromDb(accountId)
-    const sharedKeyWithAdmin = (await createECDHPassword(adminPublicKey, privateKey)).password
+    const adminPublicKey =
+      type === 'group'
+        ? await this.groupContract.userToPublicKeyAdmin({
+            from: accountId,
+            to: conversationId,
+            inputData: {
+              '': accountId
+            }
+          })
+        : await this.anonymousGroupContract.userToPublicKeyAdmin({
+            from: accountId,
+            to: conversationId,
+            inputData: {
+              '': accountId
+            }
+          })
+
+    console.log('thanhduy - decrypt 3', { adminPublicKey })
+
+    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, adminPublicKey)
+    console.log('thanhduy - decrypt 4', { sharedKeyWithAdmin, encryptedKey })
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
+    console.log('thanhduy - decrypt 5', { groupKey })
 
     const { resultUtf8 } = await decryptAESGCM(groupKey, encryptedContent)
+    console.log('thanhduy - decrypt 6', { resultUtf8 })
+
     const decryptMessage = JSON.parse(resultUtf8)
 
     let replyTo = undefined
@@ -1231,6 +1278,8 @@ export class MessageService {
     fileKey?: string
   ) {
     return asyncPriorityQueue.add(async () => {
+      console.log('thanhduy - send group message 4')
+
       this.messageExtend.unsubscribe()
       const { conversationType } = conversation
       let promise: any
@@ -1259,14 +1308,17 @@ export class MessageService {
           })
           updateMessageId()
 
-          const [encryptedForRecipient, encryptedForSelf] = await Promise.all([
-            this.walletService.encryptMessage(
-              conversation.conversationKey,
-              account.address,
-              stringifyMessage
-            ),
-            this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
-          ])
+          const encryptedForRecipient = await this.walletService.encryptMessage(
+            conversation.conversationKey,
+            account.address,
+            stringifyMessage
+          )
+
+          const encryptedForSelf = await this.walletService.encryptMessage(
+            account.publicKey,
+            account.address,
+            stringifyMessage
+          )
 
           await this.userContract.sendMessage({
             from: account.hiddenAddress,
@@ -1281,6 +1333,7 @@ export class MessageService {
           const encryptMessage = (
             await encryptAESGCM(conversation.conversationKey, stringifyMessage)
           )?.result
+          console.log('thanhduy - send group message 5')
 
           if (conversationType === 'group') {
             promise = new Promise((resolve) => {
@@ -1292,15 +1345,22 @@ export class MessageService {
             })
             updateMessageId()
 
-            const recipientOwners = await this.getRecipientOwners(account, conversation)
+            const { recipientContracts, recipientOwners } = await this.getRecipientOwners(
+              account,
+              conversation
+            )
+            console.log('thanhduy - send group message 6')
+
             await this.groupContract.sendMessage({
               from: account.hiddenAddress,
               to: conversation.conversationId,
               inputData: {
                 encryptedContent: encryptMessage,
-                recipientOwners
+                recipientOwners,
+                recipientContracts
               }
             })
+            console.log('thanhduy - send group message 7')
           } else if (conversationType === 'anonymous_group') {
             promise = new Promise((resolve) => {
               const off = eventLog.on('AnonymousMessageStored', async (data) => {
@@ -1327,6 +1387,7 @@ export class MessageService {
             throw new Error('Invalid conversation type for group message')
           }
         }
+        console.log('thanhduy - send group message 8')
 
         this.messageExtend.subscribe()
         return ''

@@ -297,7 +297,6 @@ export class EventLogContainer {
   }
 
   public async registerAbi() {
-    console.log('thanhduy - this')
     const rs = await this._decodeAbi?.registerAbi?.(abi)
     return rs
   }

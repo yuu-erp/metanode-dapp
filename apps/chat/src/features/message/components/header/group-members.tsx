@@ -1,13 +1,12 @@
 import { useGetGroupMembers } from '@/features/conversation'
-import { useCurrentAccount, useCurrentConversationType } from '@/shared/hooks'
-import { useParams } from '@tanstack/react-router'
+import { useCurrentAccount } from '@/shared/hooks'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { memo } from 'react'
 
 export type GroupMembersProps = {}
 
 export const GroupMembers = memo(({}: GroupMembersProps) => {
-  const { id } = useParams({ from: '/_authenticated/$type/$id' })
-  const type = useCurrentConversationType()
+  const { id, type } = useConversationParams()
   const { data: account } = useCurrentAccount()
 
   const { data } = useGetGroupMembers(account?.address, id, type)

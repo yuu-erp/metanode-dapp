@@ -46,7 +46,7 @@ const Login = memo(
         >
           <div
             onClick={onClose}
-            className={`fixed inset-0 z-[1500] h-screen w-screen overflow-hidden bg-black/[.20] shadow-box-content-model backdrop-blur-md transition-all duration-1000 ease-in-out`}
+            className={`fixed inset-0 z-[1500] h-screen w-screen overflow-hidden bg-black/[.20] shadow-box-content-model backdrop-blur-md-app transition-all duration-1000 ease-in-out`}
           >
             <div className="relative flex size-full justify-end p-5">
               <div

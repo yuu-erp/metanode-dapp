@@ -2,7 +2,7 @@
 // TYPES - MESSAGE SYSTEM (Type-safe discriminated union)
 // ============================================================================
 
-export type MessageType = 'text' | 'sticker' | 'file' | 'voice' | 'location'
+export type MessageType = 'text' | 'sticker' | 'file' | 'voice' | 'location' | 'system'
 
 export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed'
 
@@ -15,6 +15,8 @@ export interface MessageReaction {
 // PAYLOAD DEFINITIONS
 
 // ============================================================================
+
+export type SystemMessageEventName = 'leave_group'
 
 export interface MessagePayloadMap {
   text: { content: string }
@@ -29,6 +31,7 @@ export interface MessagePayloadMap {
   }
   voice: { fileId: string; duration: number; mimeType: string }
   location: { latitude: number; longitude: number; address?: string }
+  system: { eventName: SystemMessageEventName }
 }
 
 // ============================================================================
@@ -85,7 +88,7 @@ export type Message =
   | (BaseMessage & { type: 'file' } & MessagePayloadMap['file'])
   | (BaseMessage & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseMessage & { type: 'location' } & MessagePayloadMap['location'])
-
+  | (BaseMessage & { type: 'system' } & MessagePayloadMap['system'])
 // Type alias cho message đã có id (dùng khi lưu trữ hoặc reply)
 export type PersistedMessage = Message & { id: string }
 
@@ -109,7 +112,7 @@ export type SendPayload =
   | (BaseSendPayload & { type: 'file' } & MessagePayloadMap['file'])
   | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])
-
+  | (BaseSendPayload & { type: 'system' } & MessagePayloadMap['system'])
 export type EditTextPayload = BaseSendPayload & { type: 'text' } & MessagePayloadMap['text']
 // ============================================================================
 // ON-CHAIN PAYLOAD (khi stringify và lưu lên smart contract)
@@ -121,6 +124,7 @@ export type OnChainMessagePayload =
   | (BaseOnChainPayload & { type: 'file' } & MessagePayloadMap['file'])
   | (BaseOnChainPayload & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseOnChainPayload & { type: 'location' } & MessagePayloadMap['location'])
+  | (BaseOnChainPayload & { type: 'system' } & MessagePayloadMap['system'])
 
 export type ComposerDraft =
   | { type: 'text'; content: string }

@@ -17,12 +17,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
   const [load, setLoad] = React.useState(false)
-  console.log('thanhduy register eventlog 0', account)
 
   React.useEffect(() => {
-    console.log('thanhduy register eventlog 1', account)
     if (!account?.address || !account.contractAddress) return
-    console.log('thanhduy register eventlog 2')
 
     const eventLog = container.eventLogContainer.eventLog
     const eventBus = container.eventBus
@@ -52,6 +49,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offCallReceived = eventLog.on('CallReceived', async (data) => {
+      console.log('thanhduy - CallReceived', data)
       const callerContractAddress = await container.factoryContract.getUserContract({
         from: account.address,
         inputData: { user: data.owner }
@@ -97,8 +95,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
         isMine: false
       })
       console.log('message', message)
-      //@ts-ignore
-      pushNoti('Chat P2P', message.content)
+
+      pushNoti('Chat P2P', message)
       eventBus.emit('message.add', {
         conversationId: data.sender,
         conversationType: 'p2p',
@@ -120,6 +118,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
         sender: formatAddress(data.sender),
         isMine
       })
+
       const payload: any = {
         conversationId: data.groupAddress,
         conversationType: 'group',
@@ -130,8 +129,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       if (isMine) {
         eventBus.emit('message.send.bua', payload)
       } else {
+        console.log('message content', message)
         //@ts-ignore
-        pushNoti('Chat Group', message.content)
+        pushNoti('Chat Group', message)
         eventBus.emit('message.receive.bua', payload)
       }
     })
@@ -164,7 +164,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
         eventBus.emit('message.send.bua', payload)
       } else {
         //@ts-ignore
-        pushNoti('Chat anonymous group', message.content)
+        pushNoti('Chat anonymous group', message)
         eventBus.emit('message.receive.bua', payload)
       }
     })

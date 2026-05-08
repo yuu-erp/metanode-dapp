@@ -64,7 +64,6 @@ export function useScreenShareActions() {
 
       stream.getTracks().forEach((t) => {
         t.onended = () => {
-          console.log('thanhduy - onEnded')
           stopShareScreen()
         }
 

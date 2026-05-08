@@ -54,7 +54,11 @@ export class GroupContract extends MtnContract {
   }
 
   sendMessage(
-    payload: TransactionPayload<{ encryptedContent: string; recipientOwners: string[] }>
+    payload: TransactionPayload<{
+      encryptedContent: string
+      recipientOwners: string[]
+      recipientContracts: string[]
+    }>
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -178,6 +182,98 @@ export class GroupContract extends MtnContract {
       to,
       functionName: 'markMessagesAsRead',
       abiData: groupAbis.markMessagesAsRead as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  transferAdmin(payload: TransactionPayload<{ newAdmin: string; _newPublicKeyAdmin: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'transferAdmin',
+      abiData: groupAbis.transferAdmin as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+  groupId(payload: TransactionPayload<{}>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string>({
+      from,
+      to,
+      functionName: 'groupId',
+      abiData: groupAbis.groupId as any,
+      feeType: 'read',
+      inputData
+    })
+  }
+
+  userToPublicKeyAdmin(payload: TransactionPayload<{ '': string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string>({
+      from,
+      to,
+      functionName: 'userToPublicKeyAdmin',
+      abiData: groupAbis.userToPublicKeyAdmin as any,
+      feeType: 'read',
+      inputData
+    })
+  }
+
+  updateGroupInfo(
+    payload: TransactionPayload<{ _newName: string; _newAvatar: string; _newDescription: string }>
+  ) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'updateGroupInfo',
+      abiData: groupAbis.updateGroupInfo as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  getGroupInfo(payload: TransactionPayload<{}>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<{
+      name: string
+      avatar: string
+      description: string
+      memberCount: string
+      groupAdmin: string
+      isDeleted: boolean
+    }>({
+      from,
+      to,
+      functionName: 'getGroupInfo',
+      abiData: groupAbis.getGroupInfo as any,
+      feeType: 'read',
+      inputData
+    })
+  }
+
+  getPinnedMessage(payload: TransactionPayload<{}>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string[]>({
+      from,
+      to,
+      functionName: 'getPinnedMessage',
+      abiData: groupAbis.getPinnedMessage as any,
+      feeType: 'read',
+      inputData
+    })
+  }
+
+  pinMessage(payload: TransactionPayload<{ messageId: string; isPinned: boolean }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'pinMessage',
+      abiData: groupAbis.pinMessage as any,
       feeType: 'sc',
       inputData
     })

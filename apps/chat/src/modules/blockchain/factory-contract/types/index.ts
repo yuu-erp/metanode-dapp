@@ -26,6 +26,8 @@ export interface CreateGroupInput {
   groupAvatar: string
   encryptedInitialGroupKey: string
   initialPolicy: number
+  _description: string
+  _publicKeyAdmin: string
 }
 
 export type CreateAnonymousCommunityInput = {
@@ -35,4 +37,5 @@ export type CreateAnonymousCommunityInput = {
   initialPolicy: HistoryVisibility
   avatarNormal: string
   _globalDefaultAvatar: string
+  _publicKeyAdmin: string
 }

@@ -22,6 +22,8 @@ export function useSendGroupMessage() {
     mutationFn: async ({ account, conversation, payload }) => {
       const messageService = container.messageService
 
+      console.log('thanhduy - payload', payload)
+
       return messageService.sendGroupMessae(account, conversation, payload)
     },
 

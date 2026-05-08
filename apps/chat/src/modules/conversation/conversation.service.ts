@@ -12,10 +12,10 @@ import type { WalletService } from '@/modules/wallet'
 import { generateSecureId } from '@/shared/lib/ids'
 import { fulfilledPromises } from '@/shared/utils'
 import {
-  createECDHPassword,
   decryptAESGCM,
   encryptAESGCM,
-  getPrivateKeyFromDb
+  getPrivateKeyFromDb,
+  sendCommand
 } from '@metanodejs/system-core'
 import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 import type { EventLogContainer, EventMap } from '../eventlogs'
@@ -61,16 +61,25 @@ export class ConversationService {
   private async getGroupInfo(account: Account, conversationId: string) {
     const { address: accountId, hiddenAddress } = account
 
+    const [publicKey, name] = await fulfilledPromises([
+      this.groupContract.userToPublicKeyAdmin({
+        from: hiddenAddress,
+        to: conversationId,
+        inputData: {
+          '': account.address
+        }
+      }),
+
+      this.groupContract.groupName({
+        from: hiddenAddress,
+        to: conversationId
+      })
+    ])
+    console.log('thanhduy - publicKey kkkk', { publicKey })
+
     const admin = await this.groupContract.admin({
       from: hiddenAddress,
       to: conversationId
-    })
-
-    const userContract = await this.factoryContract.getUserContract({
-      from: hiddenAddress,
-      inputData: {
-        user: admin
-      }
     })
 
     const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
@@ -79,21 +88,7 @@ export class ConversationService {
       inputData: {}
     })
 
-    const [publicKey, name] = await fulfilledPromises([
-      this.userContract.publicKey({
-        from: hiddenAddress,
-        to: userContract
-      }),
-
-      this.groupContract.groupName({
-        from: hiddenAddress,
-        to: conversationId
-      })
-    ])
-
-    const privateKey = await getPrivateKeyFromDb(accountId)
-
-    const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
+    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, publicKey)
 
     console.log(
       '[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- sharedKeyWithAdmin',
@@ -145,8 +140,8 @@ export class ConversationService {
     })
 
     const [publicKey, name] = rs
-    const privateKey = await getPrivateKeyFromDb(accountId)
-    const sharedKeyWithAdmin = (await createECDHPassword(publicKey, privateKey)).password
+    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, publicKey)
+
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
 
     return {
@@ -351,6 +346,7 @@ export class ConversationService {
           conversationType: 'anonymous_group',
           name: groupInfo.name
         })
+        console.log('thanhduy - conversation anonymous_group', conversation)
         break
       }
     }
@@ -406,6 +402,11 @@ export class ConversationService {
   // ---------------------------------------------------------o---------
   async clearAccountData(accountId: string): Promise<void> {
     await this.repository.clearByAccount(accountId)
+  }
+
+  /** Xóa một conversation khỏi IndexedDB (theo cặp accountId + conversationId). */
+  async deleteConversation(accountId: string, conversationId: string): Promise<void> {
+    await this.repository.delete(accountId, conversationId)
   }
 
   async updateWithLastMessage(message: Message) {
@@ -476,18 +477,42 @@ export class ConversationService {
   // GROUP (create / add membesr)
   // ------------------------------------------------------------------
 
+  async handleCreateECDHPassword(address: string, publicKey: string) {
+    let pass: any
+    if (window.finSdk) {
+      pass = await sendCommand('createECDHPassword', {
+        address: address,
+        publicKey: publicKey
+      })
+    } else {
+      const privateKey = await getPrivateKeyFromDb(address)
+      pass = await sendCommand('createECDHPassword', {
+        privateKey,
+        publicKey: publicKey
+      })
+    }
+    return pass.password
+  }
+
   async createGroup(
     account: Account,
     payload: PayloadCreateGroup
   ): Promise<EventMap['GroupCreated'] & { groupKey: string }> {
     const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
+    console.log('thanhduy - create group 1')
     const groupKey = generateSecureId()
-    const privateKey = await getPrivateKeyFromDb(account.address)
+    console.log('thanhduy - create group 2', {
+      groupKey,
+      account,
+      pub: account.publicKey,
+      add: account.address
+    })
 
-    const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
+    const sharedSecrect = await this.handleCreateECDHPassword(account.address, account.publicKey)
 
+    console.log('thanhduy - create group 3', sharedSecrect)
     const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
-
+    console.log('thanhduy - create group 4', encryptedInitialGroupKey)
     const promise = new Promise<any>((resolve) => {
       const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
         off()
@@ -497,18 +522,23 @@ export class ConversationService {
         })
       })
     })
-
+    console.log('thanhduy - create group 5')
     await this.factoryContract.createGroup({
       from: account.hiddenAddress,
       inputData: {
         groupName: name,
         groupAvatar: avatar,
         encryptedInitialGroupKey,
-        initialPolicy: policy
+        initialPolicy: policy,
+        _description: '',
+        _publicKeyAdmin: account.publicKey
       }
     })
+    console.log('thanhduy - create group 6')
+    const rs = await promise
 
-    return await promise
+    console.log('thanhduy - create group 7', rs)
+    return rs
   }
 
   async addMembers(
@@ -517,7 +547,6 @@ export class ConversationService {
     groupKey: string,
     members: PayloadAddMembers[]
   ) {
-    const privateKeyAdmin = await getPrivateKeyFromDb(account.address)
     const users: string[] = []
     const encryptedKeys: string[] = []
 
@@ -527,7 +556,9 @@ export class ConversationService {
         from: account.address,
         to: conversationId
       })
-      const { password: sharedSecrect } = await createECDHPassword(publicKey, privateKeyAdmin)
+
+      const sharedSecrect = await this.handleCreateECDHPassword(account.address, publicKey)
+
       const { result: encryptedGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
       users.push(addressMember)
       encryptedKeys.push(encryptedGroupKey)
@@ -559,9 +590,7 @@ export class ConversationService {
       groupKey = generateSecureId()
     }
 
-    const privateKey = await getPrivateKeyFromDb(account.address)
-
-    const { password: sharedSecrect } = await createECDHPassword(account.publicKey, privateKey)
+    const sharedSecrect = await this.handleCreateECDHPassword(account.address, account.publicKey)
 
     const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
 
@@ -583,7 +612,8 @@ export class ConversationService {
         encryptedInitialGroupKey: encryptedInitialGroupKey,
         groupName: name,
         groupAvatar: avatar,
-        initialPolicy: policy
+        initialPolicy: policy,
+        _publicKeyAdmin: account.publicKey
       }
     })
 
@@ -598,7 +628,6 @@ export class ConversationService {
     groupKey: string,
     members: PayloadAddMembers[]
   ) {
-    const privateKeyAdmin = await getPrivateKeyFromDb(account.address)
     const newMembers: string[] = []
     const encryptedKeys: string[] = []
 
@@ -610,7 +639,7 @@ export class ConversationService {
         to: conversationId
       })
 
-      const { password: sharedSecrect } = await createECDHPassword(publicKey, privateKeyAdmin)
+      const sharedSecrect = await this.handleCreateECDHPassword(account.address, publicKey)
 
       const { result: encryptedGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
       newMembers.push(addressMember)

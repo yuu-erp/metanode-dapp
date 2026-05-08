@@ -13,6 +13,8 @@ interface UseInputMessageControllerParams {
   account?: Account
   conversation?: Conversation
   isSending?: boolean
+  /** Tuỳ chọn; P2P không truyền → composer dùng passthrough, nội dung gửi = text đã nhập. */
+  formatOutgoingText?: (displayText: string) => string
   onSendText: (content: string, messageAction: MessageAction | null) => void
   onSendSticker: (stickerId: string, messageAction: MessageAction | null) => void
   onEditMessage: (messageOld: Message, content: string) => void
@@ -22,17 +24,20 @@ export function useInputMessageController({
   account,
   conversation,
   isSending = false,
+  formatOutgoingText,
   onSendText,
   onSendSticker,
   onEditMessage
 }: UseInputMessageControllerParams) {
   const [files, setFiles] = React.useState<File[]>([])
   const [isStickerDrawerOpen, setIsStickerDrawerOpen] = React.useState(false)
+  const [fileData, setFileData] = React.useState<any[]>([])
 
   const composer = useMessageComposer({
     account,
     conversation,
     isSending,
+    formatOutgoingText,
     onSendText,
     onSendSticker,
     onEditMessage
@@ -40,7 +45,8 @@ export function useInputMessageController({
   const layout = useChatInputLayout(composer.message)
 
   const attachment = useAttachmentPicker({
-    onSelect: (newFiles) =>
+    onSelect: (newFiles) => {
+      console.log('thanhduy - onSelect', newFiles)
       setFiles((prev) => {
         // const totalSize = [...prev, ...newFiles].reduce((acc, file) => acc + file.size, 0)
         // // if (totalSize > 10 * 1024 * 1024) {
@@ -49,6 +55,7 @@ export function useInputMessageController({
         // // }
         return [...prev, ...newFiles]
       })
+    }
   })
 
   // Note: File sending is still decoupled here, but might needs to be passed in as well if Group file sending is different.
@@ -63,15 +70,12 @@ export function useInputMessageController({
     setFiles((prev) => prev.filter((_, i) => i !== index))
   }, [])
 
+  const onRemoveFileData = React.useCallback((index: number) => {
+    setFileData((prev) => prev.filter((_, i) => i !== index))
+  }, [])
+
   const handleSendFile = React.useCallback(() => {
     if (!account || !conversation || !files.length) return
-
-    const totalSize = files.reduce((acc, file) => acc + file.size, 0)
-    console.log('totalSize', totalSize)
-    // if (totalSize > 10 * 1024 * 1024) {
-    //   toast.error('Total file size must not exceed 10MB')
-    //   return
-    // }
 
     sendFile({ account, conversation, files })
     setFiles([])
@@ -109,6 +113,9 @@ export function useInputMessageController({
     // UI state
     isStickerDrawerOpen,
     setIsStickerDrawerOpen,
-    setFiles
+    setFiles,
+    setFileData,
+    fileData,
+    onRemoveFileData
   }
 }

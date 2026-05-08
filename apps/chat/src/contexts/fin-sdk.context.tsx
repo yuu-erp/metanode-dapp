@@ -1,7 +1,16 @@
 import LoadingApp from '@/shared/components/loading-app'
-import { withTimeout } from '@/shared/lib'
 import { getPlatform } from '@metanodejs/system-core'
 import { createContext, useEffect, useState, type PropsWithChildren } from 'react'
+
+export async function withTimeout<T>(
+  fn: () => Promise<T>,
+  timeoutMs = 1000
+): Promise<T | undefined> {
+  return Promise.race([
+    fn(),
+    new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), timeoutMs))
+  ])
+}
 
 export type FinSdkContext = {}
 
@@ -35,13 +44,13 @@ function useLoadFinSdkScript() {
   return async function loadFinSdkAssets() {
     const base = 'https://a.ibe.app:8000/mtn-virtual-lib'
 
-    await Promise.all([
-      loadScript(`${base}/js/fileDbHelper.js`),
-      loadScript(`${base}/js/exe_controller.js`),
-      loadScript(`${base}/js/storage_controller.js`),
-      loadScript(`${base}/js/file_controller.js`),
-      loadScript(`${base}/js/finsdk.js`)
-    ])
+    await loadScript(`${base}/js/fileDbHelper.js`)
+    await loadScript(`${base}/js/exe_controller.js`)
+    await loadScript(`${base}/js/storage_controller.js`)
+    await loadScript(`${base}/js/file_controller.js`)
+    await loadScript(`${base}/js/ui_controller.js`)
+    await loadScript(`${base}/js/sdk_bootstrap.js`)
+    await loadScript(`${base}/js/finsdk.js`)
 
     loadCSS(`${base}/css/index.css`)
   }

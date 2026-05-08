@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { SHARED_QUERY_KEY } from '../lib/react-query'
+import { SHARED_QUERY_KEY } from '../../shared/lib/react-query'
 import { getPlatform } from '@metanodejs/system-core'
 
 export function usePlatform() {
@@ -9,6 +9,7 @@ export function usePlatform() {
     staleTime: Infinity
   })
   const isNotPc = data === 'ANDROID' || data === 'IOS'
+  const isWindow = data === 'WINDOWS'
 
-  return { ...query, data, isNotPc }
+  return { ...query, data, isNotPc, isWindow }
 }

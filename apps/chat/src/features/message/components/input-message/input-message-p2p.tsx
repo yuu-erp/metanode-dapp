@@ -46,6 +46,7 @@ const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>
       [account, conversation, editMessage]
     )
 
+    // Không truyền formatOutgoingText: hook dùng passthrough — nội dung gửi/sửa = đúng text trong ô (không mention).
     const controller = useInputMessageController({
       account,
       conversation,
@@ -61,6 +62,9 @@ const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>
 
     return (
       <InputMessageView
+        onRemoveFileData={controller.onRemoveFileData}
+        fileData={controller.fileData}
+        setFileData={controller.setFileData}
         message={controller.message}
         isPending={controller.isPending}
         messageAction={controller.messageAction}

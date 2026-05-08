@@ -12,6 +12,7 @@ import { cn } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
 import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
+import { ConversationContextMenu } from './conversation-context-menu'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
@@ -23,6 +24,7 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   unreadCount?: number
   isMine?: boolean
   isVerified?: boolean
+  conversationId?: string
 }
 function ItemConversation({
   name,
@@ -35,6 +37,7 @@ function ItemConversation({
   className,
   isMine = false,
   isVerified,
+  conversationId = '',
   ...props
 }: ItemConversationProps) {
   const { t } = useI18N()
@@ -52,53 +55,55 @@ function ItemConversation({
   // Helper render content
 
   return (
-    <div
-      {...handlers}
-      className={cn(
-        'w-full flex items-center min-h-[56px] h-full',
-        'transition-all duration-300 ease-out hover:bg-black/20 rounded-2xl',
-        isLongPressActive && 'bg-black/40',
-        className
-      )}
-      {...props}
-    >
+    <ConversationContextMenu conversationId={conversationId} type={type}>
       <div
+        {...handlers}
         className={cn(
-          'flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full',
-          'transition-all duration-300 ease-out',
-          isLongPressActive && 'scale-95'
+          'w-full flex items-center min-h-[56px] h-full',
+          'transition-all duration-300 ease-out hover:bg-black/20 rounded-2xl',
+          isLongPressActive && 'bg-black/40',
+          className
         )}
+        {...props}
       >
-        <AvatarUser size="lg" url={avatar} name={name} type={type} />
-        <div className="grid flex-1 text-left text-sm leading-tight">
-          <div className="w-full flex items-center justify-between gap-3">
-            <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1 flex flex-row gap-2 items-center">
-              <p>{type === 'private' ? t(name) : name}</p>
-              {isVerified && <VerifiedIcon className="size-4" />}
+        <div
+          className={cn(
+            'flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full',
+            'transition-all duration-300 ease-out',
+            isLongPressActive && 'scale-95'
+          )}
+        >
+          <AvatarUser size="lg" url={avatar} name={name} type={type} />
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="w-full flex items-center justify-between gap-3">
+              <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1 flex flex-row gap-2 items-center">
+                <p>{type === 'private' ? t(name) : name}</p>
+                {isVerified && <VerifiedIcon className="size-4" />}
+              </div>
+              <div className="flex items-center gap-1">
+                {isMine && <CheckIcon className="size-3" />}
+                {updatedAt && <span>{formatUpdatedAt(updatedAt)}</span>}
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              {isMine && <CheckIcon className="size-3" />}
-              {updatedAt && <span>{formatUpdatedAt(updatedAt)}</span>}
+            <div className="w-full flex items-center justify-between gap-3">
+              <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium pointer-events-none">
+                {/* Priview message */}
+                {lastMessage && <MessagePreview message={lastMessage} />}
+              </div>
+              {unreadCount > 0 && (
+                <Badge
+                  className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
+                  variant="secondary"
+                >
+                  {unreadCount > 999 ? '999+' : unreadCount}
+                </Badge>
+              )}
+              {isPin && <PinIcon className="size-4" />}
             </div>
-          </div>
-          <div className="w-full flex items-center justify-between gap-3">
-            <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium pointer-events-none">
-              {/* Priview message */}
-              {lastMessage && <MessagePreview message={lastMessage} />}
-            </div>
-            {unreadCount > 0 && (
-              <Badge
-                className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
-                variant="secondary"
-              >
-                {unreadCount > 999 ? '999+' : unreadCount}
-              </Badge>
-            )}
-            {isPin && <PinIcon className="size-4" />}
           </div>
         </div>
       </div>
-    </div>
+    </ConversationContextMenu>
   )
 }
 

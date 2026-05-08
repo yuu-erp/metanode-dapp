@@ -20,7 +20,8 @@ export class WalletService {
   }
 
   async encryptMessage(publicKey: string, address: string, message: string): Promise<string> {
-    return (await this.walletAdapter.encryptMessage(publicKey, address, message)).value
+    const rs = await this.walletAdapter.encryptMessage(publicKey, address, message)
+    return rs.value
   }
 
   async decryptMessage<T = unknown>(

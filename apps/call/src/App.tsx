@@ -19,7 +19,7 @@ function App() {
   const [ready, setReady] = useState(false)
 
   const searchParams = new URLSearchParams(location.search)
-  const search = {}
+  const search: any = {}
   searchParams.forEach((value, key) => {
     search[key] = value
   })
@@ -32,10 +32,6 @@ function App() {
       ])
       setReady(true)
     })()
-
-    eventLog.onEventLog((e) => {
-      console.log('thanhduy - eventlog data', e)
-    })
   }, [])
   return (
     <>
@@ -58,11 +54,9 @@ function App() {
               )
             }}
             onEndCall={endCall}
-            fetchNameByUser={async (myAddress, user) => {
-              return 'test'
-            }}
+            fetchNameByUser={async () => ''}
           >
-            <div className="fixed left-1/2 -translate-x-1/2 bottom-5 bg-black">
+            <div className="fixed left-1/2 -translate-x-1/2 bottom-5 flex gap-3">
               <CamButton />
               <MicButton />
               <EndCallButton />

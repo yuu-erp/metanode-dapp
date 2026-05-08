@@ -9,6 +9,7 @@ export interface PinActionProps {
   isPinned: boolean
   onClose: () => void
   className?: string
+  messageId?: string
 }
 
 function PinAction({ isPinned, className, onClose }: PinActionProps) {

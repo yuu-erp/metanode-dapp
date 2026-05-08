@@ -16,7 +16,14 @@ export const groupAbis = {
   unReactToMessage: groupContract.find((item) => item.name === 'unReactToMessage'),
   getMessageById: groupContract.find((item) => item.name === 'getMessageById'),
   markMessagesAsRead: groupContract.find((item) => item.name === 'markMessagesAsRead'),
-  addAllMember: groupContract.find((item) => item.name === 'addAllMember')
+  addAllMember: groupContract.find((item) => item.name === 'addAllMember'),
+  transferAdmin: groupContract.find((item) => item.name === 'transferAdmin'),
+  groupId: groupContract.find((item) => item.name === 'groupId'),
+  userToPublicKeyAdmin: groupContract.find((item) => item.name === 'userToPublicKeyAdmin'),
+  updateGroupInfo: groupContract.find((item) => item.name === 'updateGroupInfo'),
+  getGroupInfo: groupContract.find((item) => item.name === 'getGroupInfo'),
+  getPinnedMessage: groupContract.find((item) => item.name === 'getPinnedMessage'),
+  pinMessage: groupContract.find((item) => item.name === 'pinMessage')
 }
 
 export { groupContract }

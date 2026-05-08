@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@app/call": "workspace:*",
+    "chat-react": "workspace:*",
     "@headlessui/react": "^2.2.9",
     "@metanodejs/event-log": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log",
     "@metanodejs/mtn-contract": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract",
@@ -55,6 +56,8 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
+    "postcss-preset-env": "^11.2.0",
     "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.2.0",
@@ -78,7 +81,8 @@
   "pnpm": {
     "overrides": {
       "@tanstack/react-query": "5.90.12",
-      "@tanstack/query-core": "5.90.12"
+      "@tanstack/query-core": "5.90.12",
+      "zustand": "^5.0.11"
     }
   }
 }

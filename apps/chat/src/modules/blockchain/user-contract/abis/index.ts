@@ -27,7 +27,8 @@ export const userAbi = {
   MessageReacted: userContract.find((item) => item.name === 'MessageReacted'),
   MessageUnReacted: userContract.find((item) => item.name === 'MessageUnReacted'),
   MessageSent: userContract.find((item) => item.name === 'MessageSent'),
-  markMessagesAsRead: userContract.find((item) => item.name === 'markMessagesAsRead')
+  markMessagesAsRead: userContract.find((item) => item.name === 'markMessagesAsRead'),
+  RemoveContact: userContract.find((item) => item.name === 'RemoveContact')
 }
 
 export { userContract }

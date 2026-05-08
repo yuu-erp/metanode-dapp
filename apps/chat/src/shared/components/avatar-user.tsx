@@ -15,6 +15,7 @@ import type { ConversationType } from '@/modules/conversation'
 const avatarVariants = cva('rounded-full shrink-0', {
   variants: {
     size: {
+      xs: 'size-8',
       sm: 'size-10', // 40px
       md: 'size-12', // 48px
       lg: 'size-15', // 60px
@@ -30,6 +31,7 @@ const avatarVariants = cva('rounded-full shrink-0', {
 const fallbackTextVariants = cva('font-bold text-white', {
   variants: {
     size: {
+      xs: 'text-sm',
       sm: 'text-sm',
       md: 'text-base',
       lg: 'text-2xl',
@@ -45,6 +47,7 @@ const fallbackTextVariants = cva('font-bold text-white', {
 const bookmarkIconVariants = cva('text-white', {
   variants: {
     size: {
+      xs: 'size-4',
       sm: 'size-4',
       md: 'size-7',
       lg: 'size-8',

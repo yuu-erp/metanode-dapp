@@ -292,4 +292,16 @@ export class UserContract extends MtnContract {
       inputData
     })
   }
+
+  removeContact(payload: TransactionPayload<{ _contactAddress: string }>): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'RemoveContact',
+      abiData: userAbi.RemoveContact as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
 }

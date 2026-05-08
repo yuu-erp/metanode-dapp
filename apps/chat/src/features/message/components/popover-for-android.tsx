@@ -1,4 +1,4 @@
-import { usePlatform } from '@/shared/hooks'
+import { usePlatform } from '@/hooks/core/use-platform'
 import React, { memo, useState, type PropsWithChildren } from 'react'
 
 export const PopoverForAndroid = memo(
@@ -11,7 +11,7 @@ export const PopoverForAndroid = memo(
     const { data } = usePlatform()
     const [open, setOpen] = useState(false)
     console.log('platform data', data)
-    if (data !== 'ANDROID') return children
+    if (data !== 'ANDROID' && data !== 'IOS') return children
 
     const close = () => setOpen(false)
 

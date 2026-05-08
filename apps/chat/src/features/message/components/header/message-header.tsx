@@ -1,15 +1,19 @@
 'use client'
 import type { ConversationType } from '@/modules/conversation'
-import { DrawerAddGroupMember } from '@/shared/components'
 import AvatarUser from '@/shared/components/avatar-user'
 import { VideoIcon } from '@/shared/components/icons'
 import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
+import { cn } from '@/shared/lib/utils'
 import { useNavigate } from '@tanstack/react-router'
 import { ChevronLeft, LoaderCircle } from 'lucide-react'
 import * as React from 'react'
 import { GroupMembers } from './group-members'
+import { MoreButton } from './more-button'
+import { SearchInChatButton } from '../../../../components/search-in-chat/search-in-chat-button'
+import { SearchInChatPopover } from '../../../../components/search-in-chat/search-in-chat-popover'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 
 interface ChatHeaderProps {
   avatar?: string
@@ -18,29 +22,35 @@ interface ChatHeaderProps {
   type?: ConversationType
   onVideoCall?: () => void
   isLoading?: boolean
-  isAdmin?: boolean
 }
 function ChatHeader({
   name = '',
   type = 'p2p',
   username,
   onVideoCall,
-  isLoading,
-  isAdmin
+  isLoading
 }: ChatHeaderProps) {
   const { t } = useI18N()
   const navigate = useNavigate()
 
-  const isGroup = type === 'group' || type === 'anonymous_group'
+  const { id, type: _type } = useConversationParams()
 
   return (
-    <WapperHeader alwaysScrolled position="sticky">
-      <div className="flex items-center gap-2">
+    <WapperHeader alwaysScrolled position="sticky" relativeNode={<SearchInChatPopover />}>
+      <div className={cn('flex items-center gap-2')}>
         <button className="flex items-center gap-1" onClick={() => navigate({ to: '/' })}>
           <ChevronLeft />
           <TotalUnreadcount variant="secondary" />
         </button>
-        <div className="flex flex-1 items-center gap-1 text-left text-sm h-full">
+        <div
+          className="flex flex-1 items-center gap-1 text-left text-sm h-full"
+          onClick={() =>
+            navigate({
+              to: '/detail/$type/$id',
+              params: { id, type: _type }
+            })
+          }
+        >
           <AvatarUser size="md" url="" name={name} type={type} />
           <div className="grid flex-1 text-left text-sm leading-tight">
             <div className="text-base font-bold flex-1 line-clamp-1 break-all">
@@ -56,6 +66,7 @@ function ChatHeader({
           {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
+          <SearchInChatButton />
           {type !== 'private' && (
             <button onClick={onVideoCall} disabled={isLoading}>
               {isLoading ? (
@@ -65,7 +76,7 @@ function ChatHeader({
               )}
             </button>
           )}
-          {isGroup && isAdmin && <DrawerAddGroupMember />}
+          <MoreButton />
           {/* <button>
             <EllipsisVertical className="size-7 text-white/80" />
           </button> */}

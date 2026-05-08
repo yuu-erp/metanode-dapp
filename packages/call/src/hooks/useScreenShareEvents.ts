@@ -11,7 +11,6 @@ export function useScreenShareEvents() {
     },
     (e) => {
       const rs = roomActions.isMyRoom(e)
-      console.log('thanhduy - ScreenShareStarted', rs)
 
       return rs
     }
@@ -26,7 +25,7 @@ export function useScreenShareEvents() {
     },
     (e) => {
       const rs = roomActions.isMyRoom(e)
-      console.log('thanhduy - ScreenShareStopped', rs)
+
       return rs
     }
   )

@@ -22,9 +22,14 @@ export function createGetConversationIdQueryOptions(
       const currentAccount = queryClient.getQueryData<Account>(
         ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
       )
+      console.log('thanhduy - conversationId 1', currentAccount)
       if (!currentAccount) return null
-
       const conversationService = container.conversationService
+      console.log('thanhduy - conversationId 2', {
+        currentAccount,
+        conversationId,
+        conversationType
+      })
 
       const conversation = await conversationService.getConversationById(
         currentAccount,
@@ -32,11 +37,13 @@ export function createGetConversationIdQueryOptions(
         conversationType,
         useDb
       )
+      console.log('thanhduy - conversationId 3', conversation)
 
       if (!conversation) return null
       return conversation
     },
-    enabled: !!conversationId
+    enabled: !!conversationId,
+    staleTime: 1000 * 60 * 5 // 5 minutes
   }
 }
 

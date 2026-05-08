@@ -1,4 +1,6 @@
 import { container } from '@/container'
+import { useAddress } from '@/shared/hooks/accounts/use-address'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useQuery } from '@tanstack/react-query'
 
 export function useMessagePinStatus(accountId: string, conversationId: string, messageId: string) {
@@ -10,4 +12,11 @@ export function useMessagePinStatus(accountId: string, conversationId: string, m
     },
     enabled: !!accountId && !!conversationId && !!messageId
   })
+}
+
+export function useIsPinned(messageId = '') {
+  const { address } = useAddress()
+  const { id } = useConversationParams()
+
+  return useMessagePinStatus(address, id, messageId)
 }

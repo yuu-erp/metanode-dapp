@@ -95,7 +95,7 @@ function MessageFile({ message, isMine, isOverlay }: Props) {
       <div
         className={cn(
           'w-12 h-12 flex items-center justify-center rounded-full shrink-0 relative',
-          isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-blue-500'
+          isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'
         )}
       >
         {isDownloadingThis ? (

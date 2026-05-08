@@ -45,11 +45,11 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     },
     [navigate]
   )
-
   return (
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (
         <ItemConversation
+          conversationId={item.conversationId}
           key={item.conversationId}
           name={item.name}
           updatedAt={item.updatedAt}

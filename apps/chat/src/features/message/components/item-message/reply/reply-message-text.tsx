@@ -1,6 +1,7 @@
 'use client'
 import * as React from 'react'
 import type { ReplyReference } from '@/modules/message'
+import { TextContentWithMentions } from '@/shared/components/message-render'
 import { cn } from '@/shared/lib'
 
 type Props = {
@@ -16,7 +17,7 @@ function ReplyMessageText({ message, isMine }: Props) {
         isMine ? 'text-white' : 'text-gray-800'
       )}
     >
-      {message.content}
+      <TextContentWithMentions text={message.content} />
     </div>
   )
 }

@@ -17,7 +17,21 @@ export function getBundleId() {
   return null
 }
 
-export function pushNoti(title: string, message: string) {
+function messageToContent(message: any) {
+  switch (message.type) {
+    case 'sticker':
+      return 'sticker'
+    case 'text':
+      return message.content
+    case 'file':
+      return `File: ${message.fileName}`
+    default:
+      return 'Message --'
+  }
+}
+export function pushNoti(title: string, message: any) {
+  const content = messageToContent(message)
+
   //@ts-ignore
   if (!window?.electronAPI?.sendMessage) return
   //@ts-ignore
@@ -27,7 +41,7 @@ export function pushNoti(title: string, message: string) {
       command: 'pushNotification',
       value: {
         title,
-        message,
+        message: content,
         bundleId: getBundleId()
       }
     })

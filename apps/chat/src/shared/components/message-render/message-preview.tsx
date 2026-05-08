@@ -4,6 +4,7 @@ import type { Message } from '@/modules/message'
 import { useI18N } from '@/shared/hooks'
 import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import * as React from 'react'
+import { TextContentWithMentions } from './message-text'
 
 type Props = {
   message: Message
@@ -18,7 +19,11 @@ function MessagePreview({ message, className }: Props) {
 
   switch (message.type) {
     case 'text':
-      return <span className={className}>{message.content}</span>
+      return (
+        <span className={className}>
+          <TextContentWithMentions text={message.content} />
+        </span>
+      )
 
     case 'sticker':
       return (

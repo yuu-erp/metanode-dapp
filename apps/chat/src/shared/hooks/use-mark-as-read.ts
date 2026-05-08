@@ -1,16 +1,16 @@
 import { container } from '@/container'
 import type { Conversation } from '@/modules/conversation'
 import type { Message } from '@/modules/message'
-import { useEffect, useRef } from 'react'
-import { useCurrentAccount } from './use-current-account'
 import { asyncPriorityQueue } from '@/modules/realtime'
-import { useCurrentConversationType } from './use-current-conversation-type'
 import { useQueryClient } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
 import { CONVERSATION_QUERY_KEY } from '../lib/react-query'
+import { useConversationParams } from './use-conversation-params'
+import { useCurrentAccount } from './use-current-account'
 
 export function useMarkAsRead(messages: Message[], conversation?: Conversation) {
   const { data: account } = useCurrentAccount()
-  const type = useCurrentConversationType()
+  const { type } = useConversationParams()
   const read = useRef(new Set<string>())
   const queryClient = useQueryClient()
 

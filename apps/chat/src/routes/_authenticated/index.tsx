@@ -28,6 +28,7 @@ function RouteComponent() {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
+
         <AccountActivationNotice />
       </WapperHeader>
       <div className="flex flex-col w-full relative" style={{ paddingTop: 'var(--header-height)' }}>

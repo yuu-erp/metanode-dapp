@@ -23,8 +23,6 @@ export const CallGroup = memo(() => {
     return 1 // fallback
   }
 
-  console.log('thanhduy - layout', { col, row, grid })
-
   return (
     <div className={cn('size-full overflow-hidden flex flex-col md:flex-row')}>
       <BigShareVideo />

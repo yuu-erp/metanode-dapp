@@ -1,12 +1,12 @@
 import type { FactoryContract, UserContract } from '@/modules/blockchain'
 import type { Wallet, WalletService } from '@/modules/wallet'
+import { compareAddress } from '@/shared/lib'
+import { formatAddress } from '@/shared/utils'
+import { getHiddenWallet } from '@metanodejs/system-core'
 import { activateAccount, createAccount } from './account.entity'
 import type { AccountRepository } from './account.repository'
 import type { Account } from './account.types'
 import { detectNameFromWalletName, generateAvailableUsername } from './utils'
-import { formatAddress } from '@/shared/utils'
-import { getHiddenWallet } from '@metanodejs/system-core'
-import { compareAddress } from '@/shared/lib'
 
 export class AccountService {
   constructor(
@@ -28,6 +28,20 @@ export class AccountService {
 
   async registerUser(wallet: Wallet, name?: string): Promise<Account> {
     const address = wallet.address
+
+    // const wallet2 = await getWalletByAddress(address)
+    // console.log('thanhduy - wallet2', wallet2)
+
+    // const contractAddress2 = await this.factoryContract.getUserContract({
+    //   from: address,
+    //   inputData: {
+    //     user: address
+    //   }
+    // })
+    // console.log('thanhduy - contractAddress', contractAddress2)
+
+    // return
+
     // 1. Check on-chain
     const isRegistered = await this.factoryContract.checkUserContract({
       from: address,

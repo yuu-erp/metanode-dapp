@@ -16,6 +16,8 @@ export const useIncomingCall = () => {
     console.log('  1', account)
     if (!account) return
     const handleCallReceived = async (event: AppEvents['call.received']) => {
+      console.log('thanhduy - testttt ', event)
+
       setIncomingCall({
         ...event,
         roomId: formatAddress(event.roomId ?? '')

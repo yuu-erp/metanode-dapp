@@ -1,11 +1,12 @@
 'use client'
 import type { MessageReaction } from '@/modules/message'
-import { useCurrentAccount, useCurrentConversationType } from '@/shared/hooks'
+import { useCurrentAccount } from '@/shared/hooks'
 import * as React from 'react'
+import { useConversationParams } from './use-conversation-params'
 
 export function useIsMineReaction() {
   const { data } = useCurrentAccount()
-  const type = useCurrentConversationType()
+  const { type } = useConversationParams()
 
   return React.useCallback(
     (reaction: MessageReaction) => {

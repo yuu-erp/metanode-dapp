@@ -6,18 +6,15 @@ import {
   MessageActionProvider,
   PinMessages
 } from '@/features/message'
+import { useGetPinMessage } from '@/hooks/mesage/pin/use-get-pin-message'
 import type { Conversation } from '@/modules/conversation'
-import {
-  useCurrentAccount,
-  useCurrentConversationType,
-  useGetConversationId,
-  useVisualViewport
-} from '@/shared/hooks'
+import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
 import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
-import { createFileRoute, redirect, useParams } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
 export const Route = createFileRoute('/_authenticated/$type/$id')({
@@ -38,9 +35,8 @@ export const Route = createFileRoute('/_authenticated/$type/$id')({
 })
 
 function RouteComponent() {
-  const { id } = useParams({ from: '/_authenticated/$type/$id' })
+  const { id, type } = useConversationParams()
   const { data: account } = useCurrentAccount()
-  const type = useCurrentConversationType()
 
   const { data: conversation } = useGetConversationId(id, type)
   const viewportHeight = useVisualViewport()
@@ -50,6 +46,9 @@ function RouteComponent() {
   }, [viewportHeight])
 
   const { mutate: createCall } = useGoToMeetingView()
+
+  const { data: pinnedMessages } = useGetPinMessage()
+  console.log('thanhduy - pinnedMessages', pinnedMessages)
 
   const onVideoCall = () => {
     if (!account || !conversation) throw new Error('[onVideoCall] Invalid input')
@@ -79,9 +78,6 @@ function RouteComponent() {
             name={conversation?.name}
             type={conversation?.conversationType}
             username={conversation?.name}
-            isAdmin={
-              formatAddress(conversation?.admin || '') === formatAddress(account?.address || '')
-            }
           />
           <PinMessages account={account} conversation={conversation as Conversation} />
           <ListMessage conversation={conversation as Conversation} account={account} />

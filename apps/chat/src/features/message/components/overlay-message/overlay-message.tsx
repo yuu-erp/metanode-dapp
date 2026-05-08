@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { useIsMineReaction } from '@/shared/hooks'
 import { asyncPriorityQueue } from '@/modules/realtime'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 
 function OverlayMessage({ onClose, message, conversation, account }: OverlayMessageProps) {
   const { setMessageAction } = useMessageAction()
@@ -21,6 +22,8 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
   const { mutateAsync: mutateUnreactToMessage } = useUnreactToMessage()
   const { mutate: mutateDelete } = useDeleteMessage()
   const { downloadFile } = useDownloadFile()
+  const { type } = useConversationParams()
+
   const { data: isPinned } = useMessagePinStatus(
     account?.address || '',
     conversation?.conversationId || '',
@@ -28,8 +31,6 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
   )
   const queryClient = useQueryClient()
   const isMine = useIsMineReaction()
-
-  console.log('isPinned: ', isPinned)
 
   const handleClose = React.useCallback(() => onClose(), [onClose])
 
@@ -107,7 +108,6 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
 
       onSave: () => {
         if (message.type !== 'file' || !message.fileId) return
-        console.log('thanhduy on save')
         // const mimeType = message.mimeType || 'application/octet-stream'
         // downloadFile(message.id, message.fileId, message.fileName || 'file', mimeType, true)
         container.eventBus.emit('file.download', {
@@ -124,14 +124,16 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
             await container.messagePinService.unpinMessage(
               account.address,
               conversation.conversationId,
-              message.id
+              message.id,
+              type
             )
             // toast.success('Đã bỏ ghim tin nhắn')
           } else {
             await container.messagePinService.pinMessage(
               account.address,
               conversation.conversationId,
-              message
+              message,
+              type
             )
             // toast.success('Đã ghim tin nhắn')
           }

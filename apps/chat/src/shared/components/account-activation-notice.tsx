@@ -5,6 +5,7 @@ import { useCheckUserContract } from '@/shared/hooks/accounts'
 import { AlertTriangle, MoveRight } from 'lucide-react'
 import * as React from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { ACCOUNT_QUERY_KEY, queryClient } from '../lib/react-query'
 
 function AccountActivationNotice() {
   const navigate = useNavigate()
@@ -40,6 +41,11 @@ function AccountActivationNotice() {
                   Dexie.delete('accounts')
                 ])
                 navigate({ to: '/wallets' })
+                console.log('thanhduy - currentAccount', currentAccount)
+                console.log('delete', currentAccount?.address)
+                queryClient.invalidateQueries({
+                  queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(currentAccount?.address ?? '')
+                })
                 // window.location.reload()
               } catch (error) {
                 console.error('Failed to clear data:', error)

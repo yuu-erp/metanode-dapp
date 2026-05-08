@@ -1,16 +1,15 @@
 'use client'
+import { usePlatform } from '@/hooks/core/use-platform'
 import type { MessageAction } from '@/modules/message'
 import { StickerIcon } from '@/shared/components/icons'
-import { cn } from '@/shared/lib'
+import { cn, getMentionHighlightSegments, type Mention } from '@/shared/lib'
+import { sendCommand } from '@metanodejs/system-core'
 import { Mic, Paperclip, Send } from 'lucide-react'
 import * as React from 'react'
 import { InputMessageAction } from '.'
+import { PopoverForAndroid } from '../popover-for-android'
 import { SelectedFileList } from './selected-file-list'
 import { StickerDrawer } from './sticker-drawer'
-import { usePlatform } from '@/shared/hooks'
-import { chooseGalery, getBase64FromPath, takePicture } from '@metanodejs/system-core'
-import { PopoverForAndroid } from '../popover-for-android'
-import { base64ToFile } from '@/shared/lib'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
@@ -29,9 +28,16 @@ export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivEleme
   onOpenFilePicker: () => void
   onClearAction: () => void
   onRemoveFile: (index: number) => void
+  onRemoveFileData: (index: number) => void
+
   isStickerDrawerOpen: boolean
   onToggleStickerDrawer: (open: boolean) => void
   setFiles: (files: File[]) => void
+  node?: React.ReactNode
+  /** Group: truyền danh sách mention để tô sáng @display trong ô nhập */
+  mentionHighlights?: Mention[]
+  fileData: any[]
+  setFileData: (fileData: any[]) => void
 }
 
 function InputMessageView(props: InputMessageViewProps) {
@@ -52,27 +58,38 @@ function InputMessageView(props: InputMessageViewProps) {
     isStickerDrawerOpen,
     onToggleStickerDrawer,
     setFiles,
+    node,
+    mentionHighlights,
+    fileData,
+    setFileData,
+    onRemoveFileData,
     ...propsDiv
   } = props
-
+  console.log('thanhduy - fileData', fileData)
   const { data } = usePlatform()
 
-  const handleSetFile = async (path: string) => {
-    const formatPath = path.replace('image://img.m.pro', '')
-    const base64 = (await getBase64FromPath(formatPath)).base64
-    const file = base64ToFile(base64, 'image.jpg', 'image/jpeg')
+  const [mentionScrollTop, setMentionScrollTop] = React.useState(0)
+  const showMentionHighlight = Boolean(mentionHighlights?.length)
 
-    setFiles([file])
-  }
+  const highlightSegments = React.useMemo(
+    () => (showMentionHighlight ? getMentionHighlightSegments(message, mentionHighlights!) : null),
+    [message, mentionHighlights, showMentionHighlight]
+  )
 
-  const handleSelectFiles = async () => {
-    const path = (await chooseGalery()).path
-    await handleSetFile(path)
+  React.useEffect(() => {
+    if (!showMentionHighlight) setMentionScrollTop(0)
+  }, [showMentionHighlight, message])
+
+  const handleSelectImage = async () => {
+    setFileData([await sendCommand('select-image', {})])
   }
 
   const handleTakePicture = async () => {
-    const path = (await takePicture()).path
-    await handleSetFile(path)
+    setFileData([await sendCommand('take-picture', {})])
+  }
+
+  async function handleSelectFile() {
+    setFileData([await sendCommand('get-file', {})])
   }
 
   return (
@@ -81,7 +98,8 @@ function InputMessageView(props: InputMessageViewProps) {
       className="absolute bottom-0 left-0 right-0 banner__overlay--down"
       {...propsDiv}
     >
-      <div className="pb-5">
+      <div className="pb-5 relative">
+        {node}
         <div className="w-full min-h-[72px] h-full flex items-end gap-1 px-2">
           {/* Attach */}
           <PopoverForAndroid
@@ -90,7 +108,7 @@ function InputMessageView(props: InputMessageViewProps) {
                 <button
                   onClick={async () => {
                     close()
-                    await handleSelectFiles()
+                    await handleSelectImage()
                   }}
                 >
                   Chọn ảnh
@@ -98,7 +116,7 @@ function InputMessageView(props: InputMessageViewProps) {
                 <button
                   onClick={async () => {
                     close()
-                    onOpenFilePicker()
+                    handleSelectFile()
                   }}
                 >
                   Chọn file
@@ -116,7 +134,7 @@ function InputMessageView(props: InputMessageViewProps) {
           >
             <button
               type="button"
-              onClick={data !== 'ANDROID' ? onOpenFilePicker : undefined}
+              onClick={!data ? onOpenFilePicker : undefined}
               className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
             >
               <Paperclip className="text-white/80" />
@@ -142,24 +160,65 @@ function InputMessageView(props: InputMessageViewProps) {
               )}
             >
               <InputMessageAction messageAction={messageAction} onClearAction={onClearAction} />
-              <SelectedFileList files={files} onRemove={onRemoveFile} />
+              <SelectedFileList
+                fileData={fileData}
+                files={files}
+                onRemove={onRemoveFile}
+                removeFileData={onRemoveFileData}
+              />
               <div className="w-full h-full flex items-end">
-                <div className="no-scrollbar min-h-8 max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
-                  <textarea
-                    ref={textareaRef}
-                    rows={1}
-                    placeholder="Tin nhắn"
-                    value={message}
-                    onChange={(e) => onChangeMessage(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.nativeEvent.isComposing) return
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        onSend()
+                <div className="no-scrollbar max-h-60 h-full flex-1 flex items-center overflow-y-auto pl-1">
+                  <div className="relative w-full h-full">
+                    {showMentionHighlight && highlightSegments ? (
+                      <div
+                        className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-sm"
+                        aria-hidden
+                      >
+                        <div
+                          className="w-full min-h-full whitespace-pre-wrap break-words px-0 py-0 text-base leading-normal text-white"
+                          style={{ transform: `translateY(-${mentionScrollTop}px)` }}
+                        >
+                          {highlightSegments.map((seg, i) =>
+                            seg.highlight ? (
+                              <mark
+                                key={i}
+                                className="rounded-sm bg-sky-500/45 text-white [box-decoration-break:clone]"
+                              >
+                                {seg.text}
+                              </mark>
+                            ) : (
+                              <span key={i}>{seg.text}</span>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+                    <textarea
+                      ref={textareaRef}
+                      rows={1}
+                      placeholder="Tin nhắn"
+                      value={message}
+                      onChange={(e) => onChangeMessage(e.target.value)}
+                      onScroll={
+                        showMentionHighlight
+                          ? (e) => setMentionScrollTop(e.currentTarget.scrollTop)
+                          : undefined
                       }
-                    }}
-                    className="w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-white/60 text-white"
-                  />
+                      onKeyDown={(e) => {
+                        if (e.nativeEvent.isComposing) return
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault()
+                          onSend()
+                        }
+                      }}
+                      className={cn(
+                        'relative z-10 w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-white/60',
+                        showMentionHighlight
+                          ? 'text-transparent caret-white selection:bg-sky-500/35'
+                          : 'text-white'
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div className="h-8 flex items-center gap-1">

@@ -1,4 +1,5 @@
 import { images } from '@/assets/images'
+import { container } from '@/container'
 import { ButtonGroup, ListWallet, useGetAllWallets, useRegisterUser } from '@/features/wallet'
 import ListWalletWindows from '@/features/wallet/components/list-wallet.windows'
 import Login from '@/features/wallet/components/login'
@@ -8,8 +9,7 @@ import { cn } from '@/shared/lib'
 import { ACCOUNT_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { useLoginModalStore } from '@/shared/stores/login-modal.store'
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import React from 'react'
-import { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Trans } from 'react-i18next'
 import type { SwiperClass, SwiperProps } from 'swiper/react'
 
@@ -35,7 +35,6 @@ export const Route = createFileRoute('/wallets')({
 
 function RouteComponent() {
   const { isOpen, onOpen, onClose } = useLoginModalStore()
-
   const { data = [] } = useGetAllWallets()
 
   const { mutateAsync, isPending } = useRegisterUser()
@@ -50,24 +49,29 @@ function RouteComponent() {
   }, [])
 
   const handleConnectWallet = useCallback(async () => {
-    console.log('thanhduy - connect wallet 1')
-
     await mutateAsync(activeWallet)
-    console.log('thanhduy - connect wallet 2')
+
     queryClient.invalidateQueries({
       queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
     })
-    console.log('thanhduy - connect wallet 3')
   }, [activeWallet])
 
   const onCreateWallet = () => {
-    onOpen()
-    setStep(1)
+    if (window.finSdk) {
+      onOpen()
+      setStep(1)
+    } else {
+      container.walletService.openCreateWallet()
+    }
   }
 
   const onImportWallet = () => {
-    onOpen()
-    setStep(0)
+    if (window.finSdk) {
+      onOpen()
+      setStep(0)
+    } else {
+      container.walletService.openImportWallet()
+    }
   }
 
   return (

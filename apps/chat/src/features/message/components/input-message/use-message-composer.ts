@@ -10,15 +10,23 @@ interface UseMessageComposerParams {
   account?: Account
   conversation?: Conversation
   isSending?: boolean
+  /**
+   * Chuỗi hiển thị trong ô nhập → chuỗi gửi đi (vd. group + mention).
+   * Không truyền (P2P): mặc định gửi đúng `displayText` đã trim — giữ hành vi cũ.
+   */
+  formatOutgoingText?: (displayText: string) => string
   onSendText: (content: string, messageAction: MessageAction | null) => void
   onSendSticker: (stickerId: string, messageAction: MessageAction | null) => void
   onEditMessage: (messageOld: Message, content: string) => void
 }
 
+const passthroughOutgoingText = (text: string) => text
+
 export function useMessageComposer({
   account,
   conversation,
   isSending,
+  formatOutgoingText = passthroughOutgoingText,
   onSendText,
   onSendSticker,
   onEditMessage
@@ -34,11 +42,12 @@ export function useMessageComposer({
   const handleSendText = React.useCallback(() => {
     if (!canSend) return
 
-    const content = message.trim()
+    const displayTrimmed = message.trim()
+    const outgoing = formatOutgoingText(displayTrimmed)
 
     // ✏️ EDIT MESSAGE (TEXT ONLY)
     if (isEdit && messageAction?.message) {
-      onEditMessage(messageAction.message, content)
+      onEditMessage(messageAction.message, outgoing)
 
       setMessage('')
       setMessageAction(null)
@@ -46,11 +55,20 @@ export function useMessageComposer({
     }
 
     // 📤 SEND NEW MESSAGE
-    onSendText(content, messageAction)
+    onSendText(outgoing, messageAction)
 
     setMessage('')
     setMessageAction(null)
-  }, [canSend, message, messageAction, isEdit, onSendText, onEditMessage, setMessageAction])
+  }, [
+    canSend,
+    message,
+    messageAction,
+    isEdit,
+    formatOutgoingText,
+    onSendText,
+    onEditMessage,
+    setMessageAction
+  ])
 
   const handleSendSticker = React.useCallback(
     (stickerId: string) => {

@@ -1,18 +1,19 @@
 'use client'
+import { container } from '@/container'
 import { useGetConversations } from '@/features/conversation'
 import type { Conversation } from '@/modules/conversation'
+import { createForwardPayload, type MessageAction } from '@/modules/message'
 import ConversationContact from '@/shared/components/conversation-contact'
-import { useCurrentAccount, useCurrentConversationType } from '@/shared/hooks'
+import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
+import { useCurrentAccount } from '@/shared/hooks'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { useNavigate } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
 import { useSendMessage } from '../hooks'
-import { createForwardPayload, type MessageAction } from '@/modules/message'
-import { useIsMobile } from '@/shared/hooks/use-mobile'
-import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
 import { useSendGroupMessage } from '../hooks/use-send-group-message'
-import { container } from '@/container'
 
 interface ForwardDrawerProps {
   open?: boolean
@@ -27,7 +28,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
 
   const sendMessage = useSendMessage()
   const sendGroupMessage = useSendGroupMessage()
-  const type = useCurrentConversationType()
+  const { type } = useConversationParams()
 
   const handleForwardMessage = React.useCallback(
     (conversation: Conversation) => async () => {

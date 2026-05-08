@@ -16,17 +16,13 @@ export function createCurrentAccountQueryOptions(): UseQueryOptions<
   return {
     queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT,
     queryFn: async (): Promise<CurrentAccountData> => {
-      console.log('thanhduy account 1')
       const accountService = container.accountService
 
       const account = await accountService.getCurrentAccount()
-      console.log('thanhduy account 2')
-      if (!account) {
-        console.log('thanhduy account 3')
 
+      if (!account) {
         throw new Error('No account found')
       }
-      console.log('thanhduy account 4')
 
       return account
     }

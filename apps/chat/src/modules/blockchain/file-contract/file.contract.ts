@@ -72,7 +72,8 @@ export class FileContract extends MtnContract {
       functionName: 'downloadFile',
       abiData: fileAbis.downloadFile,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
+      gas: '10000000'
     })
   }
 }

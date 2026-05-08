@@ -1,8 +1,9 @@
 'use client'
 
 import type { MessageAction } from '@/modules/message'
-import { useCurrentConversationType, useGetConversationIdByAddress } from '@/shared/hooks'
+import { useGetConversationIdByAddress } from '@/shared/hooks'
 import { useGetUserProfile } from '@/shared/hooks/accounts'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useMemo } from 'react'
 
 interface MessageActionViewData {
@@ -14,7 +15,7 @@ export function useBuildMessageActionViewData(
   action: MessageAction | null
 ): MessageActionViewData | null {
   if (!action) return null
-  const type = useCurrentConversationType()
+  const { type } = useConversationParams()
 
   const message = action.message
 

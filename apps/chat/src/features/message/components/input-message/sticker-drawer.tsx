@@ -29,7 +29,7 @@ export function StickerDrawer({ open, onOpenChange, onSendSticker }: StickerDraw
   }
 
   const renderContent = (
-    <div className="bg-black/60 backdrop-blur-md rounded-t-4xl md:rounded-2xl flex flex-col h-[400px] border-t md:border border-white/10 w-full overflow-hidden">
+    <div className="bg-black/60 backdrop-blur-md-app rounded-t-4xl md:rounded-2xl flex flex-col h-[400px] border-t md:border border-white/10 w-full overflow-hidden">
       {/* Header / Tabs */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">

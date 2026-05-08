@@ -23,9 +23,8 @@ export function useRegisterUser() {
       queryClient.invalidateQueries({
         queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
       })
-      queryClient.invalidateQueries({
-        queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(address)
-      })
+
+      queryClient.setQueryData(ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(address), true)
       navigate({ to: '/' })
     },
     onError: (error) => {
