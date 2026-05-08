@@ -78,6 +78,7 @@ export function useInputMessageController({
     const _files = fileData.length ? fileData : files
     sendFile({ account, conversation, files: _files })
     setFiles([])
+    setFileData([])
   }, [account, conversation, files, sendFile, fileData])
 
   const handleSend = React.useCallback(() => {

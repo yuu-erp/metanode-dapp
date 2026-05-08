@@ -10,11 +10,12 @@ import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
 import { formatAddress, fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
-import { decryptAESGCM, encryptAESGCM, share } from '@metanodejs/system-core'
+import { decryptAESGCM, encryptAESGCM, getBase64FromPath, share } from '@metanodejs/system-core'
 import { v4 as uuidv4 } from 'uuid'
 import type { FileCacheService } from '../file-cache'
 // MESSAGE MODULES
 import { container } from '@/container'
+import { base64ToFile, normalizePath } from '@/shared/lib'
 import { createHashWithBuffer, getPrivateKeyFromDb, sendCommand } from '@metanodejs/system-core'
 import type {
   EditTextPayload,
@@ -34,7 +35,6 @@ import { createOptimisticMessage } from './message.entity'
 import { MessageExtend } from './message.extend'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
-import { getFileInfo, normalizePath } from '@/shared/lib'
 
 export class MessageService {
   constructor(
@@ -497,7 +497,11 @@ export class MessageService {
     })
   }
 
-  async sendFile(account: Account, conversation: Conversation, files: any[]): Promise<void> {
+  async sendFile(
+    account: Account,
+    conversation: Conversation,
+    files: any[] | File[]
+  ): Promise<void> {
     try {
       console.log('thanhduy - sendFile 1', files)
       if (!files.length) throw new Error('Invalid files length')
@@ -510,20 +514,24 @@ export class MessageService {
         optimisticMessage: Message
       }[] = []
 
-      for (const file of files) {
+      const realFiles: File[] = []
+      console.log('files', files)
+      for (let file of files) {
         const clientId = uuidv4()
-        const info = getFileInfo(file)
+        const fileName = file.fileName ?? file.name
 
         const payload: SendPayload = {
           type: 'file',
           fileId: '', // Placeholder, will be updated after upload
-          fileName: info.name,
-          mimeType: info.ext,
-          size: info.size,
+          fileName,
+          mimeType: file.mimeType ?? file.type,
+          size: file.size,
           filePath: '',
           file
         }
 
+        const filePath = file?.path ?? URL.createObjectURL(file)
+        console.log('thanhduy - filePath', filePath)
         const optimisticMessage = createOptimisticMessage(
           {
             clientId,
@@ -535,7 +543,7 @@ export class MessageService {
           },
           {
             ...payload,
-            filePath: file?.path ?? URL.createObjectURL(file)
+            filePath
           }
         )
         console.log('sendFile - 3', optimisticMessage)
@@ -567,23 +575,23 @@ export class MessageService {
         }
 
         const timestamp = Date.now()
-        const sanitizedFileName = info.name
+        const sanitizedFileName = fileName
           .split('.')
           .slice(0, -1)
           .join('.')
           .replace(/\s+/g, '_')
           .replace(/[^\w\-_.]/g, '')
-        const fileNameWithTimestamp = `${sanitizedFileName}_${timestamp}.${info.name.split('.').pop() || ''}`
+        const fileNameWithTimestamp = `${sanitizedFileName}_${timestamp}.${fileName.split('.').pop() || ''}`
 
         fileNames.push(fileNameWithTimestamp)
         fileInfos.push({
           owner: account.address,
           hash: '0x' + hash,
-          contentLen: info.size,
+          contentLen: file.size,
           totalChunks: Math.ceil(file.size / 1024),
           expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year
           name: fileNameWithTimestamp,
-          ext: info.name.split('.').pop() || '',
+          ext: file.extension || file.name.split('.').pop() || '',
           status: 0,
           contentDisposition: '',
           contentID: ''
@@ -593,6 +601,26 @@ export class MessageService {
           clientId,
           optimisticMessage
         })
+
+        let realFile: File
+
+        if (file instanceof File) {
+          realFile = file
+        } else {
+          console.log('tao file 1', file.path)
+
+          const path = normalizePath(file.path)
+          console.log('tao file 1.1', path)
+
+          if (!path) throw new Error('[messaeg.service][sendFile][Invalid path]')
+          const base64 = (await getBase64FromPath(path)).base64
+          console.log('tao file 2', base64)
+
+          realFile = base64ToFile(base64, 'image.jpg', 'image/jpeg')
+          console.log('tao file 3', realFile)
+        }
+
+        realFiles.push(realFile)
       }
 
       console.log('fileInfos', fileInfos)
@@ -607,12 +635,15 @@ export class MessageService {
         from: account.address,
         inputData: { names: fileNames }
       })
+      console.log('thanhduy - fieldata 1', files)
 
-      const datas = files.map((file, index) => ({
+      const datas = realFiles.map((file, index) => ({
         fileKey: fileKeys[index] || '',
         dataFile: file,
         preparedMessage: preparedMessages[index]
       }))
+
+      console.log('thanhduy - toi day chua')
 
       for (const data of datas) {
         if (!data.dataFile || !data.fileKey) continue
@@ -659,10 +690,11 @@ export class MessageService {
           if (optimisticMessage.type === 'file') {
             optimisticMessage.fileId = data.fileKey
           }
-
+          console.log('thanhduy - send file mssage 1', { optimisticMessage })
           // Prepare message payload for sending
           const messageOnChain = mapperMessageToOnChain(optimisticMessage)
           const stringifyMessage = JSON.stringify(messageOnChain)
+          console.log('thanhduy - send file mssage 2', { messageOnChain })
 
           await this.sendStringtifiedMessage(
             account,
@@ -671,6 +703,7 @@ export class MessageService {
             clientId,
             data.fileKey
           )
+          console.log('thanhduy - send file mssage 3')
         } catch (error) {
           console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
           this.eventBus.emit('message.status', {

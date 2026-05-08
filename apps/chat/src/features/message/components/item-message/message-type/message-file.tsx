@@ -1,9 +1,9 @@
-import * as React from 'react'
-import type { Message } from '@/modules/message'
-import { File, Download, Loader2 } from 'lucide-react'
-import { cn } from '@/shared/lib'
 import { useDownloadFile } from '@/features/message/hooks/use-download-file'
+import type { Message } from '@/modules/message'
 import { useEventBus } from '@/shared/hooks/use-eventbus'
+import { cn } from '@/shared/lib'
+import { Download, File, Loader2 } from 'lucide-react'
+import * as React from 'react'
 
 type Props = {
   message: Extract<Message, { type: 'file' }>
@@ -48,6 +48,8 @@ function MessageFile({ message, isMine, isOverlay }: Props) {
   const mediaSrc = React.useMemo(() => {
     if (!message.filePath) return ''
     const raw = message.filePath
+    if (raw.startsWith('image://img.m.pro')) return raw
+
     if (raw.startsWith('http') || raw.startsWith('blob:')) return raw
     // Check if it already has data URI prefix
     if (raw.startsWith('data:')) return raw

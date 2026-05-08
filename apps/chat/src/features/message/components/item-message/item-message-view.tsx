@@ -16,6 +16,8 @@ export default function ItemMessageView({ message, isMine, isOverlay }: ItemMess
       return <MessageSticker message={message} />
 
     case 'file':
+      console.log('thanhduy - case file', { message })
+
       return <MessageFile message={message} isMine={isMine} isOverlay={isOverlay} />
 
     case 'voice':

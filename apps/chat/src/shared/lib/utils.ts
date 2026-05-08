@@ -180,6 +180,7 @@ export function buildRawValue(display: string, mentions: Mention[]) {
 }
 
 export function getFileInfo(input: any | File) {
+  console.log('thanhduy - input', input)
   if (input instanceof File) {
     return {
       name: input.name,

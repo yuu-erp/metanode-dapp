@@ -60,19 +60,26 @@ function ItemMessage(
   const logic = useMessageLogic(message, isMine, onSelectMessage)
 
   const isSticker = message.type === 'sticker'
+  //@ts-ignore
+  const mimeType = message?.message?.mimeType ?? message.mimeType
 
   const isImage = React.useMemo(() => {
     if (message.type !== 'file') return false
-    if (!message.mimeType.startsWith('image/')) return false
+    console.log('thanhduy - test', message)
+
+    if (!mimeType.startsWith('image/')) return false
     // use cachedFile (async) or filePath (sync) to determing if image styling applies
-    return !!message.filePath
-  }, [message])
+    console.log('thanhduy - check', !!message?.filePath)
+    //@ts-ignore
+    return !!message?.filePath
+  }, [message, mimeType])
+  console.log('thanhduy - isImage', isImage)
 
   const isVideo = React.useMemo(() => {
     if (message.type !== 'file') return false
-    if (!message.mimeType.startsWith('video/')) return false
+    if (!mimeType.startsWith('video/')) return false
     return !!message.filePath
-  }, [message])
+  }, [message, mimeType])
 
   if (message.type === 'system') {
     return <SystemMessage message={message} />
