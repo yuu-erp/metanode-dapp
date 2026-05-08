@@ -1,4 +1,4 @@
-import { SystemCore } from 'core'
+import { SystemCore } from '@metanodejs/system-core'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
@@ -34,7 +34,7 @@ export const useWalletStore = create<WalletStore>()(
       reset: () => set({ currentActive: '', persistedActive: '' })
     }),
     {
-      name: `[${SystemCore.appName}]wallet-store`,
+      name: `[chat-admin]wallet-store`,
       partialize: (state) => ({ persistedActive: state.persistedActive })
     }
   )

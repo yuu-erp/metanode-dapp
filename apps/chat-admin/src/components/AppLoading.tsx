@@ -4,7 +4,7 @@ export type AppLoadingProps = {}
 
 export const AppLoading = memo(({}: AppLoadingProps) => {
   return (
-    <div className="size-full flex items-center justify-center bg-black text-white">
+    <div className="h-dvh w-dvw flex items-center justify-center bg-black text-white">
       <p>Loading...</p>
     </div>
   )

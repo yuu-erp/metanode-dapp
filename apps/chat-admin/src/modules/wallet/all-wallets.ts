@@ -1,14 +1,14 @@
-import { queryKeys } from '#/shared/ndex'
+import { queryKeys } from '@/shared'
 import { getAllWallets } from '@metanodejs/system-core'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const createAllWalletQuery = () =>
+export const createAllWalletsQuery = () =>
   queryOptions({
     queryKey: queryKeys.wallet.all,
-    queryFn: getAllWallets,
-    staleTime: 5 * 60 * 1000
+    staleTime: 1000 * 5 * 60,
+    queryFn: getAllWallets
   })
 
 export function useAllWallets() {
-  return useQuery(createAllWalletQuery())
+  return useQuery(createAllWalletsQuery())
 }

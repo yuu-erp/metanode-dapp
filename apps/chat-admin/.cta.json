@@ -1,16 +1,12 @@
 {
-  "projectName": "chat-admin",
+  "projectName": "chat",
   "mode": "file-router",
   "typescript": true,
-  "packageManager": "pnpm",
-  "includeExamples": false,
   "tailwind": true,
+  "packageManager": "pnpm",
   "addOnOptions": {},
-  "envVarValues": {},
-  "git": false,
-  "install": true,
-  "routerOnly": false,
+  "git": true,
   "version": 1,
-  "framework": "react",
+  "framework": "react-cra",
   "chosenAddOns": []
 }
