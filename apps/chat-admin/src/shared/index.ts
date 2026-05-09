@@ -5,5 +5,8 @@ export const queryClient = new QueryClient()
 export const queryKeys = {
   wallet: {
     all: ['allWallets']
+  },
+  admin: {
+    allUsers: ['allUsers']
   }
 }

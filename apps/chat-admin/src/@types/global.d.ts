@@ -9,4 +9,12 @@ declare global {
     address: string
     backgroundImage: string
   }
+
+  interface User {
+    name: string
+    address: string
+    role: string
+    status: string
+    lastUpdate: number
+  }
 }

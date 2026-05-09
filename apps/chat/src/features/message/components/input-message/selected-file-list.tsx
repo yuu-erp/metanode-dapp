@@ -77,8 +77,7 @@ export function SelectedFileList({
 
 const FileDataItem = ({ fileData, onRemove }: { fileData: any; onRemove: () => any }) => {
   const preview = fileData.path?.startsWith('image://img.m.pro')
-  console.log('thanhduy - fileData', fileData)
-  console.log('thanhduy - fileData 2', preview)
+  const name = fileData?.fileName
 
   return (
     <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 group">

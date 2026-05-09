@@ -1,4 +1,3 @@
-import { SystemCore } from '@metanodejs/system-core'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
