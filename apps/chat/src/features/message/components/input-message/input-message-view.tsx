@@ -65,7 +65,6 @@ function InputMessageView(props: InputMessageViewProps) {
     onRemoveFileData,
     ...propsDiv
   } = props
-  console.log('thanhduy - fileData', fileData)
   const { data } = usePlatform()
 
   const [mentionScrollTop, setMentionScrollTop] = React.useState(0)

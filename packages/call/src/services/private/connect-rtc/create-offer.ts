@@ -1,7 +1,7 @@
 import { registerWebRTCIce } from '@metanodejs/system-core'
 import { onFatal } from '~/clients'
 import { ICE_SERVERS } from '~/configs'
-import { rtcStore } from '~/stores'
+import { callActions, rtcStore } from '~/stores'
 
 function createPeerConnection() {
   return new RTCPeerConnection({
@@ -36,7 +36,9 @@ async function cleanupPeerConnectionTracks() {
 
 export async function createOffer() {
   if (!window?.finSdk) {
-    return await registerWebRTCIce(ICE_SERVERS)
+    const rs = await registerWebRTCIce(ICE_SERVERS)
+    callActions.initEnable()
+    return rs.sdp
   }
 
   cleanupPeerConnectionTracks()

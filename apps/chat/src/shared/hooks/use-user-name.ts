@@ -12,15 +12,5 @@ export function useUserName(message: Message) {
   const { data: conversation } = useGetConversationId(conversationId, 'p2p', false)
   const name = type === 'anonymous_group' ? user : (conversation?.name ?? '')
 
-  console.log('thanhduy - useUserName', {
-    type,
-    address,
-    contractAddress,
-    conversationId,
-    name,
-    conversation,
-    message
-  })
-
   return name
 }

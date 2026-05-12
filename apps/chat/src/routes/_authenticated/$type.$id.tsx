@@ -1,3 +1,4 @@
+import { container } from '@/container'
 import {
   ChatHeader,
   CopyMessageActionProvider,
@@ -6,20 +7,20 @@ import {
   MessageActionProvider,
   PinMessages
 } from '@/features/message'
-import { useGetPinMessage } from '@/hooks/mesage/pin/use-get-pin-message'
 import type { Conversation } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/shared/hooks'
 import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
 import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
+import { MESSAGE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { formatAddress } from '@/shared/utils'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
 export const Route = createFileRoute('/_authenticated/$type/$id')({
   component: RouteComponent,
-  beforeLoad: ({ params }) => {
+  beforeLoad: async ({ params }) => {
     const { id } = params
 
     if (id.normalize().startsWith('0x')) {
@@ -29,6 +30,13 @@ export const Route = createFileRoute('/_authenticated/$type/$id')({
           ...params,
           id: formatAddress(id)
         }
+      })
+    }
+
+    const account = await container.accountService.getCurrentAccount()
+    if (account) {
+      queryClient.invalidateQueries({
+        queryKey: MESSAGE_QUERY_KEY.MESSAGES(account?.address, id)
       })
     }
   }
@@ -46,9 +54,6 @@ function RouteComponent() {
   }, [viewportHeight])
 
   const { mutate: createCall } = useGoToMeetingView()
-
-  const { data: pinnedMessages } = useGetPinMessage()
-  console.log('thanhduy - pinnedMessages', pinnedMessages)
 
   const onVideoCall = () => {
     if (!account || !conversation) throw new Error('[onVideoCall] Invalid input')

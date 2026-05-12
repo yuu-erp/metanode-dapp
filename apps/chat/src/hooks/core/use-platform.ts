@@ -8,7 +8,7 @@ export function usePlatform() {
     queryFn: async () => (await getPlatform()).platform,
     staleTime: Infinity
   })
-  const isNotPc = data === 'ANDROID' || data === 'IOS'
+  const isNotPc = !!data
   const isWindow = data === 'WINDOWS'
 
   return { ...query, data, isNotPc, isWindow }

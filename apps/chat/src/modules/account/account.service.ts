@@ -30,7 +30,6 @@ export class AccountService {
     const address = wallet.address
 
     // const wallet2 = await getWalletByAddress(address)
-    // console.log('thanhduy - wallet2', wallet2)
 
     // const contractAddress2 = await this.factoryContract.getUserContract({
     //   from: address,
@@ -38,7 +37,6 @@ export class AccountService {
     //     user: address
     //   }
     // })
-    // console.log('thanhduy - contractAddress', contractAddress2)
 
     // return
 

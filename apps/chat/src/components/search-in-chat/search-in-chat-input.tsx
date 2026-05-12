@@ -1,11 +1,12 @@
 import { uiActions, useUiStore } from '@/stores/ui.store'
 import { Search, XCircle } from 'lucide-react'
-import { memo, useRef } from 'react'
+import { memo, useEffect, useRef } from 'react'
 export type SearchInChatInputProps = {}
 
 export const SearchInChatInput = memo(({}: SearchInChatInputProps) => {
   const value = useUiStore((s) => s.searchValue)
   const ref = useRef<HTMLInputElement>(null)
+  const searchOpen = useUiStore((s) => s.searchOpen)
 
   const onClose = () => {
     if (value) {
@@ -14,7 +15,14 @@ export const SearchInChatInput = memo(({}: SearchInChatInputProps) => {
       return
     }
     ref.current?.blur()
+    uiActions.setSearchOpen(false)
   }
+
+  useEffect(() => {
+    if (searchOpen) {
+      ref.current?.focus()
+    }
+  }, [searchOpen])
 
   return (
     <div className="flex items-center gap-2 bg-[#ffffff1f] p-2 rounded-md">

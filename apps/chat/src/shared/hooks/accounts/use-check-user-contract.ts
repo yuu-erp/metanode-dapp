@@ -16,7 +16,6 @@ export function createCheckUserContractQueryOptions(
   return {
     queryKey: ACCOUNT_QUERY_KEY.CHECK_USER_CONTRACT(account?.address ?? ''),
     queryFn: async (): Promise<boolean> => {
-      console.log('thanhduy - fetch check register', account?.address)
       const accountService = container.accountService
       const isRegister = await accountService.checkUserContract(account!)
       console.log({ isRegister })

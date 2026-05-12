@@ -35,6 +35,7 @@ export function useInfiniteMessages({
     queryFn: async ({ pageParam = null }) => {
       if (!account || !conversation) return []
       const messageService = container.messageService
+
       // Gọi service với beforeTimestamp để lấy tin nhắn cũ hơn
       let result: any[] = []
       if (
@@ -51,6 +52,7 @@ export function useInfiniteMessages({
           page: pageParam as number | undefined
         })
       }
+
       return result
     },
     initialPageParam: 1,
@@ -59,9 +61,9 @@ export function useInfiniteMessages({
       return (lastPageParam ?? 1) + 1
     },
     getPreviousPageParam: () => undefined, // không hỗ trợ load newer ở đây (dùng refetch riêng)
-    enabled: !!account && !!conversation,
-    staleTime: 1000 * 60 * 5, // 5 phút
-    gcTime: 1000 * 60 * 30 // 30 phút (React Query v5 dùng gcTime thay cacheTime)
+    enabled: !!account && !!conversation
+    // staleTime: 1000 * 60 * 5, // 5 phút
+    // gcTime: 1000 * 60 * 30 // 30 phút (React Query v5 dùng gcTime thay cacheTime)
     // Optional: refetch khi có tin nhắn mới (nếu bạn có event/socket)
     // refetchOnWindowFocus: false,
   })

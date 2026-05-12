@@ -69,11 +69,10 @@ export class MessageService {
         page
       }
     })
-    console.log('thanhduy - getProcessedP2PMessages 1', rawMessages)
+
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
-    console.log('thanhduy - getProcessedP2PMessages 2', messages)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -90,7 +89,6 @@ export class MessageService {
     conversation: Conversation
   ): Promise<Message | undefined> {
     try {
-      console.log('thanhduy - _processP2PMessage 1')
       const isIncoming = item.sender === conversation.conversationId
       const decryptionKey = isIncoming ? conversation.conversationKey : account.publicKey
 
@@ -99,15 +97,11 @@ export class MessageService {
         account.address,
         item.finalContent
       )
-      console.log('thanhduy - _processP2PMessage 2', decrypted)
 
       let replyTo = undefined
       if (decrypted.replyTo) {
-        console.log('thanhduy - _processP2PMessage 3')
-
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
       }
-      console.log('thanhduy - _processP2PMessage 4')
 
       if (decrypted.type === 'file') {
         const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
@@ -503,9 +497,7 @@ export class MessageService {
     files: any[] | File[]
   ): Promise<void> {
     try {
-      console.log('thanhduy - sendFile 1', files)
       if (!files.length) throw new Error('Invalid files length')
-      console.log('thanhduy - sendFile 2')
 
       const fileInfos: PushFileInfosParams['infos'] = []
       const fileNames: string[] = []
@@ -531,7 +523,7 @@ export class MessageService {
         }
 
         const filePath = file?.path ?? URL.createObjectURL(file)
-        console.log('thanhduy - filePath', filePath)
+
         const optimisticMessage = createOptimisticMessage(
           {
             clientId,
@@ -556,8 +548,6 @@ export class MessageService {
           conversationType: conversation.conversationType
         })
 
-        console.log('thanhduy file', file)
-
         let hash: any
         if (file instanceof File) {
           const arrayBuffer = await file.arrayBuffer()
@@ -569,7 +559,6 @@ export class MessageService {
         } else {
           const path = normalizePath(file.path)
           if (!path) throw new Error('[messaeg.service][sendFile][Invalid path]')
-          console.log('thanhduy - hash 1', path)
 
           hash = (await sendCommand('createHashFromFile', { path })).hash
         }
@@ -635,15 +624,12 @@ export class MessageService {
         from: account.address,
         inputData: { names: fileNames }
       })
-      console.log('thanhduy - fieldata 1', files)
 
       const datas = realFiles.map((file, index) => ({
         fileKey: fileKeys[index] || '',
         dataFile: file,
         preparedMessage: preparedMessages[index]
       }))
-
-      console.log('thanhduy - toi day chua')
 
       for (const data of datas) {
         if (!data.dataFile || !data.fileKey) continue
@@ -690,11 +676,10 @@ export class MessageService {
           if (optimisticMessage.type === 'file') {
             optimisticMessage.fileId = data.fileKey
           }
-          console.log('thanhduy - send file mssage 1', { optimisticMessage })
+
           // Prepare message payload for sending
           const messageOnChain = mapperMessageToOnChain(optimisticMessage)
           const stringifyMessage = JSON.stringify(messageOnChain)
-          console.log('thanhduy - send file mssage 2', { messageOnChain })
 
           await this.sendStringtifiedMessage(
             account,
@@ -703,7 +688,6 @@ export class MessageService {
             clientId,
             data.fileKey
           )
-          console.log('thanhduy - send file mssage 3')
         } catch (error) {
           console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
           this.eventBus.emit('message.status', {
@@ -992,7 +976,6 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
-    console.log('thanhduy - send group message 1')
     const clientId = uuidv4()
     let sender = account.contractAddress
     if (conversation.conversationType === 'anonymous_group') {
@@ -1001,8 +984,6 @@ export class MessageService {
         to: conversation.conversationId
       })
     }
-
-    console.log('thanhduy - send group message 2')
 
     const optimisticMessage = createOptimisticMessage(
       {
@@ -1026,8 +1007,6 @@ export class MessageService {
       isMine: true,
       conversationType: conversation.conversationType
     }
-
-    console.log('thanhduy - send group message 3', messageAdd)
 
     this.eventBus.emit('message.add', messageAdd)
 
@@ -1140,8 +1119,6 @@ export class MessageService {
       sender?: string
     }
   ) {
-    console.log('thanhduy - decrypt 1', { account, data })
-
     const { encryptedContent, messageId, groupAddress, type } = data
     //chỗ này trùng với bên conversation services
     const accountId = account.address
@@ -1151,7 +1128,6 @@ export class MessageService {
       throw new Error('[decryptMessageFromGroup] Invalid type')
 
     let sender = data?.sender ?? ''
-    console.log('thanhduy - decrypt 2', { accountId, conversationId })
 
     const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
       from: accountId,
@@ -1176,16 +1152,11 @@ export class MessageService {
             }
           })
 
-    console.log('thanhduy - decrypt 3', { adminPublicKey })
-
     const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, adminPublicKey)
-    console.log('thanhduy - decrypt 4', { sharedKeyWithAdmin, encryptedKey })
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
-    console.log('thanhduy - decrypt 5', { groupKey })
 
     const { resultUtf8 } = await decryptAESGCM(groupKey, encryptedContent)
-    console.log('thanhduy - decrypt 6', { resultUtf8 })
 
     const decryptMessage = JSON.parse(resultUtf8)
 
@@ -1320,8 +1291,6 @@ export class MessageService {
     fileKey?: string
   ) {
     return asyncPriorityQueue.add(async () => {
-      console.log('thanhduy - send group message 4')
-
       this.messageExtend.unsubscribe()
       const { conversationType } = conversation
       let promise: any
@@ -1375,7 +1344,6 @@ export class MessageService {
           const encryptMessage = (
             await encryptAESGCM(conversation.conversationKey, stringifyMessage)
           )?.result
-          console.log('thanhduy - send group message 5')
 
           if (conversationType === 'group') {
             promise = new Promise((resolve) => {
@@ -1391,7 +1359,6 @@ export class MessageService {
               account,
               conversation
             )
-            console.log('thanhduy - send group message 6')
 
             await this.groupContract.sendMessage({
               from: account.hiddenAddress,
@@ -1402,7 +1369,6 @@ export class MessageService {
                 recipientContracts
               }
             })
-            console.log('thanhduy - send group message 7')
           } else if (conversationType === 'anonymous_group') {
             promise = new Promise((resolve) => {
               const off = eventLog.on('AnonymousMessageStored', async (data) => {
@@ -1429,7 +1395,6 @@ export class MessageService {
             throw new Error('Invalid conversation type for group message')
           }
         }
-        console.log('thanhduy - send group message 8')
 
         this.messageExtend.subscribe()
         return ''

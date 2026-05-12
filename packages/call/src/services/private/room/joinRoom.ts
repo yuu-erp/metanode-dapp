@@ -18,19 +18,21 @@ export function rawToTracksInfo(raw: RawTrack[]): TrackRequest[] {
 }
 
 export async function joinRoom() {
+  console.log('[DEBUG] joinRoom 1', roomStore.getState())
+
   const { roomId, address } = roomStore.getState()
 
   const sdpOffer = await createOffer()
+  console.log('[DEBUG] joinRoom 2', sdpOffer)
 
   const rawTracks = extractMidTrackArray(sdpOffer)
   const tracksInfo = rawToTracksInfo(rawTracks)
-  getEventLog().on('FrontendEvent', (e) => {
-    console.log('FrontendEvent', { e })
-  })
+
   const promise = waitEventLog(
     'FrontendEvent',
     (e) => roomActions.isEventOwnedByMe(e, e.toUser) && e.eventType === 'JOIN_ANSWER'
   )
+  console.log('[DEBUG] joinRoom 3')
 
   await blockchain.joinRoom({
     _sdpOffer: sdpOffer,
@@ -38,7 +40,7 @@ export async function joinRoom() {
     _initialTracks: tracksInfo,
     owner: address
   })
-
+  console.log('[DEBUG] joinRoom 4')
   const response = await promise
 
   const { sdp, sessionId }: JoinAnswerData = decodeDataFromBackend(response.data)
@@ -46,9 +48,9 @@ export async function joinRoom() {
   rtcStore.setState({ sessionId })
 
   await setAnswer(sdp)
-
+  console.log('[DEBUG] joinRoom 5')
   await emitSetAnswer(sdp)
-
+  console.log('[DEBUG] joinRoom 6')
   const addTrackData = {
     Track: tracksInfo
   }

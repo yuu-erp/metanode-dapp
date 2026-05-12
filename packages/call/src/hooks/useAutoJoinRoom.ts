@@ -7,7 +7,7 @@ import { joinRoom } from '~/services/private/room/joinRoom'
 export function useAutoJoinRoom(enabled: boolean) {
   const onFetchRoomId = useMutation({ mutationFn: fetchRoomId })
   const onJoinRoom = useMutation({ mutationFn: joinRoom })
-
+  console.log('[useAutoJoinRoom] enabled', enabled)
   useEffect(() => {
     if (!enabled) return
 

@@ -65,15 +65,12 @@ function ItemMessage(
 
   const isImage = React.useMemo(() => {
     if (message.type !== 'file') return false
-    console.log('thanhduy - test', message)
 
     if (!mimeType.startsWith('image/')) return false
     // use cachedFile (async) or filePath (sync) to determing if image styling applies
-    console.log('thanhduy - check', !!message?.filePath)
     //@ts-ignore
     return !!message?.filePath
   }, [message, mimeType])
-  console.log('thanhduy - isImage', isImage)
 
   const isVideo = React.useMemo(() => {
     if (message.type !== 'file') return false
@@ -85,7 +82,6 @@ function ItemMessage(
     return <SystemMessage message={message} />
   }
 
-  console.log('thanhduy - test props', props)
   // const {} use
 
   // const { data: isPinned } = useMessagePinStatus(

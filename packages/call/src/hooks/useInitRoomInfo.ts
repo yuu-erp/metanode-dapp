@@ -8,6 +8,7 @@ export function useInitRoomInfo(search: any = {}, to: string) {
 
   useEffect(() => {
     const init = async () => {
+      console.log('[DEBUG] useInitRoomInfo 1', search)
       const address = formatAddress(search?.address)
       const isMeeting = search?.callee === '0x'
       roomStore.setState({

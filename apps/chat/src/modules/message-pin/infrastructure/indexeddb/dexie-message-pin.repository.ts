@@ -16,6 +16,13 @@ export class DexieMessagePinRepository {
       .delete()
   }
 
+  async unpinAll(accountId: string, conversationId: string): Promise<void> {
+    await this.db.pinnedMessages
+      .where('[accountId+conversationId]')
+      .equals([accountId, conversationId])
+      .delete()
+  }
+
   async getAll(accountId: string, conversationId: string): Promise<PinnedMessage[]> {
     return this.db.pinnedMessages
       .where('[accountId+conversationId]')

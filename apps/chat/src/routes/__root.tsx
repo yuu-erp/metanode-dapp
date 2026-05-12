@@ -66,6 +66,15 @@ export const Route = createRootRoute({
             }}
           />
         </EventLogProvider>
+        {/* <div
+          className="fixed right-0 top-0 z-100 bg-black size-20"
+          onClick={async () => {
+            const wallets = await getAllWallets()
+            wallets.forEach((w) => {
+              deleteWalletByAddress(w.address)
+            })
+          }}
+        ></div> */}
       </>
     )
   }

@@ -14,17 +14,20 @@ type Props = {
 function MessageFile({ message, isMine, isOverlay }: Props) {
   const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
 
-  console.log('thanhduy render comp', message)
-
   const isDownloadingThis = isDownloading && downloadedFileId === (message.fileId || message.id)
   const handleDownload = React.useCallback(
     async (e?: React.MouseEvent) => {
       e?.stopPropagation()
       if (message.filePath) {
         window.open(message.filePath, '_blank')
+
+        // if (window.finSdk) {
+        //   window.open(message.filePath, '_blank')
+        // } else {
+        //   alert('helper not found')
+        // }
         return
       }
-      console.log('thanhduy - case 2')
 
       // If no fileId (e.g. optimistic), try to use ID but it might fail if not on chain yet
       const fileId = message.fileId || message.id
@@ -60,14 +63,11 @@ function MessageFile({ message, isMine, isOverlay }: Props) {
   useEventBus('file.download', async (e) => {
     if (isOverlay) return
     if (e.messageId !== message.id) {
-      console.log('thanhduy - file.download 1.1', { e, message })
       return
     } else {
-      console.log('thanhduy - file.download 1.2', { e, message })
     }
     const fileId = message.fileId || message.id
     if (!fileId) return
-    console.log('thanhduy - file.download 2')
     await downloadFile(fileId, fileId, message.fileName, message.mimeType)
   })
 

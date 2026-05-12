@@ -11,7 +11,7 @@ export const PopoverForAndroid = memo(
     const { data } = usePlatform()
     const [open, setOpen] = useState(false)
     console.log('platform data', data)
-    if (data !== 'ANDROID' && data !== 'IOS') return children
+    if (!data) return children
 
     const close = () => setOpen(false)
 

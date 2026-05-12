@@ -11,7 +11,7 @@ export const createPofile = (myAddress: string, conversationId: string) =>
         from: myAddress,
         to: conversationId
       })
-      return { ...rs, name: `${rs.lastName} ${rs.firstName}` }
+      return { ...rs, name: `${rs.lastName} ${rs.firstName}`.trim() }
     }
   })
 
@@ -33,4 +33,8 @@ export async function getUserByAddress(myAddress: string, address: string) {
 
 export function useProfileByAddress(myAddress: string, address: string) {
   return useQuery(createUserByAddressQuery(myAddress, address))
+}
+
+export async function getUser(me: string, contractAddress: string) {
+  return await queryClient.ensureQueryData(createPofile(me, contractAddress))
 }

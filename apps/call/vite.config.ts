@@ -7,7 +7,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    host: '0.0.0.0'
+    host: '0.0.0.0',
+    port: 5174
   },
   resolve: {
     dedupe: ['react', 'react-dom', '@tanstack/react-query', '@tanstack/react-query-core'],

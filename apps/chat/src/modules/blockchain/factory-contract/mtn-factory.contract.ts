@@ -61,7 +61,6 @@ export class FactoryContract extends MtnContract {
 
   createGroup(payload: TransactionPayload<CreateGroupInput>): Promise<void> {
     const { from, inputData } = payload
-    console.log('thanhduy - factoryAbi.createGroup', factoryAbi.createGroup)
     return this.sendTransaction({
       from,
       inputData,

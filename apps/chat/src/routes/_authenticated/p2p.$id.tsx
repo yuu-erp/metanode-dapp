@@ -1,3 +1,4 @@
+import { container } from '@/container'
 import {
   ChatHeader,
   CopyMessageActionProvider,
@@ -11,13 +12,14 @@ import { useCurrentAccount, useGetConversationId, useVisualViewport } from '@/sh
 import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
+import { MESSAGE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { formatAddress } from '@/shared/utils'
 import { createFileRoute, redirect, useParams } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
 export const Route = createFileRoute('/_authenticated/p2p/$id')({
   component: RouteComponent,
-  beforeLoad: ({ params }) => {
+  beforeLoad: async ({ params }) => {
     const { id } = params
 
     if (id.normalize().startsWith('0x')) {
@@ -26,6 +28,13 @@ export const Route = createFileRoute('/_authenticated/p2p/$id')({
         params: {
           id: formatAddress(id)
         }
+      })
+    }
+
+    const account = await container.accountService.getCurrentAccount()
+    if (account) {
+      queryClient.invalidateQueries({
+        queryKey: MESSAGE_QUERY_KEY.MESSAGES(account?.address, id)
       })
     }
   }

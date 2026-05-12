@@ -42,8 +42,10 @@ export const callStore = create<CallStore>()(
     allowed: { ...defaultUserSourceState },
     enabled: { ...defaultUserSourceState },
     initEnable: async () => {
-      const camOn = await isCameraOn()
-      const micMute = await isMicMuted()
+      const isWeb = window.finSdk
+
+      const camOn = isWeb ? true : await isCameraOn()
+      const micMute = isWeb ? true : await isMicMuted()
       set((s) => {
         s.enabled.camera = camOn
         s.enabled.microphone = micMute

@@ -11,6 +11,7 @@ export function useFilePicker(options?: UseFilePickerOptions) {
   const inputRef = React.useRef<HTMLInputElement | null>(null)
 
   const open = React.useCallback(() => {
+    console.log('thanhduy - open input')
     inputRef.current?.click()
   }, [])
 

@@ -103,7 +103,6 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         const message = await safeDecrypt(e)
 
         if (!message) return
-
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, message.conversationId),
           (old) => {

@@ -17,6 +17,7 @@ export function useViewInfiniteScroll({
       conversation,
       pageSize: 30
     })
+
   const loadMoreRef = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {

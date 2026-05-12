@@ -36,10 +36,10 @@ export function insertMessage(
   oldData: InfiniteData<Message[]> | undefined,
   message: Message
 ): InfiniteData<Message[]> {
-  if (!oldData) {
+  if (!oldData || !oldData.pages || oldData.pages.length === 0) {
     return {
-      pageParams: [undefined],
-      pages: [[message]]
+      pageParams: [],
+      pages: []
     }
   }
 

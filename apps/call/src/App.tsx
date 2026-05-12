@@ -1,18 +1,20 @@
-import { callActions, CallProvider } from '@app/call'
+import { CallProvider } from '@app/call'
 import { DecodeAbi, EventLog } from '@metanodejs/event-log'
 import { endCall } from '@metanodejs/system-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import meetingAbi from './abis/meeting.abi.json'
-import { CONTRACT_ADDRESSES } from './config'
 import { CamButton } from './components/buttons/CamButton'
-import { MicButton } from './components/buttons/MicButton'
 import { EndCallButton } from './components/buttons/EndCallButton'
+import { MicButton } from './components/buttons/MicButton'
+import { CONTRACT_ADDRESSES } from './config'
 
 const decodeAbi = new DecodeAbi()
 const eventLog = new EventLog(decodeAbi)
 const queryClient = new QueryClient()
+
+console.log('[APP CALL] VERSION 1.0.0')
 
 function App() {
   const navigate = useNavigate()
@@ -26,10 +28,7 @@ function App() {
 
   useEffect(() => {
     ;(async () => {
-      await Promise.all([
-        decodeAbi.registerAbi(meetingAbi.filter((item) => item.type === 'event')),
-        callActions.initEnable()
-      ])
+      await decodeAbi.registerAbi(meetingAbi.filter((item) => item.type === 'event'))
       setReady(true)
     })()
   }, [])

@@ -4,6 +4,7 @@ import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
 import { pushNoti } from '@/modules/noti'
 import { useCurrentAccount } from '@/shared/hooks'
+import { getUser } from '@/shared/hooks/conversations/use-user-by-address'
 import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
 import * as React from 'react'
@@ -49,7 +50,6 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offCallReceived = eventLog.on('CallReceived', async (data) => {
-      console.log('thanhduy - CallReceived', data)
       const callerContractAddress = await container.factoryContract.getUserContract({
         from: account.address,
         inputData: { user: data.owner }
@@ -94,9 +94,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
         recipient: data.recipient,
         isMine: false
       })
-      console.log('message', message)
-
-      pushNoti('Chat P2P', message)
+      const user = await getUser(account.address, data.sender)
+      pushNoti(user?.name ?? 'Chat P2P', message)
       eventBus.emit('message.add', {
         conversationId: data.sender,
         conversationType: 'p2p',
@@ -125,14 +124,13 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
         message: { ...message, status: 'delivered' },
         isMine
       }
-
       if (isMine) {
         eventBus.emit('message.send.bua', payload)
       } else {
         console.log('message content', message)
+        eventBus.emit('message.receive.bua', payload)
         //@ts-ignore
         pushNoti('Chat Group', message)
-        eventBus.emit('message.receive.bua', payload)
       }
     })
 

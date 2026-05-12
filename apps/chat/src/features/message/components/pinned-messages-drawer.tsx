@@ -7,6 +7,9 @@ import { useI18N } from '@/shared/hooks'
 import { X } from 'lucide-react'
 import { Drawer } from 'vaul'
 import { usePinnedMessages } from '../hooks'
+import { useConversationParams } from '@/shared/hooks/use-conversation-params'
+import { container } from '@/container'
+import { queryClient } from '@/shared/lib/react-query'
 
 interface PinnedMessagesDrawerProps {
   open: boolean
@@ -26,6 +29,7 @@ export function PinnedMessagesDrawer({
     account?.address || '',
     conversation?.conversationId || ''
   )
+  const { id } = useConversationParams()
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
@@ -35,14 +39,30 @@ export function PinnedMessagesDrawer({
           <div className="bg-white rounded-t-xl flex flex-col h-[60vh] overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-              <h3 className="font-semibold text-lg">{t('pinnedMessages')}</h3>
-              <button
-                onClick={() => onOpenChange(false)}
-                className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
-                aria-label="Close"
-              >
-                <X className="size-5 text-gray-500" />
-              </button>
+              <h3 className="text-black font-semibold text-lg">Pinned Messages </h3>
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={async () => {
+                    await container.messagePinService.unpinAll(account?.address || '', id)
+                    queryClient.invalidateQueries({
+                      queryKey: ['pinned-messages', account?.address || '', id]
+                    })
+                    queryClient.invalidateQueries({
+                      queryKey: ['message-pin-status', account?.address || '']
+                    })
+                  }}
+                  className="text-sm text-gray-500"
+                >
+                  Unpin All
+                </button>
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="size-5 text-gray-500" />
+                </button>
+              </div>
             </div>
 
             {/* List */}

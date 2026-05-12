@@ -63,6 +63,10 @@ export class MessagePinService {
     )
   }
 
+  async unpinAll(accountId: string, conversationId: string): Promise<void> {
+    await this.repository.unpinAll(accountId, conversationId)
+  }
+
   async getPinnedMessages(accountId: string, conversationId: string): Promise<PinnedMessage[]> {
     return this.repository.getAll(accountId, conversationId)
   }

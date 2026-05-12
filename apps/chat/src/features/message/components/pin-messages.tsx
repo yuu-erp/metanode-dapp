@@ -7,6 +7,7 @@ import * as React from 'react'
 import { usePinnedMessages } from '../hooks'
 import MessagePreview from '@/shared/components/message-render/message-preview'
 import { PinnedMessagesDrawer } from './pinned-messages-drawer'
+import { useUiStore } from '@/stores/ui.store'
 
 interface PinMessagesProps {
   account?: Account
@@ -16,6 +17,7 @@ interface PinMessagesProps {
 function PinMessages({ account, conversation }: PinMessagesProps) {
   const { t } = useI18N()
   const [openDrawer, setOpenDrawer] = React.useState(false)
+  const searchOpen = useUiStore((s) => s.searchOpen)
 
   const { data: pinnedMessages } = usePinnedMessages(
     account?.address || '',
@@ -27,7 +29,7 @@ function PinMessages({ account, conversation }: PinMessagesProps) {
     return pinnedMessages[0].message
   }, [pinnedMessages])
 
-  if (!pinnedMessage) return null
+  if (!pinnedMessage || searchOpen) return null
   console.log('pinnedMessage: ', pinnedMessage)
   return (
     <>

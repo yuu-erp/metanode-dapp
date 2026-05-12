@@ -35,7 +35,6 @@ function OverlayMessageView({ message, onClose, handlers, isPinned }: OverlayMes
       onClose()
     }
   }
-  console.log('thanhduy - OverlayMessageView', message)
 
   return (
     <motion.div

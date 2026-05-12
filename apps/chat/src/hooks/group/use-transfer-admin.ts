@@ -26,7 +26,6 @@ export function useTransferAdmin() {
             newAdmin: userAddress
           }
         })
-      console.log('thanhduy - data')
     }
   })
 }

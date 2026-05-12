@@ -41,7 +41,6 @@ function ListMessageView({
       </div>
     )
   }
-  console.log('thanhduy - messages')
 
   return (
     <React.Fragment>
