@@ -1,20 +1,14 @@
-import { walletActions } from '@/modules/wallet/wallet.store'
-import { useNavigate } from '@tanstack/react-router'
+import { useConnectWallet } from '@/hooks/useConnectWallet'
 import { memo } from 'react'
 import { Button } from '../ui/button'
 
 export type ConnectWalletProps = {}
 
 export const ConnectWallet = memo(({}: ConnectWalletProps) => {
-  const navigate = useNavigate()
+  const { mutate, isPending } = useConnectWallet()
 
   return (
-    <Button
-      onClick={() => {
-        walletActions.commitCurrentToPersisted()
-        navigate({ to: '/' })
-      }}
-    >
+    <Button onClick={() => mutate()} loading={isPending}>
       Connect
     </Button>
   )

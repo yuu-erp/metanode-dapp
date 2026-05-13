@@ -4,18 +4,18 @@ import { StatusSelector } from '@/components/main/select/StatusSelector'
 import { AddAdmin } from '@/components/main/tabs/AddAdmin'
 import { DisableUser } from '@/components/main/tabs/DisableUser'
 import { TransferAdmin } from '@/components/main/tabs/TransferAdmin'
-import { UserManaderTable } from '@/components/main/UserManaderTable'
+import { UserManaderTable } from '@/components/main/table/UserManaderTable'
 import { ChooseWallet } from '@/components/wallet/ChooseWallet'
-import { useWalletStore } from '@/modules/wallet/wallet.store'
+import { useRole } from '@/hooks/useRole'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_auth/')({
+export const Route = createFileRoute('/')({
   component: RouteComponent
 })
 
 function RouteComponent() {
-  const { persistedActive } = useWalletStore()
-  console.log('persistedActive', persistedActive)
+  const { isOwner } = useRole()
+
   return (
     <div className="size-full p-5 flex flex-col">
       {/* Header */}
@@ -28,8 +28,12 @@ function RouteComponent() {
         <p className="font-bold text-xl">Disable User (20)</p>
         <div className="flex flex-wrap gap-3 justify-between items-center pt-3">
           <div className="flex gap-3">
-            <AddAdmin />
-            <TransferAdmin />
+            {isOwner && (
+              <>
+                <AddAdmin />
+                <TransferAdmin />
+              </>
+            )}
             <DisableUser />
           </div>
           <div className="flex gap-3">

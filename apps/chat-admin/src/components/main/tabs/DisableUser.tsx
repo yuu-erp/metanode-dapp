@@ -1,14 +1,22 @@
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { ErrorText } from '@/components/ui/ErrorText'
 import { Input } from '@/components/ui/input'
-import { Copy, UserLock } from 'lucide-react'
-import { memo } from 'react'
+import { useDisableUser } from '@/modules/chat-admin/disable-user'
+import { UserLock } from 'lucide-react'
+import { memo, useState } from 'react'
 import { Button } from '../../ui/button'
 
 export type DisableUserProps = {}
 
 export const DisableUser = memo(({}: DisableUserProps) => {
+  const [open, setOpen] = useState(false)
+  const [address, setAddress] = useState('')
+  const { mutate, isPending, error } = useDisableUser(address, () => {
+    setOpen(false)
+  })
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <UserLock />
@@ -18,10 +26,12 @@ export const DisableUser = memo(({}: DisableUserProps) => {
       <DialogContent>
         <DialogTitle>Disable User</DialogTitle>
         <Input
-          rightNode={<Copy className="siez-4" />}
+          hasPaste
           placeholder="Paste your wallet want to transfer here"
+          onInputChange={setAddress}
         />
-        <Button className="" variant={'secondary'}>
+        <ErrorText error={error} />
+        <Button className="" variant={'secondary'} onClick={() => mutate()} loading={isPending}>
           Disable
         </Button>
       </DialogContent>

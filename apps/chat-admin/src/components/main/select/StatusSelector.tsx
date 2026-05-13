@@ -1,5 +1,4 @@
-import { SelectWrapper } from '@/components/ui/SelectWrapper'
-import { memo } from 'react'
+import { Status } from '@/@types/enum'
 import {
   Select,
   SelectContent,
@@ -7,7 +6,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { SelectWrapper } from '@/components/ui/SelectWrapper'
 import { uiActions, useUiStore } from '@/stores/ui.store'
+import { memo } from 'react'
 
 export type StatusSelectorProps = {}
 
@@ -22,8 +23,8 @@ export const StatusSelector = memo(({}: StatusSelectorProps) => {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All</SelectItem>
-          <SelectItem value="active">Active</SelectItem>
-          <SelectItem value="inActive">InActive</SelectItem>
+          <SelectItem value={Status.active}>Active</SelectItem>
+          <SelectItem value={Status.inActive}>InActive</SelectItem>
         </SelectContent>
       </Select>
     </SelectWrapper>

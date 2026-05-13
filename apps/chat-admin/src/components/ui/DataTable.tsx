@@ -1,6 +1,12 @@
 'use client'
 
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
+import {
+  type ColumnDef,
+  type Row,
+  flexRender,
+  getCoreRowModel,
+  useReactTable
+} from '@tanstack/react-table'
 
 import {
   Table,
@@ -10,15 +16,23 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  /** Id ổn định cho hàng (mặc định TanStack dùng index). Dùng khi một “natural key” (vd địa chỉ) có thể trùng giữa các loại bản ghi. */
+  getRowId?: (originalRow: TData, index: number) => string
+  /** Bọc mỗi hàng body (ví dụ ContextMenu); `children` là `<TableRow>...</TableRow>`. */
+  bodyRowWrapper?: (opts: { row: Row<TData>; children: ReactNode }) => ReactNode
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  bodyRowWrapper
+}: DataTableProps<TData, TValue>) {
   const ref = useRef<HTMLDivElement>(null)
   const [h, setH] = useState(500)
   const table = useReactTable({
@@ -59,15 +73,22 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
+            table.getRowModel().rows.map((row) => {
+              const rowNode = (
+                <TableRow data-state={row.getIsSelected() && 'selected'}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              )
+              return (
+                <Fragment key={row.id}>
+                  {bodyRowWrapper ? bodyRowWrapper({ row, children: rowNode }) : rowNode}
+                </Fragment>
+              )
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">

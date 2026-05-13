@@ -6,6 +6,12 @@ import { factoryContract } from '../blockchain/factory-contract/abis'
 import { meetingContract } from '../blockchain/meeting-contract'
 
 export type EventMap = {
+  UserDisabled: {
+    timestamp: string
+    disabledBy: string
+    user: string
+  }
+
   CameraStatusChanged: {
     roomId: string
     user: string

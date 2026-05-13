@@ -103,4 +103,15 @@ export class FactoryContract extends MtnContract {
       abiData: factoryAbi.deleteAnonymousCommunity
     })
   }
+
+  isUserDisabled(payload: TransactionPayload<{ user: string }>): Promise<boolean> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'isUserDisabled',
+      feeType: 'read',
+      abiData: factoryAbi.isUserDisabled
+    })
+  }
 }

@@ -1,3 +1,4 @@
+import { Role } from '@/@types/enum'
 import {
   Select,
   SelectContent,
@@ -22,8 +23,8 @@ export const RoleSelector = memo(({}: RoleSelectorProps) => {
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All</SelectItem>
-          <SelectItem value="admin">Admin</SelectItem>
-          <SelectItem value="user">User</SelectItem>
+          <SelectItem value={Role.admin}>Admin</SelectItem>
+          <SelectItem value={Role.user}>User</SelectItem>
         </SelectContent>
       </Select>
     </SelectWrapper>

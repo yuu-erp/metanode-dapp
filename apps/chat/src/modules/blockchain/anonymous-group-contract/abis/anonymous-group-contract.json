@@ -373,6 +373,49 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "updatedBy",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "sendMessages",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "reactionMessages",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "addUsers",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "pinMessages",
+        "type": "bool"
+      }
+    ],
+    "name": "GroupDefaultPermissionsUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "string",
         "name": "field",
         "type": "string"
@@ -734,6 +777,31 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "mutedBy",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "MemberMuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "string",
         "name": "removedBy",
@@ -815,6 +883,31 @@
       }
     ],
     "name": "MemberUnbanned",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "unmutedBy",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      }
+    ],
+    "name": "MemberUnmuted",
     "type": "event"
   },
   {
@@ -2068,6 +2161,82 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "canAddUsers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "canPinMessages",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "canReactToMessage",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "canSendMessage",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "cancelJoinRequest",
     "outputs": [],
@@ -2608,6 +2777,39 @@
         "internalType": "bool",
         "name": "canRemoveExecutor",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getGroupDefaultPermissions",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "sendMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "reactionMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "addUsers",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "pinMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastUpdate",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -3190,6 +3392,39 @@
   },
   {
     "inputs": [],
+    "name": "groupDefaultPermissions",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "sendMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "reactionMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "addUsers",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "pinMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastUpdate",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "groupName",
     "outputs": [
       {
@@ -3296,6 +3531,44 @@
     "name": "hostLowerHand",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "individualMuteStatus",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "individualMuteTimestamp",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -3810,6 +4083,19 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "member",
+        "type": "address"
+      }
+    ],
+    "name": "muteMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -4295,6 +4581,34 @@
   {
     "inputs": [
       {
+        "internalType": "bool",
+        "name": "_sendMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_reactionMessages",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_addUsers",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "_pinMessages",
+        "type": "bool"
+      }
+    ],
+    "name": "setGroupDefaultPermissions",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "enum ICommunityGroup.HistoryVisibility",
         "name": "_newPolicy",
         "type": "uint8"
@@ -4506,6 +4820,19 @@
       }
     ],
     "name": "unbanUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "member",
+        "type": "address"
+      }
+    ],
+    "name": "unmuteMember",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

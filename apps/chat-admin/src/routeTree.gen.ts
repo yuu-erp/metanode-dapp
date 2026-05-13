@@ -10,48 +10,52 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SetWalletRouteImport } from './routes/set-wallet'
-import { Route as AuthRouteImport } from './routes/_auth'
-import { Route as AuthIndexRouteImport } from './routes/_auth/index'
+import { Route as ErrorRouteImport } from './routes/error'
+import { Route as IndexRouteImport } from './routes/index'
 
 const SetWalletRoute = SetWalletRouteImport.update({
   id: '/set-wallet',
   path: '/set-wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/_auth',
+const ErrorRoute = ErrorRouteImport.update({
+  id: '/error',
+  path: '/error',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthIndexRoute = AuthIndexRouteImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthIndexRoute
+  '/': typeof IndexRoute
+  '/error': typeof ErrorRoute
   '/set-wallet': typeof SetWalletRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/error': typeof ErrorRoute
   '/set-wallet': typeof SetWalletRoute
-  '/': typeof AuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_auth': typeof AuthRouteWithChildren
+  '/': typeof IndexRoute
+  '/error': typeof ErrorRoute
   '/set-wallet': typeof SetWalletRoute
-  '/_auth/': typeof AuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/set-wallet'
+  fullPaths: '/' | '/error' | '/set-wallet'
   fileRoutesByTo: FileRoutesByTo
-  to: '/set-wallet' | '/'
-  id: '__root__' | '/_auth' | '/set-wallet' | '/_auth/'
+  to: '/' | '/error' | '/set-wallet'
+  id: '__root__' | '/' | '/error' | '/set-wallet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthRoute: typeof AuthRouteWithChildren
+  IndexRoute: typeof IndexRoute
+  ErrorRoute: typeof ErrorRoute
   SetWalletRoute: typeof SetWalletRoute
 }
 
@@ -64,35 +68,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SetWalletRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth': {
-      id: '/_auth'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthRouteImport
+    '/error': {
+      id: '/error'
+      path: '/error'
+      fullPath: '/error'
+      preLoaderRoute: typeof ErrorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_auth/': {
-      id: '/_auth/'
+    '/': {
+      id: '/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthIndexRouteImport
-      parentRoute: typeof AuthRoute
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AuthRouteChildren {
-  AuthIndexRoute: typeof AuthIndexRoute
-}
-
-const AuthRouteChildren: AuthRouteChildren = {
-  AuthIndexRoute: AuthIndexRoute,
-}
-
-const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
-  AuthRoute: AuthRouteWithChildren,
+  IndexRoute: IndexRoute,
+  ErrorRoute: ErrorRoute,
   SetWalletRoute: SetWalletRoute,
 }
 export const routeTree = rootRouteImport

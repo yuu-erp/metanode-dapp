@@ -1,5 +1,6 @@
 import { ConnectWallet } from '@/components/wallet/ConnectWallet'
 import { CreateWallet } from '@/components/wallet/CreateWallet'
+import { ImportWallet } from '@/components/wallet/ImportWallet'
 import { ListWallet } from '@/components/wallet/ListWallet'
 import { useWalletStore } from '@/modules/wallet/wallet.store'
 import { createFileRoute, redirect } from '@tanstack/react-router'
@@ -21,6 +22,7 @@ function RouteComponent() {
         <div className="flex gap-3">
           <ConnectWallet />
           <CreateWallet />
+          <ImportWallet />
         </div>
       </div>
     </>

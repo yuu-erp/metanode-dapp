@@ -7,6 +7,7 @@ import { EffectCoverflow } from 'swiper/modules'
 import { motion } from 'framer-motion'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
+import { contractClient } from '@/contract'
 
 export type ListWalletProps = {}
 
@@ -14,9 +15,14 @@ export const ListWallet = memo(({}: ListWalletProps) => {
   const { data } = useAllWallets()
   const currentActive = useWalletStore((s) => s.currentActive)
 
+  const setWalletAddress = ({ address }: Wallet) => {
+    walletActions.setCurrentActive(address)
+    contractClient.setFrom(address)
+  }
+
   useEffect(() => {
     if (!data?.length || !!currentActive) return
-    walletActions.setCurrentActive(data[0].address)
+    setWalletAddress(data[0])
   }, [data, currentActive])
 
   return (
@@ -31,7 +37,7 @@ export const ListWallet = memo(({}: ListWalletProps) => {
           const idx = swiper.realIndex ?? swiper.activeIndex
           const wallet = data[idx]
           if (!wallet) return
-          walletActions.setCurrentActive(wallet.address)
+          setWalletAddress(wallet)
         }}
         breakpoints={{
           0: { slidesPerView: 1.3 },

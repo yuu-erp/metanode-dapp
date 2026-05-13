@@ -3,6 +3,8 @@ declare global {
   interface Window {
     isHasNotch?: boolean
     finSdk?: any
+    webkit?: any
+    electronAPI?: any
   }
   interface Wallet {
     name: string

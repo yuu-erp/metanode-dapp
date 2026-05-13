@@ -1,3 +1,4 @@
+import { container } from '@/container'
 import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
 import { MessageProvider } from '@/features/message'
@@ -7,17 +8,31 @@ import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar'
 import { createCurrentAccountQueryOptions, useTitleNotification } from '@/shared/hooks'
 import { useForcedLogout, useRegisterEventLog, useReloadOnNative } from '@/shared/hooks/accounts'
+import { useDisabled } from '@/shared/hooks/accounts/use-disabled'
 import { useSyncContractsAddressess } from '@/shared/hooks/accounts/use-sync-contracts-addressess'
 import { queryClient } from '@/shared/lib/react-query'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
+import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_authenticated')({
   loader: async () => {
     try {
       const currentAccount = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
+
       if (!currentAccount || !currentAccount.isActive) {
         throw redirect({ to: '/wallets' })
       }
+      const isUserDisabled = await container.factoryContract.isUserDisabled({
+        from: currentAccount.address,
+        inputData: { user: currentAccount?.address }
+      })
+
+      if (isUserDisabled) {
+        container.accountService.logout()
+        toast.error('User is disabled')
+        throw redirect({ to: '/wallets' })
+      }
+
       return {}
     } catch (error) {
       console.error(error)
@@ -38,6 +53,7 @@ function RouteComponent() {
   useRegisterEventLog()
   useReloadOnNative()
   useSyncContractsAddressess()
+  useDisabled()
 
   return (
     <ConversationsProvider>

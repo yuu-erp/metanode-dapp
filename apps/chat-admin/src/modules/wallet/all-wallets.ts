@@ -1,4 +1,4 @@
-import { queryKeys } from '@/shared'
+import { queryClient, queryKeys } from '@/shared'
 import { getAllWallets } from '@metanodejs/system-core'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
@@ -11,4 +11,8 @@ export const createAllWalletsQuery = () =>
 
 export function useAllWallets() {
   return useQuery(createAllWalletsQuery())
+}
+
+export function refetchAllWallets() {
+  queryClient.invalidateQueries({ queryKey: queryKeys.wallet.all })
 }

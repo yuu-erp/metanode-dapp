@@ -1,14 +1,22 @@
-import { memo } from 'react'
-import { Button } from '../../ui/button'
-import { Copy, UserPlus } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { ErrorText } from '@/components/ui/ErrorText'
 import { Input } from '@/components/ui/input'
+import { useAddAdmin } from '@/modules/chat-admin/add-admin'
+import { UserPlus } from 'lucide-react'
+import { memo, useState } from 'react'
+import { Button } from '../../ui/button'
 
 export type AddAdminProps = {}
 
 export const AddAdmin = memo(({}: AddAdminProps) => {
+  const [open, setOpen] = useState(false)
+  const [address, setAddress] = useState('')
+  const { mutate, isPending, error } = useAddAdmin(address, () => {
+    setOpen(false)
+  })
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <UserPlus />
@@ -18,10 +26,12 @@ export const AddAdmin = memo(({}: AddAdminProps) => {
       <DialogContent>
         <DialogTitle>Add as Admin</DialogTitle>
         <Input
-          rightNode={<Copy className="siez-4" />}
+          hasPaste
           placeholder="Paste your wallet want to add here"
+          onInputChange={setAddress}
         />
-        <Button className="" variant={'secondary'}>
+        <ErrorText error={error} />
+        <Button onClick={() => mutate()} loading={isPending} className="" variant={'secondary'}>
           Add
         </Button>
       </DialogContent>

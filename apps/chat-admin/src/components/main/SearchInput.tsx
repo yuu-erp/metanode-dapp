@@ -14,7 +14,7 @@ export const SearchInput = memo(({}: SearchInputProps) => {
       }}
       value={value}
       placeholder="Search..."
-      onChange={(e) => uiActions.setSearchValue(e.target.value)}
+      onInputChange={uiActions.setSearchValue}
       leftNode={<Search className="size-5" />}
       rightNode={
         value && (

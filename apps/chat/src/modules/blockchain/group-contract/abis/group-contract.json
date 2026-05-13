@@ -470,55 +470,13 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "sendPhotos",
+        "name": "reactionMessages",
         "type": "bool"
       },
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "sendVideos",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sendStickersGifs",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sendMusic",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sendFiles",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sendVoice",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sendVideoMsgs",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "embedLinks",
-        "type": "bool"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "sendPolls",
+        "name": "sendPhotoFileLink",
         "type": "bool"
       },
       {
@@ -858,37 +816,6 @@
       }
     ],
     "name": "MemberMuted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "updatedBy",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "permissions",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "timestamp",
-        "type": "uint256"
-      }
-    ],
-    "name": "MemberPermissionsUpdated",
     "type": "event"
   },
   {
@@ -1779,188 +1706,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "PERM_ADD_USERS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_ALL_MEMBER",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_CHANGE_CHAT_INFO",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_EMBED_LINKS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_PIN_MESSAGES",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_FILES",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_MESSAGES",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_MUSIC",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_PHOTOS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_POLLS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_STICKERS_GIFS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_VIDEOS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_VIDEO_MSGS",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PERM_SEND_VOICE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -2018,6 +1763,24 @@
   {
     "inputs": [
       {
+        "internalType": "address[]",
+        "name": "users",
+        "type": "address[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "encryptedKeys",
+        "type": "string[]"
+      }
+    ],
+    "name": "addAllMemberForUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "executor",
         "type": "address"
@@ -2047,6 +1810,24 @@
       }
     ],
     "name": "addMember",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "encryptedKeyForNewMember",
+        "type": "string"
+      }
+    ],
+    "name": "addMemberForUser",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -2195,6 +1976,25 @@
       }
     ],
     "name": "canPinMessages",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "canReactToMessage",
     "outputs": [
       {
         "internalType": "bool",
@@ -2650,47 +2450,7 @@
       },
       {
         "internalType": "bool",
-        "name": "sendPhotos",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendVideos",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendStickersGifs",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendMusic",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendFiles",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendVoice",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendVideoMsgs",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "embedLinks",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendPolls",
+        "name": "sendPhotoFileLink",
         "type": "bool"
       },
       {
@@ -2763,40 +2523,6 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      }
-    ],
-    "name": "getMemberPermission",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "permissions",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastUpdate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "isCustomized",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "isIndividuallyMuted",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -3131,47 +2857,12 @@
       },
       {
         "internalType": "bool",
-        "name": "sendPhotos",
+        "name": "reactionMessages",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "sendVideos",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendStickersGifs",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendMusic",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendFiles",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendVoice",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendVideoMsgs",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "embedLinks",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "sendPolls",
+        "name": "sendPhotoFileLink",
         "type": "bool"
       },
       {
@@ -3673,35 +3364,6 @@
         "type": "address"
       }
     ],
-    "name": "memberPermissions",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "permissions",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "lastUpdate",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bool",
-        "name": "isCustomized",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
     "name": "members",
     "outputs": [
       {
@@ -4087,58 +3749,12 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      }
-    ],
-    "name": "resetMemberPermissions",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "string",
         "name": "_reaction",
         "type": "string"
       }
     ],
     "name": "sendCallReaction",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "encryptedContent",
-        "type": "string"
-      },
-      {
-        "internalType": "address[]",
-        "name": "recipientOwners",
-        "type": "address[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "recipientContracts",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint8",
-        "name": "mediaType",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "mediaHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "sendMediaMessage",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -4195,47 +3811,12 @@
       },
       {
         "internalType": "bool",
-        "name": "_sendPhotos",
+        "name": "_reactionMessages",
         "type": "bool"
       },
       {
         "internalType": "bool",
-        "name": "_sendVideos",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_sendStickersGifs",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_sendMusic",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_sendFiles",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_sendVoice",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_sendVideoMsgs",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_embedLinks",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "_sendPolls",
+        "name": "_sendPhotoFileLink",
         "type": "bool"
       },
       {
@@ -4268,24 +3849,6 @@
       }
     ],
     "name": "setHistoryVisibility",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "member",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "permissions",
-        "type": "uint256"
-      }
-    ],
-    "name": "setMemberPermissions",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

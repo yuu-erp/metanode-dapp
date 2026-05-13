@@ -8,4 +8,6 @@ export const CONTRACT_ADDRESSES = {
   meeting: import.meta.env.VITE_MEETING || '',
   verify: import.meta.env.VITE_VERIFY || '',
   ekyc: import.meta.env.VITE_EKYC || ''
-} as const
+}
+
+console.log('CONTRACT_ADDRESSES', CONTRACT_ADDRESSES)
