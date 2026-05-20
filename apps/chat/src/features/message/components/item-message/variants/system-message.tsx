@@ -9,7 +9,7 @@ export type SystemMessageProps = {
 export const SystemMessage = memo(({ message }: SystemMessageProps) => {
   const user = useGetConversationByAddress(message.sender, 'p2p', true, false)
 
-  const text: Record<SystemMessageEventName, string> = {
+  const text: Record<any, string> = {
     leave_group: `${user?.name} has left`
   }
 

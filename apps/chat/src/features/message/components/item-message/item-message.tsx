@@ -9,6 +9,7 @@ import { type MessageItemProps } from '.'
 import { useIsPinned } from '../../hooks'
 import ItemMessageUI from './item-message-ui'
 import { SystemMessage } from './variants/system-message'
+import { CallDurationMessage } from './variants/call-duration-message'
 
 // --- Logic Hook ---
 function useMessageLogic(
@@ -58,10 +59,13 @@ function ItemMessage(
 ) {
   const { message, isMine, onSelectMessage } = props
   const logic = useMessageLogic(message, isMine, onSelectMessage)
-
+  if (message.type === 'call_duration') {
+    console.log('[ItemMessage]', { message })
+  }
   const isSticker = message.type === 'sticker'
   //@ts-ignore
   const mimeType = message?.message?.mimeType ?? message.mimeType
+  const { data: isPinned } = useIsPinned(message.id)
 
   const isImage = React.useMemo(() => {
     if (message.type !== 'file') return false
@@ -82,15 +86,9 @@ function ItemMessage(
     return <SystemMessage message={message} />
   }
 
-  // const {} use
-
-  // const { data: isPinned } = useMessagePinStatus(
-  //   account?.address || '',
-  //   conversation?.conversationId || '',
-  //   message?.id || ''
-  // )
-
-  const { data: isPinned } = useIsPinned(message.id)
+  if (message.type === 'call_duration') {
+    return <CallDurationMessage message={message} />
+  }
 
   return (
     <ItemMessageUI

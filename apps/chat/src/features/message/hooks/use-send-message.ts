@@ -21,6 +21,7 @@ export function useSendMessage() {
   return useMutation<string, Error, SendMessageVariables>({
     mutationFn: async ({ account, conversation, payload }) => {
       const messageService = container.messageService
+      console.log('[useSendMessage] ', payload)
       return messageService.sendMessage(account, conversation, payload)
     },
 

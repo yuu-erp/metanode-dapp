@@ -48,16 +48,21 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   }
 
   const rawType = String(raw.type ?? 'text').toLowerCase()
-  const messageType: MessageType = [
+  if (rawType === 'call_duration') {
+    console.log('[mapperToMessage] 1')
+  }
+  const messageType: any = [
     'text',
     'sticker',
     'file',
     'voice',
     'location',
-    'system'
+    'system',
+    'call_duration'
   ].includes(rawType)
     ? (rawType as MessageType)
     : 'text'
+
   const reactions =
     raw.conversationType === 'anonymous_group' || raw.conversationType === 'group'
       ? parseReactionForGroup(raw.reactionSummary)
@@ -82,6 +87,13 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   }
 
   switch (messageType) {
+    case 'call_duration':
+      return {
+        ...base,
+        type: 'call_duration',
+        duration: Number(raw.duration)
+      } as Message
+
     case 'text': {
       const content = String(
         raw.value ?? raw.text ?? raw.content ?? '[Tin nhắn không hỗ trợ]'
@@ -188,6 +200,9 @@ function mapStatus(raw: unknown): MessageStatus | undefined {
  * Cấu trúc flatten: type, content/stickerId/fileId/... trực tiếp ở root
  */
 export function mapperMessageToOnChain(message: Message): OnChainMessagePayload {
+  console.log('[mapperMessageToOnChain] 1', {
+    message
+  })
   // Các field chung
   const base: BaseOnChainPayload = {
     ...(message.replyTo && {
@@ -247,6 +262,12 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
         type: 'system',
         eventName: message.eventName
       } as OnChainMessagePayload
+    case 'call_duration':
+      return {
+        ...base,
+        type: 'call_duration',
+        duration: message.duration
+      }
   }
 }
 

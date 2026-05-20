@@ -14,6 +14,10 @@ export type UiStore = {
   resetSearch: () => void
   pinOpen: boolean
   setPinOpen: (value: boolean) => void
+  addGroupOpen: boolean
+  setAddGroupOpen: (value: boolean) => void
+  leaveGroupOpen: boolean
+  setLeaveGroupOpen: (value: boolean) => void
 }
 export const useUiStore = create<UiStore>()((set, get) => ({
   mentionPopoverOpen: false,
@@ -26,7 +30,11 @@ export const useUiStore = create<UiStore>()((set, get) => ({
   setSearchValue: (searchValue) => set({ searchValue }),
   resetSearch: () => set({ searchOpen: false, searchValue: '' }),
   pinOpen: false,
-  setPinOpen: (pinOpen) => set({ pinOpen })
+  setPinOpen: (pinOpen) => set({ pinOpen }),
+  addGroupOpen: false,
+  setAddGroupOpen: (addGroupOpen) => set({ addGroupOpen }),
+  leaveGroupOpen: false,
+  setLeaveGroupOpen: (leaveGroupOpen) => set({ leaveGroupOpen })
 }))
 
 export const uiActions = useUiStore.getState()

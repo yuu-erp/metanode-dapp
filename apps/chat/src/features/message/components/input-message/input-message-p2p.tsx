@@ -9,6 +9,8 @@ import {
 } from '@/modules/message'
 import { useEditMessage, useSendSticker, useSendText } from '../../hooks'
 import { type InputMessageProps, InputMessageView, useInputMessageController } from '.'
+import { useSendMessageV2 } from '@/hooks/mesage/use-send-message-v2'
+import { useCurrentAccount } from '@/shared/hooks'
 
 const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>(
   ({ account, conversation }, ref) => {
@@ -60,6 +62,8 @@ const InputMessageP2P = React.forwardRef<HTMLTextAreaElement, InputMessageProps>
 
     React.useImperativeHandle(ref, () => controller.textareaRef.current!)
 
+    const sendMsg = useSendMessageV2()
+    console.log('controller.message', controller.message)
     return (
       <InputMessageView
         onRemoveFileData={controller.onRemoveFileData}

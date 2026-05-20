@@ -1,16 +1,16 @@
 import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
+import { uiActions, useUiStore } from '@/stores/ui.store'
 import { DialogTitle } from '@headlessui/react'
 import { memo } from 'react'
 import { PopoverItem } from './popover-item'
-import { leaveGroupActions, useLeaveGroupStore } from '@/stores'
 
 export type LeaveGroupDialogProps = {}
 
 export const LeaveGroupDialog = memo(({}: LeaveGroupDialogProps) => {
-  const open = useLeaveGroupStore((s) => s.isLeaveGroup)
+  const open = useUiStore((s) => s.leaveGroupOpen)
 
   return (
-    <Dialog open={open} onOpenChange={leaveGroupActions.setIsLeaveGroup}>
+    <Dialog open={open} onOpenChange={uiActions.setLeaveGroupOpen}>
       <DialogContent>
         <DialogTitle>Leave group</DialogTitle>
         <PopoverItem>Cancel</PopoverItem>

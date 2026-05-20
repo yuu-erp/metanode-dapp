@@ -1,17 +1,21 @@
 import type { MeetingViewInput } from '@/modules/meeting/meeting.type'
 import { handleMessageError } from '@/shared/utils/errorNative'
+import { useFlowStore } from '@/stores/flow.store'
 import { sendCommand } from '@metanodejs/system-core'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { useConversationParams } from '../use-conversation-params'
 
 export function useGoToMeetingView() {
   const navigate = useNavigate()
+  const { id, type } = useConversationParams()
 
   return useMutation({
     mutationFn: async (input: MeetingViewInput) => {
       const query = new URLSearchParams(input as any).toString()
-      console.log('[DEBUG] useGoToMeetingView 1', query)
+      console.log('[DEBUG] useGoToMeetingView 1', { query, input, id, type })
+      useFlowStore.setState({ id, type })
       if (window?.finSdk) {
         // navigate({ to: '/meeting', search: input })
         //@ts-ignore

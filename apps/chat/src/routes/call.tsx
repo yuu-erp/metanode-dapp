@@ -9,10 +9,13 @@ import { JoinRequest } from '@/features/call/join-request'
 import { MembersInCall } from '@/features/call/members-in-call'
 import { RaiseHandUsers } from '@/features/call/raise-hand-users'
 import { ReactionInCall } from '@/features/call/reaction-in-call'
+import { useSendMessageV2 } from '@/hooks/mesage/use-send-message-v2'
 import { getUserByAddress } from '@/shared/hooks/conversations/use-user-by-address'
+import { useFlowStore } from '@/stores/flow.store'
 
 import { CallProvider, useRoomStore } from '@app/call'
 import { createFileRoute, useNavigate, useRouter, useSearch } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 export const Route = createFileRoute('/call')({
   component: RouteComponent
@@ -26,6 +29,18 @@ function RouteComponent() {
   const navigate = useNavigate()
   const router = useRouter()
   const search = useSearch({ strict: false })
+
+  useEffect(() => {
+    useFlowStore.setState({
+      from: Math.floor(performance.now())
+    })
+    return () => {
+      const to = Math.floor(performance.now())
+      useFlowStore.setState({
+        to
+      })
+    }
+  }, [])
 
   return (
     <>

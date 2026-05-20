@@ -2,7 +2,7 @@ import { useAddMember, useGetConversations, useGetGroupMembers } from '@/feature
 import type { PayloadAddMembers } from '@/modules/conversation'
 import { useCurrentAccount, useGetConversationId, useI18N } from '@/shared/hooks'
 import { useConversationParams } from '@/shared/hooks/use-conversation-params'
-import { addGroupActions, useAddGroup } from '@/stores'
+import { uiActions, useUiStore } from '@/stores/ui.store'
 import { CheckIcon, Loader2Icon } from 'lucide-react'
 import React, { memo, useCallback, useMemo } from 'react'
 import { Drawer } from 'vaul'
@@ -15,7 +15,7 @@ const DrawerAddGroupMember = memo(() => {
   const { data: conversations = [] } = useGetConversations(account)
   const [selectedMembers, setSelectedMembers] = React.useState<PayloadAddMembers[]>([])
   const { data: conversation } = useGetConversationId(id, type)
-  const open = useAddGroup((s) => s.open)
+  const open = useUiStore((s) => s.addGroupOpen)
 
   const { data: groupMembers = [] } = useGetGroupMembers(
     account?.address,
@@ -45,11 +45,11 @@ const DrawerAddGroupMember = memo(() => {
       members: selectedMembers,
       group: conversation!
     })
-    addGroupActions.setOpen(false)
+    uiActions.setAddGroupOpen(false)
   }, [account, selectedMembers, conversation])
 
   return (
-    <Drawer.Root shouldScaleBackground open={open} onOpenChange={addGroupActions.setOpen}>
+    <Drawer.Root shouldScaleBackground open={open} onOpenChange={uiActions.setAddGroupOpen}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/50" />
         <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">

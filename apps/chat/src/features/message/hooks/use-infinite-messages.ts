@@ -51,6 +51,7 @@ export function useInfiniteMessages({
           limit: pageSize,
           page: pageParam as number | undefined
         })
+        console.log('[messageService.getProcessedP2PMessages]', { result })
       }
 
       return result

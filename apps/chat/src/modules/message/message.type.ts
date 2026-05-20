@@ -89,6 +89,7 @@ export type Message =
   | (BaseMessage & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseMessage & { type: 'location' } & MessagePayloadMap['location'])
   | (BaseMessage & { type: 'system' } & MessagePayloadMap['system'])
+  | any
 // Type alias cho message đã có id (dùng khi lưu trữ hoặc reply)
 export type PersistedMessage = Message & { id: string }
 
@@ -113,6 +114,7 @@ export type SendPayload =
   | (BaseSendPayload & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseSendPayload & { type: 'location' } & MessagePayloadMap['location'])
   | (BaseSendPayload & { type: 'system' } & MessagePayloadMap['system'])
+  | any
 export type EditTextPayload = BaseSendPayload & { type: 'text' } & MessagePayloadMap['text']
 // ============================================================================
 // ON-CHAIN PAYLOAD (khi stringify và lưu lên smart contract)
@@ -125,6 +127,7 @@ export type OnChainMessagePayload =
   | (BaseOnChainPayload & { type: 'voice' } & MessagePayloadMap['voice'])
   | (BaseOnChainPayload & { type: 'location' } & MessagePayloadMap['location'])
   | (BaseOnChainPayload & { type: 'system' } & MessagePayloadMap['system'])
+  | any
 
 export type ComposerDraft =
   | { type: 'text'; content: string }

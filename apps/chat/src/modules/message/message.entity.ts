@@ -16,7 +16,8 @@ export function createOptimisticMessage(
   const common: Omit<BaseMessage, 'type'> = {
     ...base,
     status: 'sending',
-    reactions: base.reactions ?? [] // phòng trường hợp base.reactions undefined
+    reactions: base.reactions ?? [], // phòng trường hợp base.reactions undefined
+    isMine: true
   }
 
   switch (payload.type) {
@@ -70,6 +71,14 @@ export function createOptimisticMessage(
         type: 'system',
         eventName: payload.eventName
       } satisfies Message
+
+    case 'call_duration': {
+      return {
+        ...common,
+        type: 'call_duration',
+        duration: payload.duration
+      }
+    }
   }
 }
 

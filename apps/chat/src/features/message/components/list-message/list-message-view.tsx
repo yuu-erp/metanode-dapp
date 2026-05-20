@@ -26,6 +26,8 @@ function ListMessageView({
   account,
   handleSelectMessage
 }: ListMessageViewProps) {
+  console.log('[ListMessageView] ', { messages })
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">

@@ -1,5 +1,5 @@
 import { useGroupInfo } from '@/shared/hooks/group/use-group-info'
-import { addGroupActions } from '@/stores'
+import { uiActions } from '@/stores/ui.store'
 import { memo } from 'react'
 import { PopoverItem } from '../../../../../components/popover-item'
 
@@ -14,7 +14,7 @@ export const AddMemberButton = memo(({ onClose }: AddMemberButtonProps) => {
   return (
     <PopoverItem
       onClick={() => {
-        addGroupActions.setOpen(true)
+        uiActions.setAddGroupOpen(true)
         onClose?.()
       }}
     >

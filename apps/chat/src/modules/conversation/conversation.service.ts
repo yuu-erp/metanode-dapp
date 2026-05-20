@@ -408,6 +408,7 @@ export class ConversationService {
   }
 
   async updateWithLastMessage(message: Message) {
+    if (!message.accountId) return
     const current = await this.repository.getById(message.accountId, message.conversationId)
     // Nếu chưa có conversation -> sync lại hoặc tạo mới (ở đây tạm thời sync)
     if (!current) {

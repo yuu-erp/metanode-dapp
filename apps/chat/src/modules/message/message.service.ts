@@ -69,10 +69,13 @@ export class MessageService {
         page
       }
     })
+    console.log('[getProcessedP2PMessages] 1', { rawMessages })
 
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
     )
+
+    console.log('[getProcessedP2PMessages] 2', { messages })
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -279,6 +282,7 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
+    console.log('[sendMessage] 1')
     const clientId = uuidv4()
     const optimisticMessage = createOptimisticMessage(
       {
@@ -293,6 +297,8 @@ export class MessageService {
       },
       payload
     )
+    console.log('[sendMessage] 2')
+
     // optimistic update
     this.eventBus.emit('message.add', {
       conversationId: conversation.conversationId,
@@ -300,11 +306,19 @@ export class MessageService {
       isMine: true,
       conversationType: 'p2p'
     })
+
+    console.log('[sendMessage] 3', { optimisticMessage })
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
-    const stringifyMessage = JSON.stringify(messageOnChain)
+    console.log('[sendMessage] 3.5', { messageOnChain })
 
-    return await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
+    const stringifyMessage = JSON.stringify(messageOnChain)
+    console.log('[sendMessage] 4')
+
+    const rs = await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
+    console.log('[sendMessage] 5', { rs })
+
+    return rs
   }
 
   async decryptMessageForP2p(
@@ -920,6 +934,7 @@ export class MessageService {
         rawMessages = []
       }
     }
+
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )

@@ -43,8 +43,6 @@ function ListMessage({ conversation, account }: ListMessageProps) {
           isFetchingNextPage={isFetchingNextPage}
           hasNextPage={hasNextPage}
           account={account}
-          conversation={conversation}
-          // @ts-ignore
           handleSelectMessage={handleSelectMessage}
         />
         {/* Button scroll to top */}

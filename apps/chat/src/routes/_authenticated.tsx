@@ -2,6 +2,7 @@ import { container } from '@/container'
 import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
 import { MessageProvider } from '@/features/message'
+import { useSyncCall } from '@/hooks/sync/use-sync-call'
 import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
@@ -54,6 +55,7 @@ function RouteComponent() {
   useReloadOnNative()
   useSyncContractsAddressess()
   useDisabled()
+  useSyncCall()
 
   return (
     <ConversationsProvider>
