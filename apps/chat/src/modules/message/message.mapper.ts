@@ -130,6 +130,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
       const fileId = String(
         raw.fileId ?? (typeof raw.value === 'object' && raw.value ? (raw.value as any).fileId : '')
       )
+      console.log('[voice] fileId', { fileId })
       if (!fileId) {
         throw new Error('Voice message missing fileId')
       }

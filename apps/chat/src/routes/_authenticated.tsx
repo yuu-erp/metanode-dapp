@@ -1,3 +1,4 @@
+import { VoiceRecorder } from '@/components/voice-recorder'
 import { container } from '@/container'
 import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
@@ -75,6 +76,7 @@ function RouteComponent() {
               <div className="flex-1 flex flex-col min-w-0 relative">
                 <Outlet />
                 {showNavbar && <NavbarMenu />}
+                <VoiceRecorder />
               </div>
             </SidebarInset>
           </SidebarProvider>

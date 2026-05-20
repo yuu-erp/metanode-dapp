@@ -10,6 +10,7 @@ import { InputMessageAction } from '.'
 import { PopoverForAndroid } from '../popover-for-android'
 import { SelectedFileList } from './selected-file-list'
 import { StickerDrawer } from './sticker-drawer'
+import { uiActions, useUiStore } from '@/stores/ui.store'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
   message: string
@@ -70,6 +71,8 @@ function InputMessageView(props: InputMessageViewProps) {
   const [mentionScrollTop, setMentionScrollTop] = React.useState(0)
   const showMentionHighlight = Boolean(mentionHighlights?.length)
 
+  const micOpen = useUiStore((s) => s.micOpen)
+
   const highlightSegments = React.useMemo(
     () => (showMentionHighlight ? getMentionHighlightSegments(message, mentionHighlights!) : null),
     [message, mentionHighlights, showMentionHighlight]
@@ -94,6 +97,8 @@ function InputMessageView(props: InputMessageViewProps) {
 
     setFileData([file])
   }
+
+  if (micOpen) return null
 
   return (
     <div
@@ -246,7 +251,10 @@ function InputMessageView(props: InputMessageViewProps) {
 
           {/* Mic */}
           {!message.trim() && files.length === 0 && fileData.length === 0 && (
-            <button className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80">
+            <button
+              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+              onClick={() => uiActions.setMicOpen(true)}
+            >
               <Mic className="text-white/80" />
             </button>
           )}

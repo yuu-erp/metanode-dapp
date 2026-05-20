@@ -68,6 +68,7 @@ function MessageFile({ message, isMine, isOverlay }: Props) {
     }
     const fileId = message.fileId || message.id
     if (!fileId) return
+    console.log('[download]', { message })
     await downloadFile(fileId, fileId, message.fileName, message.mimeType)
   })
 

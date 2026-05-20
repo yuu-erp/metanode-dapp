@@ -1,7 +1,12 @@
 import { downloadFile } from '@/shared/lib'
 import { createFileWithBuffer } from '@metanodejs/system-core'
 
-export async function createPathFromBlob(blob: Blob, fileName: string): Promise<string> {
+export async function createPathFromBlob(
+  blob: Blob,
+  fileName: string,
+  isSave = true
+): Promise<string> {
+  console.log('[createPathFromBlob]', isSave)
   const arrayBuffer = await blob.arrayBuffer()
 
   const dotIndex = fileName.lastIndexOf('.')
@@ -10,7 +15,7 @@ export async function createPathFromBlob(blob: Blob, fileName: string): Promise<
 
   const buffer = Array.from(new Uint8Array(arrayBuffer))
 
-  if (window?.finSdk) {
+  if (window?.finSdk && isSave) {
     return downloadFile({ name, ext, buffer })
   }
 

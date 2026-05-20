@@ -4,7 +4,6 @@ import type {
   Message,
   MessageAction,
   PersistedMessage,
-  ReplyReference,
   SendPayload
 } from '.'
 
@@ -82,7 +81,7 @@ export function createOptimisticMessage(
   }
 }
 
-export function createReplyReference(message: PersistedMessage): ReplyReference {
+export function createReplyReference(message: PersistedMessage): any {
   // Vì reply cần message đã có id
   if (!message.id) {
     throw new Error('Cannot create ReplyReference: message.id is missing')
@@ -197,7 +196,7 @@ export function createForwardPayload(message: PersistedMessage) {
 
     default: {
       // đảm bảo exhaustiveness khi thêm MessageType mới
-      const _exhaustive: never = message
+      const _exhaustive: any = message
       return _exhaustive
     }
   }

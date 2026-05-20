@@ -1,6 +1,6 @@
 import type { Message } from '@/modules/message'
 import { cn } from '@/shared/lib'
-import { Camera, Phone, Video } from 'lucide-react'
+import { Phone } from 'lucide-react'
 import { memo } from 'react'
 
 export type CallDurationMessageProp = {

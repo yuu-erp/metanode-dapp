@@ -11,19 +11,33 @@ export function useDownloadFile() {
   const messageService = container.messageService as MessageService
 
   const downloadFile = useCallback(
-    async (fileId: string, fileKey: string, fileName: string, mimeType: string) => {
-      if (!account) return
+    async (
+      fileId: string,
+      fileKey: string,
+      fileName: string,
+      mimeType: string,
+      isSave?: boolean
+    ): Promise<string | undefined> => {
+      if (!account) return undefined
       setIsDownloading(true)
       setDownloadedFileId(fileId)
       setProgress(0)
 
       try {
-        await messageService.downloadFile(account, fileKey, fileName, mimeType, (percent) => {
-          setProgress(percent)
-        })
+        return await messageService.downloadFile(
+          account,
+          fileKey,
+          fileName,
+          mimeType,
+          isSave,
+          (percent) => {
+            setProgress(percent)
+          }
+        )
       } catch (error) {
         console.error('Download failed:', error)
         // toast.error('Failed to download file')
+        return undefined
       } finally {
         setIsDownloading(false)
         setDownloadedFileId(null)

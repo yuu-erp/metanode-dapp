@@ -9,7 +9,6 @@ import { JoinRequest } from '@/features/call/join-request'
 import { MembersInCall } from '@/features/call/members-in-call'
 import { RaiseHandUsers } from '@/features/call/raise-hand-users'
 import { ReactionInCall } from '@/features/call/reaction-in-call'
-import { useSendMessageV2 } from '@/hooks/mesage/use-send-message-v2'
 import { getUserByAddress } from '@/shared/hooks/conversations/use-user-by-address'
 import { useFlowStore } from '@/stores/flow.store'
 

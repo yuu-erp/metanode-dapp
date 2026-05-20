@@ -4,10 +4,9 @@ import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { queryClient } from '@/shared/lib/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-export function useSendMessageV2(input?: { id: string; type: string }) {
+export function useSendFileV2(messageType?: string) {
   const { data: account } = useCurrentAccount()
-  const params = useConversationParams()
-  const { id, type } = input ?? params
+  const { id, type } = useConversationParams()
 
   return useMutation({
     mutationFn: async (payload: any) => {
@@ -17,13 +16,7 @@ export function useSendMessageV2(input?: { id: string; type: string }) {
       )
 
       if (!conversation) return
-      if (conversation.conversationType === 'p2p') {
-        await container.messageService.sendMessage(account, conversation, payload)
-      } else {
-        await container.messageService.sendGroupMessae(account, conversation, payload)
-      }
-
-      // flowActions.resetCallData()
+      await container.messageService.sendFile(account, conversation, payload, messageType)
     }
   })
 }

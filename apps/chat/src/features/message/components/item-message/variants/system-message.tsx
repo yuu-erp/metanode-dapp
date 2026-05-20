@@ -1,4 +1,4 @@
-import type { Message, SystemMessageEventName } from '@/modules/message'
+import type { Message } from '@/modules/message'
 import { useGetConversationByAddress } from '@/shared/hooks'
 import { memo } from 'react'
 

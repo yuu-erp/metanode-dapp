@@ -101,12 +101,12 @@ export class MessageService {
         item.finalContent
       )
 
-      let replyTo = undefined
+      let replyTo: any = undefined
       if (decrypted.replyTo) {
         replyTo = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
       }
 
-      if (decrypted.type === 'file') {
+      if (decrypted.type === 'file' || decrypted.type === 'voice') {
         const fileDB = await this.fileCacheService.getFile(decrypted.fileId)
         if (fileDB) {
           decrypted.filePath = URL.createObjectURL(fileDB.blob)
@@ -148,7 +148,7 @@ export class MessageService {
         item.finalContent
       )
 
-      let replyTo = undefined
+      let replyTo: any = undefined
 
       if (decrypted.replyTo) {
         const rs = await this._inflateReplyTo(decrypted.replyTo, account, conversation)
@@ -169,7 +169,7 @@ export class MessageService {
         sender = item.author
       }
 
-      let isMine = undefined
+      let isMine: any = undefined
       if (conversation.conversationType === 'anonymous_group') {
         const memberAlias = await this.anonymousGroupContract.getAliasMember({
           from: account.address,
@@ -343,7 +343,7 @@ export class MessageService {
     )
     console.log('decryptMessage: ', decryptMessage)
 
-    let replyTo = undefined
+    let replyTo: any = undefined
     if (decryptMessage.replyTo) {
       // Mock conversation for _inflateReplyTo since we don't have the full object here
       // We only need conversationId and publicKey (which we just fetched)
@@ -508,9 +508,11 @@ export class MessageService {
   async sendFile(
     account: Account,
     conversation: Conversation,
-    files: any[] | File[]
+    files: any[] | File[],
+    type = 'file'
   ): Promise<void> {
     try {
+      console.log('[sendFile] 1')
       if (!files.length) throw new Error('Invalid files length')
 
       const fileInfos: PushFileInfosParams['infos'] = []
@@ -524,10 +526,10 @@ export class MessageService {
       console.log('files', files)
       for (let file of files) {
         const clientId = uuidv4()
-        const fileName = file.fileName ?? file.name
+        const fileName = file.fileName ?? file.name ?? `file_${Date.now()}`
 
         const payload: SendPayload = {
-          type: 'file',
+          type,
           fileId: '', // Placeholder, will be updated after upload
           fileName,
           mimeType: file.mimeType ?? file.type,
@@ -537,6 +539,7 @@ export class MessageService {
         }
 
         const filePath = file?.path ?? URL.createObjectURL(file)
+        console.log('[sendFile] 2')
 
         const optimisticMessage = createOptimisticMessage(
           {
@@ -552,7 +555,7 @@ export class MessageService {
             filePath
           }
         )
-        console.log('sendFile - 3', optimisticMessage)
+        console.log('[sendFile] 3')
 
         // optimistic update
         this.eventBus.emit('message.add', {
@@ -564,18 +567,25 @@ export class MessageService {
 
         let hash: any
         if (file instanceof File) {
+          console.log('[loop] 1', { file })
           const arrayBuffer = await file.arrayBuffer()
+          console.log('[loop] 2', { arrayBuffer })
+
           const _buffer = new Uint8Array(arrayBuffer)
+          console.log('[loop] 3', { _buffer })
 
           const buffer = Array.from(_buffer)
+          console.log('[loop] 4', { buffer })
 
           hash = (await createHashWithBuffer({ buffer })).hash
+          console.log('[loop] 5', { hash })
         } else {
           const path = normalizePath(file.path)
           if (!path) throw new Error('[messaeg.service][sendFile][Invalid path]')
 
           hash = (await sendCommand('createHashFromFile', { path })).hash
         }
+        console.log('[sendFile] 4')
 
         const timestamp = Date.now()
         const sanitizedFileName = fileName
@@ -604,6 +614,7 @@ export class MessageService {
           clientId,
           optimisticMessage
         })
+        console.log('[sendFile] 5')
 
         let realFile: File
 
@@ -626,18 +637,21 @@ export class MessageService {
         realFiles.push(realFile)
       }
 
-      console.log('fileInfos', fileInfos)
+      console.log('[sendFile] 6')
 
       // 1. Push file infos to blockchain
       await this.fileContract.pushFileInfos({
         from: account.address,
         inputData: { infos: fileInfos }
       })
+      console.log('[sendFile] 7')
 
       const fileKeys = await this.fileContract.getFileKeyFromName({
         from: account.address,
         inputData: { names: fileNames }
       })
+
+      console.log('[sendFile] 8', { fileKeys })
 
       const datas = realFiles.map((file, index) => ({
         fileKey: fileKeys[index] || '',
@@ -687,7 +701,12 @@ export class MessageService {
           }
 
           // Update message with correct fileId
-          if (optimisticMessage.type === 'file') {
+          console.log('[sendFile] test', {
+            t1: optimisticMessage.type,
+            t2: type,
+            key: data.fileKey
+          })
+          if (optimisticMessage.type === type) {
             optimisticMessage.fileId = data.fileKey
           }
 
@@ -712,6 +731,8 @@ export class MessageService {
           })
         }
       }
+
+      console.log('[sendFile] 9')
     } catch (error) {
       console.error('[MessageService] sendFile error:', error)
       throw error
@@ -766,19 +787,23 @@ export class MessageService {
     fileKey: string,
     fileName: string,
     mimeType: string,
+    isSave?: boolean,
     onProgress?: (percent: number) => void,
     chunkLimit = 50,
     concurrency = 4
-  ): Promise<void> {
+  ): Promise<string> {
     try {
+      console.log('[downloadFile] 1')
       // 0. Check cache
       const cachedFile = await this.fileCacheService.getFile(fileKey)
+      console.log('[downloadFile] 2', { cachedFile })
 
       if (cachedFile) {
         let path = cachedFile.filePath
+        console.log('[downloadFile] 3', { path })
 
         if (!path) {
-          path = await createPathFromBlob(cachedFile.blob, fileName)
+          path = await createPathFromBlob(cachedFile.blob, fileName, isSave)
 
           await this.fileCacheService.saveFile(
             fileKey,
@@ -793,21 +818,35 @@ export class MessageService {
             filePath: URL.createObjectURL(cachedFile.blob)
           })
         } else {
-          await createPathFromBlob(cachedFile.blob, fileName)
+          console.log('[downloadFile] 3.1', { path })
+
+          if (isSave) {
+            await createPathFromBlob(cachedFile.blob, fileName, isSave)
+          }
+          console.log('[downloadFile] 3.2', { path })
+        }
+
+        if (!path) {
+          throw new Error('Không tạo được đường dẫn file')
         }
 
         if (!window?.finSdk) {
           await share({ type: 'file', path, title: fileName })
         }
-        return
+        console.log('[downloadFile] 4', { path })
+
+        return path
       }
 
       // 1. Get file info
+      console.log('[downloadFile] newww 1')
+
       //@ts-ignore
       const { infos } = await this.fileContract.getFilesInfo({
         from: account.address,
         inputData: { fileKeys: [fileKey] }
       })
+      console.log('[downloadFile] newww 2', { infos })
 
       if (!infos) throw new Error('File not found on chain')
 
@@ -880,15 +919,28 @@ export class MessageService {
       }
 
       const blob = new Blob([combinedBuffer], { type: mimeType })
-      const path = await createPathFromBlob(blob, fileName)
+      console.log('[downloadFile] newww 3', { blob })
+
+      console.log('[downloadFile]', { isSave })
+      let path = ''
+      if (isSave) {
+        path = await createPathFromBlob(blob, fileName, isSave)
+
+        if (!path) {
+          throw new Error('Không tạo được đường dẫn file')
+        }
+      }
 
       // 6. Cache full file
       try {
-        await this.fileCacheService.saveFile(fileKey, blob, mimeType, fileName, path)
+        console.log('[downloadFile] newww 4', { blob, fileKey, mimeType, fileName, path })
 
+        await this.fileCacheService.saveFile(fileKey, blob, mimeType, fileName, path)
+        const filePath = URL.createObjectURL(blob)
+        console.log('[downloadFile] newww 5', { filePath })
         this.eventBus.emit('file.cached', {
           fileKey,
-          filePath: URL.createObjectURL(blob)
+          filePath
         })
       } catch (err) {
         console.error('[cache failed]', err)
@@ -896,6 +948,8 @@ export class MessageService {
 
       // 7. Share
       await share({ type: 'file', path, title: fileName })
+
+      return path
     } catch (error) {
       console.error('[Download failed]', error)
       throw error
@@ -934,7 +988,6 @@ export class MessageService {
         rawMessages = []
       }
     }
-
     const messages = await fulfilledPromises(
       rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
     )
@@ -1175,7 +1228,7 @@ export class MessageService {
 
     const decryptMessage = JSON.parse(resultUtf8)
 
-    let replyTo = undefined
+    let replyTo: any = undefined
     if (decryptMessage.replyTo) {
       // Mock conversation for _inflateReplyTo since we don't have the full object here
       // We only need conversationId and publicKey (which we just fetched)
