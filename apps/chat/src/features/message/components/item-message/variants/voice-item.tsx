@@ -8,14 +8,30 @@ export type VoiceItemProp = {
   message: Extract<Message, { type: 'voice' }>
 }
 
+function formatAudioTime(seconds: number): string {
+  const total = Math.max(0, Math.floor(seconds))
+  const mins = Math.floor(total / 60)
+  const secs = total % 60
+  if (mins > 0) {
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+  return `${secs} sec`
+}
+
+function getFiniteAudioDuration(audio: HTMLAudioElement): number | null {
+  const duration = audio.duration
+  return Number.isFinite(duration) && duration > 0 ? duration : null
+}
+
 export const VoiceItem = memo(({ message }: VoiceItemProp) => {
   const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
   const { cachedFile } = useCachedFile(message.fileId || message.id)
   const [isPlaying, setIsPlaying] = useState(false)
   const [audioUrl, setAudioUrl] = useState<string | undefined>()
   const [shouldPlayOnReady, setShouldPlayOnReady] = useState(false)
+  const [audioDuration, setAudioDuration] = useState<number | null>(null)
+  const [currentTime, setCurrentTime] = useState(0)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  console.log('[cachedFile]', { cachedFile })
   const fileId = message.fileId || message.id
   const isDownloadingThis = isDownloading && downloadedFileId === fileId
 
@@ -23,24 +39,69 @@ export const VoiceItem = memo(({ message }: VoiceItemProp) => {
     return (message as any).filePath as string | undefined
   }, [message])
 
+  const displayDuration = audioDuration ?? (message.duration > 0 ? message.duration : null)
+
+  const durationLabel = useMemo(() => {
+    if (isDownloadingThis) return `Downloading ${progress}%`
+    if (displayDuration == null) return 'Voice memo'
+    if (isPlaying) {
+      return `${formatAudioTime(currentTime)} / ${formatAudioTime(displayDuration)}`
+    }
+    return formatAudioTime(displayDuration)
+  }, [isDownloadingThis, progress, displayDuration, isPlaying, currentTime])
+
+  useEffect(() => {
+    setAudioDuration(null)
+    setCurrentTime(0)
+  }, [audioUrl])
+
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
 
-    const handleEnded = () => setIsPlaying(false)
+    const handleEnded = () => {
+      setIsPlaying(false)
+      const duration = getFiniteAudioDuration(audio)
+      if (duration != null) {
+        setCurrentTime(duration)
+      }
+    }
     const handlePause = () => setIsPlaying(false)
     const handlePlay = () => setIsPlaying(true)
+    const handleLoadedMetadata = () => {
+      const duration = getFiniteAudioDuration(audio)
+      if (duration != null) {
+        setAudioDuration(duration)
+      }
+    }
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime)
+    }
+    const handleDurationChange = () => {
+      const duration = getFiniteAudioDuration(audio)
+      if (duration != null) {
+        setAudioDuration(duration)
+      }
+    }
 
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('pause', handlePause)
     audio.addEventListener('play', handlePlay)
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+    audio.addEventListener('durationchange', handleDurationChange)
+    audio.addEventListener('timeupdate', handleTimeUpdate)
+
+    handleLoadedMetadata()
 
     return () => {
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('pause', handlePause)
       audio.removeEventListener('play', handlePlay)
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      audio.removeEventListener('durationchange', handleDurationChange)
+      audio.removeEventListener('timeupdate', handleTimeUpdate)
     }
-  }, [])
+  }, [audioUrl])
 
   useEffect(() => {
     let objectUrl: string | undefined
@@ -72,7 +133,7 @@ export const VoiceItem = memo(({ message }: VoiceItemProp) => {
       if (!fileId) return
 
       setShouldPlayOnReady(true)
-      await downloadFile(fileId, fileId, '', message.mimeType, false)
+      await downloadFile(fileId, fileId, '', message.mimeType)
       return
     }
 
@@ -110,9 +171,7 @@ export const VoiceItem = memo(({ message }: VoiceItemProp) => {
       </button>
       <div className="text-sm text-left">
         <div>Voice memo</div>
-        <div className="text-xs text-gray-400">
-          {isDownloadingThis ? `Downloading ${progress}%` : `${Math.round(message.duration)} sec`}
-        </div>
+        <div className="text-xs text-gray-400">{durationLabel}</div>
       </div>
       <audio ref={audioRef} className="hidden" src={audioUrl} />
     </div>

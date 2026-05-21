@@ -1,6 +1,5 @@
 import { useDownloadFile } from '@/features/message/hooks/use-download-file'
 import type { Message } from '@/modules/message'
-import { useEventBus } from '@/shared/hooks/use-eventbus'
 import { cn } from '@/shared/lib'
 import { Download, File, Loader2 } from 'lucide-react'
 import * as React from 'react'
@@ -8,10 +7,9 @@ import * as React from 'react'
 type Props = {
   message: Extract<Message, { type: 'file' }>
   isMine?: boolean
-  isOverlay?: boolean
 }
 
-function MessageFile({ message, isMine, isOverlay }: Props) {
+function MessageFile({ message, isMine }: Props) {
   const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
 
   const isDownloadingThis = isDownloading && downloadedFileId === (message.fileId || message.id)
@@ -59,18 +57,6 @@ function MessageFile({ message, isMine, isOverlay }: Props) {
     // Otherwise assume base64 and prepend prefix
     return `data:${message.mimeType};base64,${raw}`
   }, [message.filePath, message.mimeType])
-
-  useEventBus('file.download', async (e) => {
-    if (isOverlay) return
-    if (e.messageId !== message.id) {
-      return
-    } else {
-    }
-    const fileId = message.fileId || message.id
-    if (!fileId) return
-    console.log('[download]', { message })
-    await downloadFile(fileId, fileId, message.fileName, message.mimeType)
-  })
 
   if ((isImage || isVideo) && mediaSrc) {
     return (

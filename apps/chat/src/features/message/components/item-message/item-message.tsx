@@ -6,10 +6,12 @@ import { useLongPress } from '@/shared/hooks'
 import { sendCommand } from '@metanodejs/system-core'
 import * as React from 'react'
 import { type MessageItemProps } from '.'
-import { useIsPinned } from '../../hooks'
+import { useDownloadFile, useIsPinned } from '../../hooks'
 import ItemMessageUI from './item-message-ui'
 import { SystemMessage } from './variants/system-message'
 import { CallDurationMessage } from './variants/call-duration-message'
+import { container } from '@/container'
+import { useEventBus } from '@/shared/hooks/use-eventbus'
 
 // --- Logic Hook ---
 function useMessageLogic(
@@ -57,8 +59,10 @@ function ItemMessage(
     isOverlay?: boolean
   }
 ) {
-  const { message, isMine, onSelectMessage } = props
+  const { message, isMine, onSelectMessage, isOverlay } = props
   const logic = useMessageLogic(message, isMine, onSelectMessage)
+  const { downloadFile } = useDownloadFile()
+
   if (message.type === 'call_duration') {
     console.log('[ItemMessage]', { message })
   }
@@ -89,6 +93,29 @@ function ItemMessage(
   if (message.type === 'call_duration') {
     return <CallDurationMessage message={message} />
   }
+
+  useEventBus('file.download', async (e) => {
+    if (isOverlay) return
+    if (e.messageId !== message.id) return
+    const fileId = message.fileId || message.id
+    console.log('[file.download] 1', { fileId })
+    if (!fileId) return
+    await downloadFile(fileId, fileId, message.fileName, message.mimeType)
+    const file = await container.fileCacheService.getFile(fileId)
+    console.log('[file.download] 2', { file })
+
+    if (!file) return
+    const url = URL.createObjectURL(file.blob)
+    console.log('[file.download] 3', { url })
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = file.fileName
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  })
 
   return (
     <ItemMessageUI

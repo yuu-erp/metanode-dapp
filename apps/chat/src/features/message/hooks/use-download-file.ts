@@ -15,8 +15,7 @@ export function useDownloadFile() {
       fileId: string,
       fileKey: string,
       fileName: string,
-      mimeType: string,
-      isSave?: boolean
+      mimeType: string
     ): Promise<string | undefined> => {
       if (!account) return undefined
       setIsDownloading(true)
@@ -29,7 +28,6 @@ export function useDownloadFile() {
           fileKey,
           fileName,
           mimeType,
-          isSave,
           (percent) => {
             setProgress(percent)
           }

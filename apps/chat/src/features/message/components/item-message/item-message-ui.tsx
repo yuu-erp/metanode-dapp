@@ -24,7 +24,6 @@ export interface ItemMessageUIProps extends MessageItemProps<Message> {
   isVideo?: boolean
   isSticker?: boolean
   isFailed?: boolean
-  isOverlay?: boolean
   isPinned?: boolean
 }
 
@@ -38,7 +37,6 @@ function ItemMessageUI({
   isVideo,
   isSticker,
   isFailed,
-  isOverlay,
   isPinned,
   ...props
 }: ItemMessageUIProps) {
@@ -68,7 +66,7 @@ function ItemMessageUI({
         <ReplyMessage replyTo={message.replyTo} isMine={isMine} />
         <ForwardMessage forwardFrom={message.forwardFrom} isMine={isMine} />
         {isInGroup && !isMine && <GroupMemberName sender={message.sender} />}
-        <ItemMessageView message={message} isMine={isMine} isOverlay={isOverlay} />
+        <ItemMessageView message={message} isMine={isMine} />
 
         <div
           className={cn(

@@ -6,9 +6,8 @@ import { VoiceItem } from './variants/voice-item'
 interface ItemMessageViewProps {
   message: Message
   isMine?: boolean
-  isOverlay?: boolean
 }
-export default function ItemMessageView({ message, isMine, isOverlay }: ItemMessageViewProps) {
+export default function ItemMessageView({ message, isMine }: ItemMessageViewProps) {
   switch (message.type) {
     case 'text':
       return <MessageText message={message} />
@@ -17,7 +16,7 @@ export default function ItemMessageView({ message, isMine, isOverlay }: ItemMess
       return <MessageSticker message={message} />
 
     case 'file':
-      return <MessageFile message={message} isMine={isMine} isOverlay={isOverlay} />
+      return <MessageFile message={message} isMine={isMine} />
 
     case 'voice':
       return <VoiceItem message={message} />

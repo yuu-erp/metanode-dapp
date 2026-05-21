@@ -107,7 +107,7 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
       },
 
       onSave: () => {
-        if (message.type !== 'file' || !message.fileId) return
+        if ((message.type !== 'file' && message.type !== 'voice') || !message.fileId) return
         // const mimeType = message.mimeType || 'application/octet-stream'
         // downloadFile(message.id, message.fileId, message.fileName || 'file', mimeType, true)
         container.eventBus.emit('file.download', {

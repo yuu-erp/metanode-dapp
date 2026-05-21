@@ -30,7 +30,6 @@ import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contr
 import type { PushFileInfosParams } from '../blockchain/file-contract/types'
 import type { EventLogContainer } from '../eventlogs'
 import { asyncPriorityQueue } from '../realtime'
-import { createPathFromBlob } from './file.service'
 import { createOptimisticMessage } from './message.entity'
 import { MessageExtend } from './message.extend'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
@@ -787,24 +786,18 @@ export class MessageService {
     fileKey: string,
     fileName: string,
     mimeType: string,
-    isSave?: boolean,
     onProgress?: (percent: number) => void,
     chunkLimit = 50,
     concurrency = 4
   ): Promise<string> {
     try {
-      console.log('[downloadFile] 1')
       // 0. Check cache
       const cachedFile = await this.fileCacheService.getFile(fileKey)
-      console.log('[downloadFile] 2', { cachedFile })
 
       if (cachedFile) {
         let path = cachedFile.filePath
-        console.log('[downloadFile] 3', { path })
 
         if (!path) {
-          path = await createPathFromBlob(cachedFile.blob, fileName, isSave)
-
           await this.fileCacheService.saveFile(
             fileKey,
             cachedFile.blob,
@@ -817,13 +810,6 @@ export class MessageService {
             fileKey,
             filePath: URL.createObjectURL(cachedFile.blob)
           })
-        } else {
-          console.log('[downloadFile] 3.1', { path })
-
-          if (isSave) {
-            await createPathFromBlob(cachedFile.blob, fileName, isSave)
-          }
-          console.log('[downloadFile] 3.2', { path })
         }
 
         if (!path) {
@@ -833,20 +819,17 @@ export class MessageService {
         if (!window?.finSdk) {
           await share({ type: 'file', path, title: fileName })
         }
-        console.log('[downloadFile] 4', { path })
 
         return path
       }
 
       // 1. Get file info
-      console.log('[downloadFile] newww 1')
 
       //@ts-ignore
       const { infos } = await this.fileContract.getFilesInfo({
         from: account.address,
         inputData: { fileKeys: [fileKey] }
       })
-      console.log('[downloadFile] newww 2', { infos })
 
       if (!infos) throw new Error('File not found on chain')
 
@@ -919,25 +902,14 @@ export class MessageService {
       }
 
       const blob = new Blob([combinedBuffer], { type: mimeType })
-      console.log('[downloadFile] newww 3', { blob })
 
-      console.log('[downloadFile]', { isSave })
       let path = ''
-      if (isSave) {
-        path = await createPathFromBlob(blob, fileName, isSave)
-
-        if (!path) {
-          throw new Error('Không tạo được đường dẫn file')
-        }
-      }
 
       // 6. Cache full file
       try {
-        console.log('[downloadFile] newww 4', { blob, fileKey, mimeType, fileName, path })
-
         await this.fileCacheService.saveFile(fileKey, blob, mimeType, fileName, path)
         const filePath = URL.createObjectURL(blob)
-        console.log('[downloadFile] newww 5', { filePath })
+
         this.eventBus.emit('file.cached', {
           fileKey,
           filePath

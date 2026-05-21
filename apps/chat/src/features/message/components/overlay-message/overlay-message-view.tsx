@@ -108,7 +108,7 @@ function OverlayMessageView({ message, onClose, handlers, isPinned }: OverlayMes
                   <CopyAction onClose={handlers.onCopy} />
                 </React.Fragment>
               )}
-              {message.type === 'file' && (
+              {(message.type === 'file' || message.type === 'voice') && (
                 <React.Fragment>
                   <DropdownMenuSeparator className="bg-black/10" />
                   <SaveAction onClose={handlers.onSave} />
