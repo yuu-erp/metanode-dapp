@@ -1,8 +1,8 @@
-import { useCachedFile } from '@/features/message/hooks/use-cached-file'
 import { useDownloadFile } from '@/features/message/hooks'
 import type { Message } from '@/modules/message'
 import { Pause, Play } from 'lucide-react'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { container } from '@/container'
 
 export type VoiceItemProp = {
   message: Extract<Message, { type: 'voice' }>
@@ -18,37 +18,79 @@ function formatAudioTime(seconds: number): string {
   return `${secs} sec`
 }
 
-function getFiniteAudioDuration(audio: HTMLAudioElement): number | null {
-  const duration = audio.duration
-  return Number.isFinite(duration) && duration > 0 ? duration : null
-}
-
 export const VoiceItem = memo(({ message }: VoiceItemProp) => {
   const { isDownloading, progress, downloadFile, downloadedFileId } = useDownloadFile()
-  const { cachedFile } = useCachedFile(message.fileId || message.id)
   const [isPlaying, setIsPlaying] = useState(false)
   const [audioUrl, setAudioUrl] = useState<string | undefined>()
   const [shouldPlayOnReady, setShouldPlayOnReady] = useState(false)
   const [audioDuration, setAudioDuration] = useState<number | null>(null)
   const [currentTime, setCurrentTime] = useState(0)
+  const [isSeeking, setIsSeeking] = useState(false)
+  const isSeekingRef = useRef(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const fileId = message.fileId || message.id
+  const progressBarRef = useRef<HTMLDivElement | null>(null)
+  const fileId = message.fileId
   const isDownloadingThis = isDownloading && downloadedFileId === fileId
 
-  const localFilePath = useMemo(() => {
-    return (message as any).filePath as string | undefined
-  }, [message])
-
   const displayDuration = audioDuration ?? (message.duration > 0 ? message.duration : null)
+  const isSeekable =
+    !isDownloadingThis && !!audioUrl && displayDuration != null && displayDuration > 0
+
+  const progressPercent = useMemo(() => {
+    if (isDownloadingThis) {
+      return Math.min(100, Math.max(0, progress))
+    }
+    if (displayDuration == null || displayDuration <= 0) return 0
+    return Math.min(100, Math.max(0, (currentTime / displayDuration) * 100))
+  }, [isDownloadingThis, progress, displayDuration, currentTime])
 
   const durationLabel = useMemo(() => {
     if (isDownloadingThis) return `Downloading ${progress}%`
     if (displayDuration == null) return 'Voice memo'
-    if (isPlaying) {
-      return `${formatAudioTime(currentTime)} / ${formatAudioTime(displayDuration)}`
-    }
-    return formatAudioTime(displayDuration)
-  }, [isDownloadingThis, progress, displayDuration, isPlaying, currentTime])
+    return `${formatAudioTime(currentTime)} / ${formatAudioTime(displayDuration)}`
+  }, [isDownloadingThis, progress, displayDuration, currentTime])
+
+  const seekFromClientX = useCallback(
+    (clientX: number) => {
+      const bar = progressBarRef.current
+      const audio = audioRef.current
+      if (!bar || !audio || displayDuration == null || displayDuration <= 0) return
+
+      const rect = bar.getBoundingClientRect()
+      if (rect.width <= 0) return
+
+      const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+      const time = ratio * displayDuration
+      audio.currentTime = time
+      setCurrentTime(time)
+    },
+    [displayDuration]
+  )
+
+  const handleProgressPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isSeekable) return
+
+    event.preventDefault()
+    event.stopPropagation()
+
+    const bar = event.currentTarget
+    bar.setPointerCapture(event.pointerId)
+    isSeekingRef.current = true
+    setIsSeeking(true)
+    seekFromClientX(event.clientX)
+  }
+
+  const handleProgressPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isSeekingRef.current || !isSeekable) return
+    seekFromClientX(event.clientX)
+  }
+
+  const handleProgressPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isSeekingRef.current) return
+    event.currentTarget.releasePointerCapture(event.pointerId)
+    isSeekingRef.current = false
+    setIsSeeking(false)
+  }
 
   useEffect(() => {
     setAudioDuration(null)
@@ -57,70 +99,82 @@ export const VoiceItem = memo(({ message }: VoiceItemProp) => {
 
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio) return
+    if (!audio || !audioUrl) return
+
+    let isMounted = true
+
+    const updateDuration = () => {
+      if (!isMounted) return
+
+      const duration = audio.duration
+
+      if (Number.isFinite(duration) && duration > 0) {
+        setAudioDuration(duration)
+      }
+    }
+
+    const handleLoadedMetadata = () => {
+      // Một số browser trả Infinity với blob audio
+      if (audio.duration === Infinity) {
+        audio.currentTime = 1e101
+
+        const handleTimeUpdate = () => {
+          audio.removeEventListener('timeupdate', handleTimeUpdate)
+
+          audio.currentTime = 0
+
+          updateDuration()
+        }
+
+        audio.addEventListener('timeupdate', handleTimeUpdate)
+      } else {
+        updateDuration()
+      }
+    }
+
+    const handleTimeUpdate = () => {
+      if (!isMounted || isSeekingRef.current) return
+      setCurrentTime(audio.currentTime)
+    }
 
     const handleEnded = () => {
       setIsPlaying(false)
-      const duration = getFiniteAudioDuration(audio)
-      if (duration != null) {
-        setCurrentTime(duration)
-      }
-    }
-    const handlePause = () => setIsPlaying(false)
-    const handlePlay = () => setIsPlaying(true)
-    const handleLoadedMetadata = () => {
-      const duration = getFiniteAudioDuration(audio)
-      if (duration != null) {
-        setAudioDuration(duration)
-      }
-    }
-    const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime)
-    }
-    const handleDurationChange = () => {
-      const duration = getFiniteAudioDuration(audio)
-      if (duration != null) {
-        setAudioDuration(duration)
+
+      if (audio.duration && Number.isFinite(audio.duration)) {
+        setCurrentTime(audio.duration)
       }
     }
 
+    const handlePause = () => {
+      setIsPlaying(false)
+    }
+
+    const handlePlay = () => {
+      setIsPlaying(true)
+    }
+
+    audio.preload = 'metadata'
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+    audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('pause', handlePause)
     audio.addEventListener('play', handlePlay)
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
-    audio.addEventListener('durationchange', handleDurationChange)
-    audio.addEventListener('timeupdate', handleTimeUpdate)
 
-    handleLoadedMetadata()
+    audio.load()
 
     return () => {
+      isMounted = false
+
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      audio.removeEventListener('timeupdate', handleTimeUpdate)
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('pause', handlePause)
       audio.removeEventListener('play', handlePlay)
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      audio.removeEventListener('durationchange', handleDurationChange)
-      audio.removeEventListener('timeupdate', handleTimeUpdate)
+
+      URL.revokeObjectURL(audioUrl)
     }
   }, [audioUrl])
-
-  useEffect(() => {
-    let objectUrl: string | undefined
-
-    if (cachedFile?.blob) {
-      objectUrl = URL.createObjectURL(cachedFile.blob)
-      setAudioUrl(objectUrl)
-    } else if (localFilePath && /^(blob:|https?:|data:)/.test(localFilePath)) {
-      setAudioUrl(localFilePath)
-    } else {
-      setAudioUrl(undefined)
-    }
-
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl)
-      }
-    }
-  }, [cachedFile, localFilePath])
 
   useEffect(() => {
     if (audioRef.current) {
@@ -132,8 +186,13 @@ export const VoiceItem = memo(({ message }: VoiceItemProp) => {
     if (!audioUrl) {
       if (!fileId) return
 
-      setShouldPlayOnReady(true)
       await downloadFile(fileId, fileId, '', message.mimeType)
+
+      const file = await container.fileCacheService.getFile(fileId)
+
+      if (!file) return
+      setAudioUrl(URL.createObjectURL(file.blob))
+      setShouldPlayOnReady(true)
       return
     }
 
@@ -162,16 +221,43 @@ export const VoiceItem = memo(({ message }: VoiceItemProp) => {
   }, [audioUrl, shouldPlayOnReady])
 
   return (
-    <div className="flex items-center gap-2 cursor-pointer" onClick={handleToggle}>
+    <div className="flex items-center gap-2">
       <button
         type="button"
-        className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white"
+        onClick={handleToggle}
+        className="flex shrink-0 cursor-pointer items-center justify-center w-10 h-10 rounded-full bg-blue-500 text-white"
       >
         {isPlaying ? <Pause size={16} /> : <Play size={16} />}
       </button>
-      <div className="text-sm text-left">
+      <div className="min-w-0 flex-1 text-sm text-left">
         <div>Voice memo</div>
-        <div className="text-xs text-gray-400">{durationLabel}</div>
+        <div
+          ref={progressBarRef}
+          className={`mt-1.5 flex h-3 w-full touch-none items-center ${
+            isSeekable ? 'cursor-pointer' : 'cursor-default'
+          }`}
+          role="slider"
+          aria-valuenow={Math.round(progressPercent)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={isDownloadingThis ? 'Downloading voice' : 'Playback position'}
+          aria-disabled={!isSeekable}
+          onPointerDown={handleProgressPointerDown}
+          onPointerMove={handleProgressPointerMove}
+          onPointerUp={handleProgressPointerUp}
+          onPointerCancel={handleProgressPointerUp}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200/80">
+            <div
+              className={`h-full rounded-full bg-blue-500 ${
+                isSeeking ? '' : 'transition-[width] duration-150 ease-linear'
+              }`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+        <div className="mt-1 text-xs text-gray-400">{durationLabel}</div>
       </div>
       <audio ref={audioRef} className="hidden" src={audioUrl} />
     </div>

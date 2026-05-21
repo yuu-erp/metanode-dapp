@@ -1,7 +1,9 @@
 'use client'
 import type { ReplyReference } from '@/modules/message'
+import { useI18N } from '@/shared/hooks'
 import { useScrollToMessageItem } from '@/shared/hooks/use-scroll-to-message-item'
 import { cn } from '@/shared/lib'
+import { MicIcon } from 'lucide-react'
 import * as React from 'react'
 import ReplyMessageFile from './reply-message-file'
 import ReplyMessageSticker from './reply-message-sticker'
@@ -15,6 +17,7 @@ interface ReplyMessageViewProps {
 
 function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: ReplyMessageViewProps) {
   const scrollTo = useScrollToMessageItem(replyTo.messageId)
+  const { t } = useI18N()
 
   const replyPreview = React.useMemo(() => {
     switch (replyTo.type) {
@@ -27,6 +30,13 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
       case 'file':
         return <ReplyMessageFile message={replyTo as ReplyReference<'file'>} isMine={isMine} />
 
+      case 'voice':
+        return (
+          <span className="flex items-center gap-1 opacity-70 italic text-xs">
+            <MicIcon size={14} />
+            {t('message.type.voice', { defaultValue: '[Voice Memo]' })}
+          </span>
+        )
       default:
         return null
     }

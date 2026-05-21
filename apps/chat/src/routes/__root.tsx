@@ -1,4 +1,5 @@
 import { LeaveGroupDialog } from '@/components/leave-group-dialog'
+import { DiscardRecordingModal } from '@/components/modal/discard-recording-modal'
 import { WindowButtons } from '@/components/window-buttons'
 import { EventLogProvider } from '@/contexts'
 import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
@@ -45,6 +46,7 @@ export const Route = createRootRoute({
           }}
         ></button> */}
         {/* <Test /> */}
+        <DiscardRecordingModal />
         <WindowButtons />
         <LeaveGroupDialog />
         <DrawerAddGroupMember />

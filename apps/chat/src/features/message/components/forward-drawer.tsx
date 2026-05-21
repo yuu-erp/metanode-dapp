@@ -93,6 +93,20 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
             }
           })
         }
+      } else if (forwardPayload.type === 'voice') {
+        const message = messageAction.message
+
+        mutate({
+          account,
+          conversation,
+          payload: {
+            type: 'voice',
+            fileId: message.fileId,
+            fileName: message.fileName,
+            mimeType: message.mimeType,
+            forwardFrom: forwardPayload.forwardFrom
+          }
+        })
       }
       onClose?.()
       const isGroup =

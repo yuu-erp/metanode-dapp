@@ -5,6 +5,7 @@ import * as React from 'react'
 import { useGetConversations } from '../hooks'
 import ItemConversation from './item-conversation'
 import type { Conversation } from '@/modules/conversation'
+import { uiActions, useUiStore } from '@/stores/ui.store'
 type ConversationListProps = {
   searchKeyword: string
 }
@@ -12,6 +13,7 @@ type ConversationListProps = {
 function ConversationList({ searchKeyword }: ConversationListProps) {
   const navigate = useNavigate()
   const { data: account } = useCurrentAccount()
+  const micOpen = useUiStore((s) => s.micOpen)
 
   const { data: conversations = [] } = useGetConversations(account)
   const filteredConversations = React.useMemo(() => {
@@ -28,6 +30,10 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
 
   const handleClickConversation = React.useCallback(
     (conversation: Conversation) => {
+      if (micOpen) {
+        uiActions.setDiscardRecording(true)
+        return
+      }
       if (
         conversation.conversationType === 'group' ||
         conversation.conversationType === 'anonymous_group'
@@ -43,7 +49,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
         })
       }
     },
-    [navigate]
+    [navigate, micOpen]
   )
   return (
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">

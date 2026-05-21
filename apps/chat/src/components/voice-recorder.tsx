@@ -1,14 +1,80 @@
 import { useSendFileV2 } from '@/hooks/mesage/use-send-file-v2'
 import { uiActions, useUiStore } from '@/stores/ui.store'
-import { Square, Trash2 } from 'lucide-react'
-import { memo, useEffect, useRef } from 'react'
+import { Send, Trash2 } from 'lucide-react'
+import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 export type VoiceRecorderProp = {}
+
+type RecordingTimerHandle = {
+  start: () => void
+  stop: () => void
+}
+
+function formatRecordingDurationParts(elapsedMs: number) {
+  const totalSec = Math.floor(elapsedMs / 1000)
+  const mins = Math.floor(totalSec / 60)
+  const secs = totalSec % 60
+  const ms = Math.floor(elapsedMs % 1000)
+  return {
+    main: `${mins}:${secs.toString().padStart(2, '0')}`,
+    ms: ms.toString().padStart(3, '0')
+  }
+}
+
+const RecordingTimer = memo(
+  forwardRef<RecordingTimerHandle>((_, ref) => {
+    const [elapsedMs, setElapsedMs] = useState(0)
+    const startedAtRef = useRef<number | null>(null)
+    const rafRef = useRef<number | null>(null)
+
+    const stopLoop = () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
+
+    const tick = () => {
+      if (startedAtRef.current === null) return
+      setElapsedMs(Date.now() - startedAtRef.current)
+      rafRef.current = requestAnimationFrame(tick)
+    }
+
+    useImperativeHandle(ref, () => ({
+      start: () => {
+        stopLoop()
+        startedAtRef.current = Date.now()
+        setElapsedMs(0)
+        rafRef.current = requestAnimationFrame(tick)
+      },
+      stop: () => {
+        stopLoop()
+        startedAtRef.current = null
+        setElapsedMs(0)
+      }
+    }))
+
+    useEffect(() => () => stopLoop(), [])
+
+    const { main, ms } = formatRecordingDurationParts(elapsedMs)
+
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center gap-0.5 text-white">
+        <div className="flex gap-2 items-center">
+          <span className="tabular-nums text-lg font-medium leading-none">{main}</span>
+          <span className="tabular-nums text-xs text-white/70 leading-none">{ms} ms</span>
+        </div>
+        <span className="text-xs text-white/60 mt-0.5">Nhấn gửi để gửi tin nhắn thoại</span>
+      </div>
+    )
+  })
+)
 
 export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
   const micOpen = useUiStore((s) => s.micOpen)
 
   const audioRef = useRef<HTMLAudioElement>(null)
+  const recordingTimerRef = useRef<RecordingTimerHandle>(null)
 
   const recorder = useRef<MediaRecorder | null>(null)
 
@@ -16,7 +82,22 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
 
   const chunks = useRef<Blob[]>([])
 
+  const shouldSendOnStopRef = useRef(false)
+
   const sendFile = useSendFileV2('voice')
+
+  const stopTimer = () => recordingTimerRef.current?.stop()
+  const startTimer = () => recordingTimerRef.current?.start()
+
+  const cleanupRecording = () => {
+    stopTimer()
+    streamRef.current?.getTracks().forEach((track) => {
+      track.stop()
+    })
+    streamRef.current = null
+    recorder.current = null
+    chunks.current = []
+  }
 
   const onStart = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -44,13 +125,23 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
     }
 
     mediaRecorder.onstop = async () => {
-      console.log('[onstop]')
+      const shouldSend = shouldSendOnStopRef.current
+      shouldSendOnStopRef.current = false
+
+      stream.getTracks().forEach((track) => {
+        track.stop()
+      })
+
+      if (!shouldSend) {
+        chunks.current = []
+        recorder.current = null
+        streamRef.current = null
+        return
+      }
 
       const blob = new Blob(chunks.current, {
         type: mediaRecorder.mimeType
       })
-
-      console.log('[blob]', blob.size)
 
       const url = URL.createObjectURL(blob)
 
@@ -62,43 +153,48 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
         type: blob.type
       })
 
-      console.log('[file]', file)
-
       if (file.size > 0) {
         sendFile.mutate([file])
       }
 
       chunks.current = []
-
-      stream.getTracks().forEach((track) => {
-        track.stop()
-      })
-
       recorder.current = null
+      streamRef.current = null
+
+      uiActions.setMicOpen(false)
     }
 
     mediaRecorder.start(1000)
+    startTimer()
 
     console.log('[recording started]')
   }
 
   const onStop = () => {
-    if (!recorder.current) return
-
-    console.log('[stop recording]')
-
+    if (!recorder.current || recorder.current.state === 'inactive') return
     recorder.current.stop()
+  }
+
+  const onCancel = () => {
+    shouldSendOnStopRef.current = false
+    onStop()
+    cleanupRecording()
+    uiActions.setMicOpen(false)
+  }
+
+  const onSend = () => {
+    shouldSendOnStopRef.current = true
+    onStop()
   }
 
   useEffect(() => {
     if (!micOpen) return
 
+    shouldSendOnStopRef.current = false
     onStart()
 
     return () => {
-      streamRef.current?.getTracks().forEach((track) => {
-        track.stop()
-      })
+      cleanupRecording()
     }
   }, [micOpen])
 
@@ -111,25 +207,22 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
           <div className="h-12 w-full flex items-center justify-between">
             <div />
 
-            <div className="flex-1 text-center">Click stop to send the voice</div>
+            <RecordingTimer ref={recordingTimerRef} />
 
             <button
+              type="button"
               className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
-              onClick={() => {
-                uiActions.setMicOpen(false)
-              }}
+              onClick={onCancel}
             >
               <Trash2 className="text-white/80 size-4" fill="#fff" />
             </button>
 
             <button
+              type="button"
               className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
-              onClick={() => {
-                onStop()
-                uiActions.setMicOpen(false)
-              }}
+              onClick={onSend}
             >
-              <Square className="text-white/80 size-4" fill="#fff" />
+              <Send className="text-white size-4" />
             </button>
           </div>
         </div>

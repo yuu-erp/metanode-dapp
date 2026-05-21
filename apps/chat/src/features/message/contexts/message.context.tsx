@@ -262,6 +262,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.updateId': (e: AppEvents['message.updateId']) => {
+        console.log('[message.updateId] 1', { e })
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.conversationId),
           (old) => {

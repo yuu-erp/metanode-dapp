@@ -20,6 +20,8 @@ export type UiStore = {
   setLeaveGroupOpen: (value: boolean) => void
   micOpen: boolean
   setMicOpen: (value: boolean) => void
+  discardRecording: boolean
+  setDiscardRecording: (value: boolean) => void
 }
 export const useUiStore = create<UiStore>()((set, get) => ({
   mentionPopoverOpen: false,
@@ -38,7 +40,9 @@ export const useUiStore = create<UiStore>()((set, get) => ({
   leaveGroupOpen: false,
   setLeaveGroupOpen: (leaveGroupOpen) => set({ leaveGroupOpen }),
   micOpen: false,
-  setMicOpen: (micOpen) => set({ micOpen })
+  setMicOpen: (micOpen) => set({ micOpen }),
+  discardRecording: false,
+  setDiscardRecording: (discardRecording) => set({ discardRecording })
 }))
 
 export const uiActions = useUiStore.getState()

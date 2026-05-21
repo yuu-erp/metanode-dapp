@@ -20,7 +20,6 @@ export function useBuildMessageActionViewData(
   const message = action.message
 
   const replyUserId = action.type === 'REPLY' ? message.sender : undefined
-  console.log('replyUserId', replyUserId)
   const conversationId = useGetConversationIdByAddress(replyUserId ?? '', type === 'group')
 
   const { data: profile } = useGetUserProfile(type === 'group' ? conversationId : replyUserId)

@@ -194,6 +194,15 @@ export function createForwardPayload(message: PersistedMessage) {
         eventName: message.eventName
       }
 
+    case 'voice':
+      return {
+        ...common,
+        type: 'voice',
+        fileId: message.fileId,
+        duration: message.duration,
+        mimeType: message.mimeType
+      }
+
     default: {
       // đảm bảo exhaustiveness khi thêm MessageType mới
       const _exhaustive: any = message

@@ -711,6 +711,9 @@ export class MessageService {
 
           // Prepare message payload for sending
           const messageOnChain = mapperMessageToOnChain(optimisticMessage)
+          console.log('[send message] ', {
+            messageOnChain: structuredClone(messageOnChain)
+          })
           const stringifyMessage = JSON.stringify(messageOnChain)
 
           await this.sendStringtifiedMessage(
@@ -812,15 +815,11 @@ export class MessageService {
           })
         }
 
-        if (!path) {
-          throw new Error('Không tạo được đường dẫn file')
-        }
-
         if (!window?.finSdk) {
           await share({ type: 'file', path, title: fileName })
         }
 
-        return path
+        return ''
       }
 
       // 1. Get file info
@@ -919,8 +918,9 @@ export class MessageService {
       }
 
       // 7. Share
-      await share({ type: 'file', path, title: fileName })
-
+      if (!window.finSdk) {
+        await share({ type: 'file', path, title: fileName })
+      }
       return path
     } catch (error) {
       console.error('[Download failed]', error)
@@ -1330,12 +1330,15 @@ export class MessageService {
     clientId: string,
     fileKey?: string
   ) {
+    console.log('[sendStringtifiedMessage] 1', { fileKey })
     return asyncPriorityQueue.add(async () => {
       this.messageExtend.unsubscribe()
       const { conversationType } = conversation
       let promise: any
 
       const updateMessageId = async () => {
+        console.log('[sendStringtifiedMessage] 2', { fileKey })
+
         const messageId = await promise
 
         this.eventBus.emit('message.updateId', {
