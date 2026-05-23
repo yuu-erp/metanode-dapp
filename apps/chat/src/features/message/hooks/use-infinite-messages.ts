@@ -33,6 +33,10 @@ export function useInfiniteMessages({
       conversation?.conversationId ?? ''
     ),
     queryFn: async ({ pageParam = null }) => {
+      console.log('[useInfiniteMessages] test  =======?', {
+        pageParam,
+        id: conversation?.conversationId
+      })
       if (!account || !conversation) return []
       const messageService = container.messageService
 

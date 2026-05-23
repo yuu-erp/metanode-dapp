@@ -1,20 +1,22 @@
-import { flowActions, useFlowStore } from '@/stores/flow.store'
-import { useEffect } from 'react'
+import { useStatusStore } from '@app/call'
 import { useSendMessageV2 } from '../mesage/use-send-message-v2'
 
 export function useSyncCall() {
-  const { from, to, id, type } = useFlowStore()
-  const sendMessage = useSendMessageV2({ id, type })
+  const sendMessage = useSendMessageV2()
 
-  useEffect(() => {
-    if (!from || !to || !id || !type) return
-    const duration = Math.floor((to - from) / 1000) // duration in seconds
-
-    sendMessage
-      .mutateAsync({
-        type: 'call_duration',
-        duration
-      })
-      .then(() => flowActions.resetCallData())
-  }, [])
+  return async (id: string, type: string, payload: any) => {
+    if (!id || !type) return
+    const pedning = useStatusStore.getState().syncing
+    if (pedning) return
+    useStatusStore.setState({ syncing: true })
+    console.log('[useSyncCall] syncCall', { id, type, payload })
+    return sendMessage.mutateAsync({
+      id: id,
+      type: type,
+      payload: {
+        ...payload,
+        type: 'call_status'
+      }
+    })
+  }
 }

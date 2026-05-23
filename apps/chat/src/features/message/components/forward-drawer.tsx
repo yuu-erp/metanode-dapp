@@ -25,6 +25,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
   const { data: account } = useCurrentAccount()
   const { data: conversations = [] } = useGetConversations(account)
   const isMobile = useIsMobile()
+  const params = useConversationParams()
 
   const sendMessage = useSendMessage()
   const sendGroupMessage = useSendGroupMessage()
@@ -109,6 +110,8 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         })
       }
       onClose?.()
+      if (params.id === conversation.conversationId) return
+
       const isGroup =
         conversation.conversationType === 'group' ||
         conversation.conversationType === 'anonymous_group'
@@ -118,7 +121,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         params: { id: conversation.conversationId, type: conversation.conversationType }
       })
     },
-    [account, messageAction, sendGroupMessage.mutate, sendMessage.mutate, navigate, onClose]
+    [account, messageAction, sendGroupMessage.mutate, sendMessage.mutate, navigate, onClose, params]
   )
 
   const renderContent = (

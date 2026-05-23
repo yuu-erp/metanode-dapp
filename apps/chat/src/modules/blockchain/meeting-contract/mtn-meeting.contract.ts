@@ -40,6 +40,7 @@ export type ReqLeaveRoom = {
 export type ReqRejectCall = {
   _caller: string
   _roomId: string
+  owner: string
 }
 
 export class MeetingContract extends MtnContract {

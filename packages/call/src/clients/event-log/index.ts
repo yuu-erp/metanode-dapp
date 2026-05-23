@@ -85,7 +85,10 @@ export function setEventLog(_eventLog: EventBusRequest) {
 
 export function getEventLog() {
   if (!eventLog) throw new Error('eventLog is not set')
-  return eventLog
+  return {
+    on: eventLog.on.bind(eventLog),
+    off: eventLog.off.bind(eventLog)
+  }
 }
 
 export const waitEventLog = createWaitEvent<EventLogData>(getEventLog, 15_000)

@@ -4,13 +4,14 @@ import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { queryClient } from '@/shared/lib/react-query'
 import { useMutation } from '@tanstack/react-query'
 
-export function useSendMessageV2(input?: { id: string; type: string }) {
+export function useSendMessageV2() {
   const { data: account } = useCurrentAccount()
   const params = useConversationParams()
-  const { id, type } = input ?? params
 
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async ({ payload, ...rest }: { payload: any; id: string; type: string }) => {
+      const { id, type } = (rest ?? params) as any
+
       if (!account || !id || !type) return
       const conversation = await queryClient.ensureQueryData(
         createGetConversationIdQueryOptions(id, type, false)

@@ -3,7 +3,7 @@ import type { ReplyReference } from '@/modules/message'
 import { useI18N } from '@/shared/hooks'
 import { useScrollToMessageItem } from '@/shared/hooks/use-scroll-to-message-item'
 import { cn } from '@/shared/lib'
-import { MicIcon } from 'lucide-react'
+import { MicIcon, Phone } from 'lucide-react'
 import * as React from 'react'
 import ReplyMessageFile from './reply-message-file'
 import ReplyMessageSticker from './reply-message-sticker'
@@ -20,7 +20,15 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
   const { t } = useI18N()
 
   const replyPreview = React.useMemo(() => {
-    switch (replyTo.type) {
+    switch (replyTo.type as any) {
+      case 'call_status':
+        console.log('[replyPreview] replyTo', replyTo)
+        return (
+          <div className="flex text-xs items-center gap-2">
+            <Phone className="size-3" /> Call status
+          </div>
+        )
+
       case 'text':
         return <ReplyMessageText message={replyTo as ReplyReference<'text'>} isMine={isMine} />
 

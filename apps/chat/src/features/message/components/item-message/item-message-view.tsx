@@ -2,6 +2,7 @@
 import type { Message } from '@/modules/message'
 import { MessageFile, MessageSticker, MessageText } from './message-type'
 import { VoiceItem } from './variants/voice-item'
+import { CallStatusItem } from './variants/call-status-item'
 
 interface ItemMessageViewProps {
   message: Message
@@ -9,6 +10,10 @@ interface ItemMessageViewProps {
 }
 export default function ItemMessageView({ message, isMine }: ItemMessageViewProps) {
   switch (message.type) {
+    case 'call_status': {
+      return <CallStatusItem message={message} />
+    }
+
     case 'text':
       return <MessageText message={message} />
 

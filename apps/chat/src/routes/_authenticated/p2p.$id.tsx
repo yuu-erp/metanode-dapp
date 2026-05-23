@@ -51,19 +51,7 @@ function RouteComponent() {
     return viewportHeight ? { height: `${viewportHeight}px` } : undefined
   }, [viewportHeight])
 
-  const { mutate: createCall, isPending } = useGoToMeetingView()
-
-  const onVideoCall = () => {
-    if (!account || !conversation) throw new Error('[onVideoCall] Invalid input')
-    createCall({
-      address: account.address,
-      caller: account.address,
-      callee: conversation.conversationId,
-      isCaller: true,
-      isMeet: false,
-      conversationType: 'p2p'
-    })
-  }
+  const { onVideoCall, isPending } = useGoToMeetingView()
 
   return (
     <MessageActionProvider>

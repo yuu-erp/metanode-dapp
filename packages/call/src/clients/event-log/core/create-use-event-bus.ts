@@ -19,8 +19,11 @@ export function createUseEventBus<T extends object>(eventBusOrGetter: EventBusOr
         cbRef.current(e)
       }
 
-      eventBus.on(name, handler)
-      return () => eventBus.off(name, handler)
+      const off = eventBus.on(name, handler) as any
+      return () => {
+        eventBus.off(name, handler)
+        off?.()
+      }
     }, [name, filter])
   }
 }

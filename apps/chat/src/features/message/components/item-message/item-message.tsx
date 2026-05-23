@@ -3,15 +3,14 @@ import { usePlatform } from '@/hooks/core/use-platform'
 import type { Message } from '@/modules/message'
 import { useLongPress } from '@/shared/hooks'
 
+import { container } from '@/container'
+import { useEventBus } from '@/shared/hooks/use-eventbus'
 import { sendCommand } from '@metanodejs/system-core'
 import * as React from 'react'
 import { type MessageItemProps } from '.'
 import { useDownloadFile, useIsPinned } from '../../hooks'
 import ItemMessageUI from './item-message-ui'
 import { SystemMessage } from './variants/system-message'
-import { CallDurationMessage } from './variants/call-duration-message'
-import { container } from '@/container'
-import { useEventBus } from '@/shared/hooks/use-eventbus'
 
 // --- Logic Hook ---
 function useMessageLogic(
@@ -63,7 +62,7 @@ function ItemMessage(
   const logic = useMessageLogic(message, isMine, onSelectMessage)
   const { downloadFile } = useDownloadFile()
 
-  if (message.type === 'call_duration') {
+  if (message.type === 'call_status') {
     console.log('[ItemMessage]', { message })
   }
   const isSticker = message.type === 'sticker'
@@ -85,14 +84,6 @@ function ItemMessage(
     if (!mimeType.startsWith('video/')) return false
     return !!message.filePath
   }, [message, mimeType])
-
-  if (message.type === 'system') {
-    return <SystemMessage message={message} />
-  }
-
-  if (message.type === 'call_duration') {
-    return <CallDurationMessage message={message} />
-  }
 
   useEventBus('file.download', async (e) => {
     if (isOverlay) return
@@ -116,6 +107,10 @@ function ItemMessage(
     a.remove()
     URL.revokeObjectURL(url)
   })
+
+  if (message.type === 'system') {
+    return <SystemMessage message={message} {...logic} />
+  }
 
   return (
     <ItemMessageUI

@@ -1,5 +1,5 @@
 import { container } from '@/container'
-import { ACCOUNT_QUERY_KEY } from '@/shared/lib/react-query'
+import { ACCOUNT_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
 export const createUserContractQuery = (myAddress: string, address: string) =>
@@ -17,4 +17,8 @@ export const createUserContractQuery = (myAddress: string, address: string) =>
 
 export function useUserContract(myAddress: string, address: string) {
   return useQuery(createUserContractQuery(myAddress, address))
+}
+
+export function getUserContract(myAddress: string, address: string) {
+  return queryClient.ensureQueryData(createUserContractQuery(myAddress, address))
 }

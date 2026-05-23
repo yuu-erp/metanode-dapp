@@ -10,7 +10,14 @@ export const EndCallButton = memo(({}: EndCallButtonProps) => {
 
   return (
     <>
-      <Button size={'icon'} variant={'destructive'} onClick={enCallAndCloseView} loading={loading}>
+      <Button
+        size={'icon'}
+        variant={'destructive'}
+        onClick={() => {
+          enCallAndCloseView()
+        }}
+        loading={loading}
+      >
         <PhoneOff />
       </Button>
     </>

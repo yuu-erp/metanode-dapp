@@ -17,7 +17,7 @@ export function useSendText() {
         { type: 'text', content: params.content },
         params.messageAction
       )
-      console.log('[useSendText]', payload)
+      console.log('[useSendText]', { payload, params })
       mutate({
         account: params.account,
         conversation: params.conversation,

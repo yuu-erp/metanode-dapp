@@ -1,9 +1,9 @@
 import { createContext, PropsWithChildren, ReactNode, useContext, useEffect, useState } from 'react'
 import { Callbacks, setCallbacks, setEventLog } from '~/clients'
-import { RegisterEventLog, useInitLocalMedia, useInitRoomInfo, useRegisterEventLog } from '~/hooks'
-import { EventLogManager } from './EventLogManager'
 import { EventBusRequest } from '~/clients/event-log/core'
-import { getStatusConnected } from '@metanodejs/system-core'
+import { RegisterEventLog, useInitLocalMedia, useInitRoomInfo } from '~/hooks'
+import { statusActions, useRoomStore, useStatusStore } from '~/stores'
+import { EventLogManager } from './EventLogManager'
 
 export type CallContext = {}
 
@@ -34,6 +34,25 @@ export const CallProvider = ({
   useEffect(() => {
     setCallbacks(callbacks)
     setEventLog(eventLog)
+    setReady(true)
+  }, [])
+
+  useEffect(() => {
+    useStatusStore.setState({
+      from: Math.floor(performance.now())
+    })
+    return () => {
+      const to = Math.floor(performance.now())
+      const roomInfo = useRoomStore.getState()
+
+      useStatusStore.setState({
+        to
+      })
+      statusActions.setStatus(roomInfo.isCaller ? 'outcoming' : 'incoming')
+    }
+  }, [])
+
+  useEffect(() => {
     setReady(true)
   }, [])
 

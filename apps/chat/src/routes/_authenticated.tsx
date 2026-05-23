@@ -13,7 +13,9 @@ import { useForcedLogout, useRegisterEventLog, useReloadOnNative } from '@/share
 import { useDisabled } from '@/shared/hooks/accounts/use-disabled'
 import { useSyncContractsAddressess } from '@/shared/hooks/accounts/use-sync-contracts-addressess'
 import { queryClient } from '@/shared/lib/react-query'
+import { statusActions, useStatusStore } from '@app/call'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/_authenticated')({
@@ -56,7 +58,15 @@ function RouteComponent() {
   useReloadOnNative()
   useSyncContractsAddressess()
   useDisabled()
-  useSyncCall()
+  const syncCall = useSyncCall()
+
+  useEffect(() => {
+    const { id, type, status, from, to } = useStatusStore.getState()
+    console.log('[RouteComponent] useEffect', { id, type, status, from, to })
+    const duration = Math.max(Math.floor((to - from) / 1000), 0)
+
+    syncCall(id, type, { callStatus: status, duration }).then(() => statusActions.resetCallData())
+  }, [])
 
   return (
     <ConversationsProvider>

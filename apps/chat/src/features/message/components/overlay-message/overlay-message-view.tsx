@@ -29,6 +29,8 @@ function OverlayMessageView({ message, onClose, handlers, isPinned }: OverlayMes
   const [open, setOpen] = React.useState(true)
   const isMine = message.isMine
 
+  const isCallStatus = message.type === 'call_status'
+
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === backdropRef.current) {
       setOpen(false)
@@ -63,28 +65,31 @@ function OverlayMessageView({ message, onClose, handlers, isPinned }: OverlayMes
           >
             <DropdownMenuTrigger asChild>
               <div className="inline-block w-full relative">
-                <motion.div
-                  className={cn(
-                    'sticky top-20 w-fit bg-white/80 mb-3 backdrop-blur-md-app rounded-full px-2 py-1 flex gap-3 shadow-xl pointer-events-auto z-10',
-                    isMine ? 'ml-auto mr-2' : 'ml-2'
-                  )}
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', damping: 20 }}
-                >
-                  {quickReactions.map((emoji) => (
-                    <button
-                      key={emoji}
-                      className="text-2xl hover:scale-125 transition-transform"
-                      onClick={() => handlers.onReact(emoji)}
-                    >
-                      {emoji}
-                    </button>
-                  ))}
-                  {/* <button className="text-black hover:text-white">
+                {!isCallStatus && (
+                  <motion.div
+                    className={cn(
+                      'sticky top-20 w-fit bg-white/80 mb-3 backdrop-blur-md-app rounded-full px-2 py-1 flex gap-3 shadow-xl pointer-events-auto z-10',
+                      isMine ? 'ml-auto mr-2' : 'ml-2'
+                    )}
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', damping: 20 }}
+                  >
+                    {quickReactions.map((emoji) => (
+                      <button
+                        key={emoji}
+                        className="text-2xl hover:scale-125 transition-transform"
+                        onClick={() => handlers.onReact(emoji)}
+                      >
+                        {emoji}
+                      </button>
+                    ))}
+                    {/* <button className="text-black hover:text-white">
                     <SmilePlus className="size-5" />
                   </button> */}
-                </motion.div>
+                  </motion.div>
+                )}
+
                 <ItemMessage
                   layoutId={`message-${message.id ?? message.clientId}`}
                   message={message}
@@ -117,9 +122,13 @@ function OverlayMessageView({ message, onClose, handlers, isPinned }: OverlayMes
 
               {isMine && message.type === 'text' && <EditAction onClose={handlers.onEdit} />}
               <DropdownMenuSeparator className="bg-black/10" />
-              <PinAction isPinned={isPinned} onClose={handlers.onPin} />
+              {!isCallStatus && (
+                <>
+                  <PinAction isPinned={isPinned} onClose={handlers.onPin} />
+                  <ForwardAction onClose={handlers.onForward} />
+                </>
+              )}
               {/* <DropdownMenuSeparator className="bg-black/10" /> */}
-              <ForwardAction onClose={handlers.onForward} />
               {isMine && <DeleteAction onClose={handlers.onDelete} />}
             </DropdownMenuContent>
           </DropdownMenu>

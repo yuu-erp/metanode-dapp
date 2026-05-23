@@ -48,7 +48,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   }
 
   const rawType = String(raw.type ?? 'text').toLowerCase()
-  if (rawType === 'call_duration') {
+  if (rawType === 'call_status') {
     console.log('[mapperToMessage] 1')
   }
   const messageType: any = [
@@ -58,7 +58,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
     'voice',
     'location',
     'system',
-    'call_duration'
+    'call_status'
   ].includes(rawType)
     ? (rawType as MessageType)
     : 'text'
@@ -87,10 +87,12 @@ export function mapperToMessage(raw: RawMessageSource): Message {
   }
 
   switch (messageType) {
-    case 'call_duration':
+    case 'call_status':
+      console.log('[mapperToMessage] call_status', { raw })
       return {
+        ...raw,
         ...base,
-        type: 'call_duration',
+        type: 'call_status',
         duration: Number(raw.duration)
       } as Message
 
@@ -263,11 +265,11 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
         type: 'system',
         eventName: message.eventName
       } as OnChainMessagePayload
-    case 'call_duration':
+    case 'call_status':
       return {
+        ...message,
         ...base,
-        type: 'call_duration',
-        duration: message.duration
+        type: 'call_status'
       }
   }
 }

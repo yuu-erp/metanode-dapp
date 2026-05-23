@@ -71,11 +71,11 @@ export function createOptimisticMessage(
         eventName: payload.eventName
       } satisfies Message
 
-    case 'call_duration': {
+    case 'call_status': {
       return {
+        ...payload,
         ...common,
-        type: 'call_duration',
-        duration: payload.duration
+        type: 'call_status'
       }
     }
   }
@@ -94,6 +94,9 @@ export function createReplyReference(message: PersistedMessage): any {
   }
 
   switch (message.type) {
+    case 'call_status':
+      return common
+
     case 'text':
       return { ...common, content: message.content }
 
@@ -145,6 +148,12 @@ export function createForwardPayload(message: PersistedMessage) {
   }
 
   switch (message.type) {
+    case 'call_status':
+      return {
+        ...common,
+        type: 'call_status'
+      }
+
     case 'text':
       return {
         ...common,
@@ -192,15 +201,6 @@ export function createForwardPayload(message: PersistedMessage) {
         ...common,
         type: 'system',
         eventName: message.eventName
-      }
-
-    case 'voice':
-      return {
-        ...common,
-        type: 'voice',
-        fileId: message.fileId,
-        duration: message.duration,
-        mimeType: message.mimeType
       }
 
     default: {

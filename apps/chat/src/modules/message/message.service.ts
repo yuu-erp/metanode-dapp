@@ -111,7 +111,7 @@ export class MessageService {
           decrypted.filePath = URL.createObjectURL(fileDB.blob)
         }
       }
-
+      console.log('[decrypted]', { decrypted })
       const rs = mapperToMessage({
         accountId: account.address,
         account,
@@ -281,7 +281,9 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
-    console.log('[sendMessage] 1')
+    console.log('[sendMessage] 1', {
+      payload: payload
+    })
     const clientId = uuidv4()
     const optimisticMessage = createOptimisticMessage(
       {
@@ -361,6 +363,7 @@ export class MessageService {
         decryptMessage.filePath = URL.createObjectURL(fileDB.blob)
       }
     }
+    console.log('[decryptMessageForP2p] decryptMessage', { decryptMessage })
     return mapperToMessage({
       ...decryptMessage,
       messageId,
@@ -1220,6 +1223,8 @@ export class MessageService {
         decryptMessage.filePath = URL.createObjectURL(fileDB.blob)
       }
     }
+
+    console.log('[decryptMessageFromGroup] decryptMessage', { decryptMessage })
     const decryptedMessage = mapperToMessage({
       ...decryptMessage,
       messageId,
@@ -1340,7 +1345,7 @@ export class MessageService {
         console.log('[sendStringtifiedMessage] 2', { fileKey })
 
         const messageId = await promise
-
+        console.log('[sendStringtifiedMessage] 3', { messageId })
         this.eventBus.emit('message.updateId', {
           messageId,
           clientId,

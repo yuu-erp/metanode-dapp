@@ -77,6 +77,7 @@ export function applyUpdateMessageId(
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { clientId: clientId })) return msg
+    console.log('[applyUpdateMessageId]', { messageId })
     const newMsg = { ...msg, id: messageId, status: 'delivered' } as Message // Cast to avoid strict type issues with status literal
     if (fileId && (newMsg.type === 'file' || newMsg.type === 'voice')) {
       newMsg.fileId = fileId
