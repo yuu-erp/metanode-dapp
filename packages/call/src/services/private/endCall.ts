@@ -3,7 +3,8 @@ import { blockchain, getCallback, onLogError } from '~/clients'
 import { callStore, roomStore, statusActions, useStatusStore, useUserStore } from '~/stores'
 
 let ready = true
-export function setReady(input: boolean) {
+export function setCallReady(input: boolean) {
+  console.log('[setCallReady] 1')
   ready = input
 }
 
@@ -12,9 +13,12 @@ function setEnding(ending: boolean) {
 }
 
 export async function enCallAndCloseView() {
+  if (!ready) return
   try {
-    if (!ready) return
+    console.log('[enCallAndCloseView] 1')
     ready = false
+    console.log('[enCallAndCloseView] 2')
+
     const { ending } = callStore.getState()
     console.log('[enCallAndCloseView] ending', ending)
     if (ending) return
@@ -26,7 +30,7 @@ export async function enCallAndCloseView() {
 
     const { isMeet, callee, caller, isCaller, roomId, address } = roomStore.getState()
     const conversationId = isMeet ? callee : isCaller ? callee : caller
-
+    console.log('[endCall] 1')
     await blockchain.leaveRoom({
       end: true,
       meet: isMeet,
@@ -35,6 +39,7 @@ export async function enCallAndCloseView() {
       roomId,
       owner: address
     })
+    console.log('[endCall] 2')
   } catch (error) {
     onLogError(error)
   } finally {

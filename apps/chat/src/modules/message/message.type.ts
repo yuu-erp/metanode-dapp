@@ -28,6 +28,7 @@ export interface MessagePayloadMap {
     size: number
     filePath: string
     file?: File
+    content?: string
   }
   voice: { fileId: string; duration: number; mimeType: string }
   location: { latitude: number; longitude: number; address?: string }
@@ -147,5 +148,5 @@ export type ComposerDraft =
 export type MessageActionType = 'EDIT' | 'REPLY' | 'FORWARD'
 export interface MessageAction {
   type: MessageActionType
-  message: PersistedMessage
+  messageId: string
 }

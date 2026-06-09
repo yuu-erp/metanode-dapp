@@ -6,25 +6,22 @@ import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-moda
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
 import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
-import { SystemCore } from '@metanodejs/system-core'
 import { createRootRoute } from '@tanstack/react-router'
-import { useEffect } from 'react'
 import { Toaster } from 'sonner'
-console.log('APP CHAT V - 1.0 =====>')
+console.log('APP CHAT V - 1.0.1 =====>')
 
 export const Route = createRootRoute({
   component: () => {
-    useEffect(() => {
-      const cb = (e: any) => {
-        console.log('app chat log event log: ', e)
-      }
-
-      SystemCore.on('EventLogs', cb)
-      return () => SystemCore.removeEventListener('EventLogs', cb)
-    }, [])
-
     return (
       <>
+        {/* <button
+          className="size-20 bg-black fixed right-5 top-5 z-20"
+          onClick={async () => {
+            const converastion = await getConversationById(id, type)
+            if (!account || !converastion) return
+          
+          }}
+        /> */}
         {/* <button
           className="fixed z-50 left-5 top-5 size-20 bg-black"
           onClick={async () => {

@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 
 export function useCopy(value: string) {
   return async () => {
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       await navigator.clipboard.writeText(value)
     } else {
       await copyClipboard(value)

@@ -10,13 +10,16 @@ import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
 import { formatAddress, fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
-import { decryptAESGCM, encryptAESGCM, getBase64FromPath, share } from '@metanodejs/system-core'
+import { decryptAesECDH, decryptAESGCM, encryptAESGCM, share } from '@metanodejs/system-core'
 import { v4 as uuidv4 } from 'uuid'
 import type { FileCacheService } from '../file-cache'
 // MESSAGE MODULES
+import { fileHandler } from '@/clients'
 import { container } from '@/container'
-import { base64ToFile, normalizePath } from '@/shared/lib'
-import { createHashWithBuffer, getPrivateKeyFromDb, sendCommand } from '@metanodejs/system-core'
+import { compareAddress } from '@/shared/lib'
+import type { FileItem } from '@/stores/file.store'
+import { uiActions } from '@/stores/ui.store'
+import { getPrivateKeyFromDb, sendCommand } from '@metanodejs/system-core'
 import type {
   EditTextPayload,
   Message,
@@ -27,13 +30,14 @@ import type {
   SendPayload
 } from '.'
 import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
-import type { PushFileInfosParams } from '../blockchain/file-contract/types'
 import type { EventLogContainer } from '../eventlogs'
 import { asyncPriorityQueue } from '../realtime'
 import { createOptimisticMessage } from './message.entity'
 import { MessageExtend } from './message.extend'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
+import { messageActions } from '@/stores/message.store'
+import { sendStatus } from '@/new/status'
 
 export class MessageService {
   constructor(
@@ -50,7 +54,6 @@ export class MessageService {
     this.messageExtend = new MessageExtend(eventBus)
   }
 
-  private fileProcessingWorker: Worker | null = null
   private messageExtend: MessageExtend
 
   async getProcessedP2PMessages(
@@ -68,13 +71,17 @@ export class MessageService {
         page
       }
     })
-    console.log('[getProcessedP2PMessages] 1', { rawMessages })
+    const messages = (
+      await fulfilledPromises(
+        rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
+      )
+    ).filter(Boolean)
 
-    const messages = await fulfilledPromises(
-      rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
+    messages.forEach((m) =>
+      messageActions.setMessage(m.id, {
+        id: m.id
+      })
     )
-
-    console.log('[getProcessedP2PMessages] 2', { messages })
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -91,8 +98,7 @@ export class MessageService {
     conversation: Conversation
   ): Promise<Message | undefined> {
     try {
-      const isIncoming = item.sender === conversation.conversationId
-      const decryptionKey = isIncoming ? conversation.conversationKey : account.publicKey
+      const decryptionKey = conversation.conversationKey
 
       let decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
         decryptionKey,
@@ -111,7 +117,7 @@ export class MessageService {
           decrypted.filePath = URL.createObjectURL(fileDB.blob)
         }
       }
-      console.log('[decrypted]', { decrypted })
+
       const rs = mapperToMessage({
         accountId: account.address,
         account,
@@ -121,6 +127,7 @@ export class MessageService {
         replyTo,
         isMine: account.contractAddress === item.sender
       })
+
       return rs
     } catch (error) {
       console.error('[MessageService] Error processing message:', error)
@@ -130,6 +137,7 @@ export class MessageService {
 
   private async decryptGroupMessage(key: string, content: string) {
     let decrypted = (await decryptAESGCM(key, content))?.resultUtf8
+
     if (typeof decrypted === 'string') {
       decrypted = JSON.parse(decrypted)
     }
@@ -281,9 +289,6 @@ export class MessageService {
     conversation: Conversation,
     payload: SendPayload
   ): Promise<string> {
-    console.log('[sendMessage] 1', {
-      payload: payload
-    })
     const clientId = uuidv4()
     const optimisticMessage = createOptimisticMessage(
       {
@@ -298,7 +303,6 @@ export class MessageService {
       },
       payload
     )
-    console.log('[sendMessage] 2')
 
     // optimistic update
     this.eventBus.emit('message.add', {
@@ -308,16 +312,12 @@ export class MessageService {
       conversationType: 'p2p'
     })
 
-    console.log('[sendMessage] 3', { optimisticMessage })
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
     const messageOnChain = mapperMessageToOnChain(optimisticMessage)
-    console.log('[sendMessage] 3.5', { messageOnChain })
 
     const stringifyMessage = JSON.stringify(messageOnChain)
-    console.log('[sendMessage] 4')
 
     const rs = await this.sendStringtifiedMessage(account, conversation, stringifyMessage, clientId)
-    console.log('[sendMessage] 5', { rs })
 
     return rs
   }
@@ -342,7 +342,6 @@ export class MessageService {
       account.address,
       encryptedContent
     )
-    console.log('decryptMessage: ', decryptMessage)
 
     let replyTo: any = undefined
     if (decryptMessage.replyTo) {
@@ -363,7 +362,6 @@ export class MessageService {
         decryptMessage.filePath = URL.createObjectURL(fileDB.blob)
       }
     }
-    console.log('[decryptMessageForP2p] decryptMessage', { decryptMessage })
     return mapperToMessage({
       ...decryptMessage,
       messageId,
@@ -473,7 +471,7 @@ export class MessageService {
         conversationId: conversation.conversationId,
         clientId: messageOld.id,
         messageId: messageOld.id,
-        status: 'delivered'
+        status: messageOld.status
       })
     } catch (error) {
       // ❌ rollback / failed
@@ -510,279 +508,121 @@ export class MessageService {
   async sendFile(
     account: Account,
     conversation: Conversation,
-    files: any[] | File[],
-    type = 'file'
+    files: FileItem[],
+    type = 'file',
+    content: string
   ): Promise<void> {
-    try {
-      console.log('[sendFile] 1')
-      if (!files.length) throw new Error('Invalid files length')
+    if (!files.length) throw new Error('Invalid file length')
 
-      const fileInfos: PushFileInfosParams['infos'] = []
-      const fileNames: string[] = []
-      const preparedMessages: {
-        clientId: string
-        optimisticMessage: Message
-      }[] = []
-
-      const realFiles: File[] = []
-      console.log('files', files)
-      for (let file of files) {
-        const clientId = uuidv4()
-        const fileName = file.fileName ?? file.name ?? `file_${Date.now()}`
+    for (const item of files) {
+      const clientId = uuidv4()
+      const { meta, file } = item
+      try {
+        const { fileName } = meta
 
         const payload: SendPayload = {
           type,
           fileId: '', // Placeholder, will be updated after upload
           fileName,
-          mimeType: file.mimeType ?? file.type,
-          size: file.size,
-          filePath: '',
+          mimeType: meta.mimeType,
+          size: meta.size,
+          filePath: meta.path,
           file
         }
-
-        const filePath = file?.path ?? URL.createObjectURL(file)
-        console.log('[sendFile] 2')
-
-        const optimisticMessage = createOptimisticMessage(
+        await sendStatus(
           {
-            clientId,
-            accountId: account.address,
-            conversationId: conversation.conversationId,
-            sender: account.contractAddress,
-            recipient: account.contractAddress,
-            timestamp: Date.now()
+            status: 'send_file.start',
+            meta: { ...payload, clientId }
           },
-          {
-            ...payload,
-            filePath
-          }
+          { type: conversation.conversationType, id: conversation.conversationId }
         )
-        console.log('[sendFile] 3')
 
-        // optimistic update
+        const optimisticMessage = {
+          ...createOptimisticMessage(
+            {
+              clientId,
+              accountId: account.address,
+              conversationId: conversation.conversationId,
+              sender: account.contractAddress,
+              recipient: account.contractAddress,
+              timestamp: Date.now()
+            },
+            {
+              ...payload,
+              filePath: meta.path
+            }
+          ),
+          content
+        }
+
         this.eventBus.emit('message.add', {
           conversationId: conversation.conversationId,
           message: optimisticMessage,
           isMine: true,
           conversationType: conversation.conversationType
         })
-
-        let hash: any
-        if (file instanceof File) {
-          console.log('[loop] 1', { file })
-          const arrayBuffer = await file.arrayBuffer()
-          console.log('[loop] 2', { arrayBuffer })
-
-          const _buffer = new Uint8Array(arrayBuffer)
-          console.log('[loop] 3', { _buffer })
-
-          const buffer = Array.from(_buffer)
-          console.log('[loop] 4', { buffer })
-
-          hash = (await createHashWithBuffer({ buffer })).hash
-          console.log('[loop] 5', { hash })
-        } else {
-          const path = normalizePath(file.path)
-          if (!path) throw new Error('[messaeg.service][sendFile][Invalid path]')
-
-          hash = (await sendCommand('createHashFromFile', { path })).hash
-        }
-        console.log('[sendFile] 4')
-
-        const timestamp = Date.now()
-        const sanitizedFileName = fileName
-          .split('.')
-          .slice(0, -1)
-          .join('.')
-          .replace(/\s+/g, '_')
-          .replace(/[^\w\-_.]/g, '')
-        const fileNameWithTimestamp = `${sanitizedFileName}_${timestamp}.${fileName.split('.').pop() || ''}`
-
-        fileNames.push(fileNameWithTimestamp)
-        fileInfos.push({
+        const fileKey = await fileHandler.uploadFile(item, {
           owner: account.address,
-          hash: '0x' + hash,
-          contentLen: file.size,
-          totalChunks: Math.ceil(file.size / 1024),
-          expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year
-          name: fileNameWithTimestamp,
-          ext: file.extension || file.name.split('.').pop() || '',
-          status: 0,
-          contentDisposition: '',
-          contentID: ''
-        })
-
-        preparedMessages.push({
+          hiddenAddress: account.hiddenAddress,
           clientId,
-          optimisticMessage
+          onProgress: (v) => uiActions.setUpFileProgress(clientId, +(v * 0.9).toFixed(2))
         })
-        console.log('[sendFile] 5')
-
-        let realFile: File
-
-        if (file instanceof File) {
-          realFile = file
-        } else {
-          console.log('tao file 1', file.path)
-
-          const path = normalizePath(file.path)
-          console.log('tao file 1.1', path)
-
-          if (!path) throw new Error('[messaeg.service][sendFile][Invalid path]')
-          const base64 = (await getBase64FromPath(path)).base64
-          console.log('tao file 2', base64)
-
-          realFile = base64ToFile(base64, 'image.jpg', 'image/jpeg')
-          console.log('tao file 3', realFile)
+        if (optimisticMessage.type === type) {
+          optimisticMessage.fileId = fileKey
         }
 
-        realFiles.push(realFile)
-      }
+        const messageOnChain = { ...mapperMessageToOnChain(optimisticMessage), content }
+        const stringifyMessage = JSON.stringify(messageOnChain)
+        await this.fileCacheService.saveFile(fileKey, item.file, file.type, fileName)
+        await this.sendStringtifiedMessage(
+          account,
+          conversation,
+          stringifyMessage,
+          clientId,
+          fileKey
+        )
+        uiActions.setUpFileProgress(clientId, 100)
 
-      console.log('[sendFile] 6')
-
-      // 1. Push file infos to blockchain
-      await this.fileContract.pushFileInfos({
-        from: account.address,
-        inputData: { infos: fileInfos }
-      })
-      console.log('[sendFile] 7')
-
-      const fileKeys = await this.fileContract.getFileKeyFromName({
-        from: account.address,
-        inputData: { names: fileNames }
-      })
-
-      console.log('[sendFile] 8', { fileKeys })
-
-      const datas = realFiles.map((file, index) => ({
-        fileKey: fileKeys[index] || '',
-        dataFile: file,
-        preparedMessage: preparedMessages[index]
-      }))
-
-      for (const data of datas) {
-        if (!data.dataFile || !data.fileKey) continue
-
-        const { preparedMessage } = data
-        const { clientId, optimisticMessage } = preparedMessage
-
-        try {
-          const { chunkData, chunkHash } = await this._splitFileIntoChunks(data.dataFile)
-          // CHIA thành từng nhóm 7 CHUNK
-          const chunkSize = 275
-          const chunkDataBatches = this._chunkArray(chunkData, chunkSize)
-          const chunkHashBatches = this._chunkArray(chunkHash, chunkSize)
-
-          for (let i = 0; i < chunkDataBatches.length; i++) {
-            const batchData = chunkDataBatches[i]
-            const batchHash = chunkHashBatches[i]
-            await this.fileContract.uploadChunks({
-              from: account.address,
-              inputData: {
-                fileKey: data.fileKey,
-                chunkDatas: batchData,
-                chunkHashes: batchHash
-              }
-            })
-            console.log('File chunk uploaded successfully!', data.fileKey)
-          }
-          console.log('File upload completed successfully!', data.dataFile.name)
-
-          // Cache the sent file
-          try {
-            const arrayBuffer = await data.dataFile.arrayBuffer()
-            await this.fileCacheService.saveFile(
-              data.fileKey,
-              new Blob([arrayBuffer], { type: data.dataFile.type }),
-              data.dataFile.type,
-              data.dataFile.name
-            )
-          } catch (error) {
-            console.error('[MessageService] Failed to cache sent file:', error)
-          }
-
-          // Update message with correct fileId
-          console.log('[sendFile] test', {
-            t1: optimisticMessage.type,
-            t2: type,
-            key: data.fileKey
-          })
-          if (optimisticMessage.type === type) {
-            optimisticMessage.fileId = data.fileKey
-          }
-
-          // Prepare message payload for sending
-          const messageOnChain = mapperMessageToOnChain(optimisticMessage)
-          console.log('[send message] ', {
-            messageOnChain: structuredClone(messageOnChain)
-          })
-          const stringifyMessage = JSON.stringify(messageOnChain)
-
-          await this.sendStringtifiedMessage(
-            account,
-            conversation,
-            stringifyMessage,
+        await sendStatus(
+          {
+            status: 'send_file.end',
+            clientId
+          },
+          { type: conversation.conversationType, id: conversation.conversationId }
+        )
+      } catch (error: any) {
+        if (error.message === 'Cancel file') {
+          this.eventBus.emit('message.delete', {
             clientId,
-            data.fileKey
+            conversationId: conversation.conversationId
+          })
+          await sendStatus(
+            {
+              status: 'send_file.cancel',
+              clientId
+            },
+            { type: conversation.conversationType, id: conversation.conversationId }
           )
-        } catch (error) {
-          console.error(`[MessageService] Failed to send file/message ${clientId}`, error)
+          return
+        } else {
+          console.error('[sendFile] error ', error)
           this.eventBus.emit('message.status', {
             accountId: account.address,
             conversationId: conversation.conversationId,
             clientId,
             status: 'failed'
           })
+          await sendStatus(
+            {
+              status: 'send_file.error',
+              clientId,
+              error: error?.message || 'Unknown error'
+            },
+            { type: conversation.conversationType, id: conversation.conversationId }
+          )
         }
       }
-
-      console.log('[sendFile] 9')
-    } catch (error) {
-      console.error('[MessageService] sendFile error:', error)
-      throw error
     }
-  }
-
-  private _chunkArray<T>(array: T[], size: number): T[][] {
-    const result: T[][] = []
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size))
-    }
-    return result
-  }
-
-  private _splitFileIntoChunks(file: File): Promise<{ chunkData: string[]; chunkHash: string[] }> {
-    return new Promise((resolve, reject) => {
-      // Lazy init worker
-      if (!this.fileProcessingWorker) {
-        this.fileProcessingWorker = new Worker(
-          new URL('./workers/file-processing.worker.ts', import.meta.url),
-          { type: 'module' }
-        )
-      }
-
-      const id = uuidv4()
-      const handler = (e: MessageEvent) => {
-        const { type, id: responseId, payload, error } = e.data
-        if (responseId !== id) return
-
-        if (type === 'PROCESS_COMPLETE') {
-          resolve({
-            chunkData: payload.chunkData,
-            chunkHash: payload.chunkHash
-          })
-          console.log(`Final file hash: ${payload.lastChunkHash}`)
-        } else if (type === 'PROCESS_ERROR') {
-          reject(new Error(error))
-        }
-
-        this.fileProcessingWorker?.removeEventListener('message', handler)
-      }
-
-      this.fileProcessingWorker.addEventListener('message', handler)
-      this.fileProcessingWorker.postMessage({ type: 'PROCESS_FILE', file, id })
-    })
   }
 
   // Remove _computeChunkHash as it is in the worker now
@@ -818,7 +658,7 @@ export class MessageService {
           })
         }
 
-        if (!window?.finSdk) {
+        if (!window?.fiaiSDK) {
           await share({ type: 'file', path, title: fileName })
         }
 
@@ -921,7 +761,7 @@ export class MessageService {
       }
 
       // 7. Share
-      if (!window.finSdk) {
+      if (!window.fiaiSDK) {
         await share({ type: 'file', path, title: fileName })
       }
       return path
@@ -963,9 +803,11 @@ export class MessageService {
         rawMessages = []
       }
     }
-    const messages = await fulfilledPromises(
-      rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
-    )
+    const messages = (
+      await fulfilledPromises(
+        rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
+      )
+    ).filter(Boolean)
 
     const filteredMessages = messages.filter(Boolean) as Message[]
     // Trường hợp conversation là Saved Messages (cần de-duplicate)
@@ -1136,7 +978,7 @@ export class MessageService {
 
   async handleCreateECDHPassword(address: string, publicKey: string) {
     let pass: any
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       pass = await sendCommand('createECDHPassword', {
         address: address,
         publicKey: publicKey
@@ -1224,7 +1066,6 @@ export class MessageService {
       }
     }
 
-    console.log('[decryptMessageFromGroup] decryptMessage', { decryptMessage })
     const decryptedMessage = mapperToMessage({
       ...decryptMessage,
       messageId,
@@ -1335,17 +1176,14 @@ export class MessageService {
     clientId: string,
     fileKey?: string
   ) {
-    console.log('[sendStringtifiedMessage] 1', { fileKey })
     return asyncPriorityQueue.add(async () => {
       this.messageExtend.unsubscribe()
       const { conversationType } = conversation
       let promise: any
 
       const updateMessageId = async () => {
-        console.log('[sendStringtifiedMessage] 2', { fileKey })
-
         const messageId = await promise
-        console.log('[sendStringtifiedMessage] 3', { messageId })
+        messageActions.setMessage(clientId, { isMine: true, id: messageId })
         this.eventBus.emit('message.updateId', {
           messageId,
           clientId,
@@ -1360,9 +1198,9 @@ export class MessageService {
         if (conversationType === 'p2p' || conversationType === 'private') {
           promise = new Promise((resolve) => {
             const off = eventLog.on('MessageSent', (data) => {
-              if (data.sender !== account.contractAddress) return
+              if (!compareAddress(data.sender, account.contractAddress)) return
               off()
-              resolve(data.messageId)
+              resolve(formatAddress(data.messageId))
             })
           })
           updateMessageId()
@@ -1373,18 +1211,12 @@ export class MessageService {
             stringifyMessage
           )
 
-          const encryptedForSelf = await this.walletService.encryptMessage(
-            account.publicKey,
-            account.address,
-            stringifyMessage
-          )
-
           await this.userContract.sendMessage({
             from: account.hiddenAddress,
             to: account.contractAddress,
             inputData: {
               _recipientContractAddress: conversation.conversationId,
-              _encryptedContentForSelf: encryptedForSelf,
+              _encryptedContentForSelf: encryptedForRecipient,
               _encryptedContentForRecipient: encryptedForRecipient
             }
           })
@@ -1398,7 +1230,7 @@ export class MessageService {
               const off = eventLog.on('MessageSentGroup', (data) => {
                 if (formatAddress(data.sender) !== formatAddress(account.address)) return
                 off()
-                resolve(data.messageId)
+                resolve(formatAddress(data.messageId))
               })
             })
             updateMessageId()
@@ -1427,7 +1259,7 @@ export class MessageService {
 
                 if (data.sender !== alias) return
                 off()
-                resolve(data.messageId)
+                resolve(formatAddress(data.messageId))
               })
             })
 

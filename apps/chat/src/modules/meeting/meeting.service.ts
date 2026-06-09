@@ -43,7 +43,7 @@ export class MeetingService {
 
   async goToMeetingView(input: MeetingViewInput) {
     //@ts-ignore
-    if (!window?.finSdk) {
+    if (!window?.fiaiSDK) {
       const data = await sendCommand('startCallRTC', {
         //@ts-ignore
         query: new URLSearchParams(input).toString()

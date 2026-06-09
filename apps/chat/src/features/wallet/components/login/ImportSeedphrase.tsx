@@ -1,7 +1,7 @@
 import { cn } from '@/shared/lib'
 import { useLoginModalStore } from '@/shared/stores/login-modal.store'
 import { convertStringToSeedPhrase } from '@/shared/utils/createwallet'
-import { createWallet } from '@metanodejs/system-core'
+import { createWallet, getFromClipboard } from '@metanodejs/system-core'
 import { Copy } from 'lucide-react'
 import React, { type Dispatch, memo, type SetStateAction, useCallback, useState } from 'react'
 import { toast } from 'sonner'
@@ -31,6 +31,7 @@ const ImportSeedphrase = memo(({ onBack, setIsLoading, onCloseModal }: ImportSee
   const handleOnChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
     if (value.includes('Mx3S5')) {
+      handleSet(value)
     } else {
       setCustomSeedphrase(value)
     }
@@ -54,10 +55,7 @@ const ImportSeedphrase = memo(({ onBack, setIsLoading, onCloseModal }: ImportSee
     }
   }, [])
 
-  const handlePaste = useCallback(async () => {
-    const string =
-      // (await navigator.clipboard.readText()) ??
-      'Mx3S5DlavaFbubbleFdomainHbusinessGupgradeFuniqueFratherEnerveFmuseumEbrickFanimalDsignDbeltEcreamDcookEyoungDfrogEdwarfDfadeFcarbonDwireFrecallGmaximumEthree'
+  const handleSet = (string: string) => {
     const textConvert = string.startsWith('Mx3S5')
       ? convertStringToSeedPhrase(string)
       : String(string).split('\r\n')
@@ -68,7 +66,12 @@ const ImportSeedphrase = memo(({ onBack, setIsLoading, onCloseModal }: ImportSee
     } else {
       setErrorInput('')
     }
-  }, [])
+  }
+
+  const handlePaste = async () => {
+    const string = window.fiaiSDK ? await navigator.clipboard.readText() : await getFromClipboard()
+    handleSet(string)
+  }
 
   const handleSubmitSP = useCallback(async () => {
     setIsLoading(true)

@@ -43,8 +43,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'getFullInbox',
       abiData: userAbi.getFullInbox as any,
-      feeType: 'read',
-      gas: '30000000'
+      feeType: 'read'
     })
   }
 
@@ -69,8 +68,7 @@ export class UserContract extends MtnContract {
       functionName: 'getProcessedP2PMessages',
       abiData: userAbi.getProcessedP2PMessages as any,
       inputData,
-      feeType: 'read',
-      gas: '3000000000'
+      feeType: 'read'
     })
   }
 
@@ -300,6 +298,62 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'RemoveContact',
       abiData: userAbi.RemoveContact as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  pinMessage(
+    payload: TransactionPayload<{ partner: string; messageId: string }>
+  ): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'pinMessage',
+      abiData: userAbi.pinMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  unpinMessage(
+    payload: TransactionPayload<{ partner: string; messageId: string }>
+  ): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'unpinMessage',
+      abiData: userAbi.unpinMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  async getPinnedMessages(payload: TransactionPayload<{ partner: string }>): Promise<string[]> {
+    const { from, to, inputData } = payload
+    const rs = await this.sendTransaction({
+      from,
+      to,
+      functionName: 'getPinnedMessages',
+      abiData: userAbi.getPinnedMessages as any,
+      feeType: 'read',
+      inputData
+    })
+
+    return rs
+  }
+
+  setComposingStatus(
+    payload: TransactionPayload<{ recipient: string; status: string; content: string }>
+  ): Promise<string[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'setComposingStatus',
+      abiData: userAbi.setComposingStatus as any,
       feeType: 'sc',
       inputData
     })

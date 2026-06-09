@@ -35,7 +35,8 @@ export type AppEvents = {
   }
   'message.delete': {
     conversationId: string
-    messageId: string
+    messageId?: string
+    clientId?: string
   }
   'message.received': {
     sender: string
@@ -164,6 +165,7 @@ export type AppEvents = {
     hiddenAddress: string
   }
   'file.download': {
-    messageId: string
+    message: any
+    saveByWeb?: boolean
   }
 }

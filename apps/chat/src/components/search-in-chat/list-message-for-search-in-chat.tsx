@@ -14,9 +14,19 @@ export const ListMessageForSearchInChat = memo(({}: ListMessageForSearchInChatPr
   const { data: account } = useCurrentAccount()
   const { messages } = useViewInfiniteScroll({ account, conversation: conversation ?? undefined })
 
-  const matchedList = messages.filter(
-    (msg) => msg.type === 'text' && msg.content.toLowerCase().includes(value.toLocaleLowerCase())
-  )
+  const matchedList = messages.filter((msg) => {
+    const isInclude = (input: string) => input.toLowerCase().includes(value.toLocaleLowerCase())
+
+    return (
+      (msg.type === 'text' && isInclude(msg.content)) ||
+      (msg.type === 'file' && isInclude(msg.fileName))
+    )
+  })
+
+  console.log('test', {
+    messages,
+    matchedList
+  })
 
   if (!value || !matchedList.length) return null
   return (

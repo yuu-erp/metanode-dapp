@@ -297,6 +297,37 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "string",
+        "name": "senderAlias",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
+      }
+    ],
+    "name": "ComposingStatusChangedCommunity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "executor",
@@ -974,6 +1005,12 @@
         "internalType": "address",
         "name": "group",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "pinnerAlias",
+        "type": "string"
       }
     ],
     "name": "MessagePinnedAnonymous",
@@ -2865,6 +2902,32 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getLatestMessageId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getListPinnedMessagesCommunity",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -2977,6 +3040,11 @@
             "type": "bool"
           },
           {
+            "internalType": "bool",
+            "name": "isPinned",
+            "type": "bool"
+          },
+          {
             "components": [
               {
                 "internalType": "address",
@@ -3067,6 +3135,134 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "pinnedMessageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "beforeCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "afterCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPinnedMessageCommunity",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "messageId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "author",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "authorAlias",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "avatarUser",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "finalContent",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isMyMessage",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isEdited",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPinned",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "reactor",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "reactorAlias",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "reaction",
+                "type": "string"
+              },
+              {
+                "internalType": "uint256",
+                "name": "count",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct CommunityGroup.Reaction[]",
+            "name": "reactions",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "readBy",
+            "type": "address[]"
+          },
+          {
+            "internalType": "string[]",
+            "name": "readByAlias",
+            "type": "string[]"
+          },
+          {
+            "internalType": "uint256",
+            "name": "readByCount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDecryptable",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct CommunityGroup.ProcessedGroupMessage[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "page",
         "type": "uint256"
@@ -3129,6 +3325,11 @@
           {
             "internalType": "bool",
             "name": "isEdited",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPinned",
             "type": "bool"
           },
           {
@@ -3785,6 +3986,25 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isMessagePinned",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -3970,6 +4190,54 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "name": "messageLocations",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "storeContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "indexInStore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isValid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "messagePinner",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       },
       {
         "internalType": "address",
@@ -4127,6 +4395,25 @@
     "name": "pinMessage",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "pinnedMessageIds",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -4554,6 +4841,24 @@
       }
     ],
     "name": "setAllowBanOtherAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      }
+    ],
+    "name": "setComposingStatusCommunity",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

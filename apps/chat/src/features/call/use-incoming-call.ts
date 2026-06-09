@@ -7,18 +7,35 @@ import { useEventLog } from '@/shared/hooks/use-event-log'
 import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export const useIncomingCall = () => {
   const [incomingCall, setIncomingCall] = useState<MeetingViewInput | null>(null)
   const { data: account } = useCurrentAccount()
   const { mutate } = useGoToMeetingView()
   const syncCall = useSyncCall()
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const cleanup = () => {
+    if (timeout.current) {
+      clearTimeout(timeout.current)
+      timeout.current = null
+    }
+  }
 
   useEffect(() => {
     console.log('  1', account)
     if (!account) return
     const handleCallReceived = async (event: AppEvents['call.received']) => {
+      cleanup()
+      timeout.current = setTimeout(async () => {
+        cleanup()
+        setIncomingCall(null)
+        if (!incomingCall) return
+        const conversationId = await getConId()
+        await syncCall(conversationId, incomingCall.conversationType, { callStatus: 'missed' })
+      }, 1000 * 60)
+
       setIncomingCall({
         ...event,
         roomId: formatAddress(event.roomId ?? '')
@@ -26,12 +43,14 @@ export const useIncomingCall = () => {
     }
     container.eventBus.on('call.received', handleCallReceived)
     return () => {
+      cleanup()
       container.eventBus.off('call.received', handleCallReceived)
     }
   }, [account])
 
   const acceptCall = async () => {
     if (!incomingCall || !account) return
+    cleanup()
     mutate(incomingCall)
   }
 
@@ -42,6 +61,7 @@ export const useIncomingCall = () => {
 
   const rejectCall = async () => {
     if (!account || !incomingCall) return
+    cleanup()
     setIncomingCall(null)
     const conversationId = await getConId()
     console.log('[rejectCall] 1', { conversationId, incomingCall })

@@ -1,14 +1,17 @@
 'use client'
 import { usePlatform } from '@/hooks/core/use-platform'
 import type { Message } from '@/modules/message'
-import { useLongPress } from '@/shared/hooks'
+import { useCurrentAccount, useLongPress } from '@/shared/hooks'
 
-import { container } from '@/container'
+import { fileHandler } from '@/clients'
+import { useMessageById } from '@/hooks/mesage/use-message-by-id'
+import { useIsPinned } from '@/new/message'
 import { useEventBus } from '@/shared/hooks/use-eventbus'
+import { messageActions } from '@/stores/message.store'
+import { uiActions } from '@/stores/ui.store'
 import { sendCommand } from '@metanodejs/system-core'
 import * as React from 'react'
 import { type MessageItemProps } from '.'
-import { useDownloadFile, useIsPinned } from '../../hooks'
 import ItemMessageUI from './item-message-ui'
 import { SystemMessage } from './variants/system-message'
 
@@ -18,7 +21,7 @@ function useMessageLogic(
   isMine?: boolean,
   onSelectMessage?: (m: Message) => void
 ) {
-  const { isNotPc } = usePlatform()
+  const { isNotWeb } = usePlatform()
 
   // Long-press for mobile devices
   const { handlers: longPressHandlers, isLongPressActive } = useLongPress({
@@ -35,15 +38,15 @@ function useMessageLogic(
   // Context menu for PC
   const handleContextMenu = React.useCallback(
     (e: React.MouseEvent) => {
-      if (isNotPc) return
+      if (isNotWeb) return
       e.preventDefault()
       onSelectMessage?.(message)
     },
-    [isNotPc, message, onSelectMessage]
+    [isNotWeb, message, onSelectMessage]
   )
 
   // Use long-press for mobile, context menu for PC
-  const handlers = isNotPc ? longPressHandlers : { onContextMenu: handleContextMenu }
+  const handlers = isNotWeb ? longPressHandlers : { onContextMenu: handleContextMenu }
 
   // status logic
   const isFailed = isMine && message.status === 'failed'
@@ -58,54 +61,62 @@ function ItemMessage(
     isOverlay?: boolean
   }
 ) {
-  const { message, isMine, onSelectMessage, isOverlay } = props
+  const { message, onSelectMessage, isOverlay = false } = props
+  const isMine = useMessageById(message.id, (s) => s?.isMine ?? props?.isMine)
+
   const logic = useMessageLogic(message, isMine, onSelectMessage)
-  const { downloadFile } = useDownloadFile()
+  const { data: account } = useCurrentAccount()
 
-  if (message.type === 'call_status') {
-    console.log('[ItemMessage]', { message })
-  }
   const isSticker = message.type === 'sticker'
-  //@ts-ignore
-  const mimeType = message?.message?.mimeType ?? message.mimeType
-  const { data: isPinned } = useIsPinned(message.id)
 
-  const isImage = React.useMemo(() => {
-    if (message.type !== 'file') return false
+  const mimeType = useMessageById(message.id, (s) => s?.mimeType)
 
-    if (!mimeType.startsWith('image/')) return false
-    // use cachedFile (async) or filePath (sync) to determing if image styling applies
-    //@ts-ignore
-    return !!message?.filePath
-  }, [message, mimeType])
+  const { isPinned } = useIsPinned(message.id)
+
+  const isImage = mimeType?.startsWith('image')
 
   const isVideo = React.useMemo(() => {
     if (message.type !== 'file') return false
-    if (!mimeType.startsWith('video/')) return false
+    if (!mimeType?.startsWith('video/')) return false
     return !!message.filePath
   }, [message, mimeType])
 
   useEventBus('file.download', async (e) => {
     if (isOverlay) return
-    if (e.messageId !== message.id) return
-    const fileId = message.fileId || message.id
-    console.log('[file.download] 1', { fileId })
-    if (!fileId) return
-    await downloadFile(fileId, fileId, message.fileName, message.mimeType)
-    const file = await container.fileCacheService.getFile(fileId)
-    console.log('[file.download] 2', { file })
+    if (e.message.id !== message.id) return
+    const fileId = message.fileId
+    const messageId = message.id
+    if (!fileId || !account) return
+    const { blob, meta } = await fileHandler.downloadFile(fileId, account, {
+      onProgress: (v) => {
+        uiActions.setUpFileProgress(messageId, v)
+      }
+    })
+    const path = URL.createObjectURL(blob)
+    messageActions.setMessage(messageId, { filePath: path, mimeType: meta.mimeType })
+    if (e.saveByWeb && 'showSaveFilePicker' in window) {
+      let ext: string = meta.fileName.match(/\.[^.]+$/)?.[0] ?? ''
+      ext = ext.split('_')[0]
+      const handle = await (window as any).showSaveFilePicker({
+        suggestedName: meta.fileName,
+        types: [
+          {
+            description: 'desc',
+            accept: {
+              [meta.mimeType]: [ext]
+            }
+          }
+        ]
+      })
 
-    if (!file) return
-    const url = URL.createObjectURL(file.blob)
-    console.log('[file.download] 3', { url })
-
-    const a = document.createElement('a')
-    a.href = url
-    a.download = file.fileName
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    URL.revokeObjectURL(url)
+      const writable = await handle.createWritable()
+      await writable.write(blob)
+      await writable.close()
+      // const a = document.createElement('a')
+      // a.href = path
+      // a.download = 'file.zip'
+      // a.click()
+    }
   })
 
   if (message.type === 'system') {

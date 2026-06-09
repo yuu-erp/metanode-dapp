@@ -39,11 +39,14 @@ export const CONVERSATION_QUERY_KEY = {
   CONVERSATION: (conversationId: string) => ['conversation', conversationId] as const,
   GROUP_MEMBERS: (conversationId: string) => ['groupMembers', conversationId] as const,
   PROFILE: (conversationId: string) => ['profile', conversationId] as const,
-  PINED_MESSAGE: (conversationId: string) => ['pineDMessage', conversationId] as const
+  key: (conversationId: string) => ['converstaionKey', conversationId] as const,
+  pinned: (conversationId: string) => ['pinnedMessage', conversationId]
 }
 
 export const MESSAGE_QUERY_KEY = {
-  MESSAGES: (accountId: string, conversationId: string) => ['messages', accountId, conversationId]
+  MESSAGES: (accountId: string, conversationId: string) => ['messages', accountId, conversationId],
+  info: (messageId: string) => ['messaegInfo', messageId],
+  list: (conversationId: string) => ['listMessage', conversationId]
 }
 
 export const FILE_CACHE_QUERY_KEY = {
@@ -56,5 +59,25 @@ export const CALL_QUERY_KEY = {
 }
 
 export const GROUP_QUERY_KEY = {
-  ADMIN: (conversationId: string) => ['admin', conversationId] as const
+  ADMIN: (conversationId: string) => ['admin', conversationId] as const,
+  alias: (conversationId: string) => ['grpupAlias', conversationId],
+  memberList: (conversationId: string) => ['memberList', conversationId],
+  name: (conversationId: string) => ['groupName', conversationId]
+}
+
+export const FILE_QUERY_KEY = {
+  info: (fileId: string) => ['fileInfo', fileId] as const
+}
+
+export const USER_QUERY_KEY = {
+  info: (contractAddress: string) => ['userInfo', contractAddress],
+  contractAddress: (address: string) => ['contractAddress', address]
+}
+
+export const ACTIONS_QUERY_KEY = {
+  sendMessage: ['sendMessage']
+}
+
+export const ME_QUERY_KEY = {
+  identity: (conversationId: string) => ['identity', conversationId]
 }

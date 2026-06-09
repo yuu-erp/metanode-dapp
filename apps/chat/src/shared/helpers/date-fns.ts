@@ -34,7 +34,9 @@ export function formatUpdatedAt(date: Date | string) {
   return d.format('DD/MM/YY')
 }
 
-export function formatMessageTime(date: Date | string | number) {
+export function formatMessageTime(date?: Date | string | number) {
+  if (!date) return ''
+
   if (typeof date === 'number') {
     // nếu < 10^12 thì coi là seconds
     return dayjs(date < 1e12 ? date * 1000 : date).format('HH:mm')

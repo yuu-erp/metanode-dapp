@@ -33,7 +33,7 @@ function DefaultConversation({
 }: DefaultConversationProps) {
   const navigate = useNavigate()
   const { t } = useI18N()
-  const { isNotPc } = usePlatform()
+  const { isNotWeb } = usePlatform()
 
   const { mutate } = useScanQrcodeProfile()
 
@@ -68,7 +68,7 @@ function DefaultConversation({
             className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
           />
 
-          {isNotPc && (
+          {isNotWeb && (
             <Button
               type="button"
               onClick={handleClickScanQR}

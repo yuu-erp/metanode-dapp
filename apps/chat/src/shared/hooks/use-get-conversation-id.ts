@@ -47,3 +47,7 @@ export function useGetConversationId(
 ) {
   return useQuery(createGetConversationIdQueryOptions(conversationId, conversationType, useDb))
 }
+
+export function getConversationById(id: string, type: string, save = false) {
+  return queryClient.ensureQueryData(createGetConversationIdQueryOptions(id, type as any, save))
+}

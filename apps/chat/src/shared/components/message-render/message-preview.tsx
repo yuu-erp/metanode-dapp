@@ -35,10 +35,13 @@ function MessagePreview({ message, className }: Props) {
 
     case 'file':
       if (message.mimeType?.startsWith('image/') && message.file) {
+        const file = message.file
+        if (!(file instanceof File)) return null
+
         return (
           <span className="flex items-center gap-1 opacity-70 italic">
             <img
-              src={URL.createObjectURL(message.file)}
+              src={URL.createObjectURL(file)}
               alt="preview"
               className="size-6 object-cover rounded-sm"
             />

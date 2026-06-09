@@ -77,16 +77,34 @@ export const FinSdkProvider = ({ children }: PropsWithChildren) => {
       const isWeb = !(await checkPlatform())
 
       if (!isWeb) return setLoading(false)
-      await loadFinSdkScript()
-      window.finSdk.init({
-        onProgress: (_percent: string) => {
-          console.log('_percent', _percent)
-        },
-        onFinish: async () => {
-          setLoading(false)
-        },
-        onError: (id: any) => console.error('window.finSdk.init', id)
-      })
+      // Ở môi trường dev web, nếu FinSDK kẹt init sẽ làm "đen màn hình" vô hạn.
+      // Fallback: quá timeout thì bỏ qua FinSDK để tiếp tục render app và debug lỗi thật.
+      const fallbackTimer = window.setTimeout(() => {
+        console.warn('[FinSdkProvider] init timeout, continue without FinSDK')
+        setLoading(false)
+      }, 15000)
+
+      try {
+        await loadFinSdkScript()
+        window.fiaiSDK.init({
+          onProgress: (_percent: string) => {
+            console.log('_percent', _percent)
+          },
+          onFinish: async () => {
+            window.clearTimeout(fallbackTimer)
+            setLoading(false)
+          },
+          onError: (id: any) => {
+            window.clearTimeout(fallbackTimer)
+            console.error('[FinSdkProvider] fiaiSDK.init error', id)
+            setLoading(false)
+          }
+        })
+      } catch (error) {
+        window.clearTimeout(fallbackTimer)
+        console.error('[FinSdkProvider] loadFinSdkAssets failed', error)
+        setLoading(false)
+      }
     }
 
     initialize()

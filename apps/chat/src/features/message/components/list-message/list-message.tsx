@@ -9,6 +9,7 @@ import ListMessageView from './list-message-view'
 import { useChatScroll } from './use-chat-scroll'
 import { useViewInfiniteScroll } from './use-view-infinite-scroll'
 import { useMarkAsRead } from '@/shared/hooks'
+import { useMessaeges } from '@/new/message/list-mesage'
 
 function ListMessage({ conversation, account }: ListMessageProps) {
   // Infinite scroll
@@ -23,8 +24,9 @@ function ListMessage({ conversation, account }: ListMessageProps) {
     []
   )
   useMarkAsRead(messages, conversation)
+  const { ids } = useMessaeges()
 
-  console.log('[ListMessage]', { messages })
+  console.log('[ListMessage] ids', { ids })
   return (
     <>
       <div

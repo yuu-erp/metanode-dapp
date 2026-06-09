@@ -9,13 +9,18 @@ export function useSendMessageV2() {
   const params = useConversationParams()
 
   return useMutation({
-    mutationFn: async ({ payload, ...rest }: { payload: any; id: string; type: string }) => {
-      const { id, type } = (rest ?? params) as any
+    mutationFn: async ({ payload, ...rest }: { payload: any; id?: string; type?: string }) => {
+      const id = rest?.id ?? params?.id
+      const type = rest?.type ?? params?.type
+
+      console.log('[useSendMessageV2] 1', { payload, id, type, account, params })
 
       if (!account || !id || !type) return
       const conversation = await queryClient.ensureQueryData(
         createGetConversationIdQueryOptions(id, type, false)
       )
+
+      console.log('[useSendMessageV2] 2', { conversation })
 
       if (!conversation) return
       if (conversation.conversationType === 'p2p') {

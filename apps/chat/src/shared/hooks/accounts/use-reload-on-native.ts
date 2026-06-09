@@ -8,7 +8,7 @@ export function useReloadOnNative() {
   useEventBus('event.reload', setActive)
 
   useEffect(() => {
-    if (window.finSdk || !active) return
+    if (!active) return
     const cb = () => {
       if (document.visibilityState === 'visible') {
         console.log('Tab đang được focus')

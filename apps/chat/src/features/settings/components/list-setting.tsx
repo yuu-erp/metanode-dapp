@@ -17,7 +17,7 @@ function ListSettings() {
   const handleClickLogout = async () => await mutateAsync()
 
   const onCopy = async (value: string) => {
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       await navigator.clipboard.writeText(value)
     } else {
       await copyClipboard(value)

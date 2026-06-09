@@ -1,7 +1,7 @@
 'use client'
 
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query'
-import { ACCOUNT_QUERY_KEY } from '../lib/react-query'
+import { ACCOUNT_QUERY_KEY, queryClient } from '../lib/react-query'
 import type { Account } from '@/modules/account'
 import { container } from '@/container'
 
@@ -31,4 +31,10 @@ export function createCurrentAccountQueryOptions(): UseQueryOptions<
 
 export function useCurrentAccount() {
   return useQuery(createCurrentAccountQueryOptions())
+}
+
+export const getCurrentAccount = async () => {
+  const rs = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
+  if (!rs) throw new Error('[getCurrentAccount] Invalid account')
+  return rs
 }

@@ -1,8 +1,6 @@
 'use client'
 
 import type { MessageAction } from '@/modules/message'
-import { useGetConversationIdByAddress } from '@/shared/hooks'
-import { useGetUserProfile } from '@/shared/hooks/accounts'
 import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useMemo } from 'react'
 
@@ -17,35 +15,38 @@ export function useBuildMessageActionViewData(
   if (!action) return null
   const { type } = useConversationParams()
 
-  const message = action.message
+  // const message = action.message
+  const message = {}
 
-  const replyUserId = action.type === 'REPLY' ? message.sender : undefined
-  const conversationId = useGetConversationIdByAddress(replyUserId ?? '', type === 'group')
+  // const replyUserId = action.type === 'REPLY' ? message.sender : undefined
+  // const conversationId = useGetConversationIdByAddress(replyUserId ?? '', type === 'group')
 
-  const { data: profile } = useGetUserProfile(type === 'group' ? conversationId : replyUserId)
+  // const { data: profile } = useGetUserProfile(type === 'group' ? conversationId : replyUserId)
 
   return useMemo(() => {
     switch (action.type) {
       case 'EDIT':
         return {
           title: 'Edit Message',
-          content: message.type === 'text' ? (message.content ?? '') : ''
+          // content: message.type === 'text' ? (message.content ?? '') : ''
+          content: ''
         }
 
       case 'REPLY': {
-        const fullName =
-          type === 'anonymous_group'
-            ? replyUserId
-            : [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Unknown'
+        const fullName = ''
+        // type === 'anonymous_group'
+        //   ? replyUserId
+        //   : [profile?.firstName, profile?.lastName].filter(Boolean).join(' ') || 'Unknown'
 
         return {
           title: `Reply to ${fullName}`,
-          content: message.type === 'text' ? (message.content ?? '') : ''
+          // content: message.type === 'text' ? (message.content ?? '') : ''
+          content: ''
         }
       }
 
       default:
         return null
     }
-  }, [action.type, message, profile?.firstName, profile?.lastName])
+  }, [action.type, message])
 }

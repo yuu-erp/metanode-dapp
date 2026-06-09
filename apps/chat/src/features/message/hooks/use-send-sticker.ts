@@ -1,14 +1,14 @@
 'use client'
+import { useSendMessageV2 } from '@/hooks/mesage/use-send-message-v2'
 import { createSendPayload, type MessageAction } from '@/modules/message'
 import * as React from 'react'
-import { useSendMessage, type SendMessageVariables } from '.'
 
 export function useSendSticker() {
-  const { mutate, ...rest } = useSendMessage()
+  const { mutate, ...rest } = useSendMessageV2()
 
   const sendSticker = React.useCallback(
     (
-      params: Omit<SendMessageVariables, 'payload'> & {
+      params: Omit<any, 'payload'> & {
         stickerId: string
         messageAction?: MessageAction
       }
@@ -19,8 +19,6 @@ export function useSendSticker() {
       )
 
       mutate({
-        account: params.account,
-        conversation: params.conversation,
         payload
       })
     },

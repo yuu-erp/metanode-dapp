@@ -78,19 +78,19 @@ export class GroupContract extends MtnContract {
       to,
       functionName: 'getMemberListGroup',
       abiData: groupAbis.getMemberListGroup as any,
-      feeType: 'sc',
+      feeType: 'read',
       inputData
     })
   }
 
   getProcessedGroupMessages(payload: TransactionPayload<{ page: number; limit: number }>) {
     const { from, to, inputData } = payload
-    return this.sendTransaction<string[]>({
+    return this.sendTransaction<BCGroupMessage[]>({
       from,
       to,
       functionName: 'getProcessedGroupMessages',
       abiData: groupAbis.getProcessedGroupMessages as any,
-      feeType: 'sc',
+      feeType: 'read',
       inputData
     })
   }
@@ -156,16 +156,7 @@ export class GroupContract extends MtnContract {
 
   getMessageById(payload: TransactionPayload<{ _messageId: string }>) {
     const { from, to, inputData } = payload
-    return this.sendTransaction<{
-      messageId: string
-      author: string
-      finalContent: string
-      timestamp: string
-      isDeleted: boolean
-      reactions: any[]
-      readBy: string[]
-      isEdited: true
-    }>({
+    return this.sendTransaction<BCGroupMessage>({
       from,
       to,
       functionName: 'getMessageById',
@@ -274,6 +265,42 @@ export class GroupContract extends MtnContract {
       to,
       functionName: 'pinMessage',
       abiData: groupAbis.pinMessage as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  pinMessageForAllMembers(payload: TransactionPayload<{ messageId: string; isPinned: boolean }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'pinMessageForAllMembers',
+      abiData: groupAbis.pinMessageForAllMembers as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  leaveGroup(payload: TransactionPayload<{ encryptedContent: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'leaveGroup',
+      abiData: groupAbis.leaveGroup as any,
+      feeType: 'sc',
+      inputData
+    })
+  }
+
+  setComposingStatusGroup(payload: TransactionPayload<{ status: string; content: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'setComposingStatusGroup',
+      abiData: groupAbis.setComposingStatusGroup as any,
       feeType: 'sc',
       inputData
     })

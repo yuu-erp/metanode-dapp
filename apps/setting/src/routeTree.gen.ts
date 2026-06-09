@@ -97,19 +97,19 @@ const LayoutNewProfileCreateIndexRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof LayoutIndexRoute
   '/general': typeof LayoutGeneralRoute
   '/manager-profile': typeof LayoutManagerProfileRoute
   '/node': typeof LayoutNodeRoute
   '/profile-detail': typeof LayoutProfileDetailRoute
   '/security': typeof LayoutSecurityRoute
   '/wallpaper': typeof LayoutWallpaperRoute
-  '/': typeof LayoutIndexRoute
   '/shared-dapps/add': typeof LayoutSharedDappsAddRoute
   '/shared-wallets/add': typeof LayoutSharedWalletsAddRoute
-  '/new-profile': typeof LayoutNewProfileIndexRoute
-  '/shared-dapps': typeof LayoutSharedDappsIndexRoute
-  '/shared-wallets': typeof LayoutSharedWalletsIndexRoute
-  '/new-profile/create': typeof LayoutNewProfileCreateIndexRoute
+  '/new-profile/': typeof LayoutNewProfileIndexRoute
+  '/shared-dapps/': typeof LayoutSharedDappsIndexRoute
+  '/shared-wallets/': typeof LayoutSharedWalletsIndexRoute
+  '/new-profile/create/': typeof LayoutNewProfileCreateIndexRoute
 }
 export interface FileRoutesByTo {
   '/general': typeof LayoutGeneralRoute
@@ -146,19 +146,19 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/general'
     | '/manager-profile'
     | '/node'
     | '/profile-detail'
     | '/security'
     | '/wallpaper'
-    | '/'
     | '/shared-dapps/add'
     | '/shared-wallets/add'
-    | '/new-profile'
-    | '/shared-dapps'
-    | '/shared-wallets'
-    | '/new-profile/create'
+    | '/new-profile/'
+    | '/shared-dapps/'
+    | '/shared-wallets/'
+    | '/new-profile/create/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/general'
@@ -201,7 +201,7 @@ declare module '@tanstack/react-router' {
     '/_layout': {
       id: '/_layout'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof LayoutRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -257,21 +257,21 @@ declare module '@tanstack/react-router' {
     '/_layout/shared-wallets/': {
       id: '/_layout/shared-wallets/'
       path: '/shared-wallets'
-      fullPath: '/shared-wallets'
+      fullPath: '/shared-wallets/'
       preLoaderRoute: typeof LayoutSharedWalletsIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/shared-dapps/': {
       id: '/_layout/shared-dapps/'
       path: '/shared-dapps'
-      fullPath: '/shared-dapps'
+      fullPath: '/shared-dapps/'
       preLoaderRoute: typeof LayoutSharedDappsIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/new-profile/': {
       id: '/_layout/new-profile/'
       path: '/new-profile'
-      fullPath: '/new-profile'
+      fullPath: '/new-profile/'
       preLoaderRoute: typeof LayoutNewProfileIndexRouteImport
       parentRoute: typeof LayoutRoute
     }
@@ -292,7 +292,7 @@ declare module '@tanstack/react-router' {
     '/_layout/new-profile/create/': {
       id: '/_layout/new-profile/create/'
       path: '/new-profile/create'
-      fullPath: '/new-profile/create'
+      fullPath: '/new-profile/create/'
       preLoaderRoute: typeof LayoutNewProfileCreateIndexRouteImport
       parentRoute: typeof LayoutRoute
     }

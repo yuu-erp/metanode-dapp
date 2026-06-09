@@ -13,6 +13,7 @@ import { getUserByAddress } from '@/shared/hooks/conversations/use-user-by-addre
 
 import { CallProvider, useRoomStore } from '@app/call'
 import { createFileRoute, useNavigate, useRouter, useSearch } from '@tanstack/react-router'
+import { useRef } from 'react'
 
 export const Route = createFileRoute('/call')({
   component: RouteComponent
@@ -26,6 +27,10 @@ function RouteComponent() {
   const navigate = useNavigate()
   const router = useRouter()
   const search = useSearch({ strict: false })
+
+  const ref = useRef<Function | null>(null)
+
+  ref.current = router.history.back
 
   return (
     <>
@@ -52,7 +57,7 @@ function RouteComponent() {
             (await getUserByAddress(myAddress, user)).name
           }
         >
-          {window.finSdk ? (
+          {window.fiaiSDK ? (
             <div className="size-full overflow-hidden flex flex-col p-1">
               <div className="flex items-center gap-3 justify-end p-3">
                 <RaiseHandUsers />

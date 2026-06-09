@@ -25,6 +25,7 @@ export default defineConfig({
     host: '0.0.0.0'
   },
   resolve: {
+    dedupe: ['@metanodejs/system-core'],
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       react: path.resolve(__dirname, 'node_modules/react'),

@@ -20,7 +20,7 @@ export const MessageItemForSearchInChat = memo(({ message }: MessageItemForSearc
       <AvatarUser size="xs" name={name} type={'p2p'} />
       <div className="flex-1 flex flex-col">
         <p className="text-sm font-bold">{name}</p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-300">
           <MessageContent message={message} />
         </p>
       </div>
@@ -30,5 +30,6 @@ export const MessageItemForSearchInChat = memo(({ message }: MessageItemForSearc
 
 export const MessageContent = memo(({ message }: { message: Message }) => {
   if (message.type === 'text') return <TextContentWithMentions text={message.content} />
+  if (message.type === 'file') return message.fileName
   return ''
 })

@@ -156,6 +156,10 @@ class AppContainer {
     return this._groupContract
   }
 
+  get fileCotract() {
+    return this._fileContract
+  }
+
   get anonymousGroupContract(): AnonymousGroupContract {
     return this._anonymousGroupContract
   }

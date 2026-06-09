@@ -122,7 +122,7 @@ export class SyncManager {
 
   private async _executeStrategy(strategy: SyncStrategy, account: Account) {
     console.log(`[SyncManager] Executing ${strategy.name} for ${account.address}`)
-
+    return
     if (!this._isOnline) {
       console.log(`[SyncManager] Offline, skipping ${strategy.name}`)
       this._statuses.set(strategy.name, 'connecting')

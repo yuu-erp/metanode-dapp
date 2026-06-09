@@ -9,7 +9,8 @@ interface ItemMessageViewProps {
   isMine?: boolean
 }
 export default function ItemMessageView({ message, isMine }: ItemMessageViewProps) {
-  switch (message.type) {
+  if (!message) return null
+  switch (message?.type) {
     case 'call_status': {
       return <CallStatusItem message={message} />
     }

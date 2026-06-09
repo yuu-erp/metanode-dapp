@@ -267,9 +267,9 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
       } as OnChainMessagePayload
     case 'call_status':
       return {
-        ...message,
         ...base,
-        type: 'call_status'
+        type: 'call_status',
+        callStatus: message.callStatus
       }
   }
 }

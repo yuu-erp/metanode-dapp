@@ -4,6 +4,7 @@ import { EventBusRequest } from '~/clients/event-log/core'
 import { RegisterEventLog, useInitLocalMedia, useInitRoomInfo } from '~/hooks'
 import { statusActions, useRoomStore, useStatusStore } from '~/stores'
 import { EventLogManager } from './EventLogManager'
+import { setCallReady } from '~/services'
 
 export type CallContext = {}
 
@@ -38,6 +39,7 @@ export const CallProvider = ({
   }, [])
 
   useEffect(() => {
+    setCallReady(true)
     useStatusStore.setState({
       from: Math.floor(performance.now())
     })

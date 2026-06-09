@@ -171,10 +171,10 @@ export function applyMessageUpdate(
 
 export function applyMessageDelete(
   old: InfiniteData<Message[]> | undefined,
-  params: { messageId: string }
+  params: { messageId?: string; clientId?: string }
 ): InfiniteData<Message[]> | undefined {
   return updatePages(old, (msg) => {
-    if (matchMessage(msg, { messageId: params.messageId })) return null
+    if (matchMessage(msg, { messageId: params?.messageId, clientId: params?.clientId })) return null
     return msg
   })
 }

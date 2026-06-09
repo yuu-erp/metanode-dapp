@@ -54,7 +54,13 @@ export class AnonymousGroupContract extends MtnContract {
     })
   }
 
-  async getProcessedGroupMessagesWithReactions(payload: TransactionPayload<{}>) {
+  async getProcessedGroupMessagesWithReactions(
+    payload: TransactionPayload<{
+      page: number
+      limit: number
+      sender: string
+    }>
+  ) {
     const { from, to, inputData } = payload
 
     const rs = await this.sendTransaction({
@@ -188,16 +194,7 @@ export class AnonymousGroupContract extends MtnContract {
 
   getMessageById(payload: TransactionPayload<{ _messageId: string }>) {
     const { from, to, inputData } = payload
-    return this.sendTransaction<{
-      messageId: string
-      author: string
-      finalContent: string
-      timestamp: string
-      isDeleted: boolean
-      reactions: any[]
-      readBy: string[]
-      isEdited: true
-    }>({
+    return this.sendTransaction<BCAnonymousGroupMessage>({
       from,
       to,
       functionName: 'getMessageById',
@@ -239,6 +236,18 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'userToPublicKeyAdmin',
       abiData: anonymousGroupAbi.userToPublicKeyAdmin as any,
       feeType: 'read',
+      inputData
+    })
+  }
+
+  setComposingStatusCommunity(payload: TransactionPayload<{ status: string; content: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'setComposingStatusCommunity',
+      abiData: anonymousGroupAbi.setComposingStatusCommunity as any,
+      feeType: 'sc',
       inputData
     })
   }

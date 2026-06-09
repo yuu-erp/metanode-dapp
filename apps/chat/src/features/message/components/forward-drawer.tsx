@@ -1,19 +1,14 @@
 'use client'
-import { container } from '@/container'
 import { useGetConversations } from '@/features/conversation'
-import type { Conversation } from '@/modules/conversation'
-import { createForwardPayload, type MessageAction } from '@/modules/message'
+import { useCurrentState } from '@/hooks/use-current-state'
+import { type MessageAction } from '@/modules/message'
+import { useForwardMessage } from '@/new/message/send-message-v4'
 import ConversationContact from '@/shared/components/conversation-contact'
 import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
-import { useCurrentAccount } from '@/shared/hooks'
-import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
-import { useNavigate } from '@tanstack/react-router'
 import { X } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
-import { useSendMessage } from '../hooks'
-import { useSendGroupMessage } from '../hooks/use-send-group-message'
 
 interface ForwardDrawerProps {
   open?: boolean
@@ -21,108 +16,10 @@ interface ForwardDrawerProps {
   messageAction: MessageAction | null
 }
 function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
-  const navigate = useNavigate()
-  const { data: account } = useCurrentAccount()
+  const { account } = useCurrentState()
   const { data: conversations = [] } = useGetConversations(account)
   const isMobile = useIsMobile()
-  const params = useConversationParams()
-
-  const sendMessage = useSendMessage()
-  const sendGroupMessage = useSendGroupMessage()
-  const { type } = useConversationParams()
-
-  const handleForwardMessage = React.useCallback(
-    (conversation: Conversation) => async () => {
-      if (!account || !messageAction) return
-      if (!messageAction || !messageAction.message || !messageAction.message.id) return
-      const forwardPayload = createForwardPayload({
-        ...messageAction.message,
-        id: messageAction.message.id
-      })
-
-      if (type === 'group') {
-        forwardPayload.forwardFrom = await container.factoryContract.getUserContract({
-          from: account.hiddenAddress,
-          inputData: {
-            user: forwardPayload.forwardFrom
-          }
-        })
-      }
-      console.log('forwardPayload: ', structuredClone(forwardPayload))
-      const mutate =
-        conversation.conversationType === 'group' ||
-        conversation.conversationType === 'anonymous_group'
-          ? sendGroupMessage.mutate
-          : sendMessage.mutate
-
-      if (forwardPayload.type === 'text') {
-        mutate({
-          account,
-          conversation,
-          payload: {
-            type: forwardPayload.type,
-            content: messageAction.message.type === 'text' ? messageAction.message.content : '',
-            forwardFrom: forwardPayload.forwardFrom
-          }
-        })
-      } else if (forwardPayload.type === 'sticker') {
-        mutate({
-          account,
-          conversation,
-          payload: {
-            type: forwardPayload.type,
-            stickerId:
-              messageAction.message.type === 'sticker' ? messageAction.message.stickerId : '',
-            forwardFrom: forwardPayload.forwardFrom
-          }
-        })
-      } else if (forwardPayload.type === 'file') {
-        const message = messageAction.message
-        console.log('message: ', message)
-        if (message.type === 'file') {
-          mutate({
-            account,
-            conversation,
-            payload: {
-              type: 'file',
-              fileId: message.fileId,
-              fileName: message.fileName,
-              mimeType: message.mimeType,
-              size: message.size,
-              filePath: message.filePath,
-              forwardFrom: forwardPayload.forwardFrom
-            }
-          })
-        }
-      } else if (forwardPayload.type === 'voice') {
-        const message = messageAction.message
-
-        mutate({
-          account,
-          conversation,
-          payload: {
-            type: 'voice',
-            fileId: message.fileId,
-            fileName: message.fileName,
-            mimeType: message.mimeType,
-            forwardFrom: forwardPayload.forwardFrom
-          }
-        })
-      }
-      onClose?.()
-      if (params.id === conversation.conversationId) return
-
-      const isGroup =
-        conversation.conversationType === 'group' ||
-        conversation.conversationType === 'anonymous_group'
-
-      navigate({
-        to: isGroup ? '/$type/$id' : '/p2p/$id',
-        params: { id: conversation.conversationId, type: conversation.conversationType }
-      })
-    },
-    [account, messageAction, sendGroupMessage.mutate, sendMessage.mutate, navigate, onClose, params]
-  )
+  const { forwardMessage } = useForwardMessage()
 
   const renderContent = (
     <div className="relative h-[90vh] md:h-[600px] w-full rounded-t-[36px] md:rounded-2xl bg-black/30 backdrop-blur-lg border border-white/10 flex flex-col overflow-hidden">
@@ -177,7 +74,15 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
                   name={conversation.name}
                   username={conversation.username}
                   type={conversation.conversationType}
-                  onClick={handleForwardMessage(conversation)}
+                  onClick={() =>
+                    forwardMessage({
+                      messageId: messageAction!.messageId,
+                      base: {
+                        id: conversation.conversationId,
+                        type: conversation.conversationType
+                      }
+                    })
+                  }
                 />
                 <div className="h-px bg-white/20 ml-18" />
               </React.Fragment>

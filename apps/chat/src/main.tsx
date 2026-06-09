@@ -4,12 +4,12 @@ import ReactDOM from 'react-dom/client'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
+import '@/shared/lib/i18n'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { FinsdkProvider2 } from './components/finsk.context-2.tsx'
 import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
-import '@/shared/lib/i18n'
-import { FinSdkProvider } from './contexts/fin-sdk.context.tsx'
 
 // Create a new router instance
 const router = createRouter({
@@ -34,15 +34,14 @@ const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
-    <FinSdkProvider>
+    <FinsdkProvider2>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-    </FinSdkProvider>
+    </FinsdkProvider2>
   )
 }
 
 // If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals()

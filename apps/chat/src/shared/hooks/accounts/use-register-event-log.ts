@@ -5,7 +5,7 @@ import { container } from '@/container'
 import { getStatusConnected, sendCommand } from '@metanodejs/system-core'
 
 async function connectNode(address: string) {
-  if (window?.finSdk) return
+  if (window?.fiaiSDK) return
   const { status } = await getStatusConnected()
   if (!!status) return
 
@@ -32,7 +32,6 @@ export function useRegisterEventLog() {
     }
 
     promise.current?.then(async () => {
-      await container.eventLogContainer.registerAbi()
       listConversation?.forEach((c) => {
         if (c.conversationType !== 'group' && c.conversationType !== 'anonymous_group') return
         if (isRegister.current.has(c.conversationId)) return

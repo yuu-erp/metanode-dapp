@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useEffect } from 'react'
 
 import {
   useAttachLocalTracksToStream,
@@ -14,6 +14,8 @@ import {
   useScreenShareEvents,
   useSyncLocalTracksToTransceivers
 } from '~/hooks'
+import { enCallAndCloseView } from '~/services'
+import { useUserStore } from '~/stores'
 
 export const EventLogManager = memo(() => {
   useAutoJoinRoom(true)
@@ -28,6 +30,15 @@ export const EventLogManager = memo(() => {
   useCallSessionCleanup()
   useRaiseHandEvent()
   useRequesterEvent()
+
+  useEffect(() => {
+    setTimeout(() => {
+      const { users } = useUserStore.getState()
+      if (users.length === 1) {
+        enCallAndCloseView()
+      }
+    }, 1000 * 60)
+  }, [])
 
   return null
 })

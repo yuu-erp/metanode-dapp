@@ -7,8 +7,8 @@ import { PinIcon } from '@/shared/components/icons'
 import { MessagePreview } from '@/shared/components/message-render'
 import { Badge } from '@/shared/components/ui/badge'
 import { formatUpdatedAt } from '@/shared/helpers'
-import { useI18N, useLongPress } from '@/shared/hooks'
-import { cn } from '@/shared/lib'
+import { useCurrentAccount, useI18N, useLongPress } from '@/shared/hooks'
+import { cn, compareAddress } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
 import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
@@ -41,6 +41,8 @@ function ItemConversation({
   ...props
 }: ItemConversationProps) {
   const { t } = useI18N()
+  const { data: account } = useCurrentAccount()
+
   const { handlers, isLongPressActive } = useLongPress({
     threshold: 300,
     shouldPreventDefault: true,
@@ -90,7 +92,7 @@ function ItemConversation({
                 {/* Priview message */}
                 {lastMessage && <MessagePreview message={lastMessage} />}
               </div>
-              {unreadCount > 0 && (
+              {unreadCount > 0 && !compareAddress(conversationId, account?.contractAddress) && (
                 <Badge
                   className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
                   variant="secondary"

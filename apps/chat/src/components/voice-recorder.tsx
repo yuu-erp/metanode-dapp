@@ -1,4 +1,6 @@
-import { useSendFileV2 } from '@/hooks/mesage/use-send-file-v2'
+import { useCurrentState } from '@/hooks/use-current-state'
+import { fileToFileItem } from '@/new/file/file.utils'
+import { useSendVoice } from '@/new/message/send-message-v4'
 import { uiActions, useUiStore } from '@/stores/ui.store'
 import { Send, Trash2 } from 'lucide-react'
 import { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react'
@@ -71,6 +73,7 @@ const RecordingTimer = memo(
 )
 
 export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
+  const { base } = useCurrentState()
   const micOpen = useUiStore((s) => s.micOpen)
 
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -83,8 +86,7 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
   const chunks = useRef<Blob[]>([])
 
   const shouldSendOnStopRef = useRef(false)
-
-  const sendFile = useSendFileV2('voice')
+  const { sendVoice } = useSendVoice()
 
   const stopTimer = () => recordingTimerRef.current?.stop()
   const startTimer = () => recordingTimerRef.current?.start()
@@ -117,8 +119,6 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
     chunks.current = []
 
     mediaRecorder.ondataavailable = (e) => {
-      console.log('[ondataavailable]', e.data.size)
-
       if (e.data.size > 0) {
         chunks.current.push(e.data)
       }
@@ -154,7 +154,7 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
       })
 
       if (file.size > 0) {
-        sendFile.mutate([file])
+        sendVoice(fileToFileItem(file))
       }
 
       chunks.current = []

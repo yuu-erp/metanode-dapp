@@ -133,6 +133,43 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      }
+    ],
+    "name": "ComposingStatusChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": false,
         "internalType": "address",
         "name": "sender",
@@ -727,6 +764,37 @@
       }
     ],
     "name": "PartnerMessageEdited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPinned",
+        "type": "bool"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "pinnedBy",
+        "type": "address"
+      }
+    ],
+    "name": "PartnerMessagePinChanged",
     "type": "event"
   },
   {
@@ -1644,6 +1712,25 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "partnerContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "getLatestMessageId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "_messageId",
         "type": "bytes32"
@@ -1798,6 +1885,106 @@
         "internalType": "address",
         "name": "",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      }
+    ],
+    "name": "getPartnerPinnedMessages",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partnerContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "pinnedMessageId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "beforeCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "afterCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPinnedMessage",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "messageId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "finalContent",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          },
+          {
+            "internalType": "string",
+            "name": "reactionSummary",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "isRead",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isEdited",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct ProcessedP2PMessage[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -2466,6 +2653,30 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "partnerPinnedMessages",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "partner",
         "type": "address"
       },
@@ -2476,6 +2687,24 @@
       }
     ],
     "name": "pinMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "pinMessageFromPartner",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -3102,6 +3331,29 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      }
+    ],
+    "name": "setComposingStatus",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_newMeetingFactoryAddress",
         "type": "address"
       }
@@ -3213,6 +3465,24 @@
       }
     ],
     "name": "unpinMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "unpinMessageFromPartner",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -1,19 +1,18 @@
 'use client'
 
 import * as React from 'react'
-import type { OverlayMessageHandlers, OverlayMessageProps } from './overlay-message.types'
 import { useCopyMessageAction, useMessageAction } from '../../contexts'
 import { useDeleteMessage, useReactToMessage, useUnreactToMessage } from '../../hooks'
-import { useDownloadFile } from '../../hooks/use-download-file'
-import { useMessagePinStatus } from '../../hooks/use-message-pin-status'
 import OverlayMessageView from './overlay-message-view'
+import type { OverlayMessageHandlers, OverlayMessageProps } from './overlay-message.types'
 
 import { container } from '@/container'
-import { toast } from 'sonner'
-import { useQueryClient } from '@tanstack/react-query'
-import { useIsMineReaction } from '@/shared/hooks'
+import { useCurrentState } from '@/hooks/use-current-state'
 import { asyncPriorityQueue } from '@/modules/realtime'
-import { useConversationParams } from '@/shared/hooks/use-conversation-params'
+import { pinMessage, setPinnedMessageState, useIsPinned } from '@/new/message'
+import { useIsMineReaction } from '@/shared/hooks'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 function OverlayMessage({ onClose, message, conversation, account }: OverlayMessageProps) {
   const { setMessageAction } = useMessageAction()
@@ -21,14 +20,9 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
   const { mutateAsync: mutateReactToMessage } = useReactToMessage()
   const { mutateAsync: mutateUnreactToMessage } = useUnreactToMessage()
   const { mutate: mutateDelete } = useDeleteMessage()
-  const { downloadFile } = useDownloadFile()
-  const { type } = useConversationParams()
+  const { base } = useCurrentState()
 
-  const { data: isPinned } = useMessagePinStatus(
-    account?.address || '',
-    conversation?.conversationId || '',
-    message?.id || ''
-  )
+  const { isPinned } = useIsPinned(message.id)
   const queryClient = useQueryClient()
   const isMine = useIsMineReaction()
 
@@ -90,11 +84,7 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
       onDelete: () => {
         if (!message?.id) return
         if (!account || !conversation) return
-        mutateDelete({
-          account,
-          conversation,
-          message
-        })
+        mutateDelete(message)
         handleClose()
       },
 
@@ -109,9 +99,9 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
       onSave: () => {
         if ((message.type !== 'file' && message.type !== 'voice') || !message.fileId) return
         // const mimeType = message.mimeType || 'application/octet-stream'
-        // downloadFile(message.id, message.fileId, message.fileName || 'file', mimeType, true)
         container.eventBus.emit('file.download', {
-          messageId: message.id
+          message: message,
+          saveByWeb: !!window.fiaiSDK
         })
 
         handleClose()
@@ -121,20 +111,12 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
         if (!account || !conversation || !message.id) return
         try {
           if (isPinned) {
-            await container.messagePinService.unpinMessage(
-              account.address,
-              conversation.conversationId,
-              message.id,
-              type
-            )
+            setPinnedMessageState(base, message.id, false)
+            pinMessage(false, message.id, base)
             // toast.success('Đã bỏ ghim tin nhắn')
           } else {
-            await container.messagePinService.pinMessage(
-              account.address,
-              conversation.conversationId,
-              message,
-              type
-            )
+            setPinnedMessageState(base, message.id, true)
+            pinMessage(true, message.id, base)
             // toast.success('Đã ghim tin nhắn')
           }
           await Promise.all([
@@ -168,7 +150,6 @@ function OverlayMessage({ onClose, message, conversation, account }: OverlayMess
       setMessageAction,
       copyMessage,
       handleClose,
-      downloadFile,
       queryClient,
       isMine
     ]

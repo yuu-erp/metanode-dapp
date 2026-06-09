@@ -15,7 +15,7 @@ export async function createPathFromBlob(
 
   const buffer = Array.from(new Uint8Array(arrayBuffer))
 
-  if (window?.finSdk && isSave) {
+  if (window?.fiaiSDK && isSave) {
     return downloadFile({ name, ext, buffer })
   }
 

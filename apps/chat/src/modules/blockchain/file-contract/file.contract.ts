@@ -37,7 +37,7 @@ export class FileContract extends MtnContract {
           abiData: fileAbis.uploadChunks,
           inputData,
           feeType: 'sc',
-          gas: '3000000000'
+          gas: '3' + '0'.repeat(9)
         }),
       'low'
     )
@@ -54,7 +54,7 @@ export class FileContract extends MtnContract {
     })
   }
 
-  getFilesInfo(payload: TransactionPayload<GetFilesInfoParams>): Promise<any[]> {
+  getFilesInfo(payload: TransactionPayload<GetFilesInfoParams>): Promise<any> {
     const { from, inputData } = payload
     return this.sendTransaction({
       from,

@@ -377,6 +377,43 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "fullName",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "group",
+        "type": "address"
+      }
+    ],
+    "name": "ComposingStatusChangedGroup",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "executor",
         "type": "address"
       },
@@ -1284,9 +1321,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bytes32[]",
-        "name": "messageIds",
-        "type": "bytes32[]"
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
       },
       {
         "indexed": true,
@@ -1299,6 +1336,12 @@
         "internalType": "address",
         "name": "group",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "isPinned",
+        "type": "bool"
       }
     ],
     "name": "PinnedMessagesUpdated",
@@ -2517,6 +2560,32 @@
   },
   {
     "inputs": [],
+    "name": "getLatestMessageId",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getListPinnedMessagesGroup",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getMemberListGroup",
     "outputs": [
       {
@@ -2588,6 +2657,11 @@
             "type": "address[]"
           },
           {
+            "internalType": "string[]",
+            "name": "readByAlias",
+            "type": "string[]"
+          },
+          {
             "internalType": "bool",
             "name": "isEdited",
             "type": "bool"
@@ -2595,6 +2669,11 @@
           {
             "internalType": "bool",
             "name": "isDecryptable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPinned",
             "type": "bool"
           }
         ],
@@ -2633,13 +2712,98 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getPinnedMessage",
-    "outputs": [
+    "inputs": [
       {
         "internalType": "bytes32",
-        "name": "",
+        "name": "pinnedMessageId",
         "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "beforeCount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "afterCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPinnedMessageGroup",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "messageId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "author",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "finalContent",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "reactor",
+                "type": "address"
+              },
+              {
+                "internalType": "string",
+                "name": "reaction",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct GroupChatV3.Reaction[]",
+            "name": "reactions",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "address[]",
+            "name": "readBy",
+            "type": "address[]"
+          },
+          {
+            "internalType": "string[]",
+            "name": "readByAlias",
+            "type": "string[]"
+          },
+          {
+            "internalType": "bool",
+            "name": "isEdited",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDecryptable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPinned",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct GroupChatV3.ProcessedGroupMessage[]",
+        "name": "",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -2710,6 +2874,11 @@
             "type": "address[]"
           },
           {
+            "internalType": "string[]",
+            "name": "readByAlias",
+            "type": "string[]"
+          },
+          {
             "internalType": "bool",
             "name": "isEdited",
             "type": "bool"
@@ -2717,6 +2886,11 @@
           {
             "internalType": "bool",
             "name": "isDecryptable",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPinned",
             "type": "bool"
           }
         ],
@@ -2926,19 +3100,6 @@
     "name": "handleRaiseHand",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "hasPinnedMessage",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -3219,6 +3380,25 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isMessagePinned",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -3424,6 +3604,54 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "name": "messageLocations",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "storeContract",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "indexInStore",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isValid",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "messagePinner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       },
       {
         "internalType": "address",
@@ -3516,8 +3744,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "pinnedMessageId",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "pinnedMessageIds",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -3791,6 +4025,24 @@
       }
     ],
     "name": "sendMessageGroup",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "status",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "content",
+        "type": "string"
+      }
+    ],
+    "name": "setComposingStatusGroup",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

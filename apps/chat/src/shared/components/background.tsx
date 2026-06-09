@@ -3,17 +3,17 @@ import { images } from '@/assets/images'
 import { usePlatform } from '@/hooks/core/use-platform'
 import { useLocation } from '@tanstack/react-router'
 import * as React from 'react'
+import { cn } from '../lib'
 
 function Background() {
   const { pathname } = useLocation()
-  if (pathname === '/call') return null
 
-  const { isNotPc } = usePlatform()
+  const { isNotWeb } = usePlatform()
 
   return (
-    <div className="fixed inset-0 -z-[1] bg-black">
+    <div className={cn('fixed inset-0 -z-[1] bg-black', pathname === '/call' && 'hidden')}>
       <img
-        src={isNotPc ? images.backgroundMobile : images.backgroundDesktop}
+        src={isNotWeb ? images.backgroundMobile : images.backgroundDesktop}
         alt="Background Dapp Chat - Metanode"
         className="w-full h-full object-cover "
       />

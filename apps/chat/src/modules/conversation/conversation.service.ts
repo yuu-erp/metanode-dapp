@@ -89,14 +89,8 @@ export class ConversationService {
 
     const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, publicKey)
 
-    console.log(
-      '[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- sharedKeyWithAdmin',
-      sharedKeyWithAdmin
-    )
     let groupKey = ''
     groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
-
-    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupKey', groupKey)
 
     return {
       admin,
@@ -478,7 +472,7 @@ export class ConversationService {
 
   async handleCreateECDHPassword(address: string, publicKey: string) {
     let pass: any
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       pass = await sendCommand('createECDHPassword', {
         address: address,
         publicKey: publicKey
@@ -496,15 +490,19 @@ export class ConversationService {
   async createGroup(
     account: Account,
     payload: PayloadCreateGroup
-  ): Promise<EventMap['GroupCreated'] & { groupKey: string }> {
+  ): Promise<EventMap['GroupCreatedByUser'] & { groupKey: string }> {
     const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
     const groupKey = generateSecureId()
-
+    console.log('[createGroup] 1')
     const sharedSecrect = await this.handleCreateECDHPassword(account.address, account.publicKey)
+    console.log('[createGroup] 2', { sharedSecrect })
 
     const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
+    console.log('[createGroup] 3', { encryptedInitialGroupKey })
+
     const promise = new Promise<any>((resolve) => {
-      const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
+      const off = this.eventLogContainer.eventLog.on('GroupCreatedByUser', (event) => {
+        console.log('[GroupCreated] e', event)
         off()
         resolve({
           groupKey,
@@ -668,5 +666,35 @@ export class ConversationService {
 
     await this.repository.upsert(updatedConversation)
     return updatedConversation
+  }
+
+  async getConversationKey({ id, type }: BaseConversation, account: Account) {
+    switch (type) {
+      case 'p2p': {
+        return this.userContract.publicKey({
+          from: account.hiddenAddress,
+          to: id
+        })
+      }
+      case 'anonymous_group':
+      case 'group': {
+        const base = { from: account.hiddenAddress, to: id }
+        const adminPublicKey = await this.groupContract.userToPublicKeyAdmin({
+          ...base,
+          inputData: { '': account.address }
+        })
+        const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
+          ...base
+        })
+        const sharedKeyWithAdmin = await this.handleCreateECDHPassword(
+          account.address,
+          adminPublicKey
+        )
+        return (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
+      }
+
+      default:
+        throw new Error(`[getConversationKey] Invalid type: ${type}`)
+    }
   }
 }

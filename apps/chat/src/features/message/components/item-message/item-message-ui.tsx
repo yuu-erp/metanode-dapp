@@ -3,19 +3,17 @@ import type { Message } from '@/modules/message'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
 import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { cn } from '@/shared/lib'
-import { motion } from 'framer-motion'
+import { PinIcon } from 'lucide-react'
 import * as React from 'react'
 import {
   ForwardMessage,
   ItemMessageView,
-  MessageStatus,
   ReactionMessage,
   ReplyMessage,
   type MessageItemProps
 } from '.'
 import { GroupMemberAvatar } from './group/group-member-avatar'
 import { GroupMemberName } from './group/group-member-name'
-import { PinIcon } from 'lucide-react'
 
 export interface ItemMessageUIProps extends MessageItemProps<Message> {
   handlers: any
@@ -42,8 +40,9 @@ function ItemMessageUI({
 }: ItemMessageUIProps) {
   const { type } = useConversationParams()
   const isInGroup = !isMine && (type === 'group' || type === 'anonymous_group')
+  if (!isMine && message.type === 'call_status') return null
   return (
-    <motion.div
+    <div
       message-id={message.id}
       layoutId={layoutId}
       className={`flex gap-2 mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}
@@ -89,11 +88,11 @@ function ItemMessageUI({
             {isPinned && <PinIcon className="size-3" />}
             {message.isEdited && <span>edited</span>}
             <span>{formatMessageTime(message.timestamp)}</span>
-            {isMine && <MessageStatus status={message.status} />}
+            {/* {isMine && <MessageStatus status={message.status} />} */}
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

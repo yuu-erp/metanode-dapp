@@ -1,22 +1,23 @@
 'use client'
 
 import { STICKERS } from '@/constants/stickers'
+import { useSendSticker } from '@/new/message/send-message-v4'
+import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
+import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
+import { modalActions, useModalStore } from '@/stores/modal.store'
 import { Archive } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
-import { useIsMobile } from '@/shared/hooks/use-mobile'
-import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
 
-interface StickerDrawerProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSendSticker: (stickerId: string) => void
-}
+interface StickerDrawerProps {}
 
-export function StickerDrawer({ open, onOpenChange, onSendSticker }: StickerDrawerProps) {
+export function StickerDrawer({}: StickerDrawerProps) {
+  const open = useModalStore((s) => s.open && s.kind === 'sticker')
+
   const [selectedPackId, setSelectedPackId] = React.useState<string>(STICKERS[0]?.id || '')
   const isMobile = useIsMobile()
+  const { sendSticker } = useSendSticker()
 
   const selectedPack = React.useMemo(
     () => STICKERS.find((s) => s.id === selectedPackId),
@@ -24,8 +25,12 @@ export function StickerDrawer({ open, onOpenChange, onSendSticker }: StickerDraw
   )
 
   const handleSendSticker = (stickerId: string) => {
-    onSendSticker(stickerId)
-    onOpenChange(false)
+    sendSticker(stickerId)
+    modalActions.close()
+  }
+
+  function onClose(v: boolean) {
+    if (!v) modalActions.close()
   }
 
   const renderContent = (
@@ -100,7 +105,7 @@ export function StickerDrawer({ open, onOpenChange, onSendSticker }: StickerDraw
 
   if (isMobile) {
     return (
-      <Drawer.Root open={open} onOpenChange={onOpenChange}>
+      <Drawer.Root open={open} onOpenChange={onClose}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50" />
           <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 outline-none flex flex-col">
@@ -112,7 +117,7 @@ export function StickerDrawer({ open, onOpenChange, onSendSticker }: StickerDraw
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none text-white">
         {renderContent}
       </DialogContent>

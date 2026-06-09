@@ -43,7 +43,7 @@ function ListMessageView({
       </div>
     )
   }
-
+  console.log('messages', messages)
   return (
     <React.Fragment>
       {/* Danh sách tin nhắn - hiển thị từ cũ → mới (do flex-col-reverse) */}

@@ -20,7 +20,7 @@ export function useGoToMeetingView() {
       const query = new URLSearchParams(input as any).toString()
       console.log('[DEBUG] useGoToMeetingView 1', { query, input, id, type })
       useStatusStore.setState({ id, type })
-      if (window?.finSdk) {
+      if (window?.fiaiSDK) {
         // navigate({ to: '/meeting', search: input })
         //@ts-ignore
         // const port = input?.new ? '5174' : '5173'
@@ -50,7 +50,7 @@ export function useGoToMeetingView() {
       caller: account.address,
       callee: conversation.conversationId,
       isCaller: true,
-      isMeet: true,
+      isMeet: type === 'p2p' ? false : true,
       conversationType: conversation.conversationType
     })
   }

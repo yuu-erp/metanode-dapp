@@ -57,7 +57,7 @@ function RouteComponent() {
   }, [activeWallet])
 
   const onCreateWallet = () => {
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       onOpen()
       setStep(1)
     } else {
@@ -66,7 +66,7 @@ function RouteComponent() {
   }
 
   const onImportWallet = () => {
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       onOpen()
       setStep(0)
     } else {

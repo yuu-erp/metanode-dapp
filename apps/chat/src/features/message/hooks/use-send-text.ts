@@ -1,14 +1,14 @@
 'use client'
+import { useSendMessageV2 } from '@/hooks/mesage/use-send-message-v2'
 import { createSendPayload, type MessageAction } from '@/modules/message'
 import * as React from 'react'
-import { useSendMessage, type SendMessageVariables } from '.'
 
 export function useSendText() {
-  const { mutate, ...rest } = useSendMessage()
+  const { mutate, ...rest } = useSendMessageV2()
 
   const sendText = React.useCallback(
     (
-      params: Omit<SendMessageVariables, 'payload'> & {
+      params: Omit<any, 'payload'> & {
         content: string
         messageAction?: MessageAction
       }
@@ -19,8 +19,6 @@ export function useSendText() {
       )
       console.log('[useSendText]', { payload, params })
       mutate({
-        account: params.account,
-        conversation: params.conversation,
         payload
       })
     },

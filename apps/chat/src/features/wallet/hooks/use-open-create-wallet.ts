@@ -7,6 +7,7 @@ export function useOpenCreateWallet() {
   return useMutation({
     mutationFn: async () => {
       // Open create wallet
+
       const walletService = container.walletService
       return await walletService.openCreateWallet()
     },

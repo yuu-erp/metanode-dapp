@@ -1,35 +1,26 @@
 'use client'
 
-import type { Account } from '@/modules/account'
-import type { Conversation } from '@/modules/conversation'
-import MessagePreview from '@/shared/components/message-render/message-preview'
+import { useCurrentState } from '@/hooks/use-current-state'
+import {
+  pinMessage,
+  setPinnedMessageState,
+  useCurrentMessageById,
+  usePinnedMessages
+} from '@/new/message'
+import { MessagePreview } from '@/shared/components/message-render'
 import { useI18N } from '@/shared/hooks'
 import { X } from 'lucide-react'
 import { Drawer } from 'vaul'
-import { usePinnedMessages } from '../hooks'
-import { useConversationParams } from '@/shared/hooks/use-conversation-params'
-import { container } from '@/container'
-import { queryClient } from '@/shared/lib/react-query'
 
 interface PinnedMessagesDrawerProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  account?: Account
-  conversation?: Conversation
 }
 
-export function PinnedMessagesDrawer({
-  open,
-  onOpenChange,
-  account,
-  conversation
-}: PinnedMessagesDrawerProps) {
+export function PinnedMessagesDrawer({ open, onOpenChange }: PinnedMessagesDrawerProps) {
   const { t } = useI18N()
-  const { data: pinnedMessages = [] } = usePinnedMessages(
-    account?.address || '',
-    conversation?.conversationId || ''
-  )
-  const { id } = useConversationParams()
+  const { base } = useCurrentState()
+  const { data = [] } = usePinnedMessages(base)
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
@@ -43,12 +34,9 @@ export function PinnedMessagesDrawer({
               <div className="flex gap-2 items-center">
                 <button
                   onClick={async () => {
-                    await container.messagePinService.unpinAll(account?.address || '', id)
-                    queryClient.invalidateQueries({
-                      queryKey: ['pinned-messages', account?.address || '', id]
-                    })
-                    queryClient.invalidateQueries({
-                      queryKey: ['message-pin-status', account?.address || '']
+                    data.forEach((i) => {
+                      setPinnedMessageState(base, i, false)
+                      pinMessage(false, i, base)
                     })
                   }}
                   className="text-sm text-gray-500"
@@ -67,25 +55,14 @@ export function PinnedMessagesDrawer({
 
             {/* List */}
             <div className="flex-1 overflow-y-auto px-4 py-2">
-              {pinnedMessages.length === 0 ? (
+              {data.length === 0 ? (
                 <div className="flex items-center justify-center h-full text-gray-500 text-sm">
                   {t('noPinnedMessages')}
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">
-                  {pinnedMessages.map((item) => (
-                    <div
-                      key={item.messageId}
-                      className="p-3 bg-gray-50 rounded-lg flex flex-col gap-1 hover:bg-gray-100 transition-colors cursor-pointer"
-                    >
-                      <div className="text-xs text-gray-400">
-                        {new Date(item.pinnedAt).toLocaleDateString()}
-                      </div>
-                      <MessagePreview
-                        message={item.message}
-                        className="text-sm text-gray-800 line-clamp-3"
-                      />
-                    </div>
+                  {data.map((item) => (
+                    <PinItem id={item} />
                   ))}
                 </div>
               )}
@@ -100,5 +77,18 @@ export function PinnedMessagesDrawer({
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
+  )
+}
+
+const PinItem = ({ id }: { id: string }) => {
+  const { data } = useCurrentMessageById(id)
+  if (!data) return null
+  return (
+    <div className="p-3 bg-gray-50 rounded-lg flex flex-col gap-1 hover:bg-gray-100 transition-colors cursor-pointer">
+      {/* <div className="text-xs text-gray-400">
+  {new Date(item.pinnedAt).toLocaleDateString()}
+</div> */}
+      <MessagePreview message={data} className="text-sm text-gray-800 line-clamp-3" />
+    </div>
   )
 }

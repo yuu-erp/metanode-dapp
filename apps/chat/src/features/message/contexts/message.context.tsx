@@ -31,6 +31,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     // Helper decrypt an toàn
     const safeDecrypt = async (payload: any): Promise<Message | null> => {
       try {
+        console.log('[safeDecrypt] 1', { account, payload })
         return await messageService.decryptMessageForP2p(account, payload)
       } catch (err) {
         console.error('[MessageProvider] Decrypt failed:', err)
@@ -186,7 +187,7 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       'message.delete': (e: AppEvents['message.delete']) => {
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.conversationId),
-          (old) => applyMessageDelete(old, { messageId: e.messageId })
+          (old) => applyMessageDelete(old, { messageId: e.messageId, clientId: e.clientId })
         )
       },
 
@@ -256,6 +257,11 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.conversationId),
           (old) => {
+            console.log('[MESSAGE_QUERY_KEY.MESSAGES]', {
+              old,
+              msg: e.message,
+              e
+            })
             return insertMessage(old, e.message)
           }
         )

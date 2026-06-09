@@ -45,14 +45,14 @@ export function useMessageComposer({
     const displayTrimmed = message.trim()
     const outgoing = formatOutgoingText(displayTrimmed)
 
-    // ✏️ EDIT MESSAGE (TEXT ONLY)
-    if (isEdit && messageAction?.message) {
-      onEditMessage(messageAction.message, outgoing)
+    // // ✏️ EDIT MESSAGE (TEXT ONLY)
+    // if (isEdit && messageAction?.message) {
+    //   onEditMessage(messageAction.message, outgoing)
 
-      setMessage('')
-      setMessageAction(null)
-      return
-    }
+    //   setMessage('')
+    //   setMessageAction(null)
+    //   return
+    // }
 
     // 📤 SEND NEW MESSAGE
     onSendText(outgoing, messageAction)
@@ -84,8 +84,8 @@ export function useMessageComposer({
 
   React.useEffect(() => {
     if (!messageAction || messageAction.type !== 'EDIT') return
-    if (messageAction.message.type !== 'text') return
-    setMessage(messageAction.message.content)
+    // if (messageAction.message.type !== 'text') return
+    // setMessage(messageAction.message.content)
   }, [messageAction])
 
   return {

@@ -14,6 +14,15 @@ export interface EventLogState {}
 
 const EventLogContext = createContext<EventLogState | undefined>(undefined)
 
+const formatObj = (obj: object) => {
+  const newObj: any = {}
+  for (const key in obj) {
+    newObj[key] = formatAddress(obj[key])
+  }
+
+  return newObj
+}
+
 export function EventLogProvider({ children }: React.PropsWithChildren) {
   const { data: account } = useCurrentAccount()
 
@@ -32,21 +41,22 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       formatAddress(meetingAddress),
       formatAddress(factoryAddress)
     ]
+    console.log('array', array)
     eventLog.registerEvent(formatAddress(account.hiddenAddress), array)
 
     const offPartnerMessageEdited = eventLog.on('PartnerMessageEdited', (data) => {
       if (data.sender === account.contractAddress) return
-      eventBus.emit('message.partneredited', data)
+      // eventBus.emit('message.partneredited', data)
     })
 
     const offPartnerMessageDeleted = eventLog.on('PartnerMessageDeleted', (data) => {
       if (data.sender === account.contractAddress) return
-      eventBus.emit('message.partnerdeleted', data)
+      eventBus.emit('message.partnerdeleted', formatObj(data))
     })
 
     const offDataChannel = eventLog.on('DataChannel', (data) => {
       if (data.sender === account.contractAddress) return
-      eventBus.emit('webrtc.datachannel.received', data)
+      eventBus.emit('webrtc.datachannel.received', formatObj(data))
     })
 
     const offCallReceived = eventLog.on('CallReceived', async (data) => {
@@ -67,6 +77,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offMessageSent = eventLog.on('MessageSent', async (data) => {
+      console.log('[offMessageSent] 1', { data })
       const message = await container.messageService.decryptMessageForP2p(account, {
         encryptedContent: data.encryptedContent,
         sender: data.sender,
@@ -84,20 +95,20 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     })
 
     const offMessageReceived = eventLog.on('MessageReceived', async (data) => {
-      if (formatAddress(account.contractAddress) === formatAddress(data.sender)) return
-
+      console.log('[MessageReceived] data', data)
+      console.log('[offMessageReceived]', { data })
       eventBus.emit('noti:add', { type: 'message' })
       const message = await container.messageService.decryptMessageForP2p(account, {
         encryptedContent: data.encryptedContent,
-        sender: data.sender,
-        messageId: data.messageId,
-        recipient: data.recipient,
+        sender: formatAddress(data.sender),
+        messageId: formatAddress(data.messageId),
+        recipient: formatAddress(data.recipient),
         isMine: false
       })
       const user = await getUser(account.address, data.sender)
       pushNoti(user?.name ?? 'Chat P2P', message)
       eventBus.emit('message.add', {
-        conversationId: data.sender,
+        conversationId: formatAddress(data.sender),
         conversationType: 'p2p',
         message: { ...message, status: 'delivered' },
         isMine: false
@@ -111,15 +122,15 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
       const message = await container.messageService.decryptMessageFromGroup(account, {
         encryptedContent: data.encryptedContent,
-        groupAddress: data.groupAddress,
-        messageId: data.messageId,
+        groupAddress: formatAddress(data.groupAddress),
+        messageId: formatAddress(data.messageId),
         type: 'group',
         sender: formatAddress(data.sender),
         isMine
       })
 
       const payload: any = {
-        conversationId: data.groupAddress,
+        conversationId: formatAddress(data.groupAddress),
         conversationType: 'group',
         message: { ...message, status: 'delivered' },
         isMine
@@ -144,16 +155,16 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
       const message = await container.messageService.decryptMessageFromGroup(account, {
         encryptedContent: data.content,
-        groupAddress: data.group,
-        messageId: data.messageId,
+        groupAddress: formatAddress(data.group),
+        messageId: formatAddress(data.messageId),
         type: 'anonymous_group',
         isMine: myAlias === data.sender,
-        sender: data.sender
+        sender: formatAddress(data.sender)
       })
       const isMine = myAlias === data.sender
 
       const payload = {
-        conversationId: data.group,
+        conversationId: formatAddress(data.group),
         conversationType: 'group',
         message: { ...message, status: 'delivered' },
         isMine
@@ -169,17 +180,17 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     const offMessageEditedGroup = eventLog.on('MessageEditedGroup', (data) => {
       eventBus.emit('message.editGroup', {
-        groupAddress: data.groupAddress,
-        messageId: data.messageId,
-        newContent: data.newContent,
+        groupAddress: formatAddress(data.groupAddress),
+        messageId: formatAddress(data.messageId),
+        newContent: formatAddress(data.newContent),
         type: 'group'
       })
     })
 
     const offMessageEditedAnonymousGroup = eventLog.on('MessageEditedAnonymous', (data) => {
       eventBus.emit('message.editGroup', {
-        groupAddress: data.groupAddress,
-        messageId: data.messageId,
+        groupAddress: formatAddress(data.groupAddress),
+        messageId: formatAddress(data.messageId),
         newContent: data.newEncryptedContent,
         type: 'anonymous_group'
       })
@@ -187,16 +198,16 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     const offMessageDeletedGroup = eventLog.on('MessageDeletedGroup', (data) => {
       eventBus.emit('message.deleteGroup', {
-        groupAddress: data.groupAddress,
-        messageId: data.messageId,
+        groupAddress: formatAddress(data.groupAddress),
+        messageId: formatAddress(data.messageId),
         type: 'group'
       })
     })
 
     const offMessageDeletedAnonymousGroup = eventLog.on('MessageDeletedAnonymous', (data) => {
       eventBus.emit('message.deleteGroup', {
-        groupAddress: data.groupAddress,
-        messageId: data.messageId,
+        groupAddress: formatAddress(data.groupAddress),
+        messageId: formatAddress(data.messageId),
         type: 'anonymous_group'
       })
     })
@@ -204,8 +215,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const offMessageReactedGroup = eventLog.on('MessageReactedGroup', (data) => {
       eventBus.emit('noti:add', { type: 'reaction' })
       eventBus.emit('reaction.upsert', {
-        conversationId: data.groupAddress,
-        messageId: data.messageId,
+        conversationId: formatAddress(data.groupAddress),
+        messageId: formatAddress(data.messageId),
         reactor: data.reactor,
         emoji: data.reaction,
         accountId: account.address,
@@ -217,9 +228,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       if (formatAddress(account.address) === formatAddress(data.reactor)) return
       eventBus.emit('noti:add', { type: 'reaction' })
       eventBus.emit('reaction.upsert', {
-        conversationId: data.group,
-        messageId: data.messageId,
-        reactor: data.reactor,
+        conversationId: formatAddress(data.group),
+        messageId: formatAddress(data.messageId),
+        reactor: formatAddress(data.reactor),
         emoji: data.reaction,
         accountId: account.address,
         isMine: false
@@ -228,14 +239,14 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
     const offGroupJoined = eventLog.on('GroupJoined', (data) => {
       eventBus.emit('group.joined', {
-        contractAddress: data.groupContractAddress,
+        contractAddress: formatAddress(data.groupContractAddress),
         conversationType: 'group'
       })
     })
 
     const offJoinCommunityGroup = eventLog.on('JoinCommunityGroup', (data) => {
       eventBus.emit('group.joined', {
-        contractAddress: data.group,
+        contractAddress: formatAddress(data.group),
         conversationType: 'anonymous_group'
       })
     })
@@ -243,8 +254,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const offPartnerMessageUnReacted = eventLog.on('PartnerMessageUnReacted', (data) => {
       eventBus.emit('reaction.removed', {
         accountId: account.address,
-        conversationId: data.sender,
-        messageId: data.messageId,
+        conversationId: formatAddress(data.sender),
+        messageId: formatAddress(data.messageId),
         reactor: data.reactor
       })
     })
@@ -253,7 +264,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('reaction.removed', {
         accountId: account.address,
         conversationId: formatAddress(data.groupAddress),
-        messageId: data.messageId,
+        messageId: formatAddress(data.messageId),
         reactor: formatAddress(data.reactor)
       })
     })
@@ -262,7 +273,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       eventBus.emit('reaction.removed', {
         accountId: account.address,
         conversationId: formatAddress(data.group),
-        messageId: data.messageId,
+        messageId: formatAddress(data.messageId),
         reactor: formatAddress(data.reactor)
       })
     })
@@ -279,9 +290,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const offMessageReacted = eventLog.on('MessageReacted', (data) => {
       eventBus.emit('noti:add', { type: 'reaction' })
       eventBus.emit('reaction.upsert', {
-        conversationId: data.recipient,
-        messageId: data.messageId,
-        reactor: data.reactor,
+        conversationId: formatAddress(data.recipient),
+        messageId: formatAddress(data.messageId),
+        reactor: formatAddress(data.reactor),
         emoji: data.reaction,
         accountId: account.address,
         isMine: true
@@ -290,9 +301,9 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const offReaction = eventLog.on('PartnerMessageReacted', (data) => {
       eventBus.emit('noti:add', { type: 'reaction' })
       eventBus.emit('reaction.upsert', {
-        conversationId: data.reactor,
-        messageId: data.messageId,
-        reactor: data.reactor,
+        conversationId: formatAddress(data.reactor),
+        messageId: formatAddress(data.messageId),
+        reactor: formatAddress(data.reactor),
         emoji: data.reaction,
         accountId: account.address,
         isMine: false
@@ -302,33 +313,35 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     const offMessageUnReacted = eventLog.on('MessageUnReacted', (data) => {
       eventBus.emit('reaction.removed', {
         accountId: account.address,
-        conversationId: data.recipient,
-        messageId: data.messageId,
+        conversationId: formatAddress(data.recipient),
+        messageId: formatAddress(data.messageId),
         reactor: data.reactor
       })
     })
 
     const offMessageReadByPartner = eventLog.on('MessageReadByPartner', (data) => {
-      eventBus.emit('message.read', {
-        ids: [data.messageId],
+      const payload = {
+        ids: [formatAddress(data.messageId)],
         accountId: account.address,
-        conversationId: data.reader
-      })
+        conversationId: formatAddress(data.reader)
+      }
+
+      eventBus.emit('message.read', payload)
     })
 
     const offMessageRead = eventLog.on('MessageRead', (data) => {
       eventBus.emit('message.read', {
-        ids: [data.messageId],
+        ids: [formatAddress(data.messageId)],
         accountId: account.address,
-        conversationId: data.groupAddress
+        conversationId: formatAddress(data.groupAddress)
       })
     })
 
     const offMessageReadAnonymous = eventLog.on('MessageReadAnonymous', (data) => {
       eventBus.emit('message.read', {
-        ids: [data.messageId],
+        ids: [formatAddress(data.messageId)],
         accountId: account.address,
-        conversationId: data.group
+        conversationId: formatAddress(data.group)
       })
     })
 
@@ -336,11 +349,11 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       if (compareAddress(data.caller, account.address)) return
       eventBus.emit('call.received', {
         address: account.address,
-        callee: data.callee,
-        caller: data.caller,
+        callee: formatAddress(data.callee),
+        caller: formatAddress(data.caller),
         isCaller: false,
         isMeet: true,
-        roomId: data.roomId,
+        roomId: formatAddress(data.roomId),
         conversationType: 'group'
       })
     })
@@ -379,7 +392,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
 
   React.useEffect(() => {
     Promise.race([
-      container.eventLogContainer.registerAbi(),
+      container.eventLogContainer.registerAbi().catch(),
       new Promise((res) => setTimeout(() => res(true), 2000))
     ]).then(() => setLoad(true))
   }, [])
@@ -387,7 +400,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
   return <EventLogContext.Provider value={{}}>{load ? children : null}</EventLogContext.Provider>
 }
 
-export function useEventLog() {
+export function useEventLogContext() {
   const ctx = useContext(EventLogContext)
   if (!ctx) throw new Error('useEventLog must be used within EventLogProvider')
   return ctx

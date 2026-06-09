@@ -50,6 +50,7 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
 
   const onMessageUpsert = React.useCallback(
     (e: AppEvents['message.add']) => {
+      console.log('[onMessageUpsert]', e)
       handleUpdateConversation(e.message)
     },
     [account, handleUpdateConversation]

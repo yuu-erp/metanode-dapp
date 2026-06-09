@@ -1,3 +1,4 @@
+import type { FileItem, FileMeta } from '@/stores/file.store'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -40,7 +41,7 @@ export function formatAddress(address: string): string {
   return address.toLowerCase().replace(/^0x/, '')
 }
 
-export function compareAddress(add1: string, add2: string) {
+export function compareAddress(add1: string = '', add2: string = '') {
   return formatAddress(add1) === formatAddress(add2)
 }
 

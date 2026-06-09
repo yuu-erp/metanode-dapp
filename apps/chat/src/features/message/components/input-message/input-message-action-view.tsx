@@ -24,7 +24,7 @@ function InputMessageActionView({
           <div className="text-base font-medium line-clamp-1 text-blue-400">{title}</div>
 
           <div className="text-xs font-medium text-blue-100 line-clamp-1 break-all">
-            <MessagePreview message={messageAction.message} />
+            {/* <MessagePreview message={messageAction.message} /> */}
           </div>
         </div>
 

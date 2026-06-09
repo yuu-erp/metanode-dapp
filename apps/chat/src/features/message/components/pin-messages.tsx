@@ -1,36 +1,24 @@
 'use client'
-import { useI18N } from '@/shared/hooks'
-import { PinIcon } from 'lucide-react'
-import type { Account } from '@/modules/account'
+import { useCurrentState } from '@/hooks/use-current-state'
 import type { Conversation } from '@/modules/conversation'
-import * as React from 'react'
-import { usePinnedMessages } from '../hooks'
-import MessagePreview from '@/shared/components/message-render/message-preview'
-import { PinnedMessagesDrawer } from './pinned-messages-drawer'
+import { useCurrentMessageById, usePinnedMessages as usePinned } from '@/new/message'
+import { useI18N } from '@/shared/hooks'
 import { useUiStore } from '@/stores/ui.store'
+import { PinIcon } from 'lucide-react'
+import * as React from 'react'
+import { PinnedMessagesDrawer } from './pinned-messages-drawer'
 
-interface PinMessagesProps {
-  account?: Account
-  conversation?: Conversation
-}
+interface PinMessagesProps {}
 
-function PinMessages({ account, conversation }: PinMessagesProps) {
+function PinMessages({}: PinMessagesProps) {
   const { t } = useI18N()
   const [openDrawer, setOpenDrawer] = React.useState(false)
   const searchOpen = useUiStore((s) => s.searchOpen)
+  const { base } = useCurrentState()
+  const { data: pinnedMessage = [] } = usePinned(base)
+  const { data: msgData } = useCurrentMessageById(pinnedMessage[pinnedMessage?.length - 1] ?? '')
 
-  const { data: pinnedMessages } = usePinnedMessages(
-    account?.address || '',
-    conversation?.conversationId || ''
-  )
-
-  const pinnedMessage = React.useMemo(() => {
-    if (!pinnedMessages || pinnedMessages.length === 0) return null
-    return pinnedMessages[0].message
-  }, [pinnedMessages])
-
-  if (!pinnedMessage || searchOpen) return null
-  console.log('pinnedMessage: ', pinnedMessage)
+  if (!pinnedMessage?.length || searchOpen) return null
   return (
     <>
       <div
@@ -45,19 +33,14 @@ function PinMessages({ account, conversation }: PinMessagesProps) {
               {t('pinnedMessage')}
             </div>
             <div className="flex-1 text-sm font-medium break-all text-black/60 line-clamp-1 break-all">
-              {/* {pinnedMessage.type === 'text' ? pinnedMessage.content : `[${pinnedMessage.type}]`} */}
-              <MessagePreview message={pinnedMessage} />
+              {msgData?.type === 'text' ? msgData?.content : `[${msgData?.type}]`}
+              {/* <MessagePreview message={pinnedMessage} /> */}
             </div>
           </div>
           <PinIcon className="shrink-0 size-5" />
         </div>
       </div>
-      <PinnedMessagesDrawer
-        open={openDrawer}
-        onOpenChange={setOpenDrawer}
-        account={account}
-        conversation={conversation}
-      />
+      <PinnedMessagesDrawer open={openDrawer} onOpenChange={setOpenDrawer} />
     </>
   )
 }

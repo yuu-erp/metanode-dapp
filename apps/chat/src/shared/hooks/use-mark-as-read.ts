@@ -13,11 +13,10 @@ export function useMarkAsRead(messages: Message[], conversation?: Conversation) 
   const { type } = useConversationParams()
   const read = useRef(new Set<string>())
   const queryClient = useQueryClient()
-
   useEffect(() => {
     if (!account || !conversation) return
     const unreadMessages = messages
-      .filter((m) => m.status !== 'read' && !read.current.has(m.id!))
+      .filter((m) => !m?.isMine && m.status !== 'read' && !read.current.has(m.id!))
       .map((i) => i.id)
       .filter((i) => !!i) as string[]
     if (!unreadMessages.length) return

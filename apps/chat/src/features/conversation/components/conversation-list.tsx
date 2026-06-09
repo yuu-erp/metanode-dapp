@@ -26,8 +26,6 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     )
   }, [conversations, searchKeyword])
 
-  console.log('[CONVERSATION LIST] ------ FILTERED CONVERSATIONS', filteredConversations)
-
   const handleClickConversation = React.useCallback(
     (conversation: Conversation) => {
       if (micOpen) {
