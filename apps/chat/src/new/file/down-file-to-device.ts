@@ -1,16 +1,15 @@
-import { fileHandler } from '@/clients'
-import { getCurrentAccount } from '@/shared/hooks'
 import { FILE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
-import { uiActions } from '@/stores/ui.store'
+import { downloadFileV2 } from '../file-v2'
 import { setFilePath } from './file-info'
 
 export async function handleDownloadFile(message: FulleMessage) {
   const fileId = message.fileId
   if (!fileId) throw new Error('[downFileToCache] Invalid fileId')
-  const account = await getCurrentAccount()
-  const { blob, meta } = await fileHandler.downloadFile(fileId, account, {
-    onProgress: (v) => uiActions.setUpFileProgress(message.id, v)
-  })
+  const { blob, meta } = await downloadFileV2(fileId)
+
+  // const { blob, meta } = await fileHandler.downloadFile(fileId, account, {
+  //   onProgress: (v) => uiActions.setUpFileProgress(message.id, v)
+  // })
 
   const path = ((await queryClient.getQueryData(FILE_QUERY_KEY.info(fileId))) as any)?.path
 

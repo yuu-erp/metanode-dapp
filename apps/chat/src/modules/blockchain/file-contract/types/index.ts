@@ -1,5 +1,5 @@
 export interface PushFileInfosParams {
-  infos: {
+  info: {
     owner: string
     hash: string
     contentLen: number
@@ -10,7 +10,8 @@ export interface PushFileInfosParams {
     status: number
     contentDisposition: string
     contentID: string
-  }[]
+    merkleRoot: string
+  }
 }
 
 export interface UploadChunksParams {

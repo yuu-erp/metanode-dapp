@@ -45,7 +45,7 @@ export const useFileStore = create<FileStore>()(
     reset: () => set({ items: [] }),
     addItem: (item) => {
       const input = Array.isArray(item) ? item : [item]
-      set({ items: [...get().items, ...input] })
+      set({ items: input })
     },
     removeItem: (idx) => set({ items: get().items.filter((_, i) => i !== idx) })
   }))

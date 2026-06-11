@@ -64,23 +64,31 @@ async function getMessaeges(
 }
 
 export async function getListMessage(conversation: BaseConversation, options?: PageLimit) {
-  const raw = await getMessaeges(conversation, options)
-  const messages = await fulfilledPromises(
-    raw.map(async (item) => {
-      const fullMessage = await baseMessageToMessage(item, conversation)
+  try {
+    console.log('getListMessage 1')
+    const raw = await getMessaeges(conversation, options)
+    console.log('getListMessage 2', raw)
 
-      setMessageInfo(fullMessage.id, fullMessage)
-      return fullMessage
-    })
-  )
+    const messages = await fulfilledPromises(
+      raw.map(async (item) => {
+        const fullMessage = await baseMessageToMessage(item, conversation)
 
-  return messages.map((item) => item.id)
+        setMessageInfo(fullMessage.id, fullMessage)
+        return fullMessage
+      })
+    )
+
+    return messages.map((item) => item.id)
+  } catch (error) {
+    console.error('list mesage error', error)
+    throw error
+  }
 }
 
 export const createMessgesQuery = (base?: BaseConversation) =>
   infiniteQueryOptions({
     queryKey: MESSAGE_QUERY_KEY.list(base!.id),
-    enabled: !!base,
+    enabled: !!base && !!base.id && !!base.type,
     initialPageParam: 1,
     staleTime: Infinity,
     getNextPageParam: (lastPage: string[], _allPages, lastPageParam) => {
@@ -97,7 +105,6 @@ export const createMessgesQuery = (base?: BaseConversation) =>
 export function useMessaeges() {
   const loadMoreRef = React.useRef<HTMLDivElement>(null)
   const { base } = useCurrentState()
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isError } =
     useInfiniteQuery(createMessgesQuery(base))
 

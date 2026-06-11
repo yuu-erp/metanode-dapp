@@ -1,4 +1,3 @@
-import { fileHandler } from '@/clients'
 import { container } from '@/container'
 import { useMessageAction } from '@/features/message'
 import { useCurrentState } from '@/hooks/use-current-state'
@@ -13,6 +12,7 @@ import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
 import { getAlias } from '../conversation/my-info'
+import { uploadFileV2 } from '../file-v2'
 import { setFileMetadata } from '../file/file-info'
 import { getUserContractAddress } from '../user/user-info'
 import { encryptMessage } from './crypto-message'
@@ -26,6 +26,7 @@ async function sendMessageBC(input: any, base: BaseConversation) {
   const key = await getConversationKey(base)
   const account = await getCurrentAccount()
   const encryptedMessage = await encryptMessage(input, key, base)
+  console.log('send 1')
   switch (base.type) {
     case 'p2p': {
       return container.userContract.sendMessage({
@@ -207,19 +208,36 @@ export function useForwardMessage() {
 
 export function processFile(items: FileItem[]) {
   return async (msg: FulleMessage) => {
-    const account = await getCurrentAccount()
+    try {
+      console.log('thanhduy - processFile 1')
+      const account = await getCurrentAccount()
+      console.log('thanhduy - processFile 2')
 
-    const item = items[0]
-    if (!item) return
+      const item = items[0]
+      console.log('item', item)
+      if (!item) return
+      console.log('thanhduy - processFile 3')
 
-    setFileMetadata(msg.id, item.meta)
-    const fileId = await fileHandler.uploadFile(item, {
-      owner: account.address,
-      hiddenAddress: account.hiddenAddress,
-      clientId: msg.id,
-      onProgress: (v) => uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-    })
-    return { fileId }
+      setFileMetadata(msg.id, item.meta)
+      const file = item.file
+      if (!file) return
+      const fileId = await uploadFileV2(file, (v) =>
+        uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+      )
+
+      // const fileId = await fileHandler.uploadFile(item, {
+      //   owner: account.address,
+      //   hiddenAddress: account.hiddenAddress,
+      //   clientId: msg.id,
+      //   onProgress: (v) => uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+      // })
+      console.log('thanhduy - processFile 4')
+
+      return { fileId }
+    } catch (error) {
+      console.error('upfile error', error)
+      throw error
+    }
   }
 }
 

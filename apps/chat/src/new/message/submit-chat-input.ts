@@ -27,7 +27,9 @@ export function useSubmitChatInput() {
     ...mutation,
     submit: async () => {
       const value = useInputStore.getState().chatValue
-      if (!value) return
+      const fileItems = useFileStore.getState().items
+
+      if (!value && !fileItems.length) return
       resetValue('chatValue')
 
       if (messageAction?.type === 'EDIT') {
@@ -38,8 +40,6 @@ export function useSubmitChatInput() {
           newContent: value
         })
       }
-
-      const fileItems = useFileStore.getState().items
       const type = !fileItems.length ? 'text' : 'file'
       fileActions.reset()
       const { isReply, composer } = getComposer()

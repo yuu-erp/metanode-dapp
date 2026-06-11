@@ -1,9 +1,11 @@
 import { LeaveGroupDialog } from '@/components/leave-group-dialog'
 import { DiscardRecordingModal } from '@/components/modal/discard-recording-modal'
 import { WindowButtons } from '@/components/window-buttons'
+import { container } from '@/container'
 import { EventLogProvider } from '@/contexts'
 import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
+import { useCurrentState } from '@/hooks/use-current-state'
 import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
 import { createRootRoute } from '@tanstack/react-router'
@@ -12,14 +14,35 @@ console.log('APP CHAT V - 1.0.1 =====>')
 
 export const Route = createRootRoute({
   component: () => {
+    const { account } = useCurrentState()
+
     return (
       <>
         {/* <button
-          className="size-20 bg-black fixed right-5 top-5 z-20"
+          className="size-20 bg-black fixed right-5 top-5 z-20 z-50"
           onClick={async () => {
-            const converastion = await getConversationById(id, type)
-            if (!account || !converastion) return
-          
+            console.log('click 1')
+            if (!account) return
+            console.log('click 2')
+
+            const rs = await container.userContract.owner({
+              from: account.address,
+              to: '181abC6610b73d81d5FA06090d8f6560307D7653',
+              inputData: {}
+            })
+
+            console.log({ rs })
+            // await container.userContract.sendDataChannel({
+            //   from: account.address,
+            //   to: account.contractAddress,
+            //   inputData: {
+            //     _recipientContractAddress: '181abC6610b73d81d5FA06090d8f6560307D7653',
+            //     sessionId: 'hihi',
+            //     channelName: 'test'
+            //   }
+            // })
+
+            console.log('click 3')
           }}
         /> */}
         {/* <button

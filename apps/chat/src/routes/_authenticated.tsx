@@ -3,8 +3,10 @@ import { container } from '@/container'
 import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
 import { MessageProvider } from '@/features/message'
-import { useSyncCall } from '@/hooks/sync/use-sync-call'
 import { useMessageEvents } from '@/hooks/mesage/use-message-events'
+import { useSyncCall } from '@/hooks/sync/use-sync-call'
+import { useSyncAccount } from '@/new/me/use-sync-account'
+import { useMarkAsReadv2 } from '@/new/message/mark-as-read'
 import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
@@ -18,7 +20,6 @@ import { statusActions, useStatusStore } from '@app/call'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { useMarkAsReadv2 } from '@/new/message/mark-as-read'
 
 export const Route = createFileRoute('/_authenticated')({
   loader: async () => {
@@ -62,6 +63,7 @@ function RouteComponent() {
   useDisabled()
   useMessageEvents()
   useMarkAsReadv2()
+  // useConversationList()
   const syncCall = useSyncCall()
 
   useEffect(() => {
@@ -71,6 +73,8 @@ function RouteComponent() {
 
     syncCall(id, type, { callStatus: status, duration }).then(() => statusActions.resetCallData())
   }, [])
+
+  useSyncAccount()
 
   return (
     <ConversationsProvider>

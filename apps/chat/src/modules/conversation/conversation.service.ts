@@ -162,120 +162,128 @@ export class ConversationService {
   }
 
   async syncByAccount(account: Account): Promise<void> {
-    const inboxs = await this.userContract.getFullInbox({
-      from: account.hiddenAddress,
-      to: account.contractAddress
-    })
-    const conversations = await fulfilledPromises(
-      inboxs.map(async (item) => {
-        let name = 'savedMessages'
-        let groupInfo: any
-        let conversationKey = ''
-        let isVerifed: boolean | undefined
-        let userProfile = { firstName: '', lastName: '', userName: '', avatar: '' }
-        let lastMessageDecrypted: OnChainMessagePayload | undefined
-        const isGroup =
-          item.conversationType === 'group' || item.conversationType === 'anonymous_group'
-
-        console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- item', item.conversationType)
-        if (isGroup) {
-          if (item.conversationType === 'group') {
-            groupInfo = await this.getGroupInfo(account, item.conversationId)
-          } else {
-            groupInfo = await this.getAnonymousGroupInfo(account.address, item.conversationId)
-          }
-
-          console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupInfo', groupInfo)
-          name = item.name
-          conversationKey = groupInfo.groupKey
-          lastMessageDecrypted = await this.decryptGroupMessage(
-            item.latestMessageContent,
-            groupInfo.groupKey
-          ).catch(() => {
-            return undefined
-          })
-        } else {
-          if (item.conversationId !== account.contractAddress) {
-            name = [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' ')
-          }
-
-          const targetAddress = await this.userContract.owner({
-            from: account.address,
-            to: item.conversationId
-          })
-          const [p2pInfo, auth, ekyc] = await Promise.all([
-            this.getP2PInfo(account.address, item.conversationId),
-            this.verifyContract.authenticatedWallets({
-              from: account.address,
-              inputData: {
-                '': targetAddress
-              }
-            }),
-            this.ekycContract.getUser({
-              from: account.address,
-              inputData: {
-                user: targetAddress
-              }
-            })
-          ])
-
-          isVerifed === auth && ekyc.kycVerified
-          conversationKey = p2pInfo.publicKey
-          userProfile = p2pInfo.userProfile
-
-          const decryptedPublicKey =
-            account.contractAddress === item.sender ? account.publicKey : p2pInfo.publicKey
-          lastMessageDecrypted = (await this.walletService
-            .decryptMessage(decryptedPublicKey, account.address, item.latestMessageContent)
-            .catch(() => {
-              return undefined
-            })) as any
-        }
-
-        if (lastMessageDecrypted && lastMessageDecrypted.type === 'file') {
-          const fileDB = await this.fileCacheService.getFile(lastMessageDecrypted.fileId)
-          if (fileDB) {
-            lastMessageDecrypted.filePath = URL.createObjectURL(fileDB.blob)
-          }
-        }
-
-        // Ideally, we should fetch the FULL message object if we want PersistedMessage.
-        // But for list view, maybe we construct a partial one or the mapper handles it.
-        // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
-        const rs = mapperToConversation({
-          ...item,
-          accountId: account.address,
-          firstName: userProfile.firstName,
-          lastName: userProfile.lastName,
-          userName: userProfile.userName,
-          name,
-          avatar: userProfile.avatar,
-          conversationKey: conversationKey,
-          conversationType:
-            item.conversationId === account.contractAddress
-              ? 'private'
-              : (item.conversationType as any),
-          // Construct a fake object that mapperToMessage can parse
-          lastMessage: !lastMessageDecrypted
-            ? undefined
-            : mapperToMessage({
-                accountId: account.address,
-                account,
-                conversationId: item.conversationId,
-                timestamp: item.latestMessageTimestamp,
-                ...lastMessageDecrypted
-              }),
-          admin: groupInfo?.admin,
-          isVerifed
-        })
-        return rs
+    try {
+      console.log('syncByAccount asdfasdf 1')
+      const inboxs = await this.userContract.getFullInbox({
+        from: account.hiddenAddress,
+        to: account.contractAddress
       })
-    )
+      console.log('syncByAccount asdfasdf 2', inboxs)
 
-    console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- conversations', conversations)
-    const finalConversations = conversations.filter(Boolean) as Conversation[]
+      const conversations = await fulfilledPromises(
+        inboxs.map(async (item) => {
+          let name = 'savedMessages'
+          let groupInfo: any
+          let conversationKey = ''
+          let isVerifed: boolean | undefined
+          let userProfile = { firstName: '', lastName: '', userName: '', avatar: '' }
+          let lastMessageDecrypted: OnChainMessagePayload | undefined
+          const isGroup =
+            item.conversationType === 'group' || item.conversationType === 'anonymous_group'
 
-    await this.repository.bulkUpsert(finalConversations)
+          console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- item', item.conversationType)
+          if (isGroup) {
+            if (item.conversationType === 'group') {
+              groupInfo = await this.getGroupInfo(account, item.conversationId)
+            } else {
+              groupInfo = await this.getAnonymousGroupInfo(account.address, item.conversationId)
+            }
+
+            console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupInfo', groupInfo)
+            name = item.name
+            conversationKey = groupInfo.groupKey
+            lastMessageDecrypted = await this.decryptGroupMessage(
+              item.latestMessageContent,
+              groupInfo.groupKey
+            ).catch(() => {
+              return undefined
+            })
+          } else {
+            if (item.conversationId !== account.contractAddress) {
+              name = [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' ')
+            }
+
+            const targetAddress = await this.userContract.owner({
+              from: account.address,
+              to: item.conversationId
+            })
+            const [p2pInfo, auth, ekyc] = await Promise.all([
+              this.getP2PInfo(account.address, item.conversationId),
+              this.verifyContract.authenticatedWallets({
+                from: account.address,
+                inputData: {
+                  '': targetAddress
+                }
+              }),
+              this.ekycContract.getUser({
+                from: account.address,
+                inputData: {
+                  user: targetAddress
+                }
+              })
+            ])
+
+            isVerifed === auth && ekyc.kycVerified
+            conversationKey = p2pInfo.publicKey
+            userProfile = p2pInfo.userProfile
+
+            const decryptedPublicKey =
+              account.contractAddress === item.sender ? account.publicKey : p2pInfo.publicKey
+            lastMessageDecrypted = (await this.walletService
+              .decryptMessage(decryptedPublicKey, account.address, item.latestMessageContent)
+              .catch(() => {
+                return undefined
+              })) as any
+          }
+
+          if (lastMessageDecrypted && lastMessageDecrypted.type === 'file') {
+            const fileDB = await this.fileCacheService.getFile(lastMessageDecrypted.fileId)
+            if (fileDB) {
+              lastMessageDecrypted.filePath = URL.createObjectURL(fileDB.blob)
+            }
+          }
+
+          // Ideally, we should fetch the FULL message object if we want PersistedMessage.
+          // But for list view, maybe we construct a partial one or the mapper handles it.
+          // Let's assume we pass the decrypted content into the mapper via a specific field or constructed object.
+          const rs = mapperToConversation({
+            ...item,
+            accountId: account.address,
+            firstName: userProfile.firstName,
+            lastName: userProfile.lastName,
+            userName: userProfile.userName,
+            name,
+            avatar: userProfile.avatar,
+            conversationKey: conversationKey,
+            conversationType:
+              item.conversationId === account.contractAddress
+                ? 'private'
+                : (item.conversationType as any),
+            // Construct a fake object that mapperToMessage can parse
+            lastMessage: !lastMessageDecrypted
+              ? undefined
+              : mapperToMessage({
+                  accountId: account.address,
+                  account,
+                  conversationId: item.conversationId,
+                  timestamp: item.latestMessageTimestamp,
+                  ...lastMessageDecrypted
+                }),
+            admin: groupInfo?.admin,
+            isVerifed
+          })
+          return rs
+        })
+      )
+
+      console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- conversations', conversations)
+      const finalConversations = conversations.filter(Boolean) as Conversation[]
+
+      await this.repository.bulkUpsert(finalConversations)
+    } catch (error) {
+      console.error('full ib error', error)
+      throw error
+    }
   }
 
   // ------------------------------------------------------------------

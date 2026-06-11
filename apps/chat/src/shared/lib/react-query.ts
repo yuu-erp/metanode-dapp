@@ -40,7 +40,8 @@ export const CONVERSATION_QUERY_KEY = {
   GROUP_MEMBERS: (conversationId: string) => ['groupMembers', conversationId] as const,
   PROFILE: (conversationId: string) => ['profile', conversationId] as const,
   key: (conversationId: string) => ['converstaionKey', conversationId] as const,
-  pinned: (conversationId: string) => ['pinnedMessage', conversationId]
+  pinned: (conversationId: string) => ['pinnedMessage', conversationId],
+  list: ['conversationList']
 }
 
 export const MESSAGE_QUERY_KEY = {

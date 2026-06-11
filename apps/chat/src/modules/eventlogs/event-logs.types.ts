@@ -1,4 +1,11 @@
 export type EventMap = {
+  DownloadKeyGenerated: {
+    downloadKey: string
+    fileKey: string
+    user: string
+    amount: string
+  }
+
   ComposingStatusChangedCommunity: {
     status: string
     content: string

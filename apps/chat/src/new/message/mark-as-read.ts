@@ -9,11 +9,9 @@ export function useMarkAsReadv2() {
   const { ids } = useMessaeges()
   const { base, account } = useCurrentState()
   const readSet = useRef(new Set<string>())
-
   useEffect(() => {
     ;(async () => {
       if (!account) return
-
       const unRead: string[] = []
       const set = readSet.current
       await Promise.all(

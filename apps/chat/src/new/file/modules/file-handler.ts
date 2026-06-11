@@ -34,23 +34,22 @@ export class FileHandler {
       const totalChunks = Math.ceil(meta.size / CHUNK_SIZE)
       onProgress?.(10)
       //upload meta
-      await container.fileCotract.pushFileInfos({
+      await container.fileCotract.pushFileInfo({
         from: hiddenAddress,
         inputData: {
-          infos: [
-            {
-              contentDisposition: '',
-              contentID: '',
-              contentLen: meta.size,
-              expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year,
-              ext: meta.mimeType,
-              hash: hash,
-              name: fileName,
-              owner,
-              status: 0,
-              totalChunks: totalChunks
-            }
-          ]
+          info: {
+            contentDisposition: '',
+            contentID: '',
+            contentLen: meta.size,
+            expireTime: Math.floor(Date.now() / 1000) + 31536000, // 1 year,
+            ext: meta.mimeType,
+            hash: hash,
+            name: fileName,
+            owner,
+            status: 0,
+            totalChunks: totalChunks,
+            merkleRoot: '0'.repeat(64)
+          }
         }
       })
       onCancel()

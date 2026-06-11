@@ -16,12 +16,13 @@ export class FileContract extends MtnContract {
     super({ to: CONTRACT_ADDRESSES.file })
   }
 
-  pushFileInfos(payload: TransactionPayload<PushFileInfosParams>): Promise<string[]> {
+  pushFileInfo(payload: TransactionPayload<PushFileInfosParams>): Promise<string[]> {
     const { from, inputData } = payload
+    console.log('fileAbis', { fileAbis, a: fileAbis.pushFileInfo })
     return this.sendTransaction({
       from,
-      functionName: 'pushFileInfos',
-      abiData: fileAbis.pushFileInfos,
+      functionName: 'pushFileInfo',
+      abiData: fileAbis.pushFileInfo,
       inputData,
       feeType: 'sc'
     })

@@ -1,13 +1,7 @@
-import { pushFileInfos } from './pushFileInfos.abi'
-import { uploadChunksAbi } from './uploadChunks.abi'
-import { getFileKeyFromNameAbi } from './getFileKeyFromName.abi'
-import { getFilesInfoAbi } from './getFilesInfo.abi'
-import { downloadFileAbi } from './downloadFile.abi'
+import fileContract from './file-contract.json'
 
-export const fileAbis = {
-  pushFileInfos,
-  uploadChunks: uploadChunksAbi,
-  getFileKeyFromName: getFileKeyFromNameAbi,
-  getFilesInfo: getFilesInfoAbi,
-  downloadFile: downloadFileAbi
-}
+export const fileAbis = Object.fromEntries(
+  fileContract.filter((item) => item.type === 'function').map((item) => [item.name, [item]])
+)
+
+export { fileContract }

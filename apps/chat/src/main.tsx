@@ -10,6 +10,8 @@ import { FinsdkProvider2 } from './components/finsk.context-2.tsx'
 import reportWebVitals from './reportWebVitals.ts'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
+import { contractClient } from './clients/index.ts'
+import { CONTRACT_ADDRESSES } from './config/index.ts'
 
 // Create a new router instance
 const router = createRouter({
@@ -31,6 +33,10 @@ declare module '@tanstack/react-router' {
 
 // Render the app
 const rootElement = document.getElementById('app')
+contractClient.setTos({
+  file: CONTRACT_ADDRESSES.file,
+  factory: CONTRACT_ADDRESSES.factory
+})
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(

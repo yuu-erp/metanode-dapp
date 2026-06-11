@@ -53,6 +53,8 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
     const files = [...(e.target.files ?? [])]
 
     const items: FileItem[] = files.map((file) => fileToFileItem(file))
+    e.target.value = ''
+    if (!items.length) return
     fileActions.addItem(items)
   }
 
@@ -79,7 +81,7 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
           </div>
         </div>
       )}
-      <input ref={inputRef} className="hidden" type="file" onChange={onFileChange} />
+      <input multiple ref={inputRef} className="hidden" type="file" onChange={onFileChange} />
     </>
   )
 })

@@ -14,6 +14,7 @@ import * as React from 'react'
 import { type MessageItemProps } from '.'
 import ItemMessageUI from './item-message-ui'
 import { SystemMessage } from './variants/system-message'
+import { downloadFileV2 } from '@/new/file-v2'
 
 // --- Logic Hook ---
 function useMessageLogic(
@@ -87,11 +88,12 @@ function ItemMessage(
     const fileId = message.fileId
     const messageId = message.id
     if (!fileId || !account) return
-    const { blob, meta } = await fileHandler.downloadFile(fileId, account, {
-      onProgress: (v) => {
-        uiActions.setUpFileProgress(messageId, v)
-      }
-    })
+    const { blob, meta } = await downloadFileV2(fileId)
+    // const { blob, meta } = await fileHandler.downloadFile(fileId, account, {
+    //   onProgress: (v) => {
+    //     uiActions.setUpFileProgress(messageId, v)
+    //   }
+    // })
     const path = URL.createObjectURL(blob)
     messageActions.setMessage(messageId, { filePath: path, mimeType: meta.mimeType })
     if (e.saveByWeb && 'showSaveFilePicker' in window) {
