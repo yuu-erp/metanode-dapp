@@ -3,15 +3,18 @@ import { downloadFileV2 } from '../file-v2'
 import { setFilePath } from './file-info'
 
 export async function handleDownloadFile(message: FulleMessage) {
+  console.log('thanhduy - handleDownloadFile 1')
   const fileId = message.fileId
   if (!fileId) throw new Error('[downFileToCache] Invalid fileId')
   const { blob, meta } = await downloadFileV2(fileId)
+  console.log('thanhduy - handleDownloadFile 2', { blob, meta })
 
   // const { blob, meta } = await fileHandler.downloadFile(fileId, account, {
   //   onProgress: (v) => uiActions.setUpFileProgress(message.id, v)
   // })
 
   const path = ((await queryClient.getQueryData(FILE_QUERY_KEY.info(fileId))) as any)?.path
+  console.log('thanhduy - handleDownloadFile 3', path)
 
   if (!path) {
     const newPath = URL.createObjectURL(blob)

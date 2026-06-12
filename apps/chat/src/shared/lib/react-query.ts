@@ -41,7 +41,8 @@ export const CONVERSATION_QUERY_KEY = {
   PROFILE: (conversationId: string) => ['profile', conversationId] as const,
   key: (conversationId: string) => ['converstaionKey', conversationId] as const,
   pinned: (conversationId: string) => ['pinnedMessage', conversationId],
-  list: ['conversationList']
+  list: ['conversationList'],
+  detail: (conversationId: string) => ['conversationDetail', conversationId]
 }
 
 export const MESSAGE_QUERY_KEY = {

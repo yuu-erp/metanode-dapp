@@ -3,13 +3,15 @@ import { useCurrentState } from '@/hooks/use-current-state'
 import { fileActions, useFileStore } from '@/stores/file.store'
 import { resetValue, useInputStore } from '@/stores/input.store'
 import { useEditMessage } from './edit-message'
-import { processFile, useSendMessage } from './send-message-v4'
+import { processFileV2, useSendMessage } from './send-message-v4'
+import { useHandleFile } from '@/hooks/useHandleFile'
 
 export function useSubmitChatInput() {
   const mutation = useSendMessage()
   const { messageAction, setMessageAction } = useMessageAction()
   const { base } = useCurrentState()
   const edit = useEditMessage()
+  const { handlePushFiles } = useHandleFile()
 
   function getComposer() {
     const isReply = messageAction?.type === 'REPLY'
@@ -26,6 +28,7 @@ export function useSubmitChatInput() {
   return {
     ...mutation,
     submit: async () => {
+      console.log('thanhduy - submit chat input 1')
       const value = useInputStore.getState().chatValue
       const fileItems = useFileStore.getState().items
 
@@ -44,6 +47,8 @@ export function useSubmitChatInput() {
       fileActions.reset()
       const { isReply, composer } = getComposer()
       if (isReply) setMessageAction(null)
+      console.log('thanhduy - submit chat input 2')
+
       await mutation.mutateAsync({
         input: {
           type,
@@ -51,7 +56,7 @@ export function useSubmitChatInput() {
           ...composer
         },
         base,
-        transformInput: processFile(fileItems)
+        transformInput: processFileV2(fileItems, handlePushFiles)
       })
     }
   }

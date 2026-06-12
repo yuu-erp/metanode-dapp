@@ -9,7 +9,7 @@ export interface SelectedFileListProps {}
 
 function FileItemUi({ item, onRemove }: { item: FileItem; onRemove?: () => void }) {
   const { meta } = item
-  const isPreview = item.meta?.mimeType.startsWith('image')
+  const isPreview = item.meta?.mimeType?.startsWith('image')
   const { isNotWeb } = usePlatform()
   const prefixValue = 'image://img.m.pro'
   const prefix = isNotWeb && !meta.path.startsWith(prefixValue) ? prefixValue : ''

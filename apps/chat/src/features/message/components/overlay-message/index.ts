@@ -1,4 +1,3 @@
-export { default as OverlayMessage } from './overlay-message'
 export { default as ReplyAction } from './reply.action'
 export { default as CopyAction } from './copy.action'
 export { default as ForwardAction } from './forward.action'

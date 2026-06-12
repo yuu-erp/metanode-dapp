@@ -1,6 +1,5 @@
-import { useCurrentState } from '@/hooks/use-current-state'
-import { getUserContractAddress, getUserInfo, useName } from '@/new/user/user-info'
-import { memo, useEffect, useState } from 'react'
+import { useName } from '@/new/user/user-info'
+import { memo } from 'react'
 
 export type NameOnMessageItemProps = {
   data: FulleMessage

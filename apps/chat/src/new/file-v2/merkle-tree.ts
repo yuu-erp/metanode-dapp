@@ -26,7 +26,11 @@ const nextPowerOfTwo = (n: number): number => {
 }
 
 async function hash(input: Uint8Array) {
-  return (await sendCommand('hashFile', { data: input })).hash
+  if (window.fiaiSDK) return (await sendCommand('hashFile', { data: input })).hash
+
+  const buffer = Array.from(input)
+  const rs = await sendCommand('createHashWithBuffer', { buffer })
+  return rs.hash
 }
 
 export async function buildTree(file: Blob) {

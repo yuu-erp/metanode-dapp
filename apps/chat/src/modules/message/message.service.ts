@@ -10,15 +10,14 @@ import type { EventBusPort } from '@/modules/event'
 import type { WalletService } from '@/modules/wallet'
 import { formatAddress, fulfilledPromises } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
-import { decryptAesECDH, decryptAESGCM, encryptAESGCM, share } from '@metanodejs/system-core'
+import { decryptAESGCM, encryptAESGCM, share } from '@metanodejs/system-core'
 import { v4 as uuidv4 } from 'uuid'
 import type { FileCacheService } from '../file-cache'
 // MESSAGE MODULES
-import { fileHandler } from '@/clients'
 import { container } from '@/container'
 import { compareAddress } from '@/shared/lib'
 import type { FileItem } from '@/stores/file.store'
-import { uiActions } from '@/stores/ui.store'
+import { messageActions } from '@/stores/message.store'
 import { getPrivateKeyFromDb, sendCommand } from '@metanodejs/system-core'
 import type {
   EditTextPayload,
@@ -36,8 +35,6 @@ import { createOptimisticMessage } from './message.entity'
 import { MessageExtend } from './message.extend'
 import { mapperMessageToOnChain, mapperToMessage } from './message.mapper'
 import { encodeBase64 } from './utils'
-import { messageActions } from '@/stores/message.store'
-import { sendStatus } from '@/new/status'
 
 export class MessageService {
   constructor(
@@ -512,117 +509,7 @@ export class MessageService {
     type = 'file',
     content: string
   ): Promise<void> {
-    if (!files.length) throw new Error('Invalid file length')
-
-    for (const item of files) {
-      const clientId = uuidv4()
-      const { meta, file } = item
-      try {
-        const { fileName } = meta
-
-        const payload: SendPayload = {
-          type,
-          fileId: '', // Placeholder, will be updated after upload
-          fileName,
-          mimeType: meta.mimeType,
-          size: meta.size,
-          filePath: meta.path,
-          file
-        }
-        await sendStatus(
-          {
-            status: 'send_file.start',
-            meta: { ...payload, clientId }
-          },
-          { type: conversation.conversationType, id: conversation.conversationId }
-        )
-
-        const optimisticMessage = {
-          ...createOptimisticMessage(
-            {
-              clientId,
-              accountId: account.address,
-              conversationId: conversation.conversationId,
-              sender: account.contractAddress,
-              recipient: account.contractAddress,
-              timestamp: Date.now()
-            },
-            {
-              ...payload,
-              filePath: meta.path
-            }
-          ),
-          content
-        }
-
-        this.eventBus.emit('message.add', {
-          conversationId: conversation.conversationId,
-          message: optimisticMessage,
-          isMine: true,
-          conversationType: conversation.conversationType
-        })
-        const fileKey = await fileHandler.uploadFile(item, {
-          owner: account.address,
-          hiddenAddress: account.hiddenAddress,
-          clientId,
-          onProgress: (v) => uiActions.setUpFileProgress(clientId, +(v * 0.9).toFixed(2))
-        })
-        if (optimisticMessage.type === type) {
-          optimisticMessage.fileId = fileKey
-        }
-
-        const messageOnChain = { ...mapperMessageToOnChain(optimisticMessage), content }
-        const stringifyMessage = JSON.stringify(messageOnChain)
-        await this.fileCacheService.saveFile(fileKey, item.file, file.type, fileName)
-        await this.sendStringtifiedMessage(
-          account,
-          conversation,
-          stringifyMessage,
-          clientId,
-          fileKey
-        )
-        uiActions.setUpFileProgress(clientId, 100)
-
-        await sendStatus(
-          {
-            status: 'send_file.end',
-            clientId
-          },
-          { type: conversation.conversationType, id: conversation.conversationId }
-        )
-      } catch (error: any) {
-        if (error.message === 'Cancel file') {
-          this.eventBus.emit('message.delete', {
-            clientId,
-            conversationId: conversation.conversationId
-          })
-          await sendStatus(
-            {
-              status: 'send_file.cancel',
-              clientId
-            },
-            { type: conversation.conversationType, id: conversation.conversationId }
-          )
-          return
-        } else {
-          console.error('[sendFile] error ', error)
-          this.eventBus.emit('message.status', {
-            accountId: account.address,
-            conversationId: conversation.conversationId,
-            clientId,
-            status: 'failed'
-          })
-          await sendStatus(
-            {
-              status: 'send_file.error',
-              clientId,
-              error: error?.message || 'Unknown error'
-            },
-            { type: conversation.conversationType, id: conversation.conversationId }
-          )
-        }
-      }
-    }
+    console.log({ account, conversation, files, type, content })
   }
 
   // Remove _computeChunkHash as it is in the worker now

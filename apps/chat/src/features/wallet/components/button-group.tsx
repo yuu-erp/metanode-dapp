@@ -21,13 +21,13 @@ function ButtonGroup({
   return (
     <React.Fragment>
       {/* Mobile */}
-      <div className="grid grid-cols-2 gap-3 pb-6 px-3">
+      <div className="grid grid-cols-2 gap-3 pb-6 px-3 xl:grid-cols-3">
         <ButtonCreateWallet onClick={onCreateWallet} />
         <ButtonImportWallet onClick={onImportWallet} />
         <Button
           type="button"
           disabled={isLoading}
-          className="border-app h-14 col-span-2 rounded-2xl font-bold uppercase bg-black/20 disabled:opacity-60 disabled:pointer-events-none"
+          className="border-app h-14 col-span-2 xl:col-span-1 rounded-2xl font-bold uppercase bg-black/20 disabled:opacity-60 disabled:pointer-events-none"
           onClick={onConnectWallet}
           aria-busy={isLoading}
           aria-label={t('btn.connectWallet')}

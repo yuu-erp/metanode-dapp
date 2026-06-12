@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@metanodejs/file-module": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/file-module",
     "helper": "/Users/macbook/WorkSpace/workspace/packages/helper",
     "@app/call": "workspace:*",
     "chat-react": "workspace:*",

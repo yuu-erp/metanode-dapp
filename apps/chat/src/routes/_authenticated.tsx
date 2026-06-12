@@ -2,7 +2,6 @@ import { VoiceRecorder } from '@/components/voice-recorder'
 import { container } from '@/container'
 import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
-import { MessageProvider } from '@/features/message'
 import { useMessageEvents } from '@/hooks/mesage/use-message-events'
 import { useSyncCall } from '@/hooks/sync/use-sync-call'
 import { useSyncAccount } from '@/new/me/use-sync-account'
@@ -67,6 +66,10 @@ function RouteComponent() {
   const syncCall = useSyncCall()
 
   useEffect(() => {
+    container.eventLogContainer.eventLog.onEventLog((e) => {
+      console.log('all all event', e)
+    })
+
     const { id, type, status, from, to } = useStatusStore.getState()
     console.log('[RouteComponent] useEffect', { id, type, status, from, to })
     const duration = Math.max(Math.floor((to - from) / 1000), 0)
@@ -78,28 +81,26 @@ function RouteComponent() {
 
   return (
     <ConversationsProvider>
-      <MessageProvider>
-        <BackgroundSyncProvider>
-          <IncomingCall />
-          <SidebarProvider
-            style={
-              {
-                '--sidebar-width': '24rem',
-                '--sidebar-background': 'transparent'
-              } as React.CSSProperties
-            }
-          >
-            <AppSidebar />
-            <SidebarInset className="bg-transparent">
-              <div className="flex-1 flex flex-col min-w-0 relative">
-                <Outlet />
-                {showNavbar && <NavbarMenu />}
-                <VoiceRecorder />
-              </div>
-            </SidebarInset>
-          </SidebarProvider>
-        </BackgroundSyncProvider>
-      </MessageProvider>
+      <BackgroundSyncProvider>
+        <IncomingCall />
+        <SidebarProvider
+          style={
+            {
+              '--sidebar-width': '24rem',
+              '--sidebar-background': 'transparent'
+            } as React.CSSProperties
+          }
+        >
+          <AppSidebar />
+          <SidebarInset className="bg-transparent">
+            <div className="flex-1 flex flex-col min-w-0 relative">
+              <Outlet />
+              {showNavbar && <NavbarMenu />}
+              <VoiceRecorder />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </BackgroundSyncProvider>
     </ConversationsProvider>
   )
 }

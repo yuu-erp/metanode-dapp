@@ -122,15 +122,27 @@ export async function baseMessageToMessage(
   base: BaseMessage,
   conversation: BaseConversation
 ): Promise<FulleMessage> {
-  const account = await getCurrentAccount()
-  const key = await getConversationKey(conversation)
-  const { content, ...rest } = base
-  const decrypted = await decryptMessage(conversation, content, key, account)
-  return {
-    ...rest,
-    ...decrypted,
-    isMine: await isMyMessage(base, conversation),
-    status: baseMessageToStatus(base)
+  try {
+    console.log('baseMessageToMessage 1')
+    const account = await getCurrentAccount()
+    console.log('baseMessageToMessage 2', account)
+
+    const key = await getConversationKey(conversation)
+
+    const { content, ...rest } = base
+    console.log('baseMessageToMessage 3', { key, content, account, conversation })
+    const decrypted = await decryptMessage(conversation, content, key, account)
+    console.log('baseMessageToMessage 4', decrypted)
+
+    return {
+      ...rest,
+      ...decrypted,
+      isMine: await isMyMessage(base, conversation),
+      status: baseMessageToStatus(base)
+    }
+  } catch (error) {
+    console.error('baseMessageToMessage error', error)
+    throw error
   }
 }
 

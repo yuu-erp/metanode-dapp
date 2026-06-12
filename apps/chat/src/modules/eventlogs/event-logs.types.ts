@@ -1,4 +1,10 @@
 export type EventMap = {
+  FileAdded: {
+    fileKey: string
+    name: string
+    contentLen: string
+  }
+
   DownloadKeyGenerated: {
     downloadKey: string
     fileKey: string

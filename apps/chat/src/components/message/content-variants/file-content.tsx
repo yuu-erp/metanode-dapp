@@ -6,6 +6,8 @@ import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
 import { MessageText } from '@/shared/components/message-render'
+import { useHandleFile } from '@/hooks/useHandleFile'
+import { getCurrentAccount } from '@/shared/hooks'
 
 const mediaStyle = 'object-cover aspect-square max-w-[20vw] rounded-md'
 
@@ -33,9 +35,10 @@ export const FileContent = memo(({ data }: WithMessage) => {
   const { data: meta } = useFileMetaById(data.fileId)
 
   const path = meta?.path
-  const isImage = meta?.mimeType.startsWith('image')
-  const isVideo = meta?.mimeType.startsWith('video')
+  const isImage = meta?.mimeType?.startsWith('image')
+  const isVideo = meta?.mimeType?.startsWith('video')
   const isDefault = !isImage && !isVideo
+  const { handleGetFiles } = useHandleFile()
 
   const fileDisplay = isDefault ? (
     <File />
@@ -51,11 +54,19 @@ export const FileContent = memo(({ data }: WithMessage) => {
       : `${((meta.size * upProgress) / 100 / 1024 / 1024).toFixed(1)} MB`
 
   const download = async () => {
+    const account = await getCurrentAccount()
+    console.log('hello 1', data)
+    const rs = await handleGetFiles(account.address, [data.fileId!])
+    console.log('hello 2', rs)
+
+    return
     if (meta?.path) return window.open(meta?.path, '_blank')
     handleDownloadFile(data)
   }
 
-  const cancel = () => {
+  const cancel = (e: any) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (upProgress == null) return
     uiActions.addCancelId(data.id)
   }

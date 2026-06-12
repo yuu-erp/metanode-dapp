@@ -48,10 +48,10 @@ importers:
         version: link:../../packages/call
       '@metanodejs/event-log':
         specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/event-log
+        version: link:../../../metanode-packages/packages/event-log
       '@metanodejs/system-core':
         specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/system-core
+        version: link:../../../metanode-packages/packages/system-core
       '@tailwindcss/vite':
         specifier: ^4.0.6
         version: 4.2.2(vite@8.0.9(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.7.0)(terser@5.46.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -127,13 +127,16 @@ importers:
         version: 2.2.9(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@metanodejs/event-log':
         specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/event-log
+        version: link:../../../metanode-packages/packages/event-log
+      '@metanodejs/file-module':
+        specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/file-module
+        version: link:../../../metanode-packages/packages/file-module
       '@metanodejs/mtn-contract':
         specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract
+        version: link:../../../metanode-packages/packages/mtn-contract
       '@metanodejs/system-core':
         specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/system-core
+        version: link:../../../metanode-packages/packages/system-core
       '@radix-ui/react-avatar':
         specifier: ^1.1.11
         version: 1.1.11(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -332,10 +335,10 @@ importers:
         version: 5.2.8
       '@metanodejs/event-log':
         specifier: link:/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/event-log
+        version: link:../../../metanode-packages/packages/event-log
       '@metanodejs/mtn-contract':
         specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract
-        version: link:../../../../../../macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract
+        version: link:../../../metanode-packages/packages/mtn-contract
       '@metanodejs/system-core':
         specifier: ^0.2.9
         version: 0.2.9

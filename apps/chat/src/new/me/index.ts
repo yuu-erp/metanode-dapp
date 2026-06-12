@@ -1,7 +1,7 @@
 import { getCurrentAccount } from '@/shared/hooks'
-import { getAlias } from '../conversation/my-info'
+import { ME_QUERY_KEY } from '@/shared/lib/react-query'
 import { useQuery } from '@tanstack/react-query'
-import { ME_QUERY_KEY, MESSAGE_QUERY_KEY } from '@/shared/lib/react-query'
+import { getAlias } from '../conversation/my-info'
 
 export async function getCurrentIdentity(base: BaseConversation) {
   switch (base.type) {

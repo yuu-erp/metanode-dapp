@@ -1,18 +1,17 @@
 import { container } from '@/container'
 import { useMessageAction } from '@/features/message'
 import { useCurrentState } from '@/hooks/use-current-state'
+import { useHandleFile } from '@/hooks/useHandleFile'
 import { asyncPriorityQueue } from '@/modules/realtime'
 import { getCurrentAccount } from '@/shared/hooks'
 import { compareAddress, formatAddress } from '@/shared/lib'
 import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { type FileItem } from '@/stores/file.store'
-import { uiActions } from '@/stores/ui.store'
 import { useMutation } from '@tanstack/react-query'
 import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
 import { getAlias } from '../conversation/my-info'
-import { uploadFileV2 } from '../file-v2'
 import { setFileMetadata } from '../file/file-info'
 import { getUserContractAddress } from '../user/user-info'
 import { encryptMessage } from './crypto-message'
@@ -94,6 +93,7 @@ const waitSendMessageEvent = async (base: BaseConversation) => {
   const name = names[base.type]
   const filter = filters[base.type]
   return new Promise<string>((res) => {
+    //@ts-ignore
     const off = container.eventLogContainer.eventLog.on(name, (e) => {
       if (!filter(e)) return
       off()
@@ -130,12 +130,13 @@ async function handleSendMessage(
 
   try {
     const custom = transformInput ? await transformInput(fullMessage) : {}
-
+    console.log('thanhduy - handleSendMessage 1')
     return asyncPriorityQueue.add(async () => {
       const [messageId] = await Promise.all([
         waitSendMessageEvent(base),
-        sendMessageBC({ ...input, custom }, base)
+        sendMessageBC({ ...input, ...custom }, base)
       ])
+      console.log('thanhduy - handleSendMessage 2')
 
       removeMessgeById(fullMessage.id)
       replaceIdInMessageList(fullMessage.id, messageId, base)
@@ -206,32 +207,59 @@ export function useForwardMessage() {
   }
 }
 
-export function processFile(items: FileItem[]) {
+// export function processFile(items: FileItem[]) {
+//   return async (msg: FulleMessage) => {
+//     try {
+//       console.log('thanhduy - processFile 1')
+
+//       const item = items[0]
+//       console.log('item', item)
+//       if (!item) return
+
+//       setFileMetadata(msg.id, item.meta)
+//       const file = item.file
+//       console.log('thanhduy - processFile 2', file)
+//       if (!file) return
+
+//       const fileId = await uploadFileV2(file, (v) =>
+//         uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+//       )
+
+//       // const fileId = await fileHandler.uploadFile(item, {
+//       //   owner: account.address,
+//       //   hiddenAddress: account.hiddenAddress,
+//       //   clientId: msg.id,
+//       //   onProgress: (v) => uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+//       // })
+//       console.log('thanhduy - processFile 3')
+
+//       return { fileId }
+//     } catch (error) {
+//       console.error('upfile error', error)
+//       throw error
+//     }
+//   }
+// }
+
+export function processFileV2(items: FileItem[], handlePushFiles: any) {
   return async (msg: FulleMessage) => {
     try {
-      console.log('thanhduy - processFile 1')
       const account = await getCurrentAccount()
-      console.log('thanhduy - processFile 2')
-
       const item = items[0]
       console.log('item', item)
       if (!item) return
-      console.log('thanhduy - processFile 3')
 
       setFileMetadata(msg.id, item.meta)
       const file = item.file
+      console.log('thanhduy - processFile 2', file)
       if (!file) return
-      const fileId = await uploadFileV2(file, (v) =>
-        uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-      )
 
-      // const fileId = await fileHandler.uploadFile(item, {
-      //   owner: account.address,
-      //   hiddenAddress: account.hiddenAddress,
-      //   clientId: msg.id,
-      //   onProgress: (v) => uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-      // })
-      console.log('thanhduy - processFile 4')
+      // const fileId = await uploadFileV2(file, (v) =>
+      //   uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+      // )
+
+      const fileIds = await handlePushFiles(account.address, [file as any])
+      const fileId = fileIds[0]
 
       return { fileId }
     } catch (error) {
@@ -244,6 +272,7 @@ export function processFile(items: FileItem[]) {
 export function useSendVoice() {
   const mutation = useSendMessage()
   const { base } = useCurrentState()
+  const { handlePushFiles } = useHandleFile()
 
   return {
     ...mutation,
@@ -253,7 +282,7 @@ export function useSendVoice() {
           type: 'voice'
         },
         base,
-        transformInput: processFile([fileItem])
+        transformInput: processFileV2([fileItem], handlePushFiles)
       })
     }
   }

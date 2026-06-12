@@ -30,7 +30,7 @@ export function useScanQrcodeProfile() {
       console.log('[Scan QR] SUCCESS:', conversation)
       container.eventBus.emit('event.reload', true)
 
-      navigate({ to: '/p2p/$id', params: { id: conversation.conversationId } })
+      navigate({ to: '/$type/$id', params: { id: conversation.conversationId, type: 'p2p' } })
     },
 
     onError: (error) => {

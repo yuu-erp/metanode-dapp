@@ -13,13 +13,18 @@ export async function decryptMessage(
   key: string,
   account: Account
 ) {
+  console.log('decryptMessage', { message })
   switch (type) {
     case 'p2p': {
-      return JSON.parse((await decryptAesECDH(key, account.address, message))?.value)
+      let rs = await decryptAesECDH(key, account.address, message)
+      rs = rs?.value ?? rs
+      return typeof rs === 'object' ? rs : JSON.parse(rs)
     }
     case 'anonymous_group':
     case 'group': {
-      return JSON.parse((await decryptAESGCM(key, message))?.resultUtf8)
+      let rs = await decryptAESGCM(key, message)
+      rs = rs?.resultUtf8 ?? rs
+      return typeof rs === 'object' ? rs : JSON.parse(rs)
     }
     default:
       throw new Error('[decryptMessage] Invalid type')

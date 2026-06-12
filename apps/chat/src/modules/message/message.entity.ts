@@ -215,61 +215,7 @@ export function createSendPayload(
   draft: ComposerDraft,
   messageAction: MessageAction | undefined = undefined
 ): SendPayload {
-  const replyTo =
-    messageAction?.type === 'REPLY' ? createReplyReference(messageAction.message) : undefined
-
-  const forwardFrom = messageAction?.type === 'FORWARD' ? messageAction.message.sender : undefined
-
-  switch (draft.type) {
-    case 'text':
-      return {
-        type: 'text',
-        content: draft.content,
-        replyTo,
-        forwardFrom
-      }
-
-    case 'sticker':
-      return {
-        type: 'sticker',
-        stickerId: draft.stickerId,
-        replyTo,
-        forwardFrom
-      }
-
-    case 'file':
-      return {
-        type: 'file',
-        fileId: draft.fileId,
-        fileName: draft.fileName,
-        mimeType: draft.mimeType,
-        size: draft.size,
-        replyTo,
-        forwardFrom,
-        filePath: draft.filePath,
-        file: draft.file
-      }
-
-    case 'voice':
-      return {
-        type: 'voice',
-        fileId: draft.fileId,
-        duration: draft.duration,
-        mimeType: draft.mimeType,
-        replyTo,
-        forwardFrom
-      }
-
-    case 'location':
-      return {
-        type: 'location',
-        latitude: draft.latitude,
-        longitude: draft.longitude,
-        address: draft.address,
-        replyTo,
-        forwardFrom
-      }
-  }
+  console.log({ draft, messageAction })
 }
 
 // ============================================================================

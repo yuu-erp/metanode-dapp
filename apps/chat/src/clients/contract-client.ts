@@ -106,12 +106,6 @@ export class ContractClient {
           data: any = {},
           options: Partial<TransactionPayload> = {}
         ) => {
-          console.log('options', {
-            options,
-            f: this.froms,
-            t: this.tos,
-            t2: structuredClone(this.tos)
-          })
           const payload: TransactionPayload = {
             from: this.froms[key],
             to: this.tos[key],
@@ -120,9 +114,21 @@ export class ContractClient {
             feeType: detectFeeType(abi),
             inputArray: jsonToInputArray(abi, data)
           }
-          let rs = await this.request(payload)
-          rs = rs?.returnValue ?? rs
-          return rs?.[''] ?? rs
+          try {
+            let rs = await this.request(payload)
+            console.log('thanhduy - execute smart contract rs', rs)
+            rs = rs?.returnValue ?? rs
+            try {
+              rs = JSON.parse(rs)
+            } catch (error) {
+              rs = rs
+            }
+
+            return rs?.[''] ?? rs
+          } catch (error) {
+            console.error('call smc failed error', { error, payload })
+            throw error
+          }
         }
       })
     })

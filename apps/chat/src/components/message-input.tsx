@@ -1,10 +1,9 @@
-import { MentionPopover } from '@/components/mention-popover'
 import { useInputMessageController } from '@/features/message'
 import InputMessageView from '@/features/message/components/input-message/input-message-view'
 import { useSendSticker, useSendText } from '@/features/message/hooks'
 import { useEditMessage } from '@/hooks/mesage/use-edit-message'
 import type { Conversation } from '@/modules/conversation'
-import { type EditTextPayload, type Message, type MessageAction } from '@/modules/message'
+import { type Message, type MessageAction } from '@/modules/message'
 import { useCurrentAccount, useGetConversationId } from '@/shared/hooks'
 import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { buildRawValue, type Mention } from '@/shared/lib'
@@ -43,11 +42,12 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement>(({}, ref) => {
 
   const handleEditMessage = React.useCallback(
     (messageOld: Message, content: string) => {
+      console.log({ content })
       if (!account || !conversation) return
       // Ensure message has ID before editing
       if (!messageOld.id) return
 
-      const payload: EditTextPayload = { type: 'text', content }
+      // const payload: EditTextPayload = { type: 'text', content }
       // editMessage({ messageOld: messageOld as PersistedMessage, payload })
     },
     [account, conversation, editMessage]

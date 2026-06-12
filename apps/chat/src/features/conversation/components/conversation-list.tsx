@@ -42,8 +42,8 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
         })
       } else {
         navigate({
-          to: '/p2p/$id',
-          params: { id: conversation.conversationId }
+          to: '/$type/$id',
+          params: { id: conversation.conversationId, type: 'p2p' }
         })
       }
     },

@@ -1,14 +1,14 @@
 import { methods } from '@/clients'
 import { container } from '@/container'
 import { getCurrentAccount } from '@/shared/hooks'
-import { formatAddress } from '@/shared/lib'
+import { compareAddress, formatAddress } from '@/shared/lib'
 import { sendCommand } from '@metanodejs/system-core'
 import { formatFileSize, getFileExt } from '../file/file.utils'
 import { ttl } from './file-v2.const'
 
 function toConnectionConfig(input: string) {
   const [ip, port] = input.split(':')
-  return { ip, port, alpn: 'file-storage-v1' }
+  return { ip, port: +port, alpn: 'file-storage-v1' }
 }
 
 async function getChunk(
@@ -58,10 +58,19 @@ async function getChunk(
 }
 
 async function connectQuic() {
+  console.log('thanhduy - connectQuic 1')
   const addresses = await methods.file.getRustServerAddresses(undefined)
+  console.log('thanhduy - connectQuic 2', { addresses })
+
   await Promise.all(
-    addresses.map((add) => sendCommand('connectQuicServer', toConnectionConfig(add)))
+    addresses.map((add) => {
+      const config = toConnectionConfig(add)
+      console.log('thanhduy - config', config)
+      return sendCommand('connectQuicServer', config)
+    })
   )
+  console.log('thanhduy - connectQuic 3')
+
   return addresses
 }
 
@@ -72,29 +81,45 @@ async function disconnectQuic(addresses: string[]) {
 }
 
 async function getDownloadKey(fileId: string) {
-  const account = await getCurrentAccount()
-  const fileInfo = await methods.file.getFileInfo({
-    fileKey: fileId
-  })
-  const price = await methods.file.calculatePrice({
-    numChunks: fileInfo.totalChunks
-  })
-  const promise = new Promise((res) => {
-    const off = container.eventLogContainer.eventLog.on('DownloadKeyGenerated', (e) => {
-      if (account.address !== e.user || e.fileKey !== fileId) return
-      off()
-      res(e.downloadKey)
+  try {
+    console.log('thanhduy getDownloadKey 1')
+    let fileInfo = await methods.file.getFileInfo({
+      fileKey: fileId
     })
-  })
+    if (typeof fileInfo === 'string') fileInfo = JSON.parse(fileInfo)
+    console.log('thanhduy getDownloadKey 2', { fileInfo })
 
-  await methods.file.payForDownload(
-    {
-      fileKey: fileId,
-      downloadTimes: 1
-    },
-    { amount: price }
-  )
-  return { downloadKey: (await promise) as string, fileInfo }
+    const price = await methods.file.calculatePrice({
+      numChunks: fileInfo.totalChunks
+    })
+    console.log('thanhduy getDownloadKey 3', { price })
+
+    const promise = new Promise((res) => {
+      //@ts-ignore
+      const off = container.eventLogContainer.eventLog.on('DownloadKeyGenerated', (e) => {
+        if (!compareAddress(e.fileKey, fileId)) return
+
+        off()
+        res(e.downloadKey)
+      })
+    })
+
+    await methods.file.payForDownload(
+      {
+        fileKey: fileId,
+        downloadTimes: 1
+      },
+      { amount: price }
+    )
+    console.log('thanhduy getDownloadKey 4')
+    const downloadKey = (await promise) as string
+    console.log('thanhduy getDownloadKey 5', downloadKey)
+
+    return { downloadKey: downloadKey, fileInfo }
+  } catch (error) {
+    console.error('get download key error', error)
+    throw error
+  }
 }
 
 async function getDownloadKeySign(input: string) {
@@ -142,44 +167,59 @@ function getMergedBinary(chunks: Uint8Array<ArrayBuffer>[]) {
 }
 
 export async function downloadFileV2(fileId: string) {
-  const { downloadKey, fileInfo } = await getDownloadKey(fileId)
+  console.log('thanhduy - downloadFileV2 1')
   const addresses = await connectQuic()
-  const downloadKeySign = await getDownloadKeySign(downloadKey)
+  console.log('thanhduy - downloadFileV2 2', addresses)
 
-  const chunks = await Promise.all(
-    Array.from({ length: fileInfo.totalChunks }, async (_, i) => {
-      const server = i % 2 === 0 ? addresses[0] : addresses[1]
-      let msg = ''
-      for (let attempt = 0; attempt < 3; attempt++) {
-        try {
-          const data = await getChunk(fileId, server, downloadKey, i, downloadKeySign)
-          return data
-        } catch (error: any) {
-          msg = error?.message?.toLowerCase() || 'Unknown error'
-          if (msg.includes('to store chunk on disk')) throw new Error(msg)
+  try {
+    const { downloadKey, fileInfo } = await getDownloadKey(fileId)
+    console.log('thanhduy - downloadFileV2 3', { downloadKey, fileInfo })
+
+    const downloadKeySign = await getDownloadKeySign(downloadKey)
+    console.log('thanhduy - downloadFileV2 4', { downloadKeySign })
+
+    const chunks = await Promise.all(
+      Array.from({ length: fileInfo.totalChunks }, async (_, i) => {
+        const server = i % 2 === 0 ? addresses[0] : addresses[1]
+        let msg = ''
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const data = await getChunk(fileId, server, downloadKey, i, downloadKeySign)
+            return data
+          } catch (error: any) {
+            msg = error?.message?.toLowerCase() || 'Unknown error'
+            if (msg.includes('to store chunk on disk')) throw new Error(msg)
+          }
         }
-      }
 
-      throw new Error(`[Chunk ${i}] Request failed sau ${3} lần thử: ${msg}`)
+        throw new Error(`[Chunk ${i}] Request failed sau ${3} lần thử: ${msg}`)
+      })
+    )
+    console.log('thanhduy - downloadFileV2 5', { chunks })
+
+    const merged = getMergedBinary(chunks)
+    console.log('thanhduy - downloadFileV2 6', { merged })
+
+    const blob = new Blob([merged], {
+      type: fileInfo.ext
     })
-  )
-  await disconnectQuic(addresses)
-  const merged = getMergedBinary(chunks)
 
-  const blob = new Blob([merged], {
-    type: fileInfo.ext
-  })
-
-  return {
-    blob,
-    meta: {
-      createdAt: (+fileInfo.expireTime - ttl) * 1000,
-      displaySize: formatFileSize(+fileInfo.contentLen),
-      extension: getFileExt(fileInfo.name),
-      fileName: fileInfo.name,
-      mimeType: fileInfo.ext,
-      path: URL.createObjectURL(blob),
-      size: +fileInfo.contentLen
+    return {
+      blob,
+      meta: {
+        createdAt: (+fileInfo.expireTime - ttl) * 1000,
+        displaySize: formatFileSize(+fileInfo.contentLen),
+        extension: getFileExt(fileInfo.name),
+        fileName: fileInfo.name,
+        mimeType: fileInfo.ext,
+        path: URL.createObjectURL(blob),
+        size: +fileInfo.contentLen
+      }
     }
+  } catch (error) {
+    console.error('downfile error', error)
+    throw error
+  } finally {
+    disconnectQuic(addresses)
   }
 }

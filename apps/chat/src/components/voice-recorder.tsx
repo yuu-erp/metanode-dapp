@@ -1,4 +1,3 @@
-import { useCurrentState } from '@/hooks/use-current-state'
 import { fileToFileItem } from '@/new/file/file.utils'
 import { useSendVoice } from '@/new/message/send-message-v4'
 import { uiActions, useUiStore } from '@/stores/ui.store'
@@ -73,7 +72,6 @@ const RecordingTimer = memo(
 )
 
 export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
-  const { base } = useCurrentState()
   const micOpen = useUiStore((s) => s.micOpen)
 
   const audioRef = useRef<HTMLAudioElement>(null)

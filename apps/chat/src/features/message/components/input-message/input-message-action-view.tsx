@@ -1,7 +1,6 @@
 'use client'
 
 import type { MessageAction } from '@/modules/message'
-import { MessagePreview } from '@/shared/components/message-render'
 import { X } from 'lucide-react'
 import * as React from 'react'
 
@@ -15,6 +14,7 @@ function InputMessageActionView({
   onClose,
   messageAction
 }: InputMessageActionViewProps) {
+  console.log({ messageAction })
   return (
     <div className="h-12 flex items-center gap-2 text-white px-2">
       <span className="h-full w-[3px] rounded-md bg-blue-500" />

@@ -1,4 +1,3 @@
-import type { FileItem, FileMeta } from '@/stores/file.store'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 

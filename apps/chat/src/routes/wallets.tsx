@@ -1,14 +1,11 @@
-import { images } from '@/assets/images'
 import { container } from '@/container'
 import { ButtonGroup, ListWallet, useGetAllWallets, useRegisterUser } from '@/features/wallet'
-import ListWalletWindows from '@/features/wallet/components/list-wallet.windows'
 import Login from '@/features/wallet/components/login'
-import ButtonBase from '@/shared/components/button/button-base'
 import { createCurrentAccountQueryOptions } from '@/shared/hooks'
 import { cn } from '@/shared/lib'
 import { ACCOUNT_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { useLoginModalStore } from '@/shared/stores/login-modal.store'
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Trans } from 'react-i18next'
 import type { SwiperClass, SwiperProps } from 'swiper/react'
@@ -78,7 +75,7 @@ function RouteComponent() {
     <React.Fragment>
       <div
         className={cn(
-          'w-full h-screen flex flex-col max-w-2xl mx-auto xl:hidden',
+          'w-full h-screen flex flex-col max-w-2xl xl:max-w-[80dvw] mx-auto w-screen',
           window.isHasNotch ? 'pt-14' : 'pt-5'
         )}
       >
@@ -104,7 +101,7 @@ function RouteComponent() {
           />
         </div>
       </div>
-      <div className="p-5 w-full h-screen flex flex-col items-stretch basis-auto relative shrink-0 overflow-hidden z-0 hidden xl:flex">
+      {/* <div className="p-5 w-full h-screen flex flex-col items-stretch basis-auto relative shrink-0 overflow-hidden z-0 hidden xl:flex">
         <div className="w-full flex items-center justify-center">
           <div className="text-center text-[2rem] leading-snug font-bold xl:text-[3rem]">
             <span>Connect </span>
@@ -150,7 +147,7 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
       <Login defaultStep={step} isOpenLogin={isOpen} onClose={onClose} />
     </React.Fragment>
   )

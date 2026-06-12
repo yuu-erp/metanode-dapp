@@ -35,10 +35,19 @@ function ListWallet({ wallets, ...props }: WalletListSliderProps) {
           slideShadows: false
         }}
         modules={[Mousewheel, Keyboard, EffectCoverflow]}
+        breakpoints={{
+          0: {
+            slidesPerView: 1.2
+          },
+
+          1024: {
+            slidesPerView: 2.8
+          }
+        }}
         {...props}
       >
         {wallets.map((wallet, idx) => (
-          <SwiperSlide key={wallet.address} className="w-[320px] h-full overflow-hidden">
+          <SwiperSlide key={wallet.address} className=" h-full overflow-hidden">
             {({ isActive }) => {
               return (
                 <motion.div

@@ -24,6 +24,8 @@ const FinsdkProvider2: React.FC<FinsdkProvider2Props> = ({ children }) => {
         await FiaiSDK.init({})
       }
     } finally {
+      console.log('window', window)
+
       setLoadingSdk(false)
     }
   }

@@ -1,11 +1,9 @@
 import { LeaveGroupDialog } from '@/components/leave-group-dialog'
 import { DiscardRecordingModal } from '@/components/modal/discard-recording-modal'
 import { WindowButtons } from '@/components/window-buttons'
-import { container } from '@/container'
 import { EventLogProvider } from '@/contexts'
 import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
-import { useCurrentState } from '@/hooks/use-current-state'
 import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
 import { createRootRoute } from '@tanstack/react-router'
@@ -14,57 +12,19 @@ console.log('APP CHAT V - 1.0.1 =====>')
 
 export const Route = createRootRoute({
   component: () => {
-    const { account } = useCurrentState()
-
     return (
       <>
         {/* <button
-          className="size-20 bg-black fixed right-5 top-5 z-20 z-50"
-          onClick={async () => {
-            console.log('click 1')
-            if (!account) return
-            console.log('click 2')
-
-            const rs = await container.userContract.owner({
-              from: account.address,
-              to: '181abC6610b73d81d5FA06090d8f6560307D7653',
-              inputData: {}
+          className="right-0 top-0 fixed z-50 bg-black size-20"
+          onClick={() => {
+            container.factoryContract.checkUserContract({
+              from: account!?.address,
+              inputData: {
+                user: account!.address
+              }
             })
-
-            console.log({ rs })
-            // await container.userContract.sendDataChannel({
-            //   from: account.address,
-            //   to: account.contractAddress,
-            //   inputData: {
-            //     _recipientContractAddress: '181abC6610b73d81d5FA06090d8f6560307D7653',
-            //     sessionId: 'hihi',
-            //     channelName: 'test'
-            //   }
-            // })
-
-            console.log('click 3')
           }}
         /> */}
-        {/* <button
-          className="fixed z-50 left-5 top-5 size-20 bg-black"
-          onClick={async () => {
-            try {
-              console.log('click')
-
-              const rootWallet = 'cf47697bae5c7da470ae3d6f7cb5aeee48f4d61e' //tablet
-              // const rootWallet = 'e344be071d8102fb5b3c41d253ab79e9a1a9c201' //phone
-
-              // const newAddress = (await createWalletFast(true)).address
-              const newAddress = '0e9f9af3c4d44b77d51f8e5b03d5481ed7c3a73d'
-
-              // const newAddress = (await getHiddenWallet()).address
-              await sendTransaction({ from: rootWallet, to: newAddress, value: 1 + '0'.repeat(14) })
-              toast.success('create success')
-            } catch (error) {
-              console.error(' send transaction error ', error)
-            }
-          }}
-        ></button> */}
         {/* <Test /> */}
         <DiscardRecordingModal />
         <WindowButtons />

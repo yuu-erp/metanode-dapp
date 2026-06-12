@@ -39,9 +39,11 @@ export class ConversationService {
     private readonly fileCacheService: FileCacheService,
     private readonly eventLogContainer: EventLogContainer,
     private readonly anonymousGroupContract: AnonymousGroupContract,
-    private readonly verifyContract: VerifyContract,
-    private readonly ekycContract: EkycContract
-  ) {}
+    readonly verifyContract: VerifyContract,
+    readonly ekycContract: EkycContract
+  ) {
+    console.log({ verifyContract, ekycContract })
+  }
   // ------------------------------------------------------------------
   // Private helpers
 
@@ -203,27 +205,29 @@ export class ConversationService {
               name = [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' ')
             }
 
-            const targetAddress = await this.userContract.owner({
-              from: account.address,
-              to: item.conversationId
-            })
-            const [p2pInfo, auth, ekyc] = await Promise.all([
-              this.getP2PInfo(account.address, item.conversationId),
-              this.verifyContract.authenticatedWallets({
-                from: account.address,
-                inputData: {
-                  '': targetAddress
-                }
-              }),
-              this.ekycContract.getUser({
-                from: account.address,
-                inputData: {
-                  user: targetAddress
-                }
-              })
+            // const targetAddress = await this.userContract.owner({
+            //   from: account.address,
+            //   to: item.conversationId
+            // })
+            // const [p2pInfo, auth, ekyc] = await Promise.all([
+            const [p2pInfo] = await Promise.all([
+              this.getP2PInfo(account.address, item.conversationId)
+              // this.verifyContract.authenticatedWallets({
+              //   from: account.address,
+              //   inputData: {
+              //     '': targetAddress
+              //   }
+              // }),
+              // this.ekycContract.getUser({
+              //   from: account.address,
+              //   inputData: {
+              //     user: targetAddress
+              //   }
+              // })
             ])
 
-            isVerifed === auth && ekyc.kycVerified
+            // isVerifed = auth && ekyc.kycVerified
+
             conversationKey = p2pInfo.publicKey
             userProfile = p2pInfo.userProfile
 

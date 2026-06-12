@@ -92,8 +92,8 @@ export const NewContact = ({ onChangeScreenType, onClose }: NewContactProps) => 
                   if (!contractAddress) return
                   onClose?.()
                   navigate({
-                    to: '/p2p/$id',
-                    params: { id: contractAddress }
+                    to: '/$type/$id',
+                    params: { id: contractAddress, type: 'p2p' }
                   })
                 }}
               />

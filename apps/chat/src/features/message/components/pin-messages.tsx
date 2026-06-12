@@ -1,6 +1,5 @@
 'use client'
 import { useCurrentState } from '@/hooks/use-current-state'
-import type { Conversation } from '@/modules/conversation'
 import { useCurrentMessageById, usePinnedMessages as usePinned } from '@/new/message'
 import { useI18N } from '@/shared/hooks'
 import { useUiStore } from '@/stores/ui.store'

@@ -1,7 +1,6 @@
 'use client'
 
 import type { MessageAction } from '@/modules/message'
-import { useConversationParams } from '@/shared/hooks/use-conversation-params'
 import { useMemo } from 'react'
 
 interface MessageActionViewData {
@@ -13,7 +12,6 @@ export function useBuildMessageActionViewData(
   action: MessageAction | null
 ): MessageActionViewData | null {
   if (!action) return null
-  const { type } = useConversationParams()
 
   // const message = action.message
   const message = {}
