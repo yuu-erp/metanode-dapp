@@ -8,11 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export async function copy(value: string) {
-  if (window.finSdk) {
-    await navigator.clipboard.writeText(value)
-  } else {
-    await copyClipboard(value)
-  }
+  await copyClipboard(value)
+
   toast.success('Copy success')
 }
 

@@ -18,7 +18,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [keyword, setKeyword] = React.useState('')
   const navigate = useNavigate()
   return (
-    <Sidebar collapsible="icon" className="bg-black/20" {...props}>
+    <div
+      collapsible="icon"
+      className="h-full bg-black/20 w-[24rem] hidden md:flex flex-col"
+      {...props}
+    >
       <SidebarHeader></SidebarHeader>
       <SidebarContent className="px-3 text-white">
         <div className="flex items-center justify-between gap-3 relative">
@@ -92,6 +96,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         </div>
       </SidebarFooter>
-    </Sidebar>
+    </div>
   )
 }

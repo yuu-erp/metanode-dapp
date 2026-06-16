@@ -9,7 +9,7 @@ export class ContractTransport {
   constructor() {}
 
   get isWeb() {
-    return typeof window !== 'undefined' && (window as any).finSdk
+    return typeof window !== 'undefined' && (window as any).fiaiSDK
   }
 
   get lastHash() {
@@ -45,9 +45,8 @@ export class ContractTransport {
   }
 
   private async sendByWebSdk(payload: any) {
-    const response = await (window as any).finSdk.sendTransaction(payload)
-    if (!response?.success) throw response
-    return response.data ?? response
+    const response = await (window as any).fiaiSDK.request('sendTransaction', payload)
+    return response?.data ?? response
   }
 
   private detectFeeType(abi: AbiItem): FeeType {

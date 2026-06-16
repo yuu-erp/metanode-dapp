@@ -1,6 +1,16 @@
 import { resolveEventBus } from './helper'
 import { EventBusOrGetter } from './types'
 
+export function removeOx(e: any) {
+  if (typeof e === 'object') {
+    for (const key in e) {
+      if (typeof e[key] === 'string' && e[key].startsWith('0x')) (e as any)[key] = e[key].slice(2)
+    }
+  }
+
+  return e
+}
+
 export function createWaitEvent<T extends object>(
   eventBusOrGetter: EventBusOrGetter,
   timeout = 5000
@@ -14,6 +24,7 @@ export function createWaitEvent<T extends object>(
     return new Promise<T[K]>((resolve, reject) => {
       const cb = (e: T[K]) => {
         if (filter && !filter(e)) return
+        e = removeOx(e)
 
         cleanup()
         resolve(e)

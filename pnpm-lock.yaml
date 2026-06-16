@@ -603,8 +603,8 @@ importers:
   packages/call:
     dependencies:
       '@metanodejs/system-core':
-        specifier: '>=0'
-        version: 0.1.6
+        specifier: /Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core
+        version: link:../../../metanode-packages/packages/system-core
       '@tanstack/react-query':
         specifier: 5.90.12
         version: 5.90.12(react@19.2.5)

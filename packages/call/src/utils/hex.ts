@@ -23,7 +23,11 @@ export function encodeDataToBackend(data: any) {
 
 export function decodeDataFromBackend(data: string) {
   try {
-    return JSON.parse(hexToString(data))
+    console.log('datafrombackend 1', data)
+    const d1 = hexToString(data)
+    console.log('datafrombackend 2', { d1, t: typeof d1 })
+
+    return JSON.parse(d1)
   } catch (error) {
     throw error
   }

@@ -11,6 +11,7 @@ import { formatAddress } from '@/shared/utils'
 import { useIsMutating } from '@tanstack/react-query'
 import { useCurrentState } from '../use-current-state'
 import { removeMessgeById, setMessageInfo } from '@/new/message'
+import { addConversation } from '@/new/conversation/list-conversation'
 
 const eventBus = container.eventBus
 
@@ -65,6 +66,13 @@ export function useMessageEvents() {
 
   // new message
   useEventLog('MessageSent', (e) => {
+    addConversation(
+      {
+        type: 'p2p',
+        id: e.recipient
+      },
+      { messageId: e.messageId }
+    )
     if (sendMessagePendding && compareAddress(e.sender, account?.contractAddress)) return
     addIdInMessageList(e.messageId, {
       type: 'p2p',
@@ -74,6 +82,13 @@ export function useMessageEvents() {
 
   useEventLog('MessageReceived', (e) => {
     eventBus.emit('noti:add', { type: 'message' })
+    addConversation(
+      {
+        type: 'p2p',
+        id: e.sender
+      },
+      { messageId: e.messageId }
+    )
     addIdInMessageList(e.messageId, {
       type: 'p2p',
       id: e.sender
@@ -84,6 +99,14 @@ export function useMessageEvents() {
     const isMine = compareAddress(e.sender, account?.address)
     if (!isMine) eventBus.emit('noti:add', { type: 'message' })
     if (sendMessagePendding && isMine) return
+    addConversation(
+      {
+        type: 'group',
+        id: e.groupAddress
+      },
+      { messageId: e.messageId }
+    )
+
     addIdInMessageList(e.messageId, {
       type: 'group',
       id: e.groupAddress
@@ -96,6 +119,13 @@ export function useMessageEvents() {
     if (!isMine) eventBus.emit('noti:add', { type: 'message' })
     if (sendMessagePendding && isMine) return
     eventBus.emit('noti:add', { type: 'message' })
+    addConversation(
+      {
+        type: 'anonymous_group',
+        id: e.group
+      },
+      { messageId: e.messageId }
+    )
     addIdInMessageList(e.messageId, {
       type: 'anonymous_group',
       id: e.group

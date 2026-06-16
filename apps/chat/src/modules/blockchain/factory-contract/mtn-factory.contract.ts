@@ -10,10 +10,11 @@ import type {
   RegisterUserInput
 } from './types'
 import { CONTRACT_ADDRESSES } from '@/config'
+import { formatAddress } from '@/shared/utils'
 
 export class FactoryContract extends MtnContract {
   constructor() {
-    super({ to: CONTRACT_ADDRESSES.factory })
+    super({ to: formatAddress(CONTRACT_ADDRESSES.factory) })
   }
   checkUserContract(payload: TransactionPayload<CheckUserContractInput>): Promise<boolean> {
     const { from, inputData } = payload

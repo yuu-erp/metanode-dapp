@@ -26,6 +26,7 @@ type IEventLog<T> = {
 export class EventLogContainer {
   private readonly _decodeAbi: DecodeAbi
   private readonly _eventLog: EventLog<EventMap>
+  private promise: Promise<any> | null = null
   constructor() {
     console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
     this._decodeAbi = new DecodeAbi()
@@ -41,11 +42,17 @@ export class EventLogContainer {
   }
 
   public async registerAbi() {
-    try {
-      const rs = await this._decodeAbi?.registerAbi?.(abi)
+    if (this.promise === null) {
+      this.promise = (async () => {
+        try {
+          await this._decodeAbi?.registerAbi?.(abi)
+        } catch (error) {
+          this.promise = null
+        }
+      })()
+    }
 
-      return rs
-    } catch (error) {}
+    return this.promise
   }
 }
 

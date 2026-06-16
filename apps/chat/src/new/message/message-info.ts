@@ -41,7 +41,7 @@ export async function getRawMessageById(
           to: conversation.id,
           inputData: { _messageId: id }
         })
-        .then(groupMessageToBaseMessage)
+        .then((message) => groupMessageToBaseMessage(message, true))
     }
 
     default:
@@ -52,7 +52,7 @@ export async function getRawMessageById(
 export async function getMessageInfoById(id: string, input: BaseConversation) {
   const baseMessge = await getRawMessageById(id, input)
   const rs = await baseMessageToMessage(baseMessge, input)
-
+  console.debug('message show ', Date.now())
   return rs
 }
 

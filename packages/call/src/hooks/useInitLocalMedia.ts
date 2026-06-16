@@ -31,7 +31,7 @@ export function useInitLocalMedia() {
     const init = async () => {
       const { address } = roomStore.getState()
       userActions.addUser(address)
-      if (window.finSdk) {
+      if (window.fiaiSDK) {
         await Promise.allSettled([initCameraTracks(), initMicrophoneTracks()])
         await callActions.fetchPermission()
       }

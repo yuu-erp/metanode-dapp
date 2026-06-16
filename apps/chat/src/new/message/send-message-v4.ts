@@ -1,17 +1,18 @@
 import { container } from '@/container'
 import { useMessageAction } from '@/features/message'
 import { useCurrentState } from '@/hooks/use-current-state'
-import { useHandleFile } from '@/hooks/useHandleFile'
 import { asyncPriorityQueue } from '@/modules/realtime'
 import { getCurrentAccount } from '@/shared/hooks'
 import { compareAddress, formatAddress } from '@/shared/lib'
 import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { type FileItem } from '@/stores/file.store'
+import { uiActions } from '@/stores/ui.store'
 import { useMutation } from '@tanstack/react-query'
 import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
 import { getAlias } from '../conversation/my-info'
+import { uploadFileV2 } from '../file'
 import { setFileMetadata } from '../file/file-info'
 import { getUserContractAddress } from '../user/user-info'
 import { encryptMessage } from './crypto-message'
@@ -25,7 +26,7 @@ async function sendMessageBC(input: any, base: BaseConversation) {
   const key = await getConversationKey(base)
   const account = await getCurrentAccount()
   const encryptedMessage = await encryptMessage(input, key, base)
-  console.log('send 1')
+  console.log('send 1', account)
   switch (base.type) {
     case 'p2p': {
       return container.userContract.sendMessage({
@@ -109,7 +110,7 @@ async function createOptimisticMessage(input: SendMessageInput, base: BaseConver
     ...input,
     id,
     sender: await getSender(base),
-    timestamp: Date.now() + '',
+    timestamp: Date.now(),
     status: 'sending',
     isMine: true,
     fileId: input.type === 'file' ? id : '',
@@ -126,6 +127,7 @@ async function handleSendMessage(
   base: BaseConversation,
   transformInput?: (message: FulleMessage) => Promise<any> | any
 ) {
+  console.debug('start send =========> ', Date.now())
   const fullMessage = await createOptimisticMessage(input, base)
 
   try {
@@ -150,6 +152,8 @@ async function handleSendMessage(
       status: 'failed'
       // isFailed: true
     })
+  } finally {
+    console.debug('end send =========> ', Date.now())
   }
 }
 
@@ -241,25 +245,19 @@ export function useForwardMessage() {
 //   }
 // }
 
-export function processFileV2(items: FileItem[], handlePushFiles: any) {
+export function processFileV2(items: FileItem[]) {
   return async (msg: FulleMessage) => {
     try {
-      const account = await getCurrentAccount()
       const item = items[0]
-      console.log('item', item)
       if (!item) return
 
       setFileMetadata(msg.id, item.meta)
       const file = item.file
-      console.log('thanhduy - processFile 2', file)
       if (!file) return
 
-      // const fileId = await uploadFileV2(file, (v) =>
-      //   uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-      // )
-
-      const fileIds = await handlePushFiles(account.address, [file as any])
-      const fileId = fileIds[0]
+      const fileId = await uploadFileV2(file, (v) =>
+        uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+      )
 
       return { fileId }
     } catch (error) {
@@ -272,7 +270,6 @@ export function processFileV2(items: FileItem[], handlePushFiles: any) {
 export function useSendVoice() {
   const mutation = useSendMessage()
   const { base } = useCurrentState()
-  const { handlePushFiles } = useHandleFile()
 
   return {
     ...mutation,
@@ -282,7 +279,7 @@ export function useSendVoice() {
           type: 'voice'
         },
         base,
-        transformInput: processFileV2([fileItem], handlePushFiles)
+        transformInput: processFileV2([fileItem])
       })
     }
   }

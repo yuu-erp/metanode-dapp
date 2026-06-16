@@ -13,7 +13,7 @@ export function useRegisterEventLog(registerEventLog: RegisterEventLog, meetingA
     withTimeout(async () => {
       console.log('[DEBUG] useRegisterEventLog 1')
 
-      await registerEventLog(address, [meetingAddress])
+      await registerEventLog?.(address, [meetingAddress])
       console.log('[DEBUG] useRegisterEventLog 2')
     }).then(() => setLoad(true))
   }, [address, meetingAddress])

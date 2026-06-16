@@ -43,7 +43,7 @@ export async function enCallAndCloseView() {
   } catch (error) {
     onLogError(error)
   } finally {
-    if (window.finSdk) {
+    if (window.fiaiSDK) {
       if (location.hash.startsWith('#/call')) {
         getCallback('onEndCall')()
       }

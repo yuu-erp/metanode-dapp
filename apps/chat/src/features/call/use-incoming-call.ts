@@ -7,7 +7,7 @@ import { useEventLog } from '@/shared/hooks/use-event-log'
 import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
 import type { AppEvents } from '@/types/app-events'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 export const useIncomingCall = () => {
   const [incomingCall, setIncomingCall] = useState<MeetingViewInput | null>(null)
@@ -23,30 +23,55 @@ export const useIncomingCall = () => {
     }
   }
 
-  useEffect(() => {
-    console.log('  1', account)
+  const handleCallReceived = async (event: AppEvents['call.received']) => {
     if (!account) return
-    const handleCallReceived = async (event: AppEvents['call.received']) => {
+    cleanup()
+    timeout.current = setTimeout(async () => {
       cleanup()
-      timeout.current = setTimeout(async () => {
-        cleanup()
-        setIncomingCall(null)
-        if (!incomingCall) return
-        const conversationId = await getConId()
-        await syncCall(conversationId, incomingCall.conversationType, { callStatus: 'missed' })
-      }, 1000 * 60)
+      setIncomingCall(null)
+      if (!incomingCall) return
+      const conversationId = await getConId()
+      await syncCall(conversationId, incomingCall.conversationType, { callStatus: 'missed' })
+    }, 1000 * 60)
 
-      setIncomingCall({
-        ...event,
-        roomId: formatAddress(event.roomId ?? '')
-      })
-    }
-    container.eventBus.on('call.received', handleCallReceived)
-    return () => {
-      cleanup()
-      container.eventBus.off('call.received', handleCallReceived)
-    }
-  }, [account])
+    setIncomingCall({
+      ...event,
+      roomId: formatAddress(event.roomId ?? '')
+    })
+  }
+
+  useEventLog('CallReceivedSignal', (data) => {
+    console.log('thanhduy - CallReceivedSignal', data)
+    if (!account) return
+    if (compareAddress(data.caller, account.address)) return
+    handleCallReceived({
+      address: account.address,
+      callee: data.callee,
+      caller: data.caller,
+      isCaller: false,
+      isMeet: true,
+      roomId: data.roomId,
+      conversationType: 'group'
+    })
+  })
+
+  useEventLog('CallReceived', async (data) => {
+    if (!account) return
+    const callerContractAddress = await container.factoryContract.getUserContract({
+      from: account.address,
+      inputData: { user: data.owner }
+    })
+
+    handleCallReceived({
+      address: account.address,
+      callee: data.callee,
+      caller: callerContractAddress,
+      isCaller: formatAddress(data.caller) === formatAddress(account.address),
+      isMeet: false,
+      roomId: data.roomId,
+      conversationType: 'p2p'
+    })
+  })
 
   const acceptCall = async () => {
     if (!incomingCall || !account) return

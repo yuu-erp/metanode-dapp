@@ -1,6 +1,6 @@
 export {}
 declare global {
   interface Window {
-    finSdk?: any
+    fiaiSDK?: any
   }
 }

@@ -17,13 +17,17 @@ async function getPinnedMessage(account: Account, input: BaseConversation) {
           inputData: { partner: input.id }
         })
       }
-      case 'group':
-      case 'anonymous_group': {
-        const rs = await container.groupContract.getPinnedMessage({
+      case 'group': {
+        return await container.groupContract.getListPinnedMessagesGroup({
           from: account.hiddenAddress,
           to: input.id
         })
-        return rs
+      }
+      case 'anonymous_group': {
+        return await container.anonymousGroupContract.getListPinnedMessagesCommunity({
+          from: account.hiddenAddress,
+          to: input.id
+        })
       }
       default:
         throw new Error('[usePinnedMessage] Invalid type')

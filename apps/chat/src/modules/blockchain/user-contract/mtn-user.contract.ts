@@ -47,6 +47,20 @@ export class UserContract extends MtnContract {
     })
   }
 
+  getFullInboxPaginatedOptimized(
+    payload: TransactionPayload<{ limit: number; offset: number }>
+  ): Promise<any[]> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getFullInboxPaginatedOptimized',
+      abiData: userAbi.getFullInboxPaginatedOptimized as any,
+      feeType: 'read',
+      inputData: inputData
+    })
+  }
+
   publicKey(payload: TransactionPayload): Promise<string> {
     const { from, to } = payload
     return this.sendTransaction({
@@ -80,7 +94,8 @@ export class UserContract extends MtnContract {
       functionName: 'sendMessage',
       abiData: userAbi.sendMessage as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
+      gas: 2_000_000
     })
   }
 

@@ -246,13 +246,13 @@ export class GroupContract extends MtnContract {
     })
   }
 
-  getPinnedMessage(payload: TransactionPayload<{}>) {
+  getListPinnedMessagesGroup(payload: TransactionPayload<{}>) {
     const { from, to, inputData } = payload
     return this.sendTransaction<string[]>({
       from,
       to,
-      functionName: 'getPinnedMessage',
-      abiData: groupAbis.getPinnedMessage as any,
+      functionName: 'getListPinnedMessagesGroup',
+      abiData: groupAbis.getListPinnedMessagesGroup as any,
       feeType: 'read',
       inputData
     })

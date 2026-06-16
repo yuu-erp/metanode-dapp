@@ -1,7 +1,7 @@
 import { createContext, PropsWithChildren, ReactNode, useContext, useEffect, useState } from 'react'
 import { Callbacks, setCallbacks, setEventLog } from '~/clients'
 import { EventBusRequest } from '~/clients/event-log/core'
-import { RegisterEventLog, useInitLocalMedia, useInitRoomInfo } from '~/hooks'
+import { useInitLocalMedia, useInitRoomInfo } from '~/hooks'
 import { statusActions, useRoomStore, useStatusStore } from '~/stores'
 import { EventLogManager } from './EventLogManager'
 import { setCallReady } from '~/services'
@@ -16,7 +16,7 @@ export type CallProviderProps = PropsWithChildren &
     fallBack?: ReactNode
     meetingAddress: string
     eventLog: EventBusRequest
-    registerEventLog: RegisterEventLog
+    registerEventLog: () => any
   }
 
 export const CallProvider = ({
@@ -33,6 +33,7 @@ export const CallProvider = ({
   const [_ready, setReady] = useState(false)
 
   useEffect(() => {
+    registerEventLog()
     setCallbacks(callbacks)
     setEventLog(eventLog)
     setReady(true)

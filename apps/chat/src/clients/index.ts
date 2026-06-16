@@ -1,9 +1,7 @@
 import { abis } from '@/abis'
-import { FileHandler } from '../new'
-import { ContractClient } from './contract-client'
 import { sendCommand } from '@metanodejs/system-core'
+import { ContractClient } from './contract-client'
 
-export const fileHandler = new FileHandler()
 export const contractClient = new ContractClient()
 contractClient.registerAbiMethods(abis)
 contractClient.request = (v) => {

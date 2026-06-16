@@ -1,13 +1,11 @@
-import { handleDownloadFile } from '@/new/file/down-file-to-device'
-import { useFileMetaById } from '@/new/file/file-info'
+import { handleDownloadFile } from '@/new/file'
+import { useFileMetaById } from '@/new/file'
+import { MessageText } from '@/shared/components/message-render'
 import { cn } from '@/shared/lib'
 import { uiActions, useUiStore } from '@/stores/ui.store'
 import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
-import { MessageText } from '@/shared/components/message-render'
-import { useHandleFile } from '@/hooks/useHandleFile'
-import { getCurrentAccount } from '@/shared/hooks'
 
 const mediaStyle = 'object-cover aspect-square max-w-[20vw] rounded-md'
 
@@ -31,14 +29,13 @@ const WithWrapper = ({
 
 export const FileContent = memo(({ data }: WithMessage) => {
   const { isMine } = data
-  const upProgress = useUiStore((s) => s.upFileProgress[data.id])
+  const upProgress = useUiStore((s) => s.upFileProgress[data?.fileId ?? ''])
   const { data: meta } = useFileMetaById(data.fileId)
 
   const path = meta?.path
   const isImage = meta?.mimeType?.startsWith('image')
   const isVideo = meta?.mimeType?.startsWith('video')
   const isDefault = !isImage && !isVideo
-  const { handleGetFiles } = useHandleFile()
 
   const fileDisplay = isDefault ? (
     <File />
@@ -54,12 +51,7 @@ export const FileContent = memo(({ data }: WithMessage) => {
       : `${((meta.size * upProgress) / 100 / 1024 / 1024).toFixed(1)} MB`
 
   const download = async () => {
-    const account = await getCurrentAccount()
-    console.log('hello 1', data)
-    const rs = await handleGetFiles(account.address, [data.fileId!])
-    console.log('hello 2', rs)
-
-    return
+    // return
     if (meta?.path) return window.open(meta?.path, '_blank')
     handleDownloadFile(data)
   }

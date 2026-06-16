@@ -41,7 +41,7 @@ declare global {
     content?: any
     sender: string
     id: string
-    timestamp: string
+    timestamp: number
     isRead?: boolean
     reactions: ReactionItemData[]
     isMine?: boolean
@@ -59,5 +59,7 @@ declare global {
     replyTo?: string
     forwardFrom?: string
     forwardFromType?: string
+    kind?: string
+    callStatus?: string
   }
 }

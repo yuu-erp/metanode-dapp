@@ -3,7 +3,7 @@ import { onFatal } from '~/clients'
 import { rtcStore } from '~/stores'
 
 export async function setAnswer(sdpAnswer: string) {
-  if (!window.finSdk) {
+  if (!window.fiaiSDK) {
     return await setAnswerSDP(sdpAnswer)
   }
 

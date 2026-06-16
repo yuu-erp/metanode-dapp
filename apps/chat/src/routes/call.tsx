@@ -36,7 +36,7 @@ function RouteComponent() {
     <>
       <div className="h-dvh w-dvw overflow-hidden bg-black">
         <CallProvider
-          registerEventLog={container.eventLogContainer.registerAbi}
+          registerEventLog={() => container.eventLogContainer.registerAbi()}
           search={search}
           eventLog={container.eventLogContainer.eventLog as any}
           meetingAddress={CONTRACT_ADDRESSES.meeting}

@@ -1005,12 +1005,6 @@
         "internalType": "address",
         "name": "group",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "pinnerAlias",
-        "type": "string"
       }
     ],
     "name": "MessagePinnedAnonymous",
@@ -4208,25 +4202,6 @@
         "internalType": "bool",
         "name": "isValid",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "messagePinner",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
       }
     ],
     "stateMutability": "view",

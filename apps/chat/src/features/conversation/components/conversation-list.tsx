@@ -32,23 +32,15 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
         uiActions.setDiscardRecording(true)
         return
       }
-      if (
-        conversation.conversationType === 'group' ||
-        conversation.conversationType === 'anonymous_group'
-      ) {
-        navigate({
-          to: '/$type/$id',
-          params: { id: conversation.conversationId, type: conversation.conversationType }
-        })
-      } else {
-        navigate({
-          to: '/$type/$id',
-          params: { id: conversation.conversationId, type: 'p2p' }
-        })
-      }
+      navigate({
+        to: '/$type/$id',
+        params: { id: conversation.conversationId, type: conversation.conversationType }
+      })
     },
     [navigate, micOpen]
   )
+
+  console.log('filteredConversations', filteredConversations)
   return (
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (

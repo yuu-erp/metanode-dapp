@@ -94,6 +94,7 @@ function RouteComponent() {
             <ListWallet wallets={data} onSlideChange={onChangeWallet} />
           </div>
           <ButtonGroup
+            activeWallet={activeWallet}
             onConnectWallet={handleConnectWallet}
             isLoading={isPending}
             onCreateWallet={onCreateWallet}

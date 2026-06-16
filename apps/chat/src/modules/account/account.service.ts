@@ -118,7 +118,7 @@ export class AccountService {
       lastName: profile.lastName,
       avatar: profile.avatar,
       bio: profile.bio,
-      hiddenAddress: address
+      hiddenAddress: hiddenWallet
     })
 
     const activeAccount = activateAccount(account)

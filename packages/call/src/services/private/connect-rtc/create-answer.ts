@@ -20,7 +20,7 @@ export type CreateAnswerMetadata = {
 }
 
 export async function createAnswer(sdpOffer: string, metadata: CreateAnswerMetadata = {}) {
-  if (!window.finSdk) {
+  if (!window.fiaiSDK) {
     return (
       await sendCommand('setOfferSDP', {
         sdp: sdpOffer,

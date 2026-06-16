@@ -37,7 +37,7 @@ export function useHandleRemoteTracks() {
           mediaActions.removeUser(user)
         }
       }
-
+      console.log('thanhduy - tracktracktracktrack', track)
       attachTrackToStream(streamKey, track)
     }
 

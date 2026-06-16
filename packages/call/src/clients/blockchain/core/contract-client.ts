@@ -17,14 +17,26 @@ export class ContractClient {
       throw new Error(`ABI not found: ${name}`)
     }
 
-    return (inputData: I, to = '', from = '') => {
-      return this.transport.call({
-        from: from || this.from,
-        to: to || this.to,
-        abi,
-        inputData,
-        ...options
-      }) as Promise<O>
+    return async (inputData: I, to = '', from = '') => {
+      try {
+        const rs = (await this.transport.call({
+          from: from || this.from,
+          to: to || this.to,
+          abi,
+          inputData,
+          ...options
+        })) as Promise<O>
+        if (name === 'createRoom') {
+          console.log('thanhduy - createRoom rs', { rs })
+        }
+        return rs
+      } catch (error) {
+        console.error({
+          error,
+          abi
+        })
+        throw error
+      }
     }
   }
 }

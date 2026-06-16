@@ -104,11 +104,6 @@ export type AppEvents = {
     fileKey: string
     filePath: string
   }
-  // GROUP
-  'group.joined': {
-    contractAddress: string
-    conversationType: ConversationType
-  }
 
   // CALL
   'call.received': Omit<MeetingViewInput, 'hiddenAddress'>
@@ -125,9 +120,6 @@ export type AppEvents = {
     roomId: string
     user: string
   }
-
-  //USER
-  'user.added': null
 
   //NOTI
   'noti:add': {

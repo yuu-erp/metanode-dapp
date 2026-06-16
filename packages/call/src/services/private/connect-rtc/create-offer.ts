@@ -35,10 +35,15 @@ async function cleanupPeerConnectionTracks() {
 }
 
 export async function createOffer() {
-  if (!window?.finSdk) {
+  console.log('thanhduy - createOffer 1', window.fiaiSDK)
+  if (!window?.fiaiSDK) {
+    console.log('thanhduy - createOffer 2')
+
     const rs = await registerWebRTCIce(ICE_SERVERS)
+    console.log('thanhduy - createOffer 3', { rs })
+
     callActions.initEnable()
-    return rs.sdp
+    return rs?.sdp ?? rs
   }
 
   cleanupPeerConnectionTracks()
@@ -49,5 +54,5 @@ export async function createOffer() {
 
   const offer = await pc.createOffer()
   await pc.setLocalDescription(offer)
-  return offer.sdp!
+  return offer?.sdp! ?? offer
 }

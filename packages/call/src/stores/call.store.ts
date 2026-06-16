@@ -42,7 +42,7 @@ export const callStore = create<CallStore>()(
     allowed: { ...defaultUserSourceState },
     enabled: { ...defaultUserSourceState },
     initEnable: async () => {
-      const isWeb = window.finSdk
+      const isWeb = window.fiaiSDK
 
       const camOn = isWeb ? true : await isCameraOn()
       const micMute = isWeb ? true : await isMicMuted()
@@ -75,7 +75,7 @@ export const callStore = create<CallStore>()(
     },
 
     fetchPermission: async () => {
-      if (window.finSdk) return
+      if (window.fiaiSDK) return
       const [camera, microphone] = await Promise.all([
         navigator.permissions.query({ name: 'camera' }),
         navigator.permissions.query({ name: 'microphone' })

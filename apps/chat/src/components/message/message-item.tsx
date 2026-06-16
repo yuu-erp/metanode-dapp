@@ -33,8 +33,10 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
   }
 
   const behavior = isMobile ? { onClick: openModal } : { onContextMenu: openModal }
-
+  console.log('message data', data)
   if (!data) return null
+  if (data.type === 'call_status' && !data.isMine) return null
+
   return (
     <div
       message-id={id}

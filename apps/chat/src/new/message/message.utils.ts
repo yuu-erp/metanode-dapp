@@ -49,7 +49,7 @@ export async function p2pMessageToBaseMessage(input: BCP2pMessage): Promise<Base
     content: input?.encryptedContent ?? input.finalContent ?? '',
     sender: input.sender,
     id: input.messageId,
-    timestamp: input.timestamp,
+    timestamp: +input.timestamp * 1000,
     isRead: input.isRead,
     isMine,
     reactions: p2pReactionToReactionItems({
@@ -81,14 +81,17 @@ function groupReactionToReactionItems(value: Params2): ReactionItemData[] {
     reactor
   }))
 }
-export async function groupMessageToBaseMessage(input: BCGroupMessage): Promise<BaseMessage> {
+export async function groupMessageToBaseMessage(
+  input: BCGroupMessage,
+  isAnonymous?: boolean
+): Promise<BaseMessage> {
   const account = await getCurrentAccount()
-
+  console.log('input', input)
   return {
     content: input.finalContent,
-    sender: input.author,
+    sender: isAnonymous ? input.authorAlias! : input.author,
     id: input.messageId,
-    timestamp: input.timestamp,
+    timestamp: +input.timestamp * 1000,
     isRead: input.readBy.some((i) => !compareAddress(i, account.address)),
     reactions: groupReactionToReactionItems(input.reactions)
   }

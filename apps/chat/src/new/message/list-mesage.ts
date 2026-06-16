@@ -42,7 +42,7 @@ async function getMessaeges(
           page
         }
       })
-      return await Promise.all(rs.map(groupMessageToBaseMessage))
+      return await Promise.all(rs.map((message) => groupMessageToBaseMessage(message)))
     }
 
     case 'anonymous_group': {
@@ -55,7 +55,7 @@ async function getMessaeges(
           sender: account.address
         }
       })
-      return rs.map(groupMessageToBaseMessage)
+      return await Promise.all(rs.map((message) => groupMessageToBaseMessage(message, true)))
     }
 
     default:

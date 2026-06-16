@@ -1103,6 +1103,11 @@
         "internalType": "bool",
         "name": "exists",
         "type": "bool"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -1600,6 +1605,11 @@
             "internalType": "bool",
             "name": "isMuted",
             "type": "bool"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "messageId",
+            "type": "bytes32"
           }
         ],
         "internalType": "struct InboxItem[]",
@@ -1686,6 +1696,11 @@
             "internalType": "bool",
             "name": "isMuted",
             "type": "bool"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "messageId",
+            "type": "bytes32"
           }
         ],
         "internalType": "struct InboxItem[]",
@@ -3560,6 +3575,11 @@
         "internalType": "string",
         "name": "content",
         "type": "string"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
       }
     ],
     "name": "updateCacheFromGroup",

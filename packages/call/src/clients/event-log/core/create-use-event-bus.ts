@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { resolveEventBus } from './helper'
 import { EventBusOrGetter } from './types'
+import { removeOx } from './create-wait-event'
 
 export function createUseEventBus<T extends object>(eventBusOrGetter: EventBusOrGetter) {
   return function useEventBus<K extends keyof T & string>(
@@ -16,6 +17,7 @@ export function createUseEventBus<T extends object>(eventBusOrGetter: EventBusOr
 
       const handler = (e: T[K]) => {
         if (filter && !filter(e)) return
+        e = removeOx(e)
         cbRef.current(e)
       }
 

@@ -59,13 +59,9 @@ export function ConversationsProvider({ children }: React.PropsWithChildren) {
   React.useEffect(() => {
     if (!account) return
     const eventBus = container.eventBus
-    eventBus.on('group.joined', syncConversations)
-    eventBus.on('user.added', syncConversations)
     eventBus.on('message.add', onMessageUpsert)
 
     return () => {
-      eventBus.off('group.joined', syncConversations)
-      eventBus.on('user.added', syncConversations)
       eventBus.off('message.add', syncConversations)
     }
   }, [account, onMessageCreate, syncConversations])

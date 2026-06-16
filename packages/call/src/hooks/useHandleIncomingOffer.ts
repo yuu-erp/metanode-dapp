@@ -1,10 +1,14 @@
-import { formatAddress } from '~/utils'
 import { StreamSource } from '~/@types'
 import { useEventLog } from '~/clients'
-import { createAnswer, emitSetAnswer, PullTrackData } from '~/services'
-import { mediaActions, mediaStore, roomActions } from '~/stores'
+import {
+  createAnswer,
+  emitSetAnswer,
+  PullTrackData,
+  PullTrackWhenNewPersonJoinData
+} from '~/services'
+import { mediaActions, roomActions } from '~/stores'
 import { userActions } from '~/stores/user.store'
-import { decodeDataFromBackend, toStreamKey } from '~/utils'
+import { decodeDataFromBackend, formatAddress, toStreamKey } from '~/utils'
 import { useStringAssembler } from './shared'
 
 export function useHandleIncomingOffer() {
@@ -14,17 +18,25 @@ export function useHandleIncomingOffer() {
     'FrontendEvent',
     async (e) => {
       const data: PullTrackData = decodeDataFromBackend(e.data)
-      const user = formatAddress(data.sourceUser)
-      const sdpString = assemble(user, data.sessionDescription, data.index, data.total)
+      console.log('datadatadata', data)
+      const sdpString = assemble(
+        data.sessionId + data.sourceUser + e.eventType,
+        data.sessionDescription,
+        data.index,
+        data.total
+      )
       if (!sdpString) return
       //handle user
-      userActions.addUser(user)
 
       //handle track
       const grouped: Record<string, string[]> = {}
 
-      const tracksForNative = data.tracks.map((track, index) => {
-        const source: StreamSource = index < 2 ? 'user' : 'display'
+      const tracksForNative = data.tracks.map(({ track, user }, index) => {
+        user = formatAddress(user)
+        userActions.addUser(user)
+
+        const source: StreamSource = index % 4 < 2 ? 'user' : 'display'
+        console.log('user, source', { user, source })
         const streamKey = toStreamKey(user, source)
         ;(grouped[streamKey] ||= []).push(track.mid)
         mediaActions.setMidToStreamKey(track.mid, streamKey)
@@ -35,7 +47,7 @@ export function useHandleIncomingOffer() {
           streamKey
         }
       })
-
+      console.log('thanhduy - tracksForNative', { tracksForNative, e, data, grouped })
       Object.entries(grouped).forEach(([streamKey, mids]) => {
         mediaActions.setStreamMids(streamKey, mids)
       })
@@ -43,16 +55,70 @@ export function useHandleIncomingOffer() {
       //xu li backend
       const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
       const sdpAnswer = await createAnswer(offer.sdp!, {
-        sourceUser: user,
+        sourceUser: data.sourceUser,
         eventType: e.eventType,
         sessionId: data.sessionId,
         tracks: tracksForNative
       })
       await emitSetAnswer(sdpAnswer)
     },
-    (e) =>
-      roomActions.isEventOwnedByMe(e, e.toUser) &&
-      (e.eventType === 'PULL_TRACK_FROM_NEW_PERSON_JOIN' ||
-        e.eventType === 'PULL_TRACK_WHEN_ME_JOIN')
+    (e) => {
+      console.log('[debuggggg] e', e)
+      return roomActions.isEventOwnedByMe(e, e.toUser) && e.eventType === 'PULL_TRACK_WHEN_ME_JOIN'
+    }
+  )
+
+  useEventLog(
+    'FrontendEvent',
+    async (e) => {
+      const data: PullTrackWhenNewPersonJoinData = decodeDataFromBackend(e.data)
+      const user = formatAddress(data.sourceUser)
+      const sdpString = assemble(
+        data.sessionId + data.sourceUser + e.eventType,
+        data.sessionDescription,
+        data.index,
+        data.total
+      )
+      if (!sdpString) return
+
+      const grouped: Record<string, string[]> = {}
+
+      const tracksForNative = data.tracks.map((track, index) => {
+        userActions.addUser(user)
+
+        const source: StreamSource = index % 4 < 2 ? 'user' : 'display'
+        console.log('user, source', { user, source })
+        const streamKey = toStreamKey(user, source)
+        ;(grouped[streamKey] ||= []).push(track.mid)
+        mediaActions.setMidToStreamKey(track.mid, streamKey)
+
+        return {
+          ...track,
+          source,
+          streamKey
+        }
+      })
+      console.log('thanhduy - tracksForNative', { tracksForNative, e, data, grouped })
+      Object.entries(grouped).forEach(([streamKey, mids]) => {
+        mediaActions.setStreamMids(streamKey, mids)
+      })
+
+      //xu li backend
+      const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
+      const sdpAnswer = await createAnswer(offer.sdp!, {
+        sourceUser: data.sourceUser,
+        eventType: e.eventType,
+        sessionId: data.sessionId,
+        tracks: tracksForNative
+      })
+      await emitSetAnswer(sdpAnswer)
+    },
+    (e) => {
+      console.log('[debuggggg] e', e)
+      return (
+        roomActions.isEventOwnedByMe(e, e.toUser) &&
+        e.eventType === 'PULL_TRACK_FROM_NEW_PERSON_JOIN'
+      )
+    }
   )
 }

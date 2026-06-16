@@ -21,6 +21,7 @@ export interface Conversation {
 
   admin?: string
   isVerifed?: boolean
+  lastMessageId?: string
 }
 
 export enum HistoryVisibility {

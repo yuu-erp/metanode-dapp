@@ -11,6 +11,7 @@ declare global {
     reactions: any[]
     readBy: string[]
     isEdited: true
+    authorAlias?: string
   }
   type BCP2pMessage = {
     messageId: string

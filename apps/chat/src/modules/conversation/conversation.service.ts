@@ -166,9 +166,13 @@ export class ConversationService {
   async syncByAccount(account: Account): Promise<void> {
     try {
       console.log('syncByAccount asdfasdf 1')
-      const inboxs = await this.userContract.getFullInbox({
+      const inboxs = await this.userContract.getFullInboxPaginatedOptimized({
         from: account.hiddenAddress,
-        to: account.contractAddress
+        to: account.contractAddress,
+        inputData: {
+          offset: 0,
+          limit: 50
+        }
       })
       console.log('syncByAccount asdfasdf 2', inboxs)
 

@@ -1321,9 +1321,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "messageId",
-        "type": "bytes32"
+        "internalType": "bytes32[]",
+        "name": "messageIds",
+        "type": "bytes32[]"
       },
       {
         "indexed": true,
@@ -1336,12 +1336,6 @@
         "internalType": "address",
         "name": "group",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isPinned",
-        "type": "bool"
       }
     ],
     "name": "PinnedMessagesUpdated",
@@ -3622,25 +3616,6 @@
         "internalType": "bool",
         "name": "isValid",
         "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "name": "messagePinner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",

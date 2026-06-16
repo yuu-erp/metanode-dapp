@@ -7,6 +7,6 @@ export function useSyncAccount() {
 
   useEffect(() => {
     if (!account?.hiddenAddress) return
-    contractClient.setFrom(account.address)
+    contractClient.setFrom(account.hiddenAddress)
   }, [account?.hiddenAddress])
 }

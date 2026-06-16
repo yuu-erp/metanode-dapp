@@ -81,26 +81,28 @@ function RouteComponent() {
 
   return (
     <ConversationsProvider>
-      <BackgroundSyncProvider>
+      <div className="flex flex-row h-dvh w-dvw overflow-hidden">
         <IncomingCall />
-        <SidebarProvider
-          style={
-            {
-              '--sidebar-width': '24rem',
-              '--sidebar-background': 'transparent'
-            } as React.CSSProperties
-          }
-        >
-          <AppSidebar />
-          <SidebarInset className="bg-transparent">
-            <div className="flex-1 flex flex-col min-w-0 relative">
-              <Outlet />
-              {showNavbar && <NavbarMenu />}
-              <VoiceRecorder />
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
-      </BackgroundSyncProvider>
+        <BackgroundSyncProvider>
+          <SidebarProvider
+            style={
+              {
+                '--sidebar-width': '24rem',
+                '--sidebar-background': 'transparent'
+              } as React.CSSProperties
+            }
+          >
+            <AppSidebar />
+            <SidebarInset className="bg-transparent">
+              <div className="flex-1 flex flex-col min-w-0 relative">
+                <Outlet />
+                {showNavbar && <NavbarMenu />}
+                <VoiceRecorder />
+              </div>
+            </SidebarInset>
+          </SidebarProvider>
+        </BackgroundSyncProvider>
+      </div>
     </ConversationsProvider>
   )
 }

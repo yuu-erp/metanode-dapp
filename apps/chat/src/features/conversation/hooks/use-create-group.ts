@@ -1,17 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 import { container } from '@/container'
-import type { ConversationType, PayloadCreateGroup } from '@/modules/conversation'
 import type { Account } from '@/modules/account'
-import { CONVERSATION_QUERY_KEY } from '@/shared/lib/react-query'
+import type { ConversationType, PayloadCreateGroup } from '@/modules/conversation'
+import { addConversation } from '@/new/conversation/list-conversation'
 import { useNavigate } from '@tanstack/react-router'
 
 export function useCreateGroup(groupType: ConversationType) {
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
 
   return useMutation({
     mutationFn: async ({ account, payload }: { account: Account; payload: PayloadCreateGroup }) => {
+      let id = ''
       if (groupType === 'group') {
         const group = await container.conversationService.createGroup(account, payload)
         // Fetch latest list
@@ -24,7 +24,7 @@ export function useCreateGroup(groupType: ConversationType) {
           payload.members
         )
 
-        return group.groupContractAddress
+        id = group.groupContractAddress
       } else if (groupType === 'anonymous_group') {
         const group = await container.conversationService.createAnonymousCommunity(account, payload)
 
@@ -35,13 +35,12 @@ export function useCreateGroup(groupType: ConversationType) {
           payload.members
         )
 
-        return group.groupContract
+        id = group.groupContract
       }
+      await addConversation({ type: groupType, id })
+      return id
     },
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(variables.account.address)
-      })
+    onSuccess: (_data) => {
       navigate({
         to: '/$type/$id',
         params: { id: _data!, type: groupType }

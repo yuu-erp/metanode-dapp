@@ -20,7 +20,7 @@ export function useLeaveGroup() {
 
       const payload = {
         type: 'system',
-        eventName: 'leave_group'
+        kind: 'leave_group'
       }
 
       const encryptMessage = (

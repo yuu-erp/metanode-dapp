@@ -31,7 +31,7 @@ export function useGoToMeetingView() {
         await Promise.race([
           sendCommand('startCallRTC', {
             query
-            // url: 'http://192.168.1.180:5173/'
+            // url: 'http://192.168.1.2:5174/'
           }),
           new Promise<void>((resolve) => {
             setTimeout(() => resolve(), 2000)

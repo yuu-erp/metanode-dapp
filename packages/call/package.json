@@ -29,7 +29,6 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@metanodejs/system-core": ">=0",
     "react": ">=18",
     "react-dom": ">=18",
     "@tanstack/react-query": ">=5"
@@ -46,6 +45,7 @@
   },
   "dependencies": {
     "immer": "^11.1.4",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "@metanodejs/system-core": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core"
   }
 }

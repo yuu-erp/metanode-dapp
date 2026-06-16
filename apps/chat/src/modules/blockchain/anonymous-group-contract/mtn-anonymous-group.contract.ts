@@ -54,6 +54,17 @@ export class AnonymousGroupContract extends MtnContract {
     })
   }
 
+  groupAvatar(payload: TransactionPayload<{}>) {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'groupAvatar',
+      abiData: anonymousGroupAbi.groupAvatar,
+      feeType: 'read'
+    })
+  }
+
   async getProcessedGroupMessagesWithReactions(
     payload: TransactionPayload<{
       page: number
@@ -248,6 +259,18 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'setComposingStatusCommunity',
       abiData: anonymousGroupAbi.setComposingStatusCommunity as any,
       feeType: 'sc',
+      inputData
+    })
+  }
+
+  getListPinnedMessagesCommunity(payload: TransactionPayload<{}>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction<string[]>({
+      from,
+      to,
+      functionName: 'getListPinnedMessagesCommunity',
+      abiData: anonymousGroupAbi.getListPinnedMessagesCommunity as any,
+      feeType: 'read',
       inputData
     })
   }

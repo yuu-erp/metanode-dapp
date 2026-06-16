@@ -1,30 +1,33 @@
 import { LeaveGroupDialog } from '@/components/leave-group-dialog'
 import { DiscardRecordingModal } from '@/components/modal/discard-recording-modal'
 import { WindowButtons } from '@/components/window-buttons'
+import { container } from '@/container'
 import { EventLogProvider } from '@/contexts'
 import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
+import { addConversation } from '@/new/conversation/list-conversation'
 import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
 import { createRootRoute } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { Toaster } from 'sonner'
 console.log('APP CHAT V - 1.0.1 =====>')
 
 export const Route = createRootRoute({
   component: () => {
+    useEffect(() => {
+      const off = container.eventLogContainer.eventLog.onEventLog((e) => {
+        console.log('[DEBUG13/06] ALL EVENT LOG', e)
+      })
+
+      return () => {
+        off()
+      }
+    }, [])
+
     return (
       <>
-        {/* <button
-          className="right-0 top-0 fixed z-50 bg-black size-20"
-          onClick={() => {
-            container.factoryContract.checkUserContract({
-              from: account!?.address,
-              inputData: {
-                user: account!.address
-              }
-            })
-          }}
-        /> */}
+        <button className="right-0 top-0 fixed z-50 bg-black size-20" onClick={async () => {}} />
         {/* <Test /> */}
         <DiscardRecordingModal />
         <WindowButtons />
