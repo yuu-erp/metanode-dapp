@@ -10,12 +10,14 @@ interface ConversationContactProps extends React.HTMLAttributes<HTMLDivElement> 
   name: string
   username?: string
   type?: ConversationType
+  isPrivate?: boolean
 }
 function ConversationContact({
   name,
   username,
   type = 'p2p',
   className,
+  isPrivate,
   ...props
 }: ConversationContactProps) {
   const { t } = useI18N()
@@ -31,7 +33,7 @@ function ConversationContact({
         <AvatarUser size="lg" url="" name={name} type={type} />
         <div className="grid flex-1 text-left text-sm leading-tight h-full">
           <div className="text-base font-bold flex-1 line-clamp-1 break-all">
-            {type === 'private' ? t(name) : name}
+            {isPrivate ? t(name) : name}
           </div>
           {username && (
             <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">@{username}</div>

@@ -8,6 +8,7 @@ import { formatAddress } from '@/shared/utils'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
 async function getPinnedMessage(account: Account, input: BaseConversation) {
+  console.log('first', { account, input })
   try {
     switch (input.type) {
       case 'p2p': {

@@ -5,7 +5,6 @@ import { container } from '@/container'
 import { EventLogProvider } from '@/contexts'
 import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-modal'
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
-import { addConversation } from '@/new/conversation/list-conversation'
 import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
 import { createRootRoute } from '@tanstack/react-router'
@@ -27,7 +26,7 @@ export const Route = createRootRoute({
 
     return (
       <>
-        <button className="right-0 top-0 fixed z-50 bg-black size-20" onClick={async () => {}} />
+        {/* <button className="right-0 top-0 fixed z-50 bg-black size-20" onClick={async () => {}} /> */}
         {/* <Test /> */}
         <DiscardRecordingModal />
         <WindowButtons />

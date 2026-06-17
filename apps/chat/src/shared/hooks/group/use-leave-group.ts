@@ -16,16 +16,21 @@ export function useLeaveGroup() {
   return useMutation({
     mutationFn: async () => {
       if (!account || !conversation) return
+      console.log('leave group 1')
       console.log('conversationKey', conversation.conversationKey)
 
       const payload = {
         type: 'system',
         kind: 'leave_group'
       }
+      console.log('leave group 2')
 
       const encryptMessage = (
         await encryptAESGCM(conversation.conversationKey, JSON.stringify(payload))
       )?.result
+
+      console.log('leave group 3')
+
       await container.groupContract.leaveGroup({
         from: account.hiddenAddress,
         to: conversation.conversationId,
@@ -33,6 +38,7 @@ export function useLeaveGroup() {
           encryptedContent: encryptMessage
         }
       })
+      console.log('leave group 4')
 
       await container.conversationService.deleteConversation(
         account.address,
@@ -41,6 +47,8 @@ export function useLeaveGroup() {
       queryClient.invalidateQueries({
         queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
       })
+      console.log('leave group 5')
+
       navigate({ to: '/' })
     }
   })

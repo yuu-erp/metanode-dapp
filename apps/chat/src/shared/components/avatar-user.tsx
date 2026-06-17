@@ -72,6 +72,7 @@ interface AvatarUserProps
   avatarSize?: number
   textSize?: number
   iconSize?: number
+  isPrivate?: boolean
 }
 
 /* ---------------------------------- */
@@ -97,6 +98,7 @@ function AvatarUser({
   textSize,
   iconSize,
   className,
+  isPrivate,
   ...props
 }: AvatarUserProps) {
   const isCustomAvatarSize = typeof avatarSize === 'number'
@@ -114,7 +116,7 @@ function AvatarUser({
       style={resolveSize(avatarSize)}
       {...props}
     >
-      {type !== 'private' && <AvatarImage src={url} alt={`@${name}`} />}
+      {!isPrivate && <AvatarImage src={url} alt={`@${name}`} />}
       <AvatarFallback
         className={cn(
           'rounded-full flex items-center justify-center',
@@ -122,14 +124,13 @@ function AvatarUser({
           !textSize && fallbackTextVariants({ size })
         )}
         style={{
-          background:
-            type === 'private'
-              ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
-              : getTelegramGradient(name),
+          background: isPrivate
+            ? 'linear-gradient(135deg, rgb(102, 95, 255), rgb(130, 177, 255))'
+            : getTelegramGradient(name),
           fontSize: textSize
         }}
       >
-        {type === 'private' ? (
+        {isPrivate ? (
           <BookmarkIcon
             className={cn(!iconSize && bookmarkIconVariants({ size }))}
             style={{

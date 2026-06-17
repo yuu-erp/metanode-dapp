@@ -30,9 +30,13 @@ export const createConversationDetail = (input: BaseConversation) =>
         p2p: async () => {
           const rs = await container.userContract.userProfile({
             from: account.hiddenAddress,
-            to: account.contractAddress
+            to: input.id
           })
-          return { name: rs.firstName, avatar: rs.avatar, userName: rs.userName }
+          return {
+            name: `${rs.lastName} ${rs.firstName}`,
+            avatar: rs.avatar,
+            userName: rs.userName
+          }
         },
         group: async () => {
           const rs = await container.groupContract.getGroupInfo({

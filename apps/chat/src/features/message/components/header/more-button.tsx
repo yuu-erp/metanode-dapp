@@ -7,7 +7,7 @@ export type MoreButtonProps = {}
 
 export const MoreButton = memo(({}: MoreButtonProps) => {
   const { type } = useConversationParams()
-  if (type === 'private' || type === 'p2p') return null
+  if (type === 'p2p') return null
   return (
     <MorePopover>
       <EllipsisVertical />

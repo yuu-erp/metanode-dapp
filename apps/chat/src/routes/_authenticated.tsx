@@ -2,6 +2,7 @@ import { VoiceRecorder } from '@/components/voice-recorder'
 import { container } from '@/container'
 import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
+import { useGroupEvent } from '@/hooks/group/use-group-event'
 import { useMessageEvents } from '@/hooks/mesage/use-message-events'
 import { useSyncCall } from '@/hooks/sync/use-sync-call'
 import { useSyncAccount } from '@/new/me/use-sync-account'
@@ -62,6 +63,7 @@ function RouteComponent() {
   useDisabled()
   useMessageEvents()
   useMarkAsReadv2()
+  useGroupEvent()
   // useConversationList()
   const syncCall = useSyncCall()
 

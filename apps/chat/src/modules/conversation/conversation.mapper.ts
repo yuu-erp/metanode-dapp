@@ -20,6 +20,7 @@ export function mapperToConversation(raw: any): Conversation {
         ? undefined
         : new Date(Number(raw.latestMessageTimestamp) * 1000),
     admin: raw.admin,
-    isVerifed: raw?.isVerifed
+    isVerifed: raw?.isVerifed,
+    isPrivate: raw?.isPrivate
   }
 }

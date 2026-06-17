@@ -20,6 +20,7 @@ async function getMessaeges(
 ): Promise<BaseMessage[]> {
   const { id, type } = converstaion
   const account = await getCurrentAccount()
+  console.log('thanhduy -log type ', type)
   switch (type) {
     case 'p2p': {
       const rs = await container.userContract.getProcessedP2PMessages({
@@ -56,6 +57,19 @@ async function getMessaeges(
         }
       })
       return await Promise.all(rs.map((message) => groupMessageToBaseMessage(message, true)))
+    }
+
+    case 'private': {
+      const rs = await container.userContract.getProcessedP2PMessages({
+        from: account.address,
+        to: account.contractAddress,
+        inputData: {
+          partnerContractAddress: account.contractAddress,
+          limit,
+          page
+        }
+      })
+      return await Promise.all(rs.map(p2pMessageToBaseMessage))
     }
 
     default:
@@ -128,7 +142,7 @@ export function useMessaeges() {
     fetchNextPage()
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const ids = data?.pages.flat() ?? []
+  const ids = [...new Set(data?.pages.flat() ?? [])]
 
   return { ids, isLoading, isError, loadMoreRef, isFetchingNextPage, hasNextPage }
 }

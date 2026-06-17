@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getAlias } from '../conversation/my-info'
 
 export async function getCurrentIdentity(base: BaseConversation) {
+  console.log('baase', base)
   switch (base.type) {
     case 'p2p':
       return (await getCurrentAccount()).contractAddress
@@ -12,7 +13,7 @@ export async function getCurrentIdentity(base: BaseConversation) {
     case 'anonymous_group':
       return getAlias(base.id)
     default:
-      throw new Error('[getSender] Invalid type')
+      throw new Error('[getCurrentIdentity] Invalid type')
   }
 }
 

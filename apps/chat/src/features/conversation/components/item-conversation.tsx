@@ -1,6 +1,6 @@
 'use client'
 import { VerifiedIcon } from '@/assets/icons'
-import type { ConversationType } from '@/modules/conversation'
+import type { Conversation, ConversationType } from '@/modules/conversation'
 import type { Message } from '@/modules/message'
 import AvatarUser from '@/shared/components/avatar-user'
 import { PinIcon } from '@/shared/components/icons'
@@ -13,6 +13,7 @@ import { sendCommand } from '@metanodejs/system-core'
 import { CheckIcon } from 'lucide-react'
 import * as React from 'react'
 import { ConversationContextMenu } from './conversation-context-menu'
+import { useMessageById } from '@/new/message'
 
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
@@ -25,6 +26,7 @@ interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   isMine?: boolean
   isVerified?: boolean
   conversationId?: string
+  conversation: Conversation
 }
 function ItemConversation({
   name,
@@ -38,10 +40,22 @@ function ItemConversation({
   isMine = false,
   isVerified,
   conversationId = '',
+  conversation,
   ...props
 }: ItemConversationProps) {
   const { t } = useI18N()
   const { data: account } = useCurrentAccount()
+
+  const { data: lastMesasgeV2 } = useMessageById(conversation.lastMessageId, {
+    type: conversation?.conversationType,
+    id: conversation?.conversationId
+  })
+
+  if (conversation.isPrivate) {
+    console.log('conversationconversation', conversation)
+  }
+
+  const finalLastMessage = lastMesasgeV2 || lastMessage
 
   const { handlers, isLongPressActive } = useLongPress({
     threshold: 300,
@@ -75,11 +89,17 @@ function ItemConversation({
             isLongPressActive && 'scale-95'
           )}
         >
-          <AvatarUser size="lg" url={avatar} name={name} type={type} />
+          <AvatarUser
+            size="lg"
+            url={avatar}
+            name={name}
+            type={type}
+            isPrivate={conversation.isPrivate}
+          />
           <div className="grid flex-1 text-left text-sm leading-tight">
             <div className="w-full flex items-center justify-between gap-3">
               <div className="text-lg font-bold flex-1 line-clamp-1 break-all flex-1 flex flex-row gap-2 items-center">
-                <p>{type === 'private' ? t(name) : name}</p>
+                <p>{conversation.isPrivate ? t(name) : name}</p>
                 {isVerified && <VerifiedIcon className="size-4" />}
               </div>
               <div className="flex items-center gap-1">
@@ -90,7 +110,7 @@ function ItemConversation({
             <div className="w-full flex items-center justify-between gap-3">
               <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium pointer-events-none">
                 {/* Priview message */}
-                {lastMessage && <MessagePreview message={lastMessage} />}
+                {finalLastMessage && <MessagePreview message={finalLastMessage} />}
               </div>
               {unreadCount > 0 && !compareAddress(conversationId, account?.contractAddress) && (
                 <Badge

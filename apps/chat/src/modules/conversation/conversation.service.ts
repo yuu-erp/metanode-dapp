@@ -28,6 +28,7 @@ import {
   type PayloadAddMembers,
   type PayloadCreateGroup
 } from './conversation.type'
+import { compareAddress } from '@/shared/lib'
 
 export class ConversationService {
   constructor(
@@ -174,7 +175,6 @@ export class ConversationService {
           limit: 50
         }
       })
-      console.log('syncByAccount asdfasdf 2', inboxs)
 
       const conversations = await fulfilledPromises(
         inboxs.map(async (item) => {
@@ -187,7 +187,6 @@ export class ConversationService {
           const isGroup =
             item.conversationType === 'group' || item.conversationType === 'anonymous_group'
 
-          console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- item', item.conversationType)
           if (isGroup) {
             if (item.conversationType === 'group') {
               groupInfo = await this.getGroupInfo(account, item.conversationId)
@@ -263,10 +262,11 @@ export class ConversationService {
             name,
             avatar: userProfile.avatar,
             conversationKey: conversationKey,
-            conversationType:
-              item.conversationId === account.contractAddress
-                ? 'private'
-                : (item.conversationType as any),
+            conversationType: item.conversationType ?? 'p2p',
+            isPrivate: compareAddress(item.conversationId, account.contractAddress),
+            // item.conversationId === account.contractAddress
+            //   ? 'private'
+            //   : (item.conversationType as any),
             // Construct a fake object that mapperToMessage can parse
             lastMessage: !lastMessageDecrypted
               ? undefined
@@ -283,10 +283,9 @@ export class ConversationService {
           return rs
         })
       )
-
       console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- conversations', conversations)
       const finalConversations = conversations.filter(Boolean) as Conversation[]
-
+      console.log('finalConversations 2', finalConversations)
       await this.repository.bulkUpsert(finalConversations)
     } catch (error) {
       console.error('full ib error', error)
@@ -477,8 +476,9 @@ export class ConversationService {
       name: 'savedMessages',
       avatar: '',
       username: account.username,
-      conversationType: 'private',
-      updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000)
+      conversationType: 'p2p',
+      updatedAt: new Date(Number(Math.floor(Date.now() / 1000)) * 1000),
+      isPrivate: true
     })
   }
 

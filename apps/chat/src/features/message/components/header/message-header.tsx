@@ -24,13 +24,15 @@ interface ChatHeaderProps {
 function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
   const { t } = useI18N()
   const navigate = useNavigate()
-  const { base } = useCurrentState()
+  const { base, isPrivate } = useCurrentState()
   const { type, id } = base
   const [name, setName] = React.useState('')
-
+  console.log('isPrivate', isPrivate)
   React.useEffect(() => {
     if (!id) return
     ;(async () => {
+      if (isPrivate) return setName(t('savedMessages'))
+
       switch (type) {
         case 'p2p': {
           const rs = (await getUserInfo(id)).firstName
@@ -45,7 +47,7 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
         }
       }
     })()
-  }, [id, type])
+  }, [id, type, isPrivate])
 
   return (
     <WapperHeader alwaysScrolled position="sticky" relativeNode={<SearchInChatPopover />}>
@@ -63,11 +65,9 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
             })
           }
         >
-          <AvatarUser size="md" url="" name={name} type={type} />
+          <AvatarUser isPrivate={isPrivate} size="md" url="" name={name} type={type} />
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <div className="text-base font-bold flex-1 line-clamp-1 break-all">
-              {type === 'private' ? t(name) : name}
-            </div>
+            <div className="text-base font-bold flex-1 line-clamp-1 break-all">{name}</div>
             {/* {type === 'p2p' && username && (
               <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">@{username}</div>
             )} */}

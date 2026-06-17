@@ -35,6 +35,8 @@ function RouteComponent() {
   return (
     <>
       <div className="h-dvh w-dvw overflow-hidden bg-black">
+        <div className="fixed left-0 top-0 text-red-300 z-50">From App Chat</div>
+
         <CallProvider
           registerEventLog={() => container.eventLogContainer.registerAbi()}
           search={search}

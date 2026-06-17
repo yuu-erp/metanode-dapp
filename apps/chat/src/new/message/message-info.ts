@@ -59,7 +59,7 @@ export async function getMessageInfoById(id: string, input: BaseConversation) {
 export const createMessageInfoQuery = (id: string = '', input: BaseConversation) =>
   queryOptions({
     queryKey: MESSAGE_QUERY_KEY.info(id),
-    enabled: !!id && !!input.id && id.length === 64,
+    enabled: !!id && !!input.id && id.length === 64 && !!input?.id && !!input?.type,
     staleTime: Infinity,
     retry: 0,
     queryFn: async () => getMessageInfoById(id, input)

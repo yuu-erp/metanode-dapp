@@ -14,11 +14,12 @@ import { getGroupMemberList } from '../conversation/group'
 import { getAlias } from '../conversation/my-info'
 import { uploadFileV2 } from '../file'
 import { setFileMetadata } from '../file/file-info'
+import { getCurrentIdentity } from '../me'
 import { getUserContractAddress } from '../user/user-info'
 import { encryptMessage } from './crypto-message'
 import { addIdInMessageList, replaceIdInMessageList } from './list-mesage'
 import { getMessageById, removeMessgeById, setMessageInfo } from './message-info'
-import { fullMessageToData, getSender } from './message.utils'
+import { fullMessageToData } from './message.utils'
 
 export type SendMessageInput = { type: string; [key: string]: any }
 
@@ -109,7 +110,7 @@ async function createOptimisticMessage(input: SendMessageInput, base: BaseConver
   const optimisticMessage: FulleMessage = {
     ...input,
     id,
-    sender: await getSender(base),
+    sender: await getCurrentIdentity(base),
     timestamp: Date.now(),
     status: 'sending',
     isMine: true,

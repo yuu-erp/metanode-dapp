@@ -1,8 +1,9 @@
+import { useAdmin } from '@/shared/hooks/group/use-admin'
 import { useGroupInfo } from '@/shared/hooks/group/use-group-info'
 import { useLeaveGroup } from '@/shared/hooks/group/use-leave-group'
+import { uiActions } from '@/stores/ui.store'
 import { memo } from 'react'
 import { PopoverItem } from '../../../../../components/popover-item'
-import { usePreLeaveGroup } from '@/shared/hooks/group/use-pre-leave-group'
 
 export type LeaveGroupButtonProps = {
   onClose?: () => void
@@ -11,17 +12,20 @@ export type LeaveGroupButtonProps = {
 export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
   const { isGroup } = useGroupInfo()
   const { mutate: leaveGroup } = useLeaveGroup()
-  const pre = usePreLeaveGroup()
+  const { isAdmin } = useAdmin()
 
   if (!isGroup) return null
 
   return (
     <PopoverItem
       onClick={() => {
-        const isContinue = pre()
         onClose?.()
-        if (!isContinue) return
-        leaveGroup()
+
+        if (isAdmin) {
+          uiActions.setLeaveGroupOpen(true)
+        } else {
+          leaveGroup()
+        }
       }}
     >
       Leave group

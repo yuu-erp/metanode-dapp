@@ -12,6 +12,8 @@ import { useCurrentState } from '@/hooks/use-current-state'
 import { NameOnMessageItem } from './name-on-message-item'
 import { MessageReplyPreview } from './message-reply-preview'
 import { MessageForwardPreview } from './message-forward-preview'
+import { SystemMessageItem } from './system-message-item'
+import { MessageUserAvatar } from './message-user-avatar'
 
 export type MessageItemProps = {
   id: string
@@ -25,6 +27,10 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
   const { isPinned } = useIsPinned(id)
   const isInGroup = ['group', 'anonymous_group'].includes(base.type)
 
+  if (base.type === 'group') {
+    console.log('message dataa data', data)
+  }
+
   function openModal(e: any) {
     e.preventDefault()
     e.stopPropagation()
@@ -37,13 +43,15 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
   if (!data) return null
   if (data.type === 'call_status' && !data.isMine) return null
 
+  if (data.type === 'system') return <SystemMessageItem data={data} />
+
   return (
     <div
       message-id={id}
       className={`flex gap-2 mb-4 ${isMine ? 'justify-end' : 'justify-start'} px-2`}
       {...behavior}
     >
-      {/* {isInGroup && <GroupMemberAvatar sender={message.sender} />} */}
+      {isInGroup && !isMine && <MessageUserAvatar data={data} />}
       <div
         className={cn(
           'max-w-[70%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',

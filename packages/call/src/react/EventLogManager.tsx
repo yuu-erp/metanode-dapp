@@ -32,12 +32,15 @@ export const EventLogManager = memo(() => {
   useRequesterEvent()
 
   useEffect(() => {
-    setTimeout(() => {
-      const { users } = useUserStore.getState()
-      if (users.length === 1) {
-        enCallAndCloseView()
-      }
-    }, 1000 * 60)
+    setTimeout(
+      () => {
+        const { users } = useUserStore.getState()
+        if (users.length === 1) {
+          enCallAndCloseView()
+        }
+      },
+      1000 * 60 * 2
+    )
   }, [])
 
   return null

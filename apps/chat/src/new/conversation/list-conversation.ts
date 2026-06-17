@@ -14,9 +14,13 @@ export async function addConversation(
   await queryClient.ensureQueryData(createGetConversationsQueryOptions(account))
   let { detail, messageId = '' } = options
   if (!detail) {
+    console.log('has fetch detail')
     detail = await getConversationDetail(input)
   }
-
+  console.log('input.id', {
+    id: input.id,
+    detail: detail
+  })
   const conversation: Conversation = {
     conversationId: input.id,
     conversationType: input.type as any,
@@ -39,9 +43,10 @@ export async function addConversation(
 
       const self = old.find((item) => compareAddress(item.conversationId, account.contractAddress))
       const finalOld = self ? old.slice(1) : old
+      console.log('finalOld', finalOld)
       const newData = self ? [self, conversation] : [conversation]
 
-      return isExist
+      const newArray = isExist
         ? [
             ...newData,
             ...finalOld.filter(
@@ -49,6 +54,8 @@ export async function addConversation(
             )
           ]
         : [...newData, ...finalOld]
+      console.log('newArray', newArray)
+      return newArray
     }
   )
 }

@@ -3,6 +3,7 @@ import { useCurrentAccount } from '../use-current-account'
 import { useEffect, useRef } from 'react'
 import { container } from '@/container'
 import { getStatusConnected, sendCommand } from '@metanodejs/system-core'
+import { formatAddress } from '@/shared/utils'
 
 async function connectNode(address: string) {
   if (window?.fiaiSDK) return
@@ -33,10 +34,12 @@ export function useRegisterEventLog() {
 
     promise.current?.then(async () => {
       listConversation?.forEach((c) => {
+        const id = formatAddress(c.conversationId)
+
         if (c.conversationType !== 'group' && c.conversationType !== 'anonymous_group') return
-        if (isRegister.current.has(c.conversationId)) return
-        isRegister.current.add(c.conversationId)
-        container.eventLogContainer.eventLog.registerEvent(account?.address, [c.conversationId])
+        if (isRegister.current.has(id)) return
+        isRegister.current.add(id)
+        container.eventLogContainer.eventLog.registerEvent(account?.address, [id])
       })
     })
   }, [listConversation, account])

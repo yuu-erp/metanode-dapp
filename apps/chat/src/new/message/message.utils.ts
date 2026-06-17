@@ -159,16 +159,3 @@ export function fullMessageToData(input: FulleMessage) {
   })
   return newData
 }
-
-export async function getSender(base: BaseConversation) {
-  switch (base.type) {
-    case 'p2p':
-      return (await getCurrentAccount()).contractAddress
-    case 'group':
-      return (await getCurrentAccount()).address
-    case 'anonymous_group':
-      return getAlias(base.id)
-    default:
-      throw new Error('[getSender] Invalid type')
-  }
-}

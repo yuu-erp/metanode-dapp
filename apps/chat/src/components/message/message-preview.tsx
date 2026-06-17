@@ -9,7 +9,7 @@ export type MessagePreviewProps = {
 
 export const MessagePreview = memo(({ id }: MessagePreviewProps) => {
   const { data: message } = useCurrentMessageById(id)
-
+  console.log('MessagePreview', message)
   if (!message) return null
   switch (message.type) {
     case 'text':

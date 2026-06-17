@@ -41,7 +41,10 @@ function ListWallet({ wallets, ...props }: WalletListSliderProps) {
           },
 
           1024: {
-            slidesPerView: 2.8
+            slidesPerView: 1.6
+          },
+          1400: {
+            slidesPerView: 2.4
           }
         }}
         {...props}

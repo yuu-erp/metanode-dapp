@@ -17,7 +17,7 @@ export class DexieConversationRepository implements ConversationRepository {
     const privateConversations = await this.db.conversations
       .where('accountId')
       .equals(accountId)
-      .and((c) => c.conversationType === 'private')
+      .and((c) => !!c?.isPrivate)
       .toArray()
 
     // 2️⃣ Lấy các conversation còn lại, sort theo updatedAt desc
@@ -25,7 +25,7 @@ export class DexieConversationRepository implements ConversationRepository {
       .where('accountId')
       .equals(accountId)
       .reverse()
-      .and((c) => c.conversationType !== 'private')
+      .and((c) => !c.isPrivate)
       .sortBy('updatedAt')
 
     // 3️⃣ Gộp lại: private luôn ở trên

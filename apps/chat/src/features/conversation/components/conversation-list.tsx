@@ -26,6 +26,8 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     )
   }, [conversations, searchKeyword])
 
+  console.log('conversations', conversations)
+
   const handleClickConversation = React.useCallback(
     (conversation: Conversation) => {
       if (micOpen) {
@@ -45,6 +47,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (
         <ItemConversation
+          conversation={item}
           conversationId={item.conversationId}
           key={item.conversationId}
           name={item.name}
@@ -54,7 +57,6 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
           lastMessage={item.lastMessage}
           isMine={Boolean(item.lastMessage?.sender === account?.contractAddress)}
           type={item.conversationType}
-          isPin={item.conversationType === 'private'}
           onClick={() => handleClickConversation(item)}
           isVerified={item.isVerifed}
         />
