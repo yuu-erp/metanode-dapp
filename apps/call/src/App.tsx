@@ -14,8 +14,6 @@ const decodeAbi = new DecodeAbi()
 const eventLog = new EventLog(decodeAbi)
 const queryClient = new QueryClient()
 
-console.log('[APP CALL] VERSION 1.0.0')
-
 function App() {
   const navigate = useNavigate()
   const [ready, setReady] = useState(false)
@@ -32,6 +30,7 @@ function App() {
       setReady(true)
     })()
   }, [])
+
   return (
     <>
       <QueryClientProvider client={queryClient}>

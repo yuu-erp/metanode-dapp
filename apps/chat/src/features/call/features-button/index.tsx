@@ -5,11 +5,16 @@ import { EndCallButton } from './end-call-button'
 import { MicButton } from './mic-button'
 import { RaiseHandButton } from './raise-hand-button'
 import { ReactionButton } from './reaction-button'
-import { ShareScreenButton } from './share-screen-button'
+import { useShallow } from 'zustand/shallow'
 
 export const FeatureButtons = memo(() => {
   const { trackPulled, joined } = useCallStore()
-  const isCaller = useRoomStore((s) => s.isCaller)
+  const { isCaller, isMeet } = useRoomStore(
+    useShallow((s) => ({
+      isCaller: s.isCaller,
+      isMeet: s.isMeet
+    }))
+  )
 
   if (!joined) return null
   return (
@@ -18,9 +23,9 @@ export const FeatureButtons = memo(() => {
       <MicButton />
       <CameraButton />
 
-      {(isCaller || trackPulled) && (
+      {(isCaller || trackPulled) && isMeet && (
         <>
-          <ShareScreenButton />
+          {/* <ShareScreenButton /> */}
           <ReactionButton />
           <RaiseHandButton />
         </>

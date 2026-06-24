@@ -22,6 +22,7 @@ declare global {
     finalContent?: string
     isRead?: boolean
     reactionSummary?: string
+    edited?: boolean
   }
   type BCAnonymousGroupMessage = {
     messageId: string

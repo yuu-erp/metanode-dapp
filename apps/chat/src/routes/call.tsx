@@ -35,8 +35,7 @@ function RouteComponent() {
   return (
     <>
       <div className="h-dvh w-dvw overflow-hidden bg-black">
-        <div className="fixed left-0 top-0 text-red-300 z-50">From App Chat</div>
-
+        {/* <div className="fixed left-0 top-0 text-red-300 z-50">From App Chat</div> */}
         <CallProvider
           registerEventLog={() => container.eventLogContainer.registerAbi()}
           search={search}
@@ -61,7 +60,7 @@ function RouteComponent() {
         >
           {window.fiaiSDK ? (
             <div className="size-full overflow-hidden flex flex-col p-1">
-              <div className="flex items-center gap-3 justify-end p-3">
+              <div className="flex items-center gap-3 justify-end">
                 <RaiseHandUsers />
                 <JoinRequest />
                 <MembersInCall />

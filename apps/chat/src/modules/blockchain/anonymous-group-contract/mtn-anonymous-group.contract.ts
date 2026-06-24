@@ -274,4 +274,21 @@ export class AnonymousGroupContract extends MtnContract {
       inputData
     })
   }
+
+  transferOwnership(
+    payload: TransactionPayload<{
+      newOwner: string
+      _pkAdmin: string
+    }>
+  ) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'transferOwnership',
+      abiData: anonymousGroupAbi.transferOwnership,
+      feeType: 'sc',
+      inputData: inputData
+    })
+  }
 }

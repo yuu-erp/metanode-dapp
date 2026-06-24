@@ -7,6 +7,7 @@ import { MeetingJoinByUrlModal } from '@/features/modal/meeting-join-by-url-moda
 import { MeetingUrlModal } from '@/features/modal/meeting-url-modal'
 import { DrawerAddGroupMember } from '@/shared/components'
 import { BaseLayout } from '@/shared/layouts'
+import { SystemCore } from '@metanodejs/system-core'
 import { createRootRoute } from '@tanstack/react-router'
 import { useEffect } from 'react'
 import { Toaster } from 'sonner'
@@ -17,6 +18,10 @@ export const Route = createRootRoute({
     useEffect(() => {
       const off = container.eventLogContainer.eventLog.onEventLog((e) => {
         console.log('[DEBUG13/06] ALL EVENT LOG', e)
+      })
+
+      SystemCore.on('EventLogs', (e) => {
+        console.log('EventLogs e', e)
       })
 
       return () => {

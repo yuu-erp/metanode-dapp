@@ -31,7 +31,13 @@ export const useIncomingCall = () => {
       setIncomingCall(null)
       if (!incomingCall) return
       const conversationId = await getConId()
-      await syncCall(conversationId, incomingCall.conversationType, { callStatus: 'missed' })
+      await syncCall(
+        {
+          id: conversationId,
+          type: incomingCall.conversationType
+        },
+        { callStatus: 'missed' }
+      )
     }, 1000 * 60)
 
     setIncomingCall({
@@ -77,6 +83,7 @@ export const useIncomingCall = () => {
     if (!incomingCall || !account) return
     cleanup()
     mutate(incomingCall)
+    setIncomingCall(null)
   }
 
   const getConId = async () => {
@@ -90,7 +97,13 @@ export const useIncomingCall = () => {
     setIncomingCall(null)
     const conversationId = await getConId()
     console.log('[rejectCall] 1', { conversationId, incomingCall })
-    await syncCall(conversationId, incomingCall.conversationType, { callStatus: 'rejected' })
+    await syncCall(
+      {
+        id: conversationId,
+        type: incomingCall.conversationType
+      },
+      { callStatus: 'rejected' }
+    )
 
     await container.meetingContract.rejectCall({
       from: account.hiddenAddress,
@@ -116,7 +129,13 @@ export const useIncomingCall = () => {
     const conversationId = await getConId()
     console.log('[LeaveRequested] 3', conversationId)
     setIncomingCall(null)
-    await syncCall(conversationId, incomingCall.conversationType, { callStatus: 'missed' })
+    await syncCall(
+      {
+        id: conversationId,
+        type: incomingCall.conversationType
+      },
+      { callStatus: 'missed' }
+    )
   })
 
   return {

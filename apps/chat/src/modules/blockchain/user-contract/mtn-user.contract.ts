@@ -19,6 +19,7 @@ import type {
   SetReactionsEnabledInput,
   UserProfileOutput
 } from './types'
+import type { UserMehods } from '@/contract-types/user/user.methods'
 
 export class UserContract extends MtnContract {
   constructor() {
@@ -372,5 +373,21 @@ export class UserContract extends MtnContract {
       feeType: 'sc',
       inputData
     })
+  }
+
+  async conversationCache(
+    payload: TransactionPayload<{ '': string }>
+  ): Promise<UserMehods['conversationCache'][1]> {
+    const { from, to, inputData } = payload
+    const rs = await this.sendTransaction({
+      from,
+      to,
+      functionName: 'conversationCache',
+      abiData: userAbi.conversationCache as any,
+      feeType: 'read',
+      inputData
+    })
+
+    return rs
   }
 }

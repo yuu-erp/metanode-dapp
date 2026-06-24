@@ -20,6 +20,8 @@ export function useInitRoomInfo(search: any = {}, to: string) {
         roomId: formatAddress(search?.roomId),
         isMeeting
       })
+
+      console.log('[DEBUG] useInitRoomInfo 2', roomStore.getState())
       blockchain.setFrom(address)
       blockchain.setTo(to)
 

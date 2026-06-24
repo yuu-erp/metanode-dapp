@@ -15,7 +15,6 @@ export type CallState = {
 
 export type CallActions = {
   fetchPermission: () => Promise<void>
-  reset: () => void
   toggleEnabled: (source: UserSource, value: boolean) => void
   toggleRequester: (user: string, value: boolean) => void
   initEnable: () => void

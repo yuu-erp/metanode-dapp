@@ -9,6 +9,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@mtnts/contract-client": "/Users/macbook/WorkSpace/packages/contract-client",
+    "file-core": "/Users/macbook/WorkSpace/packages/file-core",
+    "call-core": "/Users/macbook/WorkSpace/packages/call-core",
     "@metanodejs/file-module": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/file-module",
     "helper": "/Users/macbook/WorkSpace/workspace/packages/helper",
     "@app/call": "workspace:*",

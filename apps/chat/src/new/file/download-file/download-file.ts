@@ -1,4 +1,3 @@
-import { methods } from '@/clients'
 import { container } from '@/container'
 import { setFilePath } from '@/new/file/file-info'
 import { getCurrentAccount } from '@/shared/hooks'
@@ -9,7 +8,9 @@ import { sendCommand } from '@metanodejs/system-core'
 import { downloadFileByWebTransport } from './down-by-web-transport'
 import { downByRawQuic } from './download-by-raw-quic'
 
-async function getDownloadKey(fileId: string) {
+//@ts-ignore
+const methods = { file: {} } as any
+async function getDownloadKey(fileId: string, downloadKey?: string) {
   try {
     let fileInfo = await methods.file.getFileInfo({
       fileKey: fileId
@@ -20,24 +21,26 @@ async function getDownloadKey(fileId: string) {
       numChunks: fileInfo.totalChunks
     })
 
-    const promise = new Promise((res) => {
-      //@ts-ignore
-      const off = container.eventLogContainer.eventLog.on('DownloadKeyGenerated', (e) => {
-        if (!compareAddress(e.fileKey, fileId)) return
+    if (!downloadKey) {
+      const promise = new Promise((res) => {
+        //@ts-ignore
+        const off = container.eventLogContainer.eventLog.on('DownloadKeyGenerated', (e) => {
+          if (!compareAddress(e.fileKey, fileId)) return
 
-        off()
-        res(e.downloadKey)
+          off()
+          res(e.downloadKey)
+        })
       })
-    })
-    console.log('price', price)
-    await methods.file.payForDownload(
-      {
-        fileKey: fileId,
-        downloadTimes: 1
-      },
-      { amount: price }
-    )
-    const downloadKey = (await promise) as string
+      console.log('price', price)
+      await methods.file.payForDownload(
+        {
+          fileKey: fileId,
+          downloadTimes: 1
+        },
+        { amount: price }
+      )
+      downloadKey = (await promise) as string
+    }
 
     return { downloadKey: formatAddress(downloadKey), fileInfo }
   } catch (error) {
@@ -55,6 +58,7 @@ async function getDownloadKeySign(input: string) {
       isHex: false
     })
   ).hash
+
   console.log('getDownloadKeySign tessss 2', { address, formatedKey, hash })
 
   if (window.fiaiSDK) {
@@ -86,6 +90,7 @@ async function downloadFile(fileId: string) {
   }
 
   const { downloadKey, fileInfo } = await getDownloadKey(fileId)
+  console.log('downloadKey', { downloadKey, fileId })
   uiActions.setUpFileProgress(fileId, 5)
   const downloadKeySign = await getDownloadKeySign(downloadKey)
   uiActions.setUpFileProgress(fileId, 10)

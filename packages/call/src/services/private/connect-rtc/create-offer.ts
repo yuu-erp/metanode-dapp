@@ -15,9 +15,9 @@ function initPeerConnection() {
   const addTransceiver = (kind: string) => pc.addTransceiver(kind, { direction: 'sendonly' })
   const transceivers = {
     camera: addTransceiver('video'),
-    microphone: addTransceiver('audio'),
-    screen: addTransceiver('video'),
-    systemAudio: addTransceiver('audio')
+    microphone: addTransceiver('audio')
+    // screen: addTransceiver('video'),
+    // systemAudio: addTransceiver('audio')
   }
 
   rtcStore.setState({ pc, transceivers })

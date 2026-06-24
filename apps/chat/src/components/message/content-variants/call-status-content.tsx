@@ -6,7 +6,7 @@ import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
 
 export const CallStatusContent = memo(({ data }: WithMessage) => {
   const { onVideoCall } = useGoToMeetingView()
-
+  console.log('CallStatusContent data', { data })
   return (
     <div
       className={cn('px-3 py-2 rounded-lg flex items-center gap-3 w-fit flex')}

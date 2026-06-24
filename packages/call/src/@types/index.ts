@@ -1,6 +1,7 @@
 export type UserSource = 'camera' | 'microphone'
 
-export type Source = UserSource | 'screen' | 'systemAudio'
+export type Source = UserSource
+// | 'screen' | 'systemAudio'
 
 export type StreamSource = 'user' | 'display'
 

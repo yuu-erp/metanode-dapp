@@ -19,6 +19,6 @@ function useAttachLocalTrackToStream(source: Source, streamSource: StreamSource)
 export function useAttachLocalTracksToStream() {
   useAttachLocalTrackToStream('camera', 'user')
   // useAttachLocalTrackToStream('microphone', 'user')
-  useAttachLocalTrackToStream('screen', 'display')
-  useAttachLocalTrackToStream('systemAudio', 'display')
+  // useAttachLocalTrackToStream('screen', 'display')
+  // useAttachLocalTrackToStream('systemAudio', 'display')
 }

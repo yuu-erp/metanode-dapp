@@ -6,6 +6,7 @@ import { useGetConversations } from '../hooks'
 import ItemConversation from './item-conversation'
 import type { Conversation } from '@/modules/conversation'
 import { uiActions, useUiStore } from '@/stores/ui.store'
+import { setConveration } from '@/new/conversation'
 type ConversationListProps = {
   searchKeyword: string
 }
@@ -16,6 +17,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
   const micOpen = useUiStore((s) => s.micOpen)
 
   const { data: conversations = [] } = useGetConversations(account)
+
   const filteredConversations = React.useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase()
     if (!keyword) return conversations
@@ -26,14 +28,14 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     )
   }, [conversations, searchKeyword])
 
-  console.log('conversations', conversations)
-
   const handleClickConversation = React.useCallback(
     (conversation: Conversation) => {
       if (micOpen) {
         uiActions.setDiscardRecording(true)
         return
       }
+      setConveration(conversation.conversationId, { unreadCount: 0 })
+
       navigate({
         to: '/$type/$id',
         params: { id: conversation.conversationId, type: conversation.conversationType }

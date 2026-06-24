@@ -52,6 +52,7 @@ export async function p2pMessageToBaseMessage(input: BCP2pMessage): Promise<Base
     timestamp: +input.timestamp * 1000,
     isRead: input.isRead,
     isMine,
+    isEdited: input.edited,
     reactions: p2pReactionToReactionItems({
       value: input.reactionSummary ?? '',
       me: account.contractAddress,
@@ -93,7 +94,8 @@ export async function groupMessageToBaseMessage(
     id: input.messageId,
     timestamp: +input.timestamp * 1000,
     isRead: input.readBy.some((i) => !compareAddress(i, account.address)),
-    reactions: groupReactionToReactionItems(input.reactions)
+    reactions: groupReactionToReactionItems(input.reactions),
+    isEdited: input.isEdited
   }
 }
 
@@ -137,12 +139,15 @@ export async function baseMessageToMessage(
     const decrypted = await decryptMessage(conversation, content, key, account)
     console.log('baseMessageToMessage 4', decrypted)
 
-    return {
+    const finalRs = {
       ...rest,
       ...decrypted,
       isMine: await isMyMessage(base, conversation),
       status: baseMessageToStatus(base)
     }
+    console.log('baseMessageToMessage 5', finalRs)
+
+    return finalRs
   } catch (error) {
     console.error('baseMessageToMessage error', error)
     throw error

@@ -2,16 +2,17 @@ import { RouterProvider, createHashHistory, createRouter } from '@tanstack/react
 import ReactDOM from 'react-dom/client'
 
 // Import the generated route tree
-import { routeTree } from './routeTree.gen'
-
 import '@/shared/lib/i18n'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { FinsdkProvider2 } from './components/finsk.context-2.tsx'
 import reportWebVitals from './reportWebVitals.ts'
+import { routeTree } from './routeTree.gen'
 import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
-import { contractClient } from './clients/index.ts'
-import { CONTRACT_ADDRESSES } from './config/index.ts'
+import { debug } from 'file-core'
+import { contractClient } from '@mtnts/contract-client'
+
+console.log('test instance', debug === contractClient)
 
 // Create a new router instance
 const router = createRouter({
@@ -33,10 +34,7 @@ declare module '@tanstack/react-router' {
 
 // Render the app
 const rootElement = document.getElementById('app')
-contractClient.setTos({
-  file: CONTRACT_ADDRESSES.file,
-  factory: CONTRACT_ADDRESSES.factory
-})
+
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(

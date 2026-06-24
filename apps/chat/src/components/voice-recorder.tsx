@@ -1,4 +1,3 @@
-import { fileToFileItem } from '@/new/file/file.utils'
 import { useSendVoice } from '@/new/message/send-message-v4'
 import { uiActions, useUiStore } from '@/stores/ui.store'
 import { Send, Trash2 } from 'lucide-react'
@@ -152,7 +151,7 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
       })
 
       if (file.size > 0) {
-        sendVoice(fileToFileItem(file))
+        sendVoice(file)
       }
 
       chunks.current = []

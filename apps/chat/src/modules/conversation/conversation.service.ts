@@ -175,9 +175,11 @@ export class ConversationService {
           limit: 50
         }
       })
+      console.log('inboxs', { inboxs })
 
       const conversations = await fulfilledPromises(
         inboxs.map(async (item) => {
+          console.log('itemmmmm', item)
           let name = 'savedMessages'
           let groupInfo: any
           let conversationKey = ''
@@ -278,7 +280,8 @@ export class ConversationService {
                   ...lastMessageDecrypted
                 }),
             admin: groupInfo?.admin,
-            isVerifed
+            isVerifed,
+            unreadCount: +item.unreadCount
           })
           return rs
         })
@@ -379,7 +382,12 @@ export class ConversationService {
     accountId: string,
     conversationId: string,
     conversationType: ConversationType = 'group'
-  ): Promise<string[]> {
+  ): Promise<
+    {
+      address: string
+      contractAddress: string
+    }[]
+  > {
     let members: string[] = []
     if (conversationType === 'group') {
       members = await this.groupContract.getMemberListGroup({
@@ -394,13 +402,13 @@ export class ConversationService {
     }
 
     return await fulfilledPromises(
-      members.map(
-        async (mem) =>
-          await this.factoryContract.getUserContract({
-            from: accountId,
-            inputData: { user: mem }
-          })
-      )
+      members.map(async (mem) => ({
+        address: mem,
+        contractAddress: await this.factoryContract.getUserContract({
+          from: accountId,
+          inputData: { user: mem }
+        })
+      }))
     )
   }
 

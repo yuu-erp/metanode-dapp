@@ -44,6 +44,7 @@
     "tsup": "^8.5.0"
   },
   "dependencies": {
+    "call-core": "/Users/macbook/WorkSpace/packages/call-core",
     "immer": "^11.1.4",
     "zustand": "^5.0.12",
     "@metanodejs/system-core": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core"

@@ -25,7 +25,7 @@ export type EventLogData = {
 
   LeaveRequested: {
     roomId: string
-    requesters: string
+    requester: string
     sessionId: string
   }
 

@@ -36,14 +36,13 @@ export async function addConversation(
     CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address),
     (old: Conversation[]) => {
       if (!old) return old
-
       const isExist = old.some((item) =>
         compareAddress(item.conversationId, conversation.conversationId)
       )
-
+      if (input.id === account.contractAddress) return old
       const self = old.find((item) => compareAddress(item.conversationId, account.contractAddress))
       const finalOld = self ? old.slice(1) : old
-      console.log('finalOld', finalOld)
+      console.log('add test', { isExist: isExist })
       const newData = self ? [self, conversation] : [conversation]
 
       const newArray = isExist
@@ -54,7 +53,6 @@ export async function addConversation(
             )
           ]
         : [...newData, ...finalOld]
-      console.log('newArray', newArray)
       return newArray
     }
   )

@@ -2,17 +2,16 @@ import { container } from '@/container'
 import { useMessageAction } from '@/features/message'
 import { useCurrentState } from '@/hooks/use-current-state'
 import { asyncPriorityQueue } from '@/modules/realtime'
-import { getCurrentAccount } from '@/shared/hooks'
+import { getCurrentAccount, useCurrentAccount } from '@/shared/hooks'
 import { compareAddress, formatAddress } from '@/shared/lib'
 import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { type FileItem } from '@/stores/file.store'
-import { uiActions } from '@/stores/ui.store'
 import { useMutation } from '@tanstack/react-query'
+import { prepareFile, uploadFile } from 'file-core'
 import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
 import { getAlias } from '../conversation/my-info'
-import { uploadFileV2 } from '../file'
 import { setFileMetadata } from '../file/file-info'
 import { getCurrentIdentity } from '../me'
 import { getUserContractAddress } from '../user/user-info'
@@ -20,6 +19,7 @@ import { encryptMessage } from './crypto-message'
 import { addIdInMessageList, replaceIdInMessageList } from './list-mesage'
 import { getMessageById, removeMessgeById, setMessageInfo } from './message-info'
 import { fullMessageToData } from './message.utils'
+import { contractClient } from '@mtnts/contract-client'
 
 export type SendMessageInput = { type: string; [key: string]: any }
 
@@ -104,7 +104,11 @@ const waitSendMessageEvent = async (base: BaseConversation) => {
   })
 }
 
-async function createOptimisticMessage(input: SendMessageInput, base: BaseConversation) {
+async function createOptimisticMessage(
+  input: SendMessageInput,
+  base: BaseConversation,
+  fileIds?: string[]
+) {
   const id = v4()
 
   const optimisticMessage: FulleMessage = {
@@ -114,43 +118,64 @@ async function createOptimisticMessage(input: SendMessageInput, base: BaseConver
     timestamp: Date.now(),
     status: 'sending',
     isMine: true,
-    fileId: input.type === 'file' ? id : '',
     reactions: []
   }
+
+  if (fileIds) {
+    optimisticMessage.fileIds = fileIds
+  }
+
   addIdInMessageList(id, base)
   setMessageInfo(id, optimisticMessage)
 
   return optimisticMessage
 }
 
-async function handleSendMessage(
+export async function handleSendMessage(
   input: any,
   base: BaseConversation,
-  transformInput?: (message: FulleMessage) => Promise<any> | any
+  files?: {
+    ids: string[]
+    readlIds: Promise<string[]>
+  }
 ) {
-  console.debug('start send =========> ', Date.now())
-  const fullMessage = await createOptimisticMessage(input, base)
+  console.log('handleSendMessage 0', {
+    ids: files?.ids,
+    test: contractClient.froms
+  })
 
+  const fullMessage = await createOptimisticMessage(input, base, files?.ids)
+  console.log('handleSendMessage 1', fullMessage)
   try {
-    const custom = transformInput ? await transformInput(fullMessage) : {}
-    console.log('thanhduy - handleSendMessage 1')
+    if (files) {
+      const fileIds = await files.readlIds
+
+      input.fileIds = fileIds
+      fullMessage.fileIds = fileIds
+      console.log('set optimistic file', fileIds)
+      setMessageInfo(fullMessage.id, { fileIds })
+    }
+
     return asyncPriorityQueue.add(async () => {
       const [messageId] = await Promise.all([
         waitSendMessageEvent(base),
-        sendMessageBC({ ...input, ...custom }, base)
+        sendMessageBC(input, base)
       ])
       console.log('thanhduy - handleSendMessage 2')
 
       removeMessgeById(fullMessage.id)
       replaceIdInMessageList(fullMessage.id, messageId, base)
 
-      setMessageInfo(messageId, { ...fullMessage, ...custom, id: messageId, status: 'delivered' })
+      const finalMessage = { ...fullMessage, id: messageId, status: 'delivered' }
+
+      setMessageInfo(messageId, finalMessage)
 
       return messageId
     })
-  } catch (error) {
+  } catch (error: any) {
     setMessageInfo(fullMessage.id, {
-      status: 'failed'
+      status: 'failed',
+      errorMessage: error?.message || 'unknown error'
       // isFailed: true
     })
   } finally {
@@ -158,93 +183,46 @@ async function handleSendMessage(
   }
 }
 
-export function useSendMessage() {
-  return useMutation({
-    mutationKey: ACTIONS_QUERY_KEY.sendMessage,
-    mutationFn: ({
-      input,
-      base,
-      transformInput
-    }: {
-      input: any
-      base: BaseConversation
-      transformInput?: (message: FulleMessage) => Promise<any> | any
-    }) => handleSendMessage(input, base, transformInput)
-  })
-}
-
 export function useSendSticker() {
   const { base } = useCurrentState()
-  const mutation = useSendMessage()
-  return {
-    ...mutation,
-    sendSticker: (stickerId: string) =>
-      mutation.mutate({
-        input: {
+  const mutation = useMutation({
+    mutationKey: ACTIONS_QUERY_KEY.sendMessage,
+    mutationFn: (stickerId: string) =>
+      handleSendMessage(
+        {
           type: 'sticker',
           stickerId
         },
         base
-      })
-  }
+      )
+  })
+  return { ...mutation, sendSticker: mutation.mutateAsync }
 }
 
 export function useForwardMessage() {
-  const mutation = useSendMessage()
-  const state = useCurrentState()
-  const { setMessageAction } = useMessageAction()
-
-  return {
-    ...mutation,
-    forwardMessage: async ({ messageId, base }: { messageId: string; base: BaseConversation }) => {
+  const mutation = useMutation({
+    mutationKey: ACTIONS_QUERY_KEY.sendMessage,
+    mutationFn: async ({ messageId, base }: { messageId: string; base: BaseConversation }) => {
       setMessageAction(null)
       const message = await getMessageById(messageId, base)
-
-      await mutation.mutateAsync({
-        input: {
+      handleSendMessage(
+        {
           ...fullMessageToData(message),
           forwardFrom: message.sender,
           forwardFromType: state.base.type
         },
         base
-      })
+      )
     }
+  })
+  const state = useCurrentState()
+  const { setMessageAction } = useMessageAction()
+
+  return {
+    ...mutation,
+    forwardMessage: mutation.mutateAsync
   }
 }
-
-// export function processFile(items: FileItem[]) {
-//   return async (msg: FulleMessage) => {
-//     try {
-//       console.log('thanhduy - processFile 1')
-
-//       const item = items[0]
-//       console.log('item', item)
-//       if (!item) return
-
-//       setFileMetadata(msg.id, item.meta)
-//       const file = item.file
-//       console.log('thanhduy - processFile 2', file)
-//       if (!file) return
-
-//       const fileId = await uploadFileV2(file, (v) =>
-//         uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-//       )
-
-//       // const fileId = await fileHandler.uploadFile(item, {
-//       //   owner: account.address,
-//       //   hiddenAddress: account.hiddenAddress,
-//       //   clientId: msg.id,
-//       //   onProgress: (v) => uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-//       // })
-//       console.log('thanhduy - processFile 3')
-
-//       return { fileId }
-//     } catch (error) {
-//       console.error('upfile error', error)
-//       throw error
-//     }
-//   }
-// }
 
 export function processFileV2(items: FileItem[]) {
   return async (msg: FulleMessage) => {
@@ -255,10 +233,12 @@ export function processFileV2(items: FileItem[]) {
       setFileMetadata(msg.id, item.meta)
       const file = item.file
       if (!file) return
-
-      const fileId = await uploadFileV2(file, (v) =>
-        uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-      )
+      console.log('fileId 1')
+      const fileId = ''
+      // const fileId = await uploadFileV2(file, (v) =>
+      //   uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
+      // )
+      console.log('fileId 2')
 
       return { fileId }
     } catch (error) {
@@ -269,19 +249,24 @@ export function processFileV2(items: FileItem[]) {
 }
 
 export function useSendVoice() {
-  const mutation = useSendMessage()
   const { base } = useCurrentState()
+  const { account } = useCurrentAccount()
 
-  return {
-    ...mutation,
-    sendVoice: async (fileItem: FileItem) => {
-      await mutation.mutateAsync({
-        input: {
+  const mutation = useMutation({
+    mutationKey: ACTIONS_QUERY_KEY.sendMessage,
+    mutationFn: async (file: File) => {
+      if (!account) return
+      const id = prepareFile(file)
+      const { promise } = uploadFile(id, account?.address)
+      handleSendMessage(
+        {
           type: 'voice'
         },
         base,
-        transformInput: processFileV2([fileItem])
-      })
+        { ids: [id], readlIds: promise }
+      )
     }
-  }
+  })
+
+  return { ...mutation, sendVoice: mutation.mutateAsync }
 }

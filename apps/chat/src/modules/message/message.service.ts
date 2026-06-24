@@ -690,6 +690,9 @@ export class MessageService {
         rawMessages = []
       }
     }
+
+    console.log('rawMessages group', rawMessages)
+
     const messages = (
       await fulfilledPromises(
         rawMessages.map((item) => this._processGroupMessage(item, account, conversation))

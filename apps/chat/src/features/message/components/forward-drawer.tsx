@@ -16,10 +16,14 @@ interface ForwardDrawerProps {
   messageAction: MessageAction | null
 }
 function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
-  const { account } = useCurrentState()
+  const { account, base } = useCurrentState()
   const { data: conversations = [] } = useGetConversations(account)
   const isMobile = useIsMobile()
   const { forwardMessage } = useForwardMessage()
+  const displayConversations =
+    base.type === 'anonymous_group'
+      ? conversations.filter((item) => item.conversationId === base.id)
+      : conversations
 
   const renderContent = (
     <div className="relative h-[90vh] md:h-[600px] w-full rounded-t-[36px] md:rounded-2xl bg-black/30 backdrop-blur-lg border border-white/10 flex flex-col overflow-hidden">
@@ -68,7 +72,7 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
         <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto">
           {/* List conversation */}
           <div className="flex flex-1 w-full flex-col gap-3 mt-3">
-            {conversations.map((conversation) => (
+            {displayConversations.map((conversation) => (
               <React.Fragment key={conversation.conversationId}>
                 <ConversationContact
                   name={conversation.name}

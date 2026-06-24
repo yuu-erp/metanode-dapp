@@ -14,7 +14,7 @@ function formatAudioTime(seconds: number): string {
   return `${secs} sec`
 }
 
-export const VoiceItem = memo(({ data }: WithMessage) => {
+export const VoiceContent = memo(({ data }: WithMessage) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [audioUrl, setAudioUrl] = useState<string | undefined>()
   const [shouldPlayOnReady, setShouldPlayOnReady] = useState(false)

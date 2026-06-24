@@ -2,7 +2,7 @@ import { container } from '@/container'
 import { useCurrentState } from '@/hooks/use-current-state'
 import { useMutation } from '@tanstack/react-query'
 import { fullMessageToData } from './message.utils'
-import { getMessageById } from './message-info'
+import { getMessageById, setMessageInfo } from './message-info'
 import { getConversationKey } from '../conversation'
 import { encryptMessage } from './crypto-message'
 
@@ -20,6 +20,8 @@ export function useEditMessage() {
         ...data,
         content: newContent
       }
+      setMessageInfo(messageId, { content: newContent, isEdited: true })
+
       const encryptedMessage = await encryptMessage(newData, key, base)
 
       switch (base.type) {

@@ -78,7 +78,7 @@ export function getMessageById(id: string, base: BaseConversation) {
   return queryClient.ensureQueryData(createMessageInfoQuery(id, base))
 }
 
-export function setMessageInfo(id: string, value: Partial<Omit<FulleMessage, 'id'>>) {
+export function setMessageInfo(id: string, value: Partial<FulleMessage>) {
   return queryClient.setQueryData(MESSAGE_QUERY_KEY.info(id), (old: FulleMessage) => {
     if (!old) {
       return {

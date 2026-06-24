@@ -1,8 +1,9 @@
-import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
-import type { Account } from '@/modules/account'
-import { queryOptions } from '@tanstack/react-query'
 import { container } from '@/container'
+import type { Account } from '@/modules/account'
+import type { Conversation } from '@/modules/conversation'
 import { getCurrentAccount } from '@/shared/hooks'
+import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
+import { queryOptions, useQuery } from '@tanstack/react-query'
 
 // conversation key
 export const createConversationKeyQuery = (input: BaseConversation, account: Account) =>
@@ -64,4 +65,40 @@ export const createConversationDetail = (input: BaseConversation) =>
 
 export function getConversationDetail(input: BaseConversation) {
   return queryClient.ensureQueryData(createConversationDetail(input))
+}
+
+export async function setConveration(id: string, value: Partial<Conversation>) {
+  const account = await getCurrentAccount()
+
+  queryClient.setQueryData(
+    CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address),
+    (old: Conversation[]) => {
+      if (!old) return old
+      return old.map((item) =>
+        item.conversationId === id
+          ? {
+              ...item,
+              ...value
+            }
+          : item
+      )
+    }
+  )
+}
+
+export function useConversationInbox(id: string) {
+  return useQuery(
+    queryOptions({
+      queryKey: CONVERSATION_QUERY_KEY.inbox(id),
+      queryFn: async () => {
+        const account = await getCurrentAccount()
+
+        return container.userContract.conversationCache({
+          from: account.hiddenAddress,
+          to: account.contractAddress,
+          inputData: { '': id }
+        })
+      }
+    })
+  )
 }

@@ -96,7 +96,7 @@ function NewGroup({
   ])
 
   const isNext = React.useMemo(() => selectedMembers.length > 0, [selectedMembers])
-
+  console.log('screenType', screenType)
   const handleNext = React.useCallback(async () => {
     if (screenType === ScreenGroupType.SELECT_MEMBERS && isNext) {
       onChangeScreenGroupType(ScreenGroupType.GROUP_INFO)
@@ -110,7 +110,16 @@ function NewGroup({
       })
       onClose?.()
     }
-  }, [isNext, onChangeScreenGroupType, groupName, createGroup, account, onClose, selectedMembers])
+  }, [
+    isNext,
+    onChangeScreenGroupType,
+    groupName,
+    createGroup,
+    account,
+    onClose,
+    selectedMembers,
+    screenType
+  ])
 
   const handleBack = React.useCallback(() => {
     if (screenType === ScreenGroupType.GROUP_INFO) {

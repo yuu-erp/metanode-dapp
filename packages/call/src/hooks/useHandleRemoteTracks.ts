@@ -30,8 +30,27 @@ export function useHandleRemoteTracks() {
       if (streamKey.endsWith('user')) {
         const user = streamKey.split('_')[0]
 
+        track.onmute = (e) => {
+          console.log('track on mute', { e })
+        }
+        track.onunmute = (e) => {
+          console.log('track on un mute', { e })
+        }
+
+        track.addEventListener('mute', (e) => {
+          console.log('track on mute 2', { e })
+        })
+
+        track.addEventListener('ended', (e) => {
+          console.log('track on ended 2', { e })
+        })
+
+        track.addEventListener('unmute', (e) => {
+          console.log('track on un mute 2', { e })
+        })
         track.onended = () => {
           track.onended = null
+          console.log('track on end')
           userActions.removeUser(user)
           shareActions.toggleShareUser(user, false)
           mediaActions.removeUser(user)

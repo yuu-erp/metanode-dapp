@@ -14,6 +14,4 @@ export function useSyncLocalTracksToTransceivers() {
       if (!exist) transceiver.sender.replaceTrack(track)
     })
   }, [transceivers, localTracks])
-
-  console.log('localTracks', localTracks.screen)
 }

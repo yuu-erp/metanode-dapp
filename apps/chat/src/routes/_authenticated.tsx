@@ -5,23 +5,40 @@ import { ConversationsProvider } from '@/features/conversation'
 import { useGroupEvent } from '@/hooks/group/use-group-event'
 import { useMessageEvents } from '@/hooks/mesage/use-message-events'
 import { useSyncCall } from '@/hooks/sync/use-sync-call'
-import { useSyncAccount } from '@/new/me/use-sync-account'
 import { useMarkAsReadv2 } from '@/new/message/mark-as-read'
 import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar'
-import { createCurrentAccountQueryOptions, useTitleNotification } from '@/shared/hooks'
+import {
+  createCurrentAccountQueryOptions,
+  getCurrentAccount,
+  useTitleNotification
+} from '@/shared/hooks'
 import { useForcedLogout, useRegisterEventLog, useReloadOnNative } from '@/shared/hooks/accounts'
 import { useDisabled } from '@/shared/hooks/accounts/use-disabled'
 import { useSyncContractsAddressess } from '@/shared/hooks/accounts/use-sync-contracts-addressess'
 import { queryClient } from '@/shared/lib/react-query'
-import { statusActions, useStatusStore } from '@app/call'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
+import { getState, reset } from 'call-core'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { contractClient } from '@mtnts/contract-client'
 
 export const Route = createFileRoute('/_authenticated')({
+  beforeLoad: async () => {
+    try {
+      const account = await getCurrentAccount()
+      console.log('setfrommmsetfrommm =======> 1', account.hiddenAddress)
+      console.log('setfrommmsetfrommm =======> 2', {
+        froms: contractClient.froms,
+        me: contractClient.methods
+      })
+
+      contractClient.setFrom(account.hiddenAddress)
+      console.log('setfrommmsetfrommm =======> 3', contractClient.froms)
+    } catch (error) {}
+  },
   loader: async () => {
     try {
       const currentAccount = await queryClient.ensureQueryData(createCurrentAccountQueryOptions())
@@ -71,15 +88,15 @@ function RouteComponent() {
     container.eventLogContainer.eventLog.onEventLog((e) => {
       console.log('all all event', e)
     })
-
-    const { id, type, status, from, to } = useStatusStore.getState()
-    console.log('[RouteComponent] useEffect', { id, type, status, from, to })
-    const duration = Math.max(Math.floor((to - from) / 1000), 0)
-
-    syncCall(id, type, { callStatus: status, duration }).then(() => statusActions.resetCallData())
+    ;(async () => {
+      const rs = await getState()
+      console.log('thanhduy test sync call', { rs })
+      if (!rs) return
+      const { metadata, duration, kind } = rs
+      reset()
+      await syncCall(metadata, { callStatus: kind, duration })
+    })()
   }, [])
-
-  useSyncAccount()
 
   return (
     <ConversationsProvider>

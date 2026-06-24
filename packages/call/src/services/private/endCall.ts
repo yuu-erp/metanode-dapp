@@ -1,6 +1,7 @@
 import { endCall } from '@metanodejs/system-core'
+import { end, setState } from 'call-core'
 import { blockchain, getCallback, onLogError } from '~/clients'
-import { callStore, roomStore, statusActions, useStatusStore, useUserStore } from '~/stores'
+import { callStore, roomStore, useUserStore } from '~/stores'
 
 let ready = true
 export function setCallReady(input: boolean) {
@@ -22,13 +23,16 @@ export async function enCallAndCloseView() {
     const { ending } = callStore.getState()
     console.log('[enCallAndCloseView] ending', ending)
     if (ending) return
+    const { isMeet, callee, caller, isCaller, roomId, address } = roomStore.getState()
+
+    await end(isCaller)
+
     setEnding(true)
     const users = useUserStore.getState().users
     if (users.length === 1) {
-      statusActions.setStatus('cancelled')
+      setState({ kind: 'cancel' })
     }
 
-    const { isMeet, callee, caller, isCaller, roomId, address } = roomStore.getState()
     const conversationId = isMeet ? callee : isCaller ? callee : caller
     console.log('[endCall] 1')
     await blockchain.leaveRoom({

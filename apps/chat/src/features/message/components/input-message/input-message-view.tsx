@@ -43,6 +43,12 @@ function InputMessageView(props: InputMessageViewProps) {
     if (!showMentionHighlight) setMentionScrollTop(0)
   }, [showMentionHighlight, value])
 
+  function reforcus() {
+    const el = textareaRef.current
+    if (!el) return
+    el.focus()
+  }
+
   return (
     <>
       {!micOpen && (
@@ -135,7 +141,7 @@ function InputMessageView(props: InputMessageViewProps) {
                         <button onClick={() => modalActions.setOpen('sticker')}>
                           <StickerIcon className="text-white/80" />
                         </button>
-                        <SendButton />
+                        <SendButton reforcus={reforcus} />
                       </div>
                     </div>
                   </div>

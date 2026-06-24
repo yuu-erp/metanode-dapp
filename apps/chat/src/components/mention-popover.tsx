@@ -15,7 +15,7 @@ export const MentionPopover = memo(({}: MentionPopoverProps) => {
       {data.map((mem, index) => (
         <GroupMemberItem
           isFirst={index === 0}
-          user={mem}
+          user={mem.contractAddress}
           onClick={(mention) => {
             uiActions.setPendingMention(mention)
             uiActions.setMentionPopoverOpen(false)

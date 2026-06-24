@@ -44,6 +44,7 @@ export async function joinRoom() {
   const response = await promise
 
   const { sdp, sessionId }: JoinAnswerData = decodeDataFromBackend(response.data)
+  console.log('[DEBUG] joinRoom 4.5', sdp)
 
   rtcStore.setState({ sessionId })
 

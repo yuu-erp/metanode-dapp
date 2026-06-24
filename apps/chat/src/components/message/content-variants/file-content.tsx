@@ -1,13 +1,14 @@
-import { handleDownloadFile } from '@/new/file'
-import { useFileMetaById } from '@/new/file'
+import { useOpenOverlay } from '@/hooks/use-open-overlay'
 import { MessageText } from '@/shared/components/message-render'
 import { cn } from '@/shared/lib'
-import { uiActions, useUiStore } from '@/stores/ui.store'
+import { loadFile, useFileCache, useFileState, useMetadata } from 'file-core'
 import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
+import { formatFileSize } from '@/new'
+import { useCurrentState } from '@/hooks/use-current-state'
 
-const mediaStyle = 'object-cover aspect-square max-w-[20vw] rounded-md'
+const mediaStyle = 'object-cover aspect-square w-16 rounded-md'
 
 const WithWrapper = ({
   children,
@@ -27,45 +28,89 @@ const WithWrapper = ({
   )
 }
 
-export const FileContent = memo(({ data }: WithMessage) => {
-  const { isMine } = data
-  const upProgress = useUiStore((s) => s.upFileProgress[data?.fileId ?? ''])
-  const { data: meta } = useFileMetaById(data.fileId)
+const FileItem = ({
+  id,
+  isMine,
+  messageId
+}: {
+  id: string
+  isMine?: boolean
+  messageId: string
+}) => {
+  const { account } = useCurrentState()
+  const { metadata } = useMetadata(id)
+  const { cache } = useFileCache(id)
+  const isStored = !!cache
+  const { status, progress = 0 } = useFileState(id)
+  const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
 
-  const path = meta?.path
-  const isImage = meta?.mimeType?.startsWith('image')
-  const isVideo = meta?.mimeType?.startsWith('video')
-  const isDefault = !isImage && !isVideo
+  if (!metadata) return null
+  const { previewType = '', previewPath } = cache ?? {}
+  const comps = {
+    image: () => (
+      <img src={previewPath} className={mediaStyle} draggable={false} alt={metadata.name} />
+    ),
+    default: () => <File />
+  }
 
-  const fileDisplay = isDefault ? (
-    <File />
-  ) : isImage ? (
-    <img className={mediaStyle} src={path} draggable={false} alt={meta?.fileName} />
-  ) : (
-    <video className={mediaStyle} src={path} controls />
+  const Comp = cache ? (comps[previewType] ?? comps.default) : comps.default
+  const uploadedSize = formatFileSize(metadata.size * (progress / 100))
+
+  const finalBehavior = isStored
+    ? behavior
+    : {
+        onClick: () => loadFile(id, account?.address ?? '')
+      }
+
+  return (
+    <div className="flex gap-3 items-center" {...finalBehavior}>
+      <div className="relative">
+        {isStored && <Comp />}
+        {!isStored && (
+          <WithWrapper
+            isWrapped={true}
+            className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
+          >
+            {status === 'idle' && <Download />}
+          </WithWrapper>
+        )}
+
+        {status === 'pending' && (
+          <div
+            className={cn(
+              'absolute inset-0 flex items-center justify-center flex flex-col gap-1',
+              isStored && 'bg-black/20'
+            )}
+          >
+            <X />
+          </div>
+        )}
+      </div>
+
+      <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
+        <div className="text-sm font-medium truncate">{metadata.name}</div>
+        <div className="text-xs opacity-70">
+          {status === 'pending'
+            ? `${uploadedSize} / ${formatFileSize(metadata.size)}`
+            : formatFileSize(metadata.size)}
+        </div>
+      </div>
+    </div>
   )
+}
 
-  const uploadedSize =
-    upProgress == null || !meta?.size
-      ? null
-      : `${((meta.size * upProgress) / 100 / 1024 / 1024).toFixed(1)} MB`
+export const FileContent = memo(({ data }: WithMessage) => {
+  const fileIds = data.fileIds ?? []
+  console.log('FileContent data', { data, fileIds })
 
-  const download = async () => {
-    // return
-    if (meta?.path) return window.open(meta?.path, '_blank')
-    handleDownloadFile(data)
-  }
-
-  const cancel = (e: any) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (upProgress == null) return
-    uiActions.addCancelId(data.id)
-  }
+  const { isMine } = data
 
   return (
     <>
-      <div className="flex gap-3 items-center">
+      {fileIds.map((id) => (
+        <FileItem key={id} id={id} isMine={isMine} messageId={data.id} />
+      ))}
+      {/* <div className="flex gap-3 items-center">
         <div onClick={upProgress != null ? cancel : !path ? download : undefined}>
           <WithWrapper
             isWrapped={isDefault}
@@ -85,7 +130,7 @@ export const FileContent = memo(({ data }: WithMessage) => {
             </div>
           </>
         )}
-      </div>
+      </div> */}
       {!!data?.content && <MessageText className="mt-3" message={data} />}
     </>
   )

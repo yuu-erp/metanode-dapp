@@ -1,19 +1,18 @@
 import { MessageStatusComp } from '@/features/message/components/item-message/message-status'
-import { usePlatform } from '@/hooks/core/use-platform'
+import { useCurrentState } from '@/hooks/use-current-state'
+import { useOpenOverlay } from '@/hooks/use-open-overlay'
 import { useCurrentMessageById, useIsPinned } from '@/new/message'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
 import { cn } from '@/shared/lib'
-import { modalActions } from '@/stores/modal.store'
-import { memo } from 'react'
-import { MessageItemContent } from './message-item-content'
 import { PinIcon } from 'lucide-react'
-import { SmallReactionItem } from './reaction/small-reaction-item'
-import { useCurrentState } from '@/hooks/use-current-state'
-import { NameOnMessageItem } from './name-on-message-item'
-import { MessageReplyPreview } from './message-reply-preview'
+import { memo } from 'react'
 import { MessageForwardPreview } from './message-forward-preview'
-import { SystemMessageItem } from './system-message-item'
+import { MessageItemContent } from './message-item-content'
+import { MessageReplyPreview } from './message-reply-preview'
 import { MessageUserAvatar } from './message-user-avatar'
+import { NameOnMessageItem } from './name-on-message-item'
+import { SmallReactionItem } from './reaction/small-reaction-item'
+import { SystemMessageItem } from './system-message-item'
 
 export type MessageItemProps = {
   id: string
@@ -23,23 +22,17 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
   const { data } = useCurrentMessageById(id)
   const { base } = useCurrentState()
   const { isMine, isFailed } = data ?? {}
-  const { isMobile } = usePlatform()
   const { isPinned } = useIsPinned(id)
   const isInGroup = ['group', 'anonymous_group'].includes(base.type)
 
-  if (base.type === 'group') {
-    console.log('message dataa data', data)
+  const overlayOptions: any = { id }
+
+  if (data?.type === 'voice') {
+    overlayOptions.fileId = data?.fileIds?.[0]
   }
 
-  function openModal(e: any) {
-    e.preventDefault()
-    e.stopPropagation()
-    const event = e?.changedTouches ?? e
-    modalActions.setOpen('overlay', { id, x: event.clientX, y: event.clientY })
-  }
+  const { behavior } = useOpenOverlay(overlayOptions)
 
-  const behavior = isMobile ? { onClick: openModal } : { onContextMenu: openModal }
-  console.log('message data', data)
   if (!data) return null
   if (data.type === 'call_status' && !data.isMine) return null
 
@@ -93,6 +86,9 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
             {isMine && <MessageStatusComp message={data} />}
           </div>
         </div>
+        {data.errorMessage && import.meta.env.DEV && (
+          <p className="text-xs text-red-400">{data.errorMessage}</p>
+        )}
       </div>
     </div>
   )

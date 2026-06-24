@@ -42,7 +42,7 @@ export function IncomingCall() {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                 </span>
                 <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
-                  Incoming Call
+                  Video Call
                 </span>
               </div>
               <span className="font-semibold text-white text-lg truncate pr-2">{data?.name}</span>

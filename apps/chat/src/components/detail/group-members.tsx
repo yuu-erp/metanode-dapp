@@ -13,7 +13,7 @@ export const GroupMembers = memo(({}: GroupMembersProps) => {
         <p>Members</p>
         <div className="flex-1 overflow-y-auto mt-3">
           {data.map((member) => (
-            <GroupMemberItem user={member} />
+            <GroupMemberItem user={member.contractAddress} />
           ))}
         </div>
       </div>

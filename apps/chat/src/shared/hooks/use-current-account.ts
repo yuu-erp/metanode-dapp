@@ -30,7 +30,8 @@ export function createCurrentAccountQueryOptions(): UseQueryOptions<
 }
 
 export function useCurrentAccount() {
-  return useQuery(createCurrentAccountQueryOptions())
+  const query = useQuery(createCurrentAccountQueryOptions())
+  return { ...query, account: query.data }
 }
 
 export const getCurrentAccount = async () => {

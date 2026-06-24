@@ -14,6 +14,26 @@ import { useStringAssembler } from './shared'
 export function useHandleIncomingOffer() {
   const assemble = useStringAssembler()
 
+  async function handleTrackForNative(
+    data: any,
+    e: any,
+    tracksForNative: any[],
+    sdpString: string
+  ) {
+    // if (!window.fiaiSDK) {
+    //   tracksForNative = tracksForNative.filter((_, index) => index % 4 >= 2)
+    // }
+
+    const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
+    const sdpAnswer = await createAnswer(offer.sdp!, {
+      sourceUser: data.sourceUser,
+      eventType: e.eventType,
+      sessionId: data.sessionId,
+      tracks: tracksForNative
+    })
+    await emitSetAnswer(sdpAnswer)
+  }
+
   useEventLog(
     'FrontendEvent',
     async (e) => {
@@ -53,14 +73,7 @@ export function useHandleIncomingOffer() {
       })
 
       //xu li backend
-      const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
-      const sdpAnswer = await createAnswer(offer.sdp!, {
-        sourceUser: data.sourceUser,
-        eventType: e.eventType,
-        sessionId: data.sessionId,
-        tracks: tracksForNative
-      })
-      await emitSetAnswer(sdpAnswer)
+      await handleTrackForNative(data, e, tracksForNative, sdpString)
     },
     (e) => {
       console.log('[debuggggg] e', e)
@@ -104,14 +117,7 @@ export function useHandleIncomingOffer() {
       })
 
       //xu li backend
-      const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
-      const sdpAnswer = await createAnswer(offer.sdp!, {
-        sourceUser: data.sourceUser,
-        eventType: e.eventType,
-        sessionId: data.sessionId,
-        tracks: tracksForNative
-      })
-      await emitSetAnswer(sdpAnswer)
+      await handleTrackForNative(data, e, tracksForNative, sdpString)
     },
     (e) => {
       console.log('[debuggggg] e', e)

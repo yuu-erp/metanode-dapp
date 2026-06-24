@@ -79,7 +79,7 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
           <SearchInChatButton />
-          {type !== 'private' && (
+          {['p2p', 'group'].includes(type) && !isPrivate && (
             <button onClick={onVideoCall} disabled={isLoading}>
               {isLoading ? (
                 <LoaderCircle className="size-6 text-white/80 animate-spin" />

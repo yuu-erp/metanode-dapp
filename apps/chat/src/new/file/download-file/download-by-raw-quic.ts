@@ -1,4 +1,3 @@
-import { methods } from '@/clients'
 import { sendCommand } from '@metanodejs/system-core'
 import { WorkerQueue } from '../worker-queue'
 
@@ -60,7 +59,8 @@ export async function getChunk(
 }
 
 async function connectQuic() {
-  const addresses = await methods.file.getRustServerAddresses(undefined)
+  const addresses = []
+  // const addresses = await methods.file.getRustServerAddresses(undefined)
 
   await sendCommand('connectQuicServer', toConnectionConfig(addresses[0])).catch((err) => {
     console.error('connect 0 failed', {

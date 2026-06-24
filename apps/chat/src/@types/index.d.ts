@@ -45,6 +45,7 @@ declare global {
     isRead?: boolean
     reactions: ReactionItemData[]
     isMine?: boolean
+    isEdited?: boolean
   }
 
   type FulleMessage = Omit<BaseMessage, 'content'> & {
@@ -54,6 +55,8 @@ declare global {
     isEdited?: boolean
     status?: string
     fileId?: string
+    fileIds?: string[]
+
     stickerId?: string
     duration?: number
     replyTo?: string
@@ -61,5 +64,6 @@ declare global {
     forwardFromType?: string
     kind?: string
     callStatus?: string
+    errorMessage?: string
   }
 }

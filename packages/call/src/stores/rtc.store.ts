@@ -19,9 +19,9 @@ export const rtcStore = create<RtcStore>()(
     pc: null,
     transceivers: {
       camera: null,
-      microphone: null,
-      screen: null,
-      systemAudio: null
+      microphone: null
+      // screen: null,
+      // systemAudio: null
     },
     sessionId: null,
     reset: () => {
@@ -42,9 +42,9 @@ export const rtcStore = create<RtcStore>()(
         s.pc = null
         s.transceivers = {
           camera: null,
-          microphone: null,
-          screen: null,
-          systemAudio: null
+          microphone: null
+          // screen: null,
+          // systemAudio: null
         }
         s.sessionId = null
       })

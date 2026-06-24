@@ -26,7 +26,9 @@ const DrawerAddGroupMember = memo(() => {
   const validConversations = useMemo(() => {
     if (!conversations || !groupMembers) return []
     return conversations.filter(
-      (item) => item.conversationType === 'p2p' && !groupMembers.includes(item.conversationId)
+      (item) =>
+        item.conversationType === 'p2p' &&
+        !groupMembers.some((i) => i.contractAddress === item.conversationId)
     )
   }, [conversations, groupMembers])
 

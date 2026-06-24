@@ -35,7 +35,7 @@ export class FactoryContract extends MtnContract {
       functionName: 'registerUser',
       feeType: 'sc',
       abiData: factoryAbi.registerUser,
-      gas: 100
+      gas: 2_000_000
     })
   }
 

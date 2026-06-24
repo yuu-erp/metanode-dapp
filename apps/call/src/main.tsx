@@ -3,7 +3,7 @@ import App from './App.tsx'
 import './index.css'
 import { HashRouter } from 'react-router-dom'
 
-console.log('appp calll v =========> 0.01')
+console.log('appp calll v =========> 0.02')
 
 createRoot(document.getElementById('root')!).render(
   <HashRouter>
