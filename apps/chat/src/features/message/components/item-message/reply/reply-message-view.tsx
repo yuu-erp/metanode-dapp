@@ -22,7 +22,6 @@ function ReplyMessageView({ replyTo, replyToUser = 'Người dùng', isMine }: R
   const replyPreview = React.useMemo(() => {
     switch (replyTo.type as any) {
       case 'call_status':
-        console.log('[replyPreview] replyTo', replyTo)
         return (
           <div className="flex text-xs items-center gap-2">
             <Phone className="size-3" /> Call status

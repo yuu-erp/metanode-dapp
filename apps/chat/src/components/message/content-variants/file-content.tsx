@@ -101,7 +101,6 @@ const FileItem = ({
 
 export const FileContent = memo(({ data }: WithMessage) => {
   const fileIds = data.fileIds ?? []
-  console.log('FileContent data', { data, fileIds })
 
   const { isMine } = data
 

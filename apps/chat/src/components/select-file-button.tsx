@@ -1,7 +1,9 @@
 import { usePlatform } from '@/hooks/core/use-platform'
+import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover'
 import { onGetNativeFile, onFileInputChange } from 'file-core'
 import { Paperclip } from 'lucide-react'
 import { memo, useRef, useState } from 'react'
+import { PopoverItem } from './popover-item'
 
 export type SelectFileButtonProps = {}
 
@@ -11,7 +13,9 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
   const inputRef = useRef<HTMLInputElement>(null)
   const close = () => setOpen(false)
 
-  const onClickButton = () => {
+  const onClickButton = (e: any) => {
+    e.preventDefault()
+    e.stopPropagation()
     if (isNotWeb) {
       setOpen(!open)
     } else {
@@ -21,27 +25,50 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
 
   return (
     <>
-      <button
-        className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
-        onClick={onClickButton}
-      >
-        <Paperclip className="text-white/80" />
-      </button>
-      {open && (
-        <div className="fixed inset-0 z-50 text-foreground">
-          {/* overlay */}
-          <div className="absolute inset-0 bg-black/40" onClick={close} />
-
-          {/* popover */}
-          <div className="absolute bottom-20 left-5 bg-white rounded-2xl p-4 min-w-[200px]">
-            <div className="flex flex-col gap-2 items-start">
-              <button onClick={() => onGetNativeFile('select-image')}>Chọn ảnh</button>
-              <button onClick={() => onGetNativeFile('get-file')}>Chọn file</button>
-              <button onClick={() => onGetNativeFile('take-picture')}>Mở camera / media</button>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger>
+          <button
+            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+            onClick={onClickButton}
+          >
+            <Paperclip className="text-white/80" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="bg-black/30 border-0 text-white backdrop-blur-md-app w-[200px]"
+        >
+          <div className="rounded-2xl text-sm">
+            <div className="flex flex-col items-start">
+              <PopoverItem
+                onClick={() => {
+                  close()
+                  onGetNativeFile('select-image')
+                }}
+              >
+                Chọn ảnh
+              </PopoverItem>
+              <PopoverItem
+                onClick={() => {
+                  close()
+                  onGetNativeFile('get-file')
+                }}
+              >
+                Chọn file
+              </PopoverItem>
+              <PopoverItem
+                onClick={() => {
+                  close()
+                  onGetNativeFile('take-picture')
+                }}
+              >
+                Mở camera / media
+              </PopoverItem>
             </div>
           </div>
-        </div>
-      )}
+        </PopoverContent>
+      </Popover>
+
       <input
         multiple
         ref={inputRef}

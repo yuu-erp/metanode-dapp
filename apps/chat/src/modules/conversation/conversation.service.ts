@@ -166,7 +166,6 @@ export class ConversationService {
 
   async syncByAccount(account: Account): Promise<void> {
     try {
-      console.log('syncByAccount asdfasdf 1')
       const inboxs = await this.userContract.getFullInboxPaginatedOptimized({
         from: account.hiddenAddress,
         to: account.contractAddress,
@@ -175,11 +174,9 @@ export class ConversationService {
           limit: 50
         }
       })
-      console.log('inboxs', { inboxs })
 
       const conversations = await fulfilledPromises(
         inboxs.map(async (item) => {
-          console.log('itemmmmm', item)
           let name = 'savedMessages'
           let groupInfo: any
           let conversationKey = ''
@@ -288,7 +285,6 @@ export class ConversationService {
       )
       console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- conversations', conversations)
       const finalConversations = conversations.filter(Boolean) as Conversation[]
-      console.log('finalConversations 2', finalConversations)
       await this.repository.bulkUpsert(finalConversations)
     } catch (error) {
       console.error('full ib error', error)
@@ -517,16 +513,12 @@ export class ConversationService {
   ): Promise<EventMap['GroupCreatedByUser'] & { groupKey: string }> {
     const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
     const groupKey = generateSecureId()
-    console.log('[createGroup] 1')
     const sharedSecrect = await this.handleCreateECDHPassword(account.address, account.publicKey)
-    console.log('[createGroup] 2', { sharedSecrect })
 
     const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
-    console.log('[createGroup] 3', { encryptedInitialGroupKey })
 
     const promise = new Promise<any>((resolve) => {
       const off = this.eventLogContainer.eventLog.on('GroupCreatedByUser', (event) => {
-        console.log('[GroupCreated] e', event)
         off()
         resolve({
           groupKey,

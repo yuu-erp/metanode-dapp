@@ -1,23 +1,20 @@
 'use client'
 
+import { usePlatform } from '@/hooks/core/use-platform'
 import type { Account } from '@/modules/account'
 import type { Conversation } from '@/modules/conversation'
-import ConversationContact from '@/shared/components/conversation-contact'
 import { UserAddIcon, UserGroupIcon } from '@/shared/components/icons'
 import { Button } from '@/shared/components/ui/button'
-import { Input } from '@/shared/components/ui/input'
 import { useI18N } from '@/shared/hooks'
-import { usePlatform } from '@/hooks/core/use-platform'
 
 import { useCreateMeeting } from '@/shared/hooks/call/use-create-meeting'
-import { useNavigate } from '@tanstack/react-router'
+import { cn } from '@/shared/lib'
 import { Megaphone, QrCode, Video, X } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
 import { useScanQrcodeProfile } from '../../../features/conversation/hooks'
 import { ScreenType } from './drawer-new-conversation'
 import { HeaderSection } from './sections'
-import { cn } from '@/shared/lib'
 
 interface DefaultConversationProps {
   conversations?: Conversation[]
@@ -25,13 +22,7 @@ interface DefaultConversationProps {
   onChangeScreenType?: (screenType: ScreenType) => void
   onClose?: () => void
 }
-function DefaultConversation({
-  conversations = [],
-  account,
-  onChangeScreenType,
-  onClose
-}: DefaultConversationProps) {
-  const navigate = useNavigate()
+function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultConversationProps) {
   const { t } = useI18N()
   const { isNotWeb } = usePlatform()
 
@@ -57,29 +48,31 @@ function DefaultConversation({
           <Drawer.Title className="text-gray-100 font-semibold text-lg">
             {t('drawer.newMessage', { defaultValue: 'New Message' })}
           </Drawer.Title>
-        </div>
-        {/* Search + QR */}
-        <div className="flex items-center gap-2 px-4">
-          <Input
-            type="text"
-            placeholder={t('search.addressOrUsername', {
-              defaultValue: 'Search address or username'
-            })}
-            className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
-          />
 
           {isNotWeb && (
             <Button
               type="button"
               onClick={handleClickScanQR}
-              className="size-12 shrink-0 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-95"
+              className="size-12 shrink-0 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-95
+              absolute right-4
+              "
             >
               <QrCode className="size-6 text-gray-100" />
             </Button>
           )}
         </div>
+        {/* Search + QR */}
+        <div className="flex items-center gap-2 px-4">
+          {/* <Input
+            type="text"
+            placeholder={t('search.addressOrUsername', {
+              defaultValue: 'Search address or username'
+            })}
+            className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
+          /> */}
+        </div>
       </HeaderSection>
-      <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[130px]">
+      <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[80px]">
         {/* Telegram Actions */}
         <div className="flex flex-col w-full">
           {/* New Group */}
@@ -156,7 +149,7 @@ function DefaultConversation({
           </button>
         </div>
         {/* List conversation */}
-        <div className="flex flex-1 w-full flex-col gap-3 mt-3">
+        {/* <div className="flex flex-1 w-full flex-col gap-3 mt-3">
           {conversations.map((conversation) => (
             <React.Fragment key={conversation.conversationId}>
               <ConversationContact
@@ -174,7 +167,7 @@ function DefaultConversation({
               <div className="h-px bg-white/20 ml-18" />
             </React.Fragment>
           ))}
-        </div>
+        </div> */}
       </div>
     </React.Fragment>
   )

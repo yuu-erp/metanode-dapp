@@ -35,6 +35,7 @@ function RouteComponent() {
   const { data = [] } = useGetAllWallets()
 
   const { mutateAsync, isPending } = useRegisterUser()
+  // const { loginOrRegister, isPending: isP } = useLoginOrRegister()
 
   const [activeIndex, setActiveIndex] = useState(0)
   const [step, setStep] = useState(1)
@@ -46,8 +47,8 @@ function RouteComponent() {
   }, [])
 
   const handleConnectWallet = useCallback(async () => {
+    // loginOrRegister({ address: activeWallet.address })
     await mutateAsync(activeWallet)
-
     queryClient.invalidateQueries({
       queryKey: ACCOUNT_QUERY_KEY.GET_CURRENT_ACCOUNT
     })

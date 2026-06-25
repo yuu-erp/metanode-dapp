@@ -27,7 +27,6 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
   const { base, isPrivate } = useCurrentState()
   const { type, id } = base
   const [name, setName] = React.useState('')
-  console.log('isPrivate', isPrivate)
   React.useEffect(() => {
     if (!id) return
     ;(async () => {

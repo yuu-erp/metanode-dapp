@@ -41,8 +41,7 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement>(({}, ref) => {
   )
 
   const handleEditMessage = React.useCallback(
-    (messageOld: Message, content: string) => {
-      console.log({ content })
+    (messageOld: Message) => {
       if (!account || !conversation) return
       // Ensure message has ID before editing
       if (!messageOld.id) return
@@ -106,6 +105,8 @@ const MessageInput = React.forwardRef<HTMLTextAreaElement>(({}, ref) => {
 
   return (
     <>
+      <div />
+      <div contentEditable={true} id="editor"></div>
       <InputMessageView mentionHighlights={mentions} messageAction={controller.messageAction} />
     </>
   )

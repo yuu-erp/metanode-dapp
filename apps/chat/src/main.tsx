@@ -3,18 +3,12 @@ import ReactDOM from 'react-dom/client'
 
 // Import the generated route tree
 import '@/shared/lib/i18n'
-import { QueryClientProvider } from '@tanstack/react-query'
 import { FinsdkProvider2 } from './components/finsk.context-2.tsx'
+import { AppModulesProvider } from './components/provider/app-modules-provider.tsx'
+import { AppQueryProvider } from './components/provider/app-query-provider.tsx'
 import reportWebVitals from './reportWebVitals.ts'
 import { routeTree } from './routeTree.gen'
-import { queryClient } from './shared/lib/react-query.ts'
 import './styles.css'
-import { debug } from 'file-core'
-import { contractClient } from '@mtnts/contract-client'
-
-console.log('test instance', debug === contractClient)
-
-// Create a new router instance
 const router = createRouter({
   routeTree,
   context: {},
@@ -39,9 +33,11 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
     <FinsdkProvider2>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
-      </QueryClientProvider>
+      <AppQueryProvider>
+        <AppModulesProvider>
+          <RouterProvider router={router} />
+        </AppModulesProvider>
+      </AppQueryProvider>
     </FinsdkProvider2>
   )
 }

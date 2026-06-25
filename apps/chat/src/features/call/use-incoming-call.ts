@@ -47,7 +47,6 @@ export const useIncomingCall = () => {
   }
 
   useEventLog('CallReceivedSignal', (data) => {
-    console.log('thanhduy - CallReceivedSignal', data)
     if (!account) return
     if (compareAddress(data.caller, account.address)) return
     handleCallReceived({
@@ -96,7 +95,6 @@ export const useIncomingCall = () => {
     cleanup()
     setIncomingCall(null)
     const conversationId = await getConId()
-    console.log('[rejectCall] 1', { conversationId, incomingCall })
     await syncCall(
       {
         id: conversationId,
@@ -116,18 +114,10 @@ export const useIncomingCall = () => {
   }
 
   useEventLog('LeaveRequested', async (data) => {
-    console.log('[LeaveRequested]', {
-      incomingCall,
-      account,
-      data
-    })
     if (!incomingCall || !account) return
-    console.log('[LeaveRequested] 1')
     if (!compareAddress(data.roomId, incomingCall.roomId!)) return
-    console.log('[LeaveRequested] 2', compareAddress(data.roomId, incomingCall.roomId!))
 
     const conversationId = await getConId()
-    console.log('[LeaveRequested] 3', conversationId)
     setIncomingCall(null)
     await syncCall(
       {

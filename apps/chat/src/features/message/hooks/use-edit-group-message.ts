@@ -29,13 +29,6 @@ export function useEditGroupMessage() {
       return messageService.editGroupMessage(account, conversation, messageOld, payload)
     },
 
-    onMutate: ({ messageOld, payload }) => {
-      console.log('[useEditMessage] editing message ✏️', messageOld.id, payload.type)
-
-      // 👉 sau này bạn đặt optimistic update ở đây
-      // return context để rollback nếu cần
-    },
-
     onSuccess: (_, { messageOld }) => {
       console.log('[useEditMessage] Edit message successfully ✅', messageOld.id)
     },

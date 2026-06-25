@@ -6,6 +6,7 @@ import { MicButton } from './mic-button'
 import { RaiseHandButton } from './raise-hand-button'
 import { ReactionButton } from './reaction-button'
 import { useShallow } from 'zustand/shallow'
+import { ShareScreenButton } from './share-screen-button'
 
 export const FeatureButtons = memo(() => {
   const { trackPulled, joined } = useCallStore()
@@ -23,11 +24,15 @@ export const FeatureButtons = memo(() => {
       <MicButton />
       <CameraButton />
 
-      {(isCaller || trackPulled) && isMeet && (
+      {(isCaller || trackPulled) && (
         <>
-          {/* <ShareScreenButton /> */}
-          <ReactionButton />
-          <RaiseHandButton />
+          <ShareScreenButton />
+          {isMeet && (
+            <>
+              <ReactionButton />
+              <RaiseHandButton />
+            </>
+          )}
         </>
       )}
     </div>

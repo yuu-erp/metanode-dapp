@@ -48,9 +48,9 @@ export const mediaStore = create<MediaStore>()(
         // 4. reset local tracks
         s.localTracks = {
           camera: null,
-          microphone: null
-          // screen: null,
-          // systemAudio: null
+          microphone: null,
+          screen: null,
+          systemAudio: null
         }
       })
     },

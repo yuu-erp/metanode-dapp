@@ -1,6 +1,5 @@
 import { blockchain, waitEventLog } from '~/clients'
 import { roomActions, roomStore } from '~/stores'
-
 export async function fetchRoomId() {
   console.log('[DEBUG] fetchRoomId 1', roomStore.getState())
   const { roomId, isCaller, callee, isMeet, address } = roomStore.getState()

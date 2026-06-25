@@ -2,8 +2,10 @@ import LoadingApp from '@/shared/components/loading-app'
 import { FiaiSDK } from '@metanodejs/fiai-sdk'
 import { contractClient } from '@mtnts/contract-client'
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react'
-import { initFileModule } from 'file-core'
+import { debug, initFileModule } from 'file-core'
 import { queryClient } from '@/shared/lib/react-query'
+
+console.log('test instance', contractClient === debug)
 
 interface FinsdkContextType {
   loadingSdk: boolean
@@ -30,8 +32,6 @@ const FinsdkProvider2: React.FC<FinsdkProvider2Props> = ({ children }) => {
       //@ts-ignore
       initFileModule({ client: queryClient })
     } finally {
-      console.log('window', window)
-
       setLoadingSdk(false)
     }
   }

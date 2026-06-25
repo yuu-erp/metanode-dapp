@@ -26,7 +26,6 @@ const ImportPrivateKey = memo(({ onBack, onCloseModal, setIsLoading }: ImportPri
 
   const handleImportPK = useCallback(async () => {
     setIsLoading(true)
-    console.log('[debug] - handleImportPK', { priKey, imageToShow })
     if (!priKey && !imageToShow) {
       toast.error('Enter or upload qr')
       setIsLoading(false)

@@ -10,6 +10,7 @@ import { mediaActions, roomActions } from '~/stores'
 import { userActions } from '~/stores/user.store'
 import { decodeDataFromBackend, formatAddress, toStreamKey } from '~/utils'
 import { useStringAssembler } from './shared'
+import { parseSdpMedia } from '~/utils/parse-sdp'
 
 export function useHandleIncomingOffer() {
   const assemble = useStringAssembler()
@@ -25,6 +26,11 @@ export function useHandleIncomingOffer() {
     // }
 
     const offer: RTCSessionDescriptionInit = JSON.parse(sdpString)
+
+    const parsed = parseSdpMedia(offer.sdp!)
+    const kindMap = Object.fromEntries(parsed.map((item) => [item.mid, item.kind]))
+    tracksForNative = tracksForNative.map((item) => ({ ...item, kind: kindMap[item.mid] ?? '' }))
+    console.log('newTracksnewTracksnewTracksnewTracks', { tracksForNative })
     const sdpAnswer = await createAnswer(offer.sdp!, {
       sourceUser: data.sourceUser,
       eventType: e.eventType,

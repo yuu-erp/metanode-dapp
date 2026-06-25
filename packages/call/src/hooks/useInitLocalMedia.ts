@@ -13,7 +13,7 @@ export function useInitLocalMedia() {
       const track = stream.getTracks()[0]
       if (track) {
         mediaActions.setLocalTrack('camera', track)
-        // mediaActions.setLocalTrack('screen', track)
+        mediaActions.setLocalTrack('screen', track)
       }
     }
 
@@ -24,7 +24,7 @@ export function useInitLocalMedia() {
       const track = stream.getTracks()[0]
       if (track) {
         mediaActions.setLocalTrack('microphone', track)
-        // mediaActions.setLocalTrack('systemAudio', track)
+        mediaActions.setLocalTrack('systemAudio', track)
       }
     }
 

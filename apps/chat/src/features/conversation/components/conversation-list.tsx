@@ -1,12 +1,12 @@
 'use client'
+import type { Conversation } from '@/modules/conversation'
+import { setConveration } from '@/new/conversation'
 import { useCurrentAccount } from '@/shared/hooks'
+import { uiActions, useUiStore } from '@/stores/ui.store'
 import { useNavigate } from '@tanstack/react-router'
 import * as React from 'react'
 import { useGetConversations } from '../hooks'
 import ItemConversation from './item-conversation'
-import type { Conversation } from '@/modules/conversation'
-import { uiActions, useUiStore } from '@/stores/ui.store'
-import { setConveration } from '@/new/conversation'
 type ConversationListProps = {
   searchKeyword: string
 }
@@ -17,6 +17,7 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
   const micOpen = useUiStore((s) => s.micOpen)
 
   const { data: conversations = [] } = useGetConversations(account)
+  // const { inboxes } = useInboxes()
 
   const filteredConversations = React.useMemo(() => {
     const keyword = searchKeyword.trim().toLowerCase()

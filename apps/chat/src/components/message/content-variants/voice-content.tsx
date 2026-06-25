@@ -1,8 +1,7 @@
+import { container } from '@/container'
 import { Pause, Play } from 'lucide-react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { container } from '@/container'
 import type { WithMessage } from '../types'
-import { useFileMetaById } from '@/new/file/file-info'
 
 function formatAudioTime(seconds: number): string {
   const total = Math.max(0, Math.floor(seconds))
@@ -26,9 +25,7 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
   const progressBarRef = useRef<HTMLDivElement | null>(null)
   const fileId = data.fileId
   const isDownloadingThis = false
-  const { data: meta } = useFileMetaById(data.fileId)
   const progress = 0
-  console.log('meta', meta)
   const displayDuration = audioDuration ?? ((data?.duration ?? 0) > 0 ? data.duration : null)
   const isSeekable =
     !isDownloadingThis && !!audioUrl && displayDuration != null && displayDuration > 0

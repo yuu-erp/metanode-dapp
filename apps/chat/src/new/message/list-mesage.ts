@@ -86,7 +86,6 @@ export async function getListMessage(conversation: BaseConversation, options?: P
     const messages = await fulfilledPromises(
       raw.map(async (item) => {
         const fullMessage = await baseMessageToMessage(item, conversation)
-        console.log('fullMessage', fullMessage)
         setMessageInfo(fullMessage.id, fullMessage)
         return fullMessage
       })

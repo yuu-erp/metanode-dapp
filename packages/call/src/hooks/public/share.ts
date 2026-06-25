@@ -69,11 +69,11 @@ export function useScreenShareActions() {
 
         switch (t.kind) {
           case 'video': {
-            // mediaActions.setLocalTrack('screen', t)
+            mediaActions.setLocalTrack('screen', t)
             break
           }
           case 'audio': {
-            // mediaActions.setLocalTrack('systemAudio', t)
+            mediaActions.setLocalTrack('systemAudio', t)
             break
           }
         }
@@ -95,8 +95,8 @@ export function useScreenShareActions() {
     try {
       const { address, roomId } = roomStore.getState()
       shareActions.toggleShareUser(address, false)
-      // cleanupTrack('screen')
-      // cleanupTrack('systemAudio')
+      cleanupTrack('screen')
+      cleanupTrack('systemAudio')
 
       await blockchain.stopScreenShare({
         roomId

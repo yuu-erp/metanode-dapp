@@ -11,7 +11,6 @@ export const DeleteOverlay = memo(({ data }: WithMessage) => {
   return (
     <BaseOverlayItem
       onClick={() => {
-        console.log('test delte', { data, mutate })
         mutate(data)
       }}
       className="text-red-500"

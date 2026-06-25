@@ -87,7 +87,6 @@ export async function groupMessageToBaseMessage(
   isAnonymous?: boolean
 ): Promise<BaseMessage> {
   const account = await getCurrentAccount()
-  console.log('input', input)
   return {
     content: input.finalContent,
     sender: isAnonymous ? input.authorAlias! : input.author,
@@ -128,16 +127,12 @@ export async function baseMessageToMessage(
   conversation: BaseConversation
 ): Promise<FulleMessage> {
   try {
-    console.log('baseMessageToMessage 1')
     const account = await getCurrentAccount()
-    console.log('baseMessageToMessage 2', account)
 
     const key = await getConversationKey(conversation)
 
     const { content, ...rest } = base
-    console.log('baseMessageToMessage 3', { key, content, account, conversation })
     const decrypted = await decryptMessage(conversation, content, key, account)
-    console.log('baseMessageToMessage 4', decrypted)
 
     const finalRs = {
       ...rest,
@@ -145,7 +140,6 @@ export async function baseMessageToMessage(
       isMine: await isMyMessage(base, conversation),
       status: baseMessageToStatus(base)
     }
-    console.log('baseMessageToMessage 5', finalRs)
 
     return finalRs
   } catch (error) {

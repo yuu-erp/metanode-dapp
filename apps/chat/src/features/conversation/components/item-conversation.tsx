@@ -59,8 +59,6 @@ function ItemConversation({
 
   const finalLastMessage = lastMesasgeV2 || lastMessage
 
-  console.log('lastMesasgeV2 ', { lastMesasgeV2, lastMessage })
-
   const { handlers, isLongPressActive } = useLongPress({
     threshold: 300,
     shouldPreventDefault: true,

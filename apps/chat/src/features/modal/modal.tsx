@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTrigger } from '@/shared/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { type PropsWithChildren, type ReactNode } from 'react'
 import { Drawer } from 'vaul'
@@ -33,6 +33,7 @@ export const Modal = ({ trigger, content, open, onOpenChange }: ModalProps) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none text-white">
+        <DialogTitle className="hidden"></DialogTitle>
         <div className="relative h-min w-full rounded-2xl bg-black/30 backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
           {content}
         </div>

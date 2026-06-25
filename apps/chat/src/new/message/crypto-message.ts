@@ -13,7 +13,6 @@ export async function decryptMessage(
   key: string,
   account: Account
 ) {
-  console.log('decryptMessage', { message })
   switch (type) {
     case 'p2p': {
       let rs = await decryptAesECDH(key, account.address, message)

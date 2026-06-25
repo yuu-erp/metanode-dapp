@@ -23,14 +23,10 @@ export const ListMessageForSearchInChat = memo(({}: ListMessageForSearchInChatPr
     )
   })
 
-  console.log('test', {
-    messages,
-    matchedList
-  })
-
-  if (!value || !matchedList.length) return null
+  if (!value) return null
   return (
     <div className="flex flex-col">
+      {matchedList.length === 0 && <p className="mt-2 text-center">No Result</p>}
       {matchedList.map((msg) => (
         <MessageItemForSearchInChat key={msg.id} message={msg} />
       ))}

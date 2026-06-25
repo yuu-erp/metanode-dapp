@@ -14,7 +14,6 @@ type Props = {
 
 const getSizeData = (size: number) => {
   try {
-    console.log('getSizeData adfsfdakkdfsl', size)
     if (size < 1024) return { v: size, unit: 'B' }
 
     if (size < 1024 * 1024) return { v: +(size / 1024).toFixed(1), unit: 'KB' }
@@ -29,7 +28,6 @@ const getSizeData = (size: number) => {
 }
 
 function MessageFile({ message, isMine }: Props) {
-  console.log('messageFile message', message)
   const upProgress = useUiStore((s) => s.upFileProgress[message?.clientId || message?.id])
   const { filePath, mimeType } = useMessageStore(
     useShallow((s) => {
@@ -67,7 +65,6 @@ function MessageFile({ message, isMine }: Props) {
   const mediaSrc = React.useMemo(() => {
     if (!message?.filePath) return ''
     const raw = message?.filePath
-    console.log('message file', raw)
     if (raw.startsWith('image://img.m.pro')) return raw
 
     if (raw.startsWith('http') || raw.startsWith('blob:')) return raw

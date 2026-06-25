@@ -31,7 +31,6 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
     // Helper decrypt an toàn
     const safeDecrypt = async (payload: any): Promise<Message | null> => {
       try {
-        console.log('[safeDecrypt] 1', { account, payload })
         return await messageService.decryptMessageForP2p(account, payload)
       } catch (err) {
         console.error('[MessageProvider] Decrypt failed:', err)
@@ -76,7 +75,6 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.sent': (e: AppEvents['message.sent']) => {
-        console.log('message.sent', e)
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
           (old) =>
@@ -89,7 +87,6 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.update': (e: AppEvents['message.update']) => {
-        console.log('message.update', e)
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(e.accountId, e.conversationId),
           (old) =>
@@ -214,11 +211,9 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
         const activeQueries = queryClient.getQueryCache().findAll({
           queryKey: ['messages']
         })
-        console.log('activeQueries', activeQueries)
         activeQueries.forEach((query) => {
           const queryKey = query.queryKey as [string, string, string] // ['messages', accountId, conversationId]
           if (queryKey[0] !== 'messages') return
-          console.log('queryKey', queryKey)
           queryClient.setQueryData<InfiniteData<Message[]>>(queryKey, (old) =>
             updateMessageFilePath(old, {
               fileKey: e.fileKey,
@@ -268,7 +263,6 @@ export function MessageProvider({ children }: React.PropsWithChildren) {
       },
 
       'message.updateId': (e: AppEvents['message.updateId']) => {
-        console.log('[message.updateId] 1', { e })
         queryClient.setQueryData<InfiniteData<Message[]>>(
           MESSAGE_QUERY_KEY.MESSAGES(account.address, e.conversationId),
           (old) => {
