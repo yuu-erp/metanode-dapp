@@ -32,7 +32,7 @@ export async function joinRoom() {
     'FrontendEvent',
     (e) => roomActions.isEventOwnedByMe(e, e.toUser) && e.eventType === 'JOIN_ANSWER'
   )
-  console.log('[DEBUG] joinRoom 3')
+  console.log('[DEBUG] joinRoom 3', { tracksInfo, rawTracks })
 
   await blockchain.joinRoom({
     _sdpOffer: sdpOffer,

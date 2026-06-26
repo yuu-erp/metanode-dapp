@@ -44,7 +44,7 @@ export function useHandleIncomingOffer() {
     'FrontendEvent',
     async (e) => {
       const data: PullTrackData = decodeDataFromBackend(e.data)
-      console.log('datadatadata', data)
+      console.log('PULL_TRACK_WHEN_ME_JOIN data', data)
       const sdpString = assemble(
         data.sessionId + data.sourceUser + e.eventType,
         data.sessionDescription,
@@ -91,6 +91,7 @@ export function useHandleIncomingOffer() {
     'FrontendEvent',
     async (e) => {
       const data: PullTrackWhenNewPersonJoinData = decodeDataFromBackend(e.data)
+      console.log('PULL_TRACK_FROM_NEW_PERSON_JOIN data', data)
       const user = formatAddress(data.sourceUser)
       const sdpString = assemble(
         data.sessionId + data.sourceUser + e.eventType,
