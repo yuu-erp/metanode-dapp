@@ -21,6 +21,7 @@ type IEventLog<T> = {
 
   onEventLog: (e: any) => any
   registerEvent: (from: string, to: string[]) => any
+  offContract: (add: string) => void
 }
 
 export class EventLogContainer {

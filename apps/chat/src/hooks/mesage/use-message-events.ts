@@ -13,12 +13,7 @@ import { setPinnedMessageState } from '@/new/message/pin-message'
 import { addReaction, removeReaction } from '@/new/message/react-message'
 import { useEventLog } from '@/shared/hooks/use-event-log'
 import { compareAddress } from '@/shared/lib'
-import {
-  ACTIONS_QUERY_KEY,
-  CONVERSATION_QUERY_KEY,
-  MESSAGE_QUERY_KEY,
-  queryClient
-} from '@/shared/lib/react-query'
+import { ACTIONS_QUERY_KEY, CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { formatAddress } from '@/shared/utils'
 import { useIsMutating } from '@tanstack/react-query'
 import { useCurrentState } from '../use-current-state'
@@ -205,18 +200,18 @@ export function useMessageEvents() {
   }
 
   useEventLog('PartnerMessageEdited', (e) => {
-    // forceEdit(e.messageId, { type: 'p2p', id: e.sender })
-    queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY.info(e.messageId) })
+    forceEdit(e.messageId, { type: 'p2p', id: e.sender })
+    // queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY.info(e.messageId) })
   })
 
   useEventLog('MessageEdited', (e) => {
-    queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY.info(e.messageId) })
-    // forceEdit(e.messageId, { type: 'p2p', id: e.recipient })
+    // queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY.info(e.messageId) })
+    forceEdit(e.messageId, { type: 'p2p', id: e.recipient })
   })
 
   useEventLog('MessageEditedGroup', (e) => {
-    queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY.info(e.messageId) })
-    // forceEdit(e.messageId, { type: 'group', id: e.groupAddress })
+    // queryClient.invalidateQueries({ queryKey: MESSAGE_QUERY_KEY.info(e.messageId) })
+    forceEdit(e.messageId, { type: 'group', id: e.groupAddress })
   })
 
   useEventLog('MessageEditedAnonymous', (e) => {

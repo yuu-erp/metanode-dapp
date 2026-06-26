@@ -44,6 +44,8 @@ export function useLeaveGroup() {
         account.address,
         conversation.conversationId
       )
+      container.eventLogContainer.eventLog.offContract(conversation.conversationId)
+
       queryClient.invalidateQueries({
         queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
       })

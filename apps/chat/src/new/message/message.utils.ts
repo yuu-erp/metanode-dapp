@@ -152,7 +152,7 @@ export function fullMessageToData(input: FulleMessage) {
   const newData = {
     type: input.type
   }
-  ;['content', 'fileId', 'stickerId', 'type'].forEach((key) => {
+  ;['content', 'fileId', 'stickerId', 'type', 'fileIds'].forEach((key) => {
     const value = input[key]
     if (!!value) newData[key] = value
   })

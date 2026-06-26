@@ -4,7 +4,7 @@ import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { fileActions } from '@/stores/file.store'
 import { resetValue, useInputStore } from '@/stores/input.store'
 import { useMutation } from '@tanstack/react-query'
-import { uploadFile, useSelectedId } from 'file-core'
+import { uploadFile, useSelectedIds } from 'file-core'
 import { setConveration } from '../conversation'
 import { useEditMessage } from './edit-message'
 import { handleSendMessage } from './send-message-v4'
@@ -13,7 +13,7 @@ export function useSubmitChatInput() {
   const { messageAction, setMessageAction } = useMessageAction()
   const { base, account } = useCurrentState()
   const edit = useEditMessage()
-  const fileIds = useSelectedId()
+  const fileIds = useSelectedIds()
 
   function getComposer() {
     const isReply = messageAction?.type === 'REPLY'

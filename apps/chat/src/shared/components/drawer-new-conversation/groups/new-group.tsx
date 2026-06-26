@@ -1,18 +1,17 @@
 'use client'
 
-import * as React from 'react'
-import SelectMembers from './select-members'
-import GroupInfo from './group-info'
-import { HeaderSection } from '../sections'
-import { Drawer } from 'vaul'
-import { CheckIcon, ChevronLeftIcon, Loader2Icon } from 'lucide-react'
-import { ScreenType } from '../drawer-new-conversation'
-import type { Conversation, ConversationType, PayloadAddMembers } from '@/modules/conversation'
-import type { Account } from '@/modules/account'
-import { cn } from '@/shared/lib'
-import { Input } from '@/shared/components/ui/input'
 import { useCreateGroup } from '@/features/conversation/hooks'
+import type { Account } from '@/modules/account'
+import type { Conversation, ConversationType, PayloadAddMembers } from '@/modules/conversation'
 import { useI18N } from '@/shared/hooks'
+import { cn } from '@/shared/lib'
+import { CheckIcon, ChevronLeftIcon, Loader2Icon } from 'lucide-react'
+import * as React from 'react'
+import { Drawer } from 'vaul'
+import { ScreenType } from '../drawer-new-conversation'
+import { HeaderSection } from '../sections'
+import GroupInfo from './group-info'
+import SelectMembers from './select-members'
 
 export enum ScreenGroupType {
   SELECT_MEMBERS = 'SELECT_MEMBERS',
@@ -76,14 +75,7 @@ function NewGroup({
           />
         )
       default:
-        return (
-          <SelectMembers
-            conversations={conversations}
-            account={account}
-            selectedMembers={selectedMembers}
-            handleSelectMember={handleSelectMember}
-          />
-        )
+        return null
     }
   }, [
     screenType,
@@ -166,23 +158,11 @@ function NewGroup({
             )}
           </button>
         </div>
-        {/* Search + QR */}
-        {screenType === ScreenGroupType.SELECT_MEMBERS && (
-          <div className="flex items-center gap-2 px-4">
-            <Input
-              type="text"
-              placeholder={t('search.addressOrUsername', {
-                defaultValue: 'Search address or username'
-              })}
-              className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
-            />
-          </div>
-        )}
       </HeaderSection>
       <div
         className={cn(
-          'no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto',
-          screenType === ScreenGroupType.SELECT_MEMBERS ? 'pt-[140px]' : 'pt-[60px]'
+          'no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-hidden',
+          'pt-[100px]'
         )}
       >
         {renderScreen}

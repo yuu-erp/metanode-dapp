@@ -1,6 +1,7 @@
 'use client'
 
-import { removeSelectedId, useMetadata, useSelectedId, useFileCache } from 'file-core'
+import { formatFileSize } from '@/new'
+import { removeSelectedId, useMetadata, useSelectedIds, useFileCache } from 'file-core'
 import { FileIcon, X } from 'lucide-react'
 
 export interface SelectedFileListProps {}
@@ -8,7 +9,6 @@ export interface SelectedFileListProps {}
 function FileItemUi({ id }: { id: string }) {
   const { metadata } = useMetadata(id)
   const { cache } = useFileCache(id)
-  console.log('cachecache', cache)
   if (!metadata || !cache) return null
   return (
     <div className="flex items-cenPter gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 group">
@@ -22,7 +22,7 @@ function FileItemUi({ id }: { id: string }) {
 
       <div className="flex-1 min-w-0 flex flex-col justify-center">
         <p className="text-sm font-medium text-white/90 truncate">{metadata.name}</p>
-        <p className="text-xs text-white/50">{metadata.size}</p>
+        <p className="text-xs text-white/50">{formatFileSize(metadata.size)}</p>
       </div>
 
       <button
@@ -37,7 +37,7 @@ function FileItemUi({ id }: { id: string }) {
 }
 
 export function SelectedFileList({}: SelectedFileListProps) {
-  const ids = useSelectedId()
+  const ids = useSelectedIds()
   console.log('SelectedFileList', { ids })
   if (!ids.length) return null
   return (

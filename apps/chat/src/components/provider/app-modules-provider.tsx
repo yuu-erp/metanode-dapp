@@ -11,7 +11,7 @@ export function AppModulesProvider({ children }: PropsWithChildren) {
       try {
         // setup module
         const client = queryClient as any
-        initChatModule({ client })
+        initChatModule({ client, getFiles: () => undefined })
         // setup flow
         const myKeys = getMyKeys()
         if (myKeys) {

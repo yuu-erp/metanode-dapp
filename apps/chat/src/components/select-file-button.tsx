@@ -1,6 +1,5 @@
-import { usePlatform } from '@/hooks/core/use-platform'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover'
-import { onGetNativeFile, onFileInputChange } from 'file-core'
+import { onFileInputChange, onGetNativeFile } from 'file-core'
 import { Paperclip } from 'lucide-react'
 import { memo, useRef, useState } from 'react'
 import { PopoverItem } from './popover-item'
@@ -9,18 +8,15 @@ export type SelectFileButtonProps = {}
 
 export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
   const [open, setOpen] = useState(false)
-  const { isNotWeb } = usePlatform()
   const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef2 = useRef<HTMLInputElement>(null)
+
   const close = () => setOpen(false)
 
   const onClickButton = (e: any) => {
     e.preventDefault()
     e.stopPropagation()
-    if (isNotWeb) {
-      setOpen(!open)
-    } else {
-      inputRef.current?.click()
-    }
+    setOpen(!open)
   }
 
   return (
@@ -43,7 +39,12 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
               <PopoverItem
                 onClick={() => {
                   close()
-                  onGetNativeFile('select-image')
+
+                  if (window.fiaiSDK) {
+                    inputRef2.current?.click()
+                  } else {
+                    onGetNativeFile('select-image')
+                  }
                 }}
               >
                 Chọn ảnh
@@ -51,19 +52,25 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
               <PopoverItem
                 onClick={() => {
                   close()
-                  onGetNativeFile('get-file')
+                  if (window.fiaiSDK) {
+                    inputRef.current?.click()
+                  } else {
+                    onGetNativeFile('get-file')
+                  }
                 }}
               >
                 Chọn file
               </PopoverItem>
-              <PopoverItem
-                onClick={() => {
-                  close()
-                  onGetNativeFile('take-picture')
-                }}
-              >
-                Mở camera / media
-              </PopoverItem>
+              {!window.fiaiSDK && (
+                <PopoverItem
+                  onClick={() => {
+                    close()
+                    onGetNativeFile('take-picture')
+                  }}
+                >
+                  Mở camera / media
+                </PopoverItem>
+              )}
             </div>
           </div>
         </PopoverContent>
@@ -73,6 +80,17 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
         multiple
         ref={inputRef}
         className="hidden"
+        type="file"
+        onChange={onFileInputChange}
+        onClick={(e) => {
+          ;(e.currentTarget as HTMLInputElement).value = ''
+        }}
+      />
+      <input
+        multiple
+        ref={inputRef2}
+        className="hidden"
+        accept="image/*,video/*"
         type="file"
         onChange={onFileInputChange}
         onClick={(e) => {

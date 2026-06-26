@@ -2,6 +2,7 @@
 import { STICKERS } from '@/constants/stickers'
 import type { Message } from '@/modules/message'
 import { useI18N } from '@/shared/hooks'
+import { useMetadata } from 'file-core'
 import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import * as React from 'react'
 import { TextContentWithMentions } from './message-text'
@@ -11,11 +12,24 @@ type Props = {
   className?: string
 }
 
+const FilePreview = ({ id }: { id: string }) => {
+  const { t } = useI18N()
+  const { metadata } = useMetadata(id)
+
+  return (
+    <span className="flex items-center gap-1 opacity-70 italic">
+      <FileIcon size={14} />
+      {metadata?.name || t('message.type.file', { defaultValue: '[File]' })}
+    </span>
+  )
+}
+
 function MessagePreview({ message, className }: Props) {
   const { t } = useI18N()
   const path = STICKERS.flatMap((i) => i.stickers).find(
     (i) => message.type === 'sticker' && i.id === message.stickerId
   )?.image
+  console.log('MessagePreview', { message })
 
   switch (message.type) {
     case 'text':
@@ -34,28 +48,25 @@ function MessagePreview({ message, className }: Props) {
       )
 
     case 'file':
-      if (message.mimeType?.startsWith('image/') && message.file) {
-        const file = message.file
-        if (!(file instanceof File)) return null
+      const fileId = message?.fileIds?.[0]
+      if (!fileId) return null
+      // if (message.mimeType?.startsWith('image/') && message.file) {
+      //   const file = message.file
+      //   if (!(file instanceof File)) return null
 
-        return (
-          <span className="flex items-center gap-1 opacity-70 italic">
-            <img
-              src={URL.createObjectURL(file)}
-              alt="preview"
-              className="size-6 object-cover rounded-sm"
-            />
-            {/* Hiện thị file name */}
-            {message.fileName || t('message.type.file', { defaultValue: '[File]' })}
-          </span>
-        )
-      }
-      return (
-        <span className="flex items-center gap-1 opacity-70 italic">
-          <FileIcon size={14} />
-          {message.fileName || t('message.type.file', { defaultValue: '[File]' })}
-        </span>
-      )
+      //   return (
+      //     <span className="flex items-center gap-1 opacity-70 italic">
+      //       <img
+      //         src={URL.createObjectURL(file)}
+      //         alt="preview"
+      //         className="size-6 object-cover rounded-sm"
+      //       />
+      //       {/* Hiện thị file name */}
+      //       {message.fileName || t('message.type.file', { defaultValue: '[File]' })}
+      //     </span>
+      //   )
+      // }
+      return <FilePreview id={fileId} />
 
     case 'voice':
       return (

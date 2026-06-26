@@ -4,6 +4,7 @@ import { useNameBySender } from '@/new/user/user-info'
 import { X } from 'lucide-react'
 import { memo } from 'react'
 import { MessagePreview } from './message-preview'
+import { setValue } from '@/stores/input.store'
 
 export type MessageComposerProps = {}
 
@@ -11,7 +12,10 @@ export const MessageComposer = memo(({}: MessageComposerProps) => {
   const { setMessageAction, messageAction } = useMessageAction()
 
   const { data } = useCurrentMessageById(messageAction?.messageId)
-  const onClose = () => setMessageAction(null)
+  const onClose = () => {
+    setMessageAction(null)
+    setValue('', 'chatValue')
+  }
   const name = useNameBySender(data?.sender)
   const titles = { EDIT: 'Edit Message', REPLY: `Reply to ${name}` }
   const title = titles[messageAction?.type ?? 'EDIT']

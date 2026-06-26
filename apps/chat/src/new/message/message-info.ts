@@ -17,13 +17,12 @@ export async function getRawMessageById(
 
   switch (conversation.type) {
     case 'p2p': {
-      return container.userContract
-        .getMessageById({
-          from: account.hiddenAddress,
-          to: account.contractAddress,
-          inputData: { _messageId: id }
-        })
-        .then(p2pMessageToBaseMessage)
+      const rs = await container.userContract.getMessageById({
+        from: account.hiddenAddress,
+        to: account.contractAddress,
+        inputData: { _messageId: id }
+      })
+      return p2pMessageToBaseMessage(rs)
     }
     case 'group': {
       return container.groupContract
@@ -51,8 +50,10 @@ export async function getRawMessageById(
 
 export async function getMessageInfoById(id: string, input: BaseConversation) {
   const baseMessge = await getRawMessageById(id, input)
+  console.log('getMessageInfoById 1', baseMessge)
   const rs = await baseMessageToMessage(baseMessge, input)
-  console.debug('message show ', Date.now())
+  console.log('getMessageInfoById 2', rs)
+
   return rs
 }
 

@@ -3,6 +3,7 @@ import { memo } from 'react'
 import { BaseOverlayItem } from './base-overlay-item'
 import type { WithMessage } from '../types'
 import { useMessageAction } from '@/features/message'
+import { setValue } from '@/stores/input.store'
 
 export const EditOverlay = memo(({ data }: WithMessage) => {
   const { setMessageAction } = useMessageAction()
@@ -10,12 +11,13 @@ export const EditOverlay = memo(({ data }: WithMessage) => {
   if (!data.isMine || data.type !== 'text') return null
   return (
     <BaseOverlayItem
-      onClick={() =>
+      onClick={() => {
         setMessageAction({
           messageId: data.id,
           type: 'EDIT'
         })
-      }
+        setValue(data.content ?? '', 'chatValue')
+      }}
       text="Chỉnh sửa"
       icon={<EditIcon />}
     />
