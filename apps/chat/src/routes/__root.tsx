@@ -31,7 +31,7 @@ export const Route = createRootRoute({
 
     return (
       <>
-        <button className="right-0 top-0 fixed z-50 bg-black size-20" onClick={async () => {}} />
+        {/* <button className="right-0 top-0 fixed z-50 bg-black size-20" onClick={async () => {}} /> */}
         {/* <Test /> */}
         <DiscardRecordingModal />
         <WindowButtons />
