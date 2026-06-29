@@ -62,19 +62,24 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
           )}
         </div>
         {/* Search + QR */}
-        <div className="flex items-center gap-2 px-4">
-          {/* <Input
-            type="text"
-            placeholder={t('search.addressOrUsername', {
-              defaultValue: 'Search address or username'
-            })}
-            className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
-          /> */}
-        </div>
+        <div className="flex items-center gap-2 px-4"></div>
       </HeaderSection>
       <div className="no-scrollbar w-full flex-1 px-4 pb-6 flex flex-col overflow-y-auto pt-[80px]">
         {/* Telegram Actions */}
         <div className="flex flex-col w-full">
+          {/* New Contact */}
+          <button
+            className="w-full h-12 flex items-center gap-4 text-left transition "
+            onClick={() => onChangeScreenType?.(ScreenType.NEW_CONTACT)}
+          >
+            <UserAddIcon className="size-6 text-[#3b82f6]" />
+            <span className="font-medium text-[#3b82f6]">
+              {t('drawer.newContact', { defaultValue: 'New Contact' })}
+            </span>
+          </button>
+
+          <div className="h-px bg-white/20 ml-10" />
+
           {/* New Group */}
           <button
             onClick={() => onChangeScreenType?.(ScreenType.NEW_GROUP)}
@@ -95,19 +100,6 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             <UserGroupIcon className="size-6 text-[#3b82f6]" />
             <span className="font-medium text-[#3b82f6]">
               {t('drawer.newAnonymousGroup', { defaultValue: 'New Anonymous Group' })}
-            </span>
-          </button>
-
-          <div className="h-px bg-white/20 ml-10" />
-
-          {/* New Contact */}
-          <button
-            className="w-full h-12 flex items-center gap-4 text-left transition "
-            onClick={() => onChangeScreenType?.(ScreenType.NEW_CONTACT)}
-          >
-            <UserAddIcon className="size-6 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
-              {t('drawer.newContact', { defaultValue: 'New Contact' })}
             </span>
           </button>
 

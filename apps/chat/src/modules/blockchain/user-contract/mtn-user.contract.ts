@@ -160,6 +160,20 @@ export class UserContract extends MtnContract {
     })
   }
 
+  getReaction(
+    payload: TransactionPayload<{ _messageId: string; _reactor: string }>
+  ): Promise<string> {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'getReaction',
+      abiData: userAbi.getReaction as any,
+      inputData,
+      feeType: 'read'
+    })
+  }
+
   setMeetingFactory(payload: TransactionPayload<SetMeetingFactoryInput>): Promise<void> {
     const { from, to, inputData } = payload
     return this.sendTransaction({

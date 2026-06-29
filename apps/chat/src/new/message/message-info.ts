@@ -22,6 +22,29 @@ export async function getRawMessageById(
         to: account.contractAddress,
         inputData: { _messageId: id }
       })
+      const [myReact, urReact] = await Promise.all([
+        container.userContract.getReaction({
+          from: account.hiddenAddress,
+          to: account.contractAddress,
+          inputData: { _messageId: id, _reactor: account.contractAddress }
+        }),
+        container.userContract.getReaction({
+          from: account.hiddenAddress,
+          to: account.contractAddress,
+          inputData: { _messageId: id, _reactor: conversation.id }
+        })
+      ])
+      let reactionString = ''
+      if (myReact) {
+        reactionString += 'me:' + myReact
+      }
+      if (urReact) {
+        if (!!reactionString) reactionString += ','
+        reactionString += 'partner:' + myReact
+      }
+      //@ts-ignore
+      rs.reactionSummary = reactionString
+      if (reactionString) console.log('reactionString', reactionString)
       return p2pMessageToBaseMessage(rs)
     }
     case 'group': {
