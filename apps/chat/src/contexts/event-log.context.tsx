@@ -29,6 +29,8 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       formatAddress(factoryAddress),
       formatAddress(CONTRACT_ADDRESSES.file)
     ]
+    console.log('arrayarrayarrayarray', array)
+
     eventLog.registerEvent(formatAddress(account.hiddenAddress), array)
   }, [account?.address, account?.contractAddress])
 

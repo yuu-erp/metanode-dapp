@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client'
 // Import the generated route tree
 import '@/shared/lib/i18n'
 import { FinsdkProvider2 } from './components/finsk.context-2.tsx'
-import { AppModulesProvider } from './components/provider/app-modules-provider.tsx'
 import { AppQueryProvider } from './components/provider/app-query-provider.tsx'
 import reportWebVitals from './reportWebVitals.ts'
 import { routeTree } from './routeTree.gen'
@@ -34,9 +33,7 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <FinsdkProvider2>
       <AppQueryProvider>
-        <AppModulesProvider>
-          <RouterProvider router={router} />
-        </AppModulesProvider>
+        <RouterProvider router={router} />
       </AppQueryProvider>
     </FinsdkProvider2>
   )

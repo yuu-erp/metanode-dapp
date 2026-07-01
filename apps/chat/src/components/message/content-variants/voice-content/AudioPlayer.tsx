@@ -1,7 +1,10 @@
-import { container } from '@/container'
+import { useFileCache, useMetadata } from 'file-core'
 import { Pause, Play } from 'lucide-react'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { WithMessage } from '../types'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
+
+export type AudioPlayerProps = {
+  id: string
+}
 
 function formatAudioTime(seconds: number): string {
   const total = Math.max(0, Math.floor(seconds))
@@ -13,36 +16,31 @@ function formatAudioTime(seconds: number): string {
   return `${secs} sec`
 }
 
-export const VoiceContent = memo(({ data }: WithMessage) => {
+export const AudioPlayer = memo(({ id }: AudioPlayerProps) => {
+  const { cache } = useFileCache(id)
+  const { metadata } = useMetadata(id)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [audioUrl, setAudioUrl] = useState<string | undefined>()
-  const [shouldPlayOnReady, setShouldPlayOnReady] = useState(false)
-  const [audioDuration, setAudioDuration] = useState<number | null>(null)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [isSeeking, setIsSeeking] = useState(false)
-  const isSeekingRef = useRef(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const displayDuration = (metadata?.duration ?? 0) / 1000
+  const [currentTime, setCurrentTime] = useState(0)
+  const isSeekingRef = useRef(false)
+  const progressPercent = Math.min(100, Math.max(0, (currentTime / displayDuration) * 100))
+  const [isSeeking, setIsSeeking] = useState(false)
   const progressBarRef = useRef<HTMLDivElement | null>(null)
-  const fileId = data.fileId
-  const isDownloadingThis = false
-  const progress = 0
-  const displayDuration = audioDuration ?? ((data?.duration ?? 0) > 0 ? data.duration : null)
-  const isSeekable =
-    !isDownloadingThis && !!audioUrl && displayDuration != null && displayDuration > 0
 
-  const progressPercent = useMemo(() => {
-    if (isDownloadingThis) {
-      return Math.min(100, Math.max(0, progress))
+  const handleToggle = async () => {
+    if (!audioRef.current) return
+
+    if (isPlaying) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play().catch(() => {
+        setIsPlaying(false)
+      })
     }
-    if (displayDuration == null || displayDuration <= 0) return 0
-    return Math.min(100, Math.max(0, (currentTime / displayDuration) * 100))
-  }, [isDownloadingThis, progress, displayDuration, currentTime])
+  }
 
-  const durationLabel = useMemo(() => {
-    if (isDownloadingThis) return `Downloading ${progress}%`
-    if (displayDuration == null) return 'Voice memo'
-    return `${formatAudioTime(currentTime)} / ${formatAudioTime(displayDuration)}`
-  }, [isDownloadingThis, progress, displayDuration, currentTime])
+  const durationLabel = `${formatAudioTime(currentTime)} / ${formatAudioTime(displayDuration)}`
 
   const seekFromClientX = useCallback(
     (clientX: number) => {
@@ -62,8 +60,6 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
   )
 
   const handleProgressPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isSeekable) return
-
     event.preventDefault()
     event.stopPropagation()
 
@@ -75,7 +71,7 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
   }
 
   const handleProgressPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!isSeekingRef.current || !isSeekable) return
+    if (!isSeekingRef.current) return
     seekFromClientX(event.clientX)
   }
 
@@ -87,44 +83,10 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
   }
 
   useEffect(() => {
-    setAudioDuration(null)
-    setCurrentTime(0)
-  }, [audioUrl])
-
-  useEffect(() => {
     const audio = audioRef.current
-    if (!audio || !audioUrl) return
+    if (!audio) return
 
     let isMounted = true
-
-    const updateDuration = () => {
-      if (!isMounted) return
-
-      const duration = audio.duration
-
-      if (Number.isFinite(duration) && duration > 0) {
-        setAudioDuration(duration)
-      }
-    }
-
-    const handleLoadedMetadata = () => {
-      // Một số browser trả Infinity với blob audio
-      if (audio.duration === Infinity) {
-        audio.currentTime = 1e101
-
-        const handleTimeUpdate = () => {
-          audio.removeEventListener('timeupdate', handleTimeUpdate)
-
-          audio.currentTime = 0
-
-          updateDuration()
-        }
-
-        audio.addEventListener('timeupdate', handleTimeUpdate)
-      } else {
-        updateDuration()
-      }
-    }
 
     const handleTimeUpdate = () => {
       if (!isMounted || isSeekingRef.current) return
@@ -149,7 +111,6 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
 
     audio.preload = 'metadata'
 
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('ended', handleEnded)
     audio.addEventListener('pause', handlePause)
@@ -160,59 +121,12 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
     return () => {
       isMounted = false
 
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
       audio.removeEventListener('timeupdate', handleTimeUpdate)
       audio.removeEventListener('ended', handleEnded)
       audio.removeEventListener('pause', handlePause)
       audio.removeEventListener('play', handlePlay)
-
-      URL.revokeObjectURL(audioUrl)
     }
-  }, [audioUrl])
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.load()
-    }
-  }, [audioUrl])
-
-  const handleToggle = async () => {
-    if (!audioUrl) {
-      if (!fileId) return
-
-      //   await downloadFile(fileId, fileId, '', meta?.mimeType)
-
-      const file = await container.fileCacheService.getFile(fileId)
-
-      if (!file) return
-      setAudioUrl(URL.createObjectURL(file.blob))
-      setShouldPlayOnReady(true)
-      return
-    }
-
-    if (!audioRef.current) return
-
-    if (isPlaying) {
-      audioRef.current.pause()
-    } else {
-      audioRef.current.play().catch(() => {
-        setIsPlaying(false)
-      })
-    }
-  }
-
-  useEffect(() => {
-    if (audioUrl && shouldPlayOnReady && audioRef.current) {
-      audioRef.current
-        .play()
-        .catch(() => {
-          setIsPlaying(false)
-        })
-        .finally(() => {
-          setShouldPlayOnReady(false)
-        })
-    }
-  }, [audioUrl, shouldPlayOnReady])
+  }, [])
 
   return (
     <div className="flex items-center gap-2">
@@ -224,18 +138,14 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
         {isPlaying ? <Pause size={16} /> : <Play size={16} />}
       </button>
       <div className="min-w-0 flex-1 text-sm text-left">
-        <div>Voice memo</div>
+        <div>{metadata?.name}</div>
         <div
           ref={progressBarRef}
-          className={`mt-1.5 flex h-3 w-full touch-none items-center ${
-            isSeekable ? 'cursor-pointer' : 'cursor-default'
-          }`}
+          className={`mt-1.5 flex h-3 w-full touch-none items-center cursor-pointer`}
           role="slider"
           aria-valuenow={Math.round(progressPercent)}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={isDownloadingThis ? 'Downloading voice' : 'Playback position'}
-          aria-disabled={!isSeekable}
           onPointerDown={handleProgressPointerDown}
           onPointerMove={handleProgressPointerMove}
           onPointerUp={handleProgressPointerUp}
@@ -253,7 +163,8 @@ export const VoiceContent = memo(({ data }: WithMessage) => {
         </div>
         <div className="mt-1 text-xs text-gray-400">{durationLabel}</div>
       </div>
-      <audio ref={audioRef} className="hidden" src={audioUrl} />
+
+      <audio ref={audioRef} className="hidden" src={cache?.previewPath} />
     </div>
   )
 })

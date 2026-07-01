@@ -174,6 +174,7 @@ export class ConversationService {
           limit: 50
         }
       })
+      console.log('inboxsinboxsinboxs', inboxs)
 
       const conversations = await fulfilledPromises(
         inboxs.map(async (item) => {

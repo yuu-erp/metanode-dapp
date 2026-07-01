@@ -32,6 +32,7 @@ async function getMessaeges(
           page
         }
       })
+
       return await Promise.all(rs.map(p2pMessageToBaseMessage))
     }
     case 'group': {
@@ -86,7 +87,7 @@ export async function getListMessage(conversation: BaseConversation, options?: P
     const messages = await fulfilledPromises(
       raw.map(async (item) => {
         const fullMessage = await baseMessageToMessage(item, conversation)
-        if (fullMessage.content === 'dddd') {
+        if (fullMessage.content === 'dd') {
           console.log('fullMessagefullMessagefullMessage', fullMessage)
         }
         setMessageInfo(fullMessage.id, fullMessage)

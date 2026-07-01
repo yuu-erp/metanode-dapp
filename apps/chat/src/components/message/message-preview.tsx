@@ -2,6 +2,7 @@ import { useCurrentMessageById } from '@/new/message'
 import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import { memo } from 'react'
 import { TextContentWithMentions } from './content-variants'
+import { useFileCache, useMetadata } from 'file-core'
 
 export type MessagePreviewProps = {
   id?: string
@@ -26,31 +27,31 @@ export const MessagePreview = memo(({ id }: MessagePreviewProps) => {
         </span>
       )
 
-    case 'file':
-      if (''.startsWith('image/')) {
-        const file = null as any
-        if (!(file instanceof File)) return null
+    case 'file': {
+      const id = message.fileIds?.[0]
+      const { metadata } = useMetadata(id)
+      const { cache } = useFileCache(id)
 
+      if (''.startsWith('image/')) {
         return (
           <span className="flex items-center gap-1 opacity-70 italic">
             <img
-              src={URL.createObjectURL(file)}
+              src={cache?.previewPath}
               alt="preview"
               className="size-6 object-cover rounded-sm"
             />
-            {/* Hiện thị file name */}
-            [File]
+            {/* Hiện thị file name */}[{metadata?.name}]
             {/* {message.fileName || t('message.type.file', { defaultValue: '[File]' })} */}
           </span>
         )
       }
       return (
         <span className="flex items-center gap-1 opacity-70 italic">
-          <FileIcon size={14} />
-          [File]
+          <FileIcon size={14} />[{metadata?.name}]
           {/* {message.fileName || t('message.type.file', { defaultValue: '[File]' })} */}
         </span>
       )
+    }
 
     case 'voice':
       return (

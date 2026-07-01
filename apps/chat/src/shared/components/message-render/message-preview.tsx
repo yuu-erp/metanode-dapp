@@ -15,7 +15,7 @@ type Props = {
 const FilePreview = ({ id }: { id: string }) => {
   const { t } = useI18N()
   const { metadata } = useMetadata(id)
-
+  console.log('metadata', metadata)
   return (
     <span className="flex items-center gap-1 opacity-70 italic">
       <FileIcon size={14} />
@@ -50,22 +50,6 @@ function MessagePreview({ message, className }: Props) {
     case 'file':
       const fileId = message?.fileIds?.[0]
       if (!fileId) return null
-      // if (message.mimeType?.startsWith('image/') && message.file) {
-      //   const file = message.file
-      //   if (!(file instanceof File)) return null
-
-      //   return (
-      //     <span className="flex items-center gap-1 opacity-70 italic">
-      //       <img
-      //         src={URL.createObjectURL(file)}
-      //         alt="preview"
-      //         className="size-6 object-cover rounded-sm"
-      //       />
-      //       {/* Hiện thị file name */}
-      //       {message.fileName || t('message.type.file', { defaultValue: '[File]' })}
-      //     </span>
-      //   )
-      // }
       return <FilePreview id={fileId} />
 
     case 'voice':

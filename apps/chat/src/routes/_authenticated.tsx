@@ -24,6 +24,7 @@ import { getState, reset } from 'call-core'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { contractClient } from '@mtnts/contract-client'
+import { SystemCore } from '@metanodejs/system-core'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async () => {
@@ -96,6 +97,12 @@ function RouteComponent() {
       reset()
       await syncCall(metadata, { callStatus: kind, duration })
     })()
+  }, [])
+
+  useEffect(() => {
+    SystemCore.on('EventLogs', (e) => {
+      console.log('on event data', e)
+    })
   }, [])
 
   return (

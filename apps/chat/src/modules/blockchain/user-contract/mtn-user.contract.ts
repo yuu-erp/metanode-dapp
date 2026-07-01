@@ -375,6 +375,22 @@ export class UserContract extends MtnContract {
     return rs
   }
 
+  async getPartnerPinnedMessages(
+    payload: TransactionPayload<{ partner: string }>
+  ): Promise<string[]> {
+    const { from, to, inputData } = payload
+    const rs = await this.sendTransaction({
+      from,
+      to,
+      functionName: 'getPartnerPinnedMessages',
+      abiData: userAbi.getPartnerPinnedMessages as any,
+      feeType: 'read',
+      inputData
+    })
+
+    return rs
+  }
+
   setComposingStatus(
     payload: TransactionPayload<{ recipient: string; status: string; content: string }>
   ): Promise<string[]> {

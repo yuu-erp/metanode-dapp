@@ -20,10 +20,16 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
   const { data: conversations = [] } = useGetConversations(account)
   const isMobile = useIsMobile()
   const { forwardMessage } = useForwardMessage()
-  const displayConversations =
+  const [value, setValue] = React.useState('')
+
+  const displayConversations = (
     base.type === 'anonymous_group'
       ? conversations.filter((item) => item.conversationId === base.id)
       : conversations
+  ).filter((item) =>
+    item.name.trim().toLocaleLowerCase().includes(value.trim().toLocaleLowerCase())
+  )
+  console.log('ssss', conversations)
 
   const renderContent = (
     <div className="relative h-[90vh] md:h-[600px] w-full rounded-t-[36px] md:rounded-2xl bg-black/30 backdrop-blur-lg border border-white/10 flex flex-col overflow-hidden">
@@ -55,6 +61,8 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
           {/* Search + QR */}
           <div className="flex items-center gap-2 px-4">
             <input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
               type="text"
               placeholder="Search address or username"
               className="

@@ -12,11 +12,17 @@ async function getPinnedMessage(account: Account, input: BaseConversation) {
   try {
     switch (input.type) {
       case 'p2p': {
-        return await container.userContract.getPinnedMessages({
+        const rs = await container.userContract.getPinnedMessages({
           from: account.hiddenAddress,
           to: account.contractAddress,
           inputData: { partner: input.id }
         })
+        const rs2 = await container.userContract.getPartnerPinnedMessages({
+          from: account.hiddenAddress,
+          to: account.contractAddress,
+          inputData: { partner: input.id }
+        })
+        return [...new Set([...rs, ...rs2])]
       }
       case 'group': {
         return await container.groupContract.getListPinnedMessagesGroup({

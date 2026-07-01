@@ -4,7 +4,7 @@ import type { WithMessage } from './types'
 import { FileContent } from './content-variants/file-content'
 import { StickerContent } from './content-variants/sticker-content'
 import { CallStatusContent } from './content-variants/call-status-content'
-import { VoiceContent } from './content-variants/voice-content'
+import { VoiceContent } from './content-variants/voice-content/VoiceContent'
 
 const obj: Record<string, FC<WithMessage>> = {
   text: TextContent,

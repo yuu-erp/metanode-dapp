@@ -7,7 +7,7 @@ import { compareAddress, formatAddress } from '@/shared/lib'
 import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { type FileItem } from '@/stores/file.store'
 import { useMutation } from '@tanstack/react-query'
-import { prepareFile, uploadFile } from 'file-core'
+import { prepareFile, uploadFile, type FileMetadata } from 'file-core'
 import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
@@ -20,6 +20,7 @@ import { addIdInMessageList, replaceIdInMessageList } from './list-mesage'
 import { getMessageById, removeMessgeById, setMessageInfo } from './message-info'
 import { fullMessageToData } from './message.utils'
 import { contractClient } from '@mtnts/contract-client'
+import { addConversation } from '../conversation/list-conversation'
 
 export type SendMessageInput = { type: string; [key: string]: any }
 
@@ -127,6 +128,7 @@ async function createOptimisticMessage(
 
   addIdInMessageList(id, base)
   setMessageInfo(id, optimisticMessage)
+  addConversation(base, { messageId: id })
 
   return optimisticMessage
 }
@@ -248,15 +250,20 @@ export function processFileV2(items: FileItem[]) {
   }
 }
 
+export type SendVoiceInput = {
+  file: File
+  metadata: Partial<FileMetadata>
+}
+
 export function useSendVoice() {
   const { base } = useCurrentState()
   const { account } = useCurrentAccount()
 
   const mutation = useMutation({
     mutationKey: ACTIONS_QUERY_KEY.sendMessage,
-    mutationFn: async (file: File) => {
+    mutationFn: async ({ file, metadata = {} }: SendVoiceInput) => {
       if (!account) return
-      const id = prepareFile(file)
+      const id = prepareFile(file, metadata)
       const { promise } = uploadFile(id, account?.address)
       handleSendMessage(
         {

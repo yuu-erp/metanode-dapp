@@ -34,17 +34,24 @@ export async function getRawMessageById(
           inputData: { _messageId: id, _reactor: conversation.id }
         })
       ])
+      console.log('myReactmyReactmyReactmyReact', { myReact, urReact })
       let reactionString = ''
       if (myReact) {
         reactionString += 'me:' + myReact
       }
       if (urReact) {
         if (!!reactionString) reactionString += ','
-        reactionString += 'partner:' + myReact
+        reactionString += 'partner:' + urReact
       }
       //@ts-ignore
       rs.reactionSummary = reactionString
       if (reactionString) console.log('reactionString', reactionString)
+
+      //@ts-ignore
+      if (rs?.messageId === '712cc3b1dfd0f14f21f35532408a0803b71f3e7219e8d4956ef23df83f2eb1a8') {
+        console.log('asddfsaadsasdasdf 2', { rs, myReact, urReact })
+      }
+
       return p2pMessageToBaseMessage(rs)
     }
     case 'group': {
@@ -76,7 +83,9 @@ export async function getMessageInfoById(id: string, input: BaseConversation) {
   console.log('getMessageInfoById 1', baseMessge)
   const rs = await baseMessageToMessage(baseMessge, input)
   console.log('getMessageInfoById 2', rs)
-
+  if (rs?.content === 'ggaa') {
+    console.log('getMessageInfoById data', { rs, baseMessge })
+  }
   return rs
 }
 

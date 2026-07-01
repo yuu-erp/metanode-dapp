@@ -20,7 +20,7 @@ import { ConversationContextMenu } from './conversation-context-menu'
 interface ItemConversationProps extends React.HTMLAttributes<HTMLDivElement> {
   name: string
   avatar?: string
-  updatedAt?: Date
+  updatedAt?: Date | number
   lastMessage?: Message
   isPin?: boolean
   type?: ConversationType
@@ -49,6 +49,7 @@ function ItemConversation({
 
   const { data: inbox } = useConversationInbox(conversation.conversationId)
   const unreadCount = +(inbox?.unreadCount ?? 0)
+  updatedAt = inbox?.lastMessageTimestamp ?? updatedAt
 
   const base = {
     type: conversation?.conversationType,
@@ -71,6 +72,7 @@ function ItemConversation({
     }
   })
   // Helper render content
+  console.log('is same', compareAddress(conversationId, account?.contractAddress))
 
   return (
     <ConversationContextMenu conversationId={conversationId} type={type}>
@@ -105,8 +107,8 @@ function ItemConversation({
                 {isVerified && <VerifiedIcon className="size-4" />}
               </div>
               <div className="flex items-center gap-1">
-                {isMine && <CheckIcon className="size-3" />}
-                {updatedAt && <span>{formatUpdatedAt(updatedAt)}</span>}
+                {!!isMine && <CheckIcon className="size-3" />}
+                {!!updatedAt && <span>{formatUpdatedAt(updatedAt as any)}</span>}
               </div>
             </div>
             <div className="w-full flex items-center justify-between gap-3">
@@ -129,7 +131,7 @@ function ItemConversation({
                 </>
               )}
 
-              {isPin && <PinIcon className="size-4" />}
+              {!!isPin && <PinIcon className="size-4" />}
             </div>
           </div>
         </div>

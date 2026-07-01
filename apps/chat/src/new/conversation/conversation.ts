@@ -93,11 +93,12 @@ export function useConversationInbox(id: string) {
       queryFn: async () => {
         const account = await getCurrentAccount()
 
-        return container.userContract.conversationCache({
+        const rs = await container.userContract.conversationCache({
           from: account.hiddenAddress,
           to: account.contractAddress,
           inputData: { '': id }
         })
+        return { ...rs, lastMessageTimestamp: +rs.lastMessageTimestamp * 1000 }
       }
     })
   )

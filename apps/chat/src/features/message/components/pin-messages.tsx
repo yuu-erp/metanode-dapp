@@ -1,11 +1,12 @@
 'use client'
 import { useCurrentState } from '@/hooks/use-current-state'
-import { useCurrentMessageById, usePinnedMessages as usePinned } from '@/new/message'
+import { createMessageInfoQuery, usePinnedMessages as usePinned } from '@/new/message'
 import { useI18N } from '@/shared/hooks'
 import { useUiStore } from '@/stores/ui.store'
 import { PinIcon } from 'lucide-react'
 import * as React from 'react'
 import { PinnedMessagesDrawer } from './pinned-messages-drawer'
+import { useQueries } from '@tanstack/react-query'
 
 interface PinMessagesProps {}
 
@@ -15,7 +16,18 @@ function PinMessages({}: PinMessagesProps) {
   const searchOpen = useUiStore((s) => s.searchOpen)
   const { base } = useCurrentState()
   const { data: pinnedMessage = [] } = usePinned(base)
-  const { data: msgData } = useCurrentMessageById(pinnedMessage[pinnedMessage?.length - 1] ?? '')
+  const queries = useQueries({
+    queries: pinnedMessage.map((item) => createMessageInfoQuery(item, base))
+  })
+
+  const sorted = queries
+    .map((item) => item.data)
+    .filter(Boolean)
+    .sort((a, b) => a!.timestamp - b!.timestamp)
+  console.log('sorted', sorted)
+  const msgData = sorted[sorted.length - 1]
+
+  console.log('pinnedMessage', pinnedMessage)
 
   if (!pinnedMessage?.length || searchOpen) return null
   return (

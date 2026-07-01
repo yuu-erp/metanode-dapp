@@ -36,7 +36,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         {ready && (
           <CallProvider
-            registerEventLog={async () => {}}
+            registerEventLog={async () => eventLog.registerEvent('', CONTRACT_ADDRESSES.meeting)}
             search={search}
             eventLog={eventLog as any}
             meetingAddress={CONTRACT_ADDRESSES.meeting}

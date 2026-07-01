@@ -1221,6 +1221,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "groupAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "decrementCount",
+        "type": "uint256"
+      }
+    ],
+    "name": "decrementGroupUnreadCount",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
@@ -3477,6 +3495,19 @@
         "internalType": "address",
         "name": "partner",
         "type": "address"
+      }
+    ],
+    "name": "unpinAllMessages",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
       },
       {
         "internalType": "bytes32",
@@ -3485,6 +3516,24 @@
       }
     ],
     "name": "unpinMessage",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "partner",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "unpinMessageByPartner",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

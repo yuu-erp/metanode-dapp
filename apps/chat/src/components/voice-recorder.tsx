@@ -15,6 +15,7 @@ function formatRecordingDurationParts(elapsedMs: number) {
   const mins = Math.floor(totalSec / 60)
   const secs = totalSec % 60
   const ms = Math.floor(elapsedMs % 1000)
+
   return {
     main: `${mins}:${secs.toString().padStart(2, '0')}`,
     ms: ms.toString().padStart(3, '0')
@@ -36,14 +37,14 @@ const RecordingTimer = memo(
 
     const tick = () => {
       if (startedAtRef.current === null) return
-      setElapsedMs(Date.now() - startedAtRef.current)
+      setElapsedMs(performance.now() - startedAtRef.current)
       rafRef.current = requestAnimationFrame(tick)
     }
 
     useImperativeHandle(ref, () => ({
       start: () => {
         stopLoop()
-        startedAtRef.current = Date.now()
+        startedAtRef.current = performance.now()
         setElapsedMs(0)
         rafRef.current = requestAnimationFrame(tick)
       },
@@ -77,12 +78,13 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
   const recordingTimerRef = useRef<RecordingTimerHandle>(null)
 
   const recorder = useRef<MediaRecorder | null>(null)
-
   const streamRef = useRef<MediaStream | null>(null)
-
   const chunks = useRef<Blob[]>([])
-
   const shouldSendOnStopRef = useRef(false)
+
+  // 👇 dùng để tính duration
+  const recordingStartedAtRef = useRef(0)
+
   const { sendVoice } = useSendVoice()
 
   const stopTimer = () => recordingTimerRef.current?.stop()
@@ -90,9 +92,13 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
 
   const cleanupRecording = () => {
     stopTimer()
+
+    recordingStartedAtRef.current = 0
+
     streamRef.current?.getTracks().forEach((track) => {
       track.stop()
     })
+
     streamRef.current = null
     recorder.current = null
     chunks.current = []
@@ -112,7 +118,6 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
     })
 
     recorder.current = mediaRecorder
-
     chunks.current = []
 
     mediaRecorder.ondataavailable = (e) => {
@@ -136,6 +141,8 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
         return
       }
 
+      const duration = Math.round(performance.now() - recordingStartedAtRef.current)
+
       const blob = new Blob(chunks.current, {
         type: mediaRecorder.mimeType
       })
@@ -151,7 +158,8 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
       })
 
       if (file.size > 0) {
-        sendVoice(file)
+        console.log('file voice', file)
+        sendVoice({ file, metadata: { duration } })
       }
 
       chunks.current = []
@@ -160,6 +168,9 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
 
       uiActions.setMicOpen(false)
     }
+
+    // 👇 lưu thời điểm bắt đầu ghi
+    recordingStartedAtRef.current = performance.now()
 
     mediaRecorder.start(1000)
     startTimer()
@@ -200,7 +211,7 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
       <audio className="hidden" ref={audioRef} controls />
 
       {micOpen && (
-        <div className="px-2 py-5 absolute z-10 bottom-0 right-0 w-full ">
+        <div className="px-2 py-5 absolute z-10 bottom-0 right-0 w-full">
           <div className="h-12 w-full flex items-center justify-between">
             <div />
 

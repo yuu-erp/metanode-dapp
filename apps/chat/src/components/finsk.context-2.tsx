@@ -1,11 +1,9 @@
 import LoadingApp from '@/shared/components/loading-app'
+import { queryClient } from '@/shared/lib/react-query'
 import { FiaiSDK } from '@metanodejs/fiai-sdk'
 import { contractClient } from '@mtnts/contract-client'
+import { initFileModule } from 'file-core'
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react'
-import { debug, initFileModule } from 'file-core'
-import { queryClient } from '@/shared/lib/react-query'
-
-console.log('test instance', contractClient === debug)
 
 interface FinsdkContextType {
   loadingSdk: boolean

@@ -106,9 +106,11 @@ export const FileContent = memo(({ data }: WithMessage) => {
 
   return (
     <>
-      {fileIds.map((id) => (
-        <FileItem key={id} id={id} isMine={isMine} messageId={data.id} />
-      ))}
+      <div className="flex flex-col gap-2">
+        {fileIds.map((id) => (
+          <FileItem key={id} id={id} isMine={isMine} messageId={data.id} />
+        ))}
+      </div>
       {/* <div className="flex gap-3 items-center">
         <div onClick={upProgress != null ? cancel : !path ? download : undefined}>
           <WithWrapper
