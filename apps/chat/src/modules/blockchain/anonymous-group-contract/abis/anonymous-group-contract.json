@@ -3061,7 +3061,7 @@
                 "type": "uint256"
               }
             ],
-            "internalType": "struct CommunityGroup.Reaction[]",
+            "internalType": "struct Reaction[]",
             "name": "reactions",
             "type": "tuple[]"
           },
@@ -3221,7 +3221,7 @@
                 "type": "uint256"
               }
             ],
-            "internalType": "struct CommunityGroup.Reaction[]",
+            "internalType": "struct Reaction[]",
             "name": "reactions",
             "type": "tuple[]"
           },
@@ -3349,7 +3349,7 @@
                 "type": "uint256"
               }
             ],
-            "internalType": "struct CommunityGroup.Reaction[]",
+            "internalType": "struct Reaction[]",
             "name": "reactions",
             "type": "tuple[]"
           },
@@ -3443,6 +3443,47 @@
         "internalType": "struct CommunityGroup.MemberInfo",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getReactionsByMessageId",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "reactor",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "reactorAlias",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "reaction",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "count",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct Reaction[]",
+        "name": "reactions",
+        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -4083,7 +4124,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "encryptedContent",
+        "type": "string"
+      }
+    ],
     "name": "leaveGroup",
     "outputs": [],
     "stateMutability": "nonpayable",

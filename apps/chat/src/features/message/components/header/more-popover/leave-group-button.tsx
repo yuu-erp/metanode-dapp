@@ -25,11 +25,11 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
       onClick={async () => {
         onClose?.()
         const account = await getCurrentAccount()
-        console.log('base', base)
+        console.log('leave group 1')
+
         if (isAdmin) {
           const members = await getGroupMembers(base)
           const others = members.filter((i) => i.contractAddress !== account?.contractAddress)
-
           if (!others.length) {
             //delete group
             if (base.type === 'group') {
@@ -54,6 +54,8 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
             }
           } else {
             //transfer
+            console.log('leave group 2')
+
             const newAdmin = others[0]
             const pubKey = await container.userContract.publicKey({
               from: account.hiddenAddress,
@@ -66,6 +68,7 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
                 to: base.id
               })
             } else {
+              console.log('leave group 3')
               await container.anonymousGroupContract.transferOwnership({
                 from: account.hiddenAddress,
                 to: base.id,
@@ -79,7 +82,7 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
 
           // uiActions.setLeaveGroupOpen(true)
         }
-        await leaveGroup()
+        leaveGroup()
       }}
     >
       Leave group
