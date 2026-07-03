@@ -1,12 +1,11 @@
 import { container } from '@/container'
-import { getGroupMembers } from '@/features/conversation'
 import { useCurrentState } from '@/hooks/use-current-state'
+import { getCurrentAccount } from '@/shared/hooks'
 import { useAdmin } from '@/shared/hooks/group/use-admin'
 import { useGroupInfo } from '@/shared/hooks/group/use-group-info'
 import { useLeaveGroup } from '@/shared/hooks/group/use-leave-group'
 import { memo } from 'react'
 import { PopoverItem } from '../../../../../components/popover-item'
-import { getCurrentAccount } from '@/shared/hooks'
 
 export type LeaveGroupButtonProps = {
   onClose?: () => void
@@ -28,7 +27,21 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
         console.log('leave group 1')
 
         if (isAdmin) {
-          const members = await getGroupMembers(base)
+          let members: any[] = []
+          if (base.type === 'group') {
+            members = await container.groupContract.getMemberListGroup({
+              from: account.hiddenAddress,
+              to: base.id
+            })
+          } else {
+            members = await container.anonymousGroupContract.getAllMembers({
+              from: account.hiddenAddress,
+              to: base.id
+            })
+          }
+
+          console.log('members', members)
+          return
           const others = members.filter((i) => i.contractAddress !== account?.contractAddress)
           if (!others.length) {
             //delete group

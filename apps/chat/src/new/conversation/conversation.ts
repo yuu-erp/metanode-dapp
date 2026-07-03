@@ -40,6 +40,7 @@ export const createConversationDetail = (input: BaseConversation) =>
           }
         },
         group: async () => {
+          console.log('getGroupInfo input.id', input.id)
           const rs = await container.groupContract.getGroupInfo({
             from: account.hiddenAddress,
             to: input.id

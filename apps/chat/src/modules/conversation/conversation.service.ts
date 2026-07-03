@@ -303,7 +303,7 @@ export class ConversationService {
     useDb = true
   ): Promise<Conversation | undefined> {
     if (!account) return
-
+    console.log('getConversationById input', { account, conversationId, conversationType, useDb })
     const { address: accountId, hiddenAddress } = account
     if (useDb) {
       const conversationLocal = await this.repository.getById(accountId, conversationId)
@@ -511,7 +511,7 @@ export class ConversationService {
   async createGroup(
     account: Account,
     payload: PayloadCreateGroup
-  ): Promise<EventMap['GroupCreatedByUser'] & { groupKey: string }> {
+  ): Promise<EventMap['GroupCreated'] & { groupKey: string }> {
     const { name, avatar = '', policy = HistoryVisibility.VISIBLE } = payload
     const groupKey = generateSecureId()
     const sharedSecrect = await this.handleCreateECDHPassword(account.address, account.publicKey)
@@ -519,7 +519,7 @@ export class ConversationService {
     const { result: encryptedInitialGroupKey } = await encryptAESGCM(sharedSecrect, groupKey)
 
     const promise = new Promise<any>((resolve) => {
-      const off = this.eventLogContainer.eventLog.on('GroupCreatedByUser', (event) => {
+      const off = this.eventLogContainer.eventLog.on('GroupCreated', (event) => {
         off()
         resolve({
           groupKey,
@@ -527,7 +527,7 @@ export class ConversationService {
         })
       })
     })
-    await this.factoryContract.createGroup({
+    const createGroupPayload = {
       from: account.hiddenAddress,
       inputData: {
         groupName: name,
@@ -537,8 +537,20 @@ export class ConversationService {
         _description: '',
         _publicKeyAdmin: account.publicKey
       }
+    }
+    console.log('create group 1', createGroupPayload)
+    await this.factoryContract.createGroup(createGroupPayload)
+    console.log('create group 2')
+
+    const rs = (await promise) as EventMap['GroupCreated'] & { groupKey: string }
+    console.log('create group 3', rs)
+    const rs1 = await this.anonymousGroupContract.userToPublicKeyAdmin({
+      from: account.hiddenAddress,
+      to: rs.contractAddress,
+      inputData: { '': account.address }
     })
-    const rs = await promise
+
+    console.log('create group 4', rs1)
 
     return rs
   }
@@ -549,8 +561,10 @@ export class ConversationService {
     groupKey: string,
     members: PayloadAddMembers[]
   ) {
+    console.log('addMembers 1', { account, groupConversation, groupKey, members })
     const users: string[] = []
     const encryptedKeys: string[] = []
+    console.log('addMembers 2')
 
     for (const member of members) {
       const { publicKey, conversationId } = member
@@ -565,6 +579,7 @@ export class ConversationService {
       users.push(addressMember)
       encryptedKeys.push(encryptedGroupKey)
     }
+    console.log('addMembers 3', { users, encryptedKeys })
 
     await this.groupContract.addAllMember({
       to: groupConversation,
@@ -574,6 +589,7 @@ export class ConversationService {
         encryptedKeys
       }
     })
+    console.log('addMembers 4')
   }
 
   // ------------------------------------------------------------------
@@ -703,6 +719,7 @@ export class ConversationService {
         const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
           ...base
         })
+        console.log('getConversationKey 1', { add: account.address, adminPublicKey })
         const sharedKeyWithAdmin = await this.handleCreateECDHPassword(
           account.address,
           adminPublicKey

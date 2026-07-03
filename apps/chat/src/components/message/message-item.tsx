@@ -24,9 +24,8 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
   const { isMine, isFailed } = data ?? {}
   const { isPinned } = useIsPinned(id)
   const isInGroup = ['group', 'anonymous_group'].includes(base.type)
-  if (data?.content === 'dd') {
-    console.log('MessageItem data', { data })
-  }
+  console.log('MessageItem data', { data })
+
   const overlayOptions: any = { id }
 
   if (data?.type === 'voice') {

@@ -4,6 +4,7 @@ import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
 import { useCurrentAccount } from '@/shared/hooks'
 import { formatAddress } from '@/shared/utils'
+import { contractClient } from '@mtnts/contract-client'
 import * as React from 'react'
 import { createContext, useContext } from 'react'
 
@@ -32,6 +33,7 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
     console.log('arrayarrayarrayarray', array)
 
     eventLog.registerEvent(formatAddress(account.hiddenAddress), array)
+    contractClient.onContract(CONTRACT_ADDRESSES.file, account.hiddenAddress)
   }, [account?.address, account?.contractAddress])
 
   React.useEffect(() => {

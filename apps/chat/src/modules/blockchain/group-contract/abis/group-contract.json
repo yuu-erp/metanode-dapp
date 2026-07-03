@@ -2899,6 +2899,37 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "_messageId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getReactionsByMessageId",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "reactor",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "reaction",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct GroupChatV3.Reaction[]",
+        "name": "reactions",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "storeAddress",
         "type": "address"

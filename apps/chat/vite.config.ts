@@ -18,14 +18,14 @@ export default defineConfig({
     tailwindcss()
   ],
   optimizeDeps: {
-    exclude: ['@metanodejs/system-core']
+    exclude: ['@metanodejs/system-core', '@mtnts/contract-client']
   },
   server: {
     port: 5731,
     host: '0.0.0.0'
   },
   resolve: {
-    dedupe: ['@metanodejs/system-core'],
+    dedupe: ['@metanodejs/system-core', '@mtnts/contract-client'],
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       react: path.resolve(__dirname, 'node_modules/react'),

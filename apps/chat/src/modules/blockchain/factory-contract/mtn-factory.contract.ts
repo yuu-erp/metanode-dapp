@@ -63,6 +63,7 @@ export class FactoryContract extends MtnContract {
 
   createGroup(payload: TransactionPayload<CreateGroupInput>): Promise<void> {
     const { from, inputData } = payload
+    console.log('createGroup 1', { from })
     return this.sendTransaction({
       from,
       inputData,
@@ -72,17 +73,21 @@ export class FactoryContract extends MtnContract {
     })
   }
 
-  createAnonymousCommunity(
+  async createAnonymousCommunity(
     payload: TransactionPayload<CreateAnonymousCommunityInput>
   ): Promise<void> {
     const { from, inputData } = payload
-    return this.sendTransaction({
+    console.log('createAnonymousCommunity 1')
+    const rs = await this.sendTransaction({
       from,
       inputData,
       functionName: 'createAnonymousCommunity',
       feeType: 'sc',
       abiData: factoryAbi.createAnonymousCommunity
     })
+    console.log('createAnonymousCommunity 2')
+
+    return rs
   }
   deleteGroup(payload: TransactionPayload<{ groupId: string }>): Promise<void> {
     const { from, inputData } = payload

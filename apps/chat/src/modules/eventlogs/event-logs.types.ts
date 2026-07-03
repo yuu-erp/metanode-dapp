@@ -147,9 +147,9 @@ export type EventMap = {
     sessionId: string
     channelName: string
   }
-  GroupCreatedByUser: {
+  GroupCreated: {
     groupId: string
-    groupContractAddress: string
+    contractAddress: string
     creator: string
   }
   RoomCreatedEvent: {

@@ -9,18 +9,20 @@ export async function addConversation(
   input: BaseConversation,
   options: { detail?: any; messageId?: string } = {}
 ) {
-  console.log('addConversationaddConversationaddConversationaddConversation 1')
+  console.log('addConversation 1', { input, options })
   const account = await getCurrentAccount()
+  console.log('addConversation 2', { account })
+
   await queryClient.ensureQueryData(createGetConversationsQueryOptions(account))
+  console.log('addConversation 3')
+
   let { detail, messageId = '' } = options
   if (!detail) {
-    console.log('has fetch detail')
+    console.log('has fetch detail', input)
     detail = await getConversationDetail(input)
   }
-  console.log('input.id', {
-    id: input.id,
-    detail: detail
-  })
+  console.log('addConversation 4', { messageId, detail })
+
   const conversation: Conversation = {
     conversationId: input.id,
     conversationType: input.type as any,

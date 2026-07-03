@@ -15,18 +15,20 @@ export function useCreateGroup(groupType: ConversationType) {
       if (groupType === 'group') {
         const group = await container.conversationService.createGroup(account, payload)
         // Fetch latest list
-        console.log('[useCreateGroup]', { group })
+        console.log('[useCreateGroup] 1', { group })
 
         await container.conversationService.addMembers(
           account,
-          group.groupContractAddress,
+          group?.contractAddress,
           group.groupKey,
           payload.members
         )
-
-        id = group.groupContractAddress
+        id = group.contractAddress
+        console.log('[useCreateGroup] 2', { id })
       } else if (groupType === 'anonymous_group') {
+        console.log('create anonymous 1')
         const group = await container.conversationService.createAnonymousCommunity(account, payload)
+        console.log('create anonymous 2')
 
         await container.conversationService.addMembersInAnonymousGroup(
           account,
@@ -37,7 +39,11 @@ export function useCreateGroup(groupType: ConversationType) {
 
         id = group.groupContract
       }
-      await addConversation({ type: groupType, id })
+      console.log('[useCreateGroup] 3', { id })
+
+      if (id) await addConversation({ type: groupType, id })
+      console.log('[useCreateGroup] 4', { id })
+
       return id
     },
     onSuccess: (_data) => {

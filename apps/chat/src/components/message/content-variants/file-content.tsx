@@ -44,6 +44,8 @@ const FileItem = ({
   const { status, progress = 0 } = useFileState(id)
   const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
 
+  console.log('FileItem', { id, metadata })
+
   if (!metadata) return null
   const { previewType = '', previewPath } = cache ?? {}
   const comps = {
@@ -59,7 +61,11 @@ const FileItem = ({
   const finalBehavior = isStored
     ? behavior
     : {
-        onClick: () => loadFile(id, account?.address ?? '')
+        onClick: (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+          loadFile(id, account?.address ?? '')
+        }
       }
 
   return (

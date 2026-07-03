@@ -41,7 +41,7 @@ export function useAddMember(converstaionType?: ConversationType) {
       })
     },
     onError: (error) => {
-      console.log('Create group error', error)
+      console.log('add member error', error)
     }
   })
 }
