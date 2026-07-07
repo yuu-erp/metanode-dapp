@@ -7,7 +7,7 @@ import {
   useFetchNetworkIP,
   useGetActiveCode,
   useGetSmartContractAddress,
-  useSubmitActiveCode
+  useSubmitActiveCode,
 } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { getFromClipboard } from '@metanodejs/system-core'
@@ -17,7 +17,7 @@ import * as React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 export const Route = createFileRoute('/active-code')({
-  component: RouteComponent
+  component: RouteComponent,
 })
 
 function RouteComponent() {
@@ -30,9 +30,8 @@ function RouteComponent() {
   const { data: activeCode, refetch } = useGetActiveCode({
     contractAddress,
     ip,
-    isConnected
+    isConnected,
   })
-
   const [refetchKey, setRefetchKey] = React.useState('')
 
   const { mutateAsync, isPending } = useSubmitActiveCode()
@@ -54,33 +53,34 @@ function RouteComponent() {
       const data = (await getFromClipboard()).value
       if (!data) return
       setPasscode(data)
-    } catch (error) {}
+    } catch (clipboardError) {
+      console.error(clipboardError)
+    }
   }, [])
 
   React.useEffect(() => {
     if (!activeCode) return
+    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
     setPasscode(activeCode)
   }, [activeCode, refetchKey])
 
   const handleRefetchActiveCode = React.useCallback(async () => {
     await refetch()
     setRefetchKey(uuidv4())
-  }, [])
+  }, [refetch])
 
   const handleSubmitActiveCode = React.useCallback(async () => {
     await mutateAsync({
       activeCode: passcode,
-      contractAddress: contractAddress ?? ''
+      contractAddress: contractAddress ?? '',
     })
-  }, [passcode, contractAddress])
-
-  console.log({ activeCode })
+  }, [passcode, contractAddress, mutateAsync])
 
   return (
     <div
       className={cn(
         'w-full h-dvh flex flex-col px-3 overflow-hidden min-h-0',
-        window.isHasNotch ? 'pt-14' : 'pt-10'
+        window.isHasNotch ? 'pt-14' : 'pt-10',
       )}
     >
       <div className="flex-1 flex items-center justify-center flex-col gap-3">

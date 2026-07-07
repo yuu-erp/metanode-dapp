@@ -13,22 +13,22 @@ export function getOS() {
     else if (/Windows NT 5.1/.test(userAgent)) osVersion = 'XP'
   } else if (/Mac/.test(userAgent)) {
     os = 'Mac OS X'
-    var match = /Mac OS X (\d+[._]\d+[._]\d+)/.exec(userAgent)
+    const match = /Mac OS X (\d+[._]\d+[._]\d+)/.exec(userAgent)
     if (match) osVersion = match[1].replace(/_/g, '.')
   } else if (/Linux/.test(userAgent)) {
     os = 'Linux'
   } else if (/Android/.test(userAgent)) {
     os = 'Android'
-    var match = /Android (\d+[._]\d+[._]\d+)/.exec(userAgent)
+    const match = /Android (\d+[._]\d+[._]\d+)/.exec(userAgent)
     if (match) osVersion = match[1].replace(/_/g, '.')
   } else if (/iOS|iPhone|iPad|iPod/.test(userAgent)) {
     os = 'iOS'
-    var match = /OS (\d+[._]\d+[._]\d+)/.exec(userAgent)
+    const match = /OS (\d+[._]\d+[._]\d+)/.exec(userAgent)
     if (match) osVersion = match[1].replace(/_/g, '.')
   }
 
   return {
     os: os,
-    versionOs: osVersion
+    versionOs: osVersion,
   }
 }

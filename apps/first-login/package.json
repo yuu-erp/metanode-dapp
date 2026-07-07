@@ -9,8 +9,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@metanodejs/mtn-contract": "^0.0.6",
-    "@metanodejs/system-core": "^0.1.2",
+    "@metanodejs/mtn-contract": "^1.0.4",
+    "@metanodejs/system-core": "^1.0.9",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-label": "^2.1.8",

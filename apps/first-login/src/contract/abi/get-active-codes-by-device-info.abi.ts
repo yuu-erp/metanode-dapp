@@ -4,33 +4,33 @@ export const getActiveCodesByDeviceInfo = [
       {
         internalType: 'string',
         name: '_IP',
-        type: 'string'
+        type: 'string',
       },
       {
         internalType: 'string',
         name: '_screenSize',
-        type: 'string'
+        type: 'string',
       },
       {
         internalType: 'string',
         name: '_os',
-        type: 'string'
+        type: 'string',
       },
       {
         internalType: 'string',
         name: '_versionOs',
-        type: 'string'
-      }
+        type: 'string',
+      },
     ],
     name: 'getActiveCodesByDeviceInfo',
     outputs: [
       {
         internalType: 'uint256[]',
         name: '',
-        type: 'uint256[]'
-      }
+        type: 'uint256[]',
+      },
     ],
     stateMutability: 'view',
-    type: 'function'
-  }
+    type: 'function',
+  },
 ]
