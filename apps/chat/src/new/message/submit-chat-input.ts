@@ -11,9 +11,9 @@ import { handleSendMessage } from './send-message-v4'
 
 export function useSubmitChatInput() {
   const { messageAction, setMessageAction } = useMessageAction()
-  const { base, account } = useCurrentState()
+  const { base: _base, account } = useCurrentState()
   const edit = useEditMessage()
-  const fileIds = useSelectedIds()
+  const { ids: fileIds } = useSelectedIds()
 
   function getComposer() {
     const isReply = messageAction?.type === 'REPLY'
@@ -29,10 +29,15 @@ export function useSubmitChatInput() {
 
   const mutation = useMutation({
     mutationKey: ACTIONS_QUERY_KEY.sendMessage,
-    mutationFn: async () => {
+    mutationFn: async (input: { value?: string; base?: BaseConversation }) => {
       if (!account) return
-      console.log('thanhduy - submit chat input 1')
-      const value = useInputStore.getState().chatValue
+      let { value, base } = input ?? {}
+      if (!value) {
+        value = useInputStore.getState().chatValue
+      }
+      if (!base) {
+        base = _base
+      }
 
       if (!value && !fileIds.length) return
       resetValue('chatValue')
@@ -78,6 +83,6 @@ export function useSubmitChatInput() {
 
   return {
     ...mutation,
-    submit: () => mutation.mutate()
+    submit: mutation.mutate as any
   }
 }

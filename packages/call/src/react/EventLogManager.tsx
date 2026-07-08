@@ -15,7 +15,7 @@ import {
   useSyncLocalTracksToTransceivers
 } from '~/hooks'
 import { enCallAndCloseView } from '~/services'
-import { useUserStore } from '~/stores'
+import { useRoomStore, useUserStore } from '~/stores'
 
 export const EventLogManager = memo(() => {
   useAutoJoinRoom(true)
@@ -34,7 +34,8 @@ export const EventLogManager = memo(() => {
   useEffect(() => {
     setTimeout(() => {
       const { users } = useUserStore.getState()
-      if (users.length === 1) {
+      const room = useRoomStore.getState()
+      if (users.length === 1 && !room.isMeeting) {
         enCallAndCloseView()
       }
     }, 1000 * 60)

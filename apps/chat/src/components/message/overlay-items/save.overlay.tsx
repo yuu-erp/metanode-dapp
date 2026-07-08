@@ -1,6 +1,6 @@
 import { useCurrentAccount } from '@/shared/hooks'
 import { useModalStore } from '@/stores/modal.store'
-import { downloadFile } from 'file-core'
+import { downloadFromServerEndToEnd } from 'file-core'
 import { DownloadIcon } from 'lucide-react'
 import { memo } from 'react'
 import { useShallow } from 'zustand/shallow'
@@ -15,7 +15,7 @@ export const SaveOverlay = memo(({ data }: WithMessage) => {
   return (
     <BaseOverlayItem
       onClick={() => {
-        downloadFile(meta.fileId, account?.address ?? '')
+        downloadFromServerEndToEnd(meta.fileId, account?.address ?? '')
       }}
       text="Tải xuống"
       icon={<DownloadIcon />}

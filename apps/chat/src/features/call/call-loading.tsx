@@ -4,7 +4,7 @@ import { useModalStore } from '../modal'
 
 export const CallLoading = memo(() => {
   const { joined, connected, trackPulled } = useCallStore()
-
+  console.log('joinedjoinedjoined', joined)
   const content = useMemo(() => {
     if (!joined) return 'Joining...'
     if (!connected) return 'Connecting...'

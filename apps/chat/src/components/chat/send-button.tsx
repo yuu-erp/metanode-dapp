@@ -10,7 +10,7 @@ export type SendButtonProps = {
 
 export const SendButton = memo(({ reforcus }: SendButtonProps) => {
   const value = useInputStore((s) => s.chatValue)
-  const ids = useSelectedIds()
+  const { ids } = useSelectedIds()
   const { submit } = useSubmitChatInput()
 
   if (!value.trim() && ids.length === 0) return null

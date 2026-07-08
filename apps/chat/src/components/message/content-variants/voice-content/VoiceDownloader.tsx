@@ -1,10 +1,10 @@
+import { useCurrentState } from '@/hooks/use-current-state'
+import { formatFileSize } from '@/new'
+import { cn } from '@/shared/lib'
+import { downloadFromCache, useMetadata, useProgress } from 'file-core'
 import { Download, X } from 'lucide-react'
 import { memo } from 'react'
 import type { WithMessage } from '../../types'
-import { cn } from '@/shared/lib'
-import { loadFile, useFileState, useMetadata } from 'file-core'
-import { formatFileSize } from '@/new'
-import { useCurrentState } from '@/hooks/use-current-state'
 
 export type VoiceDownloaderProps = WithMessage & {
   _fileId: string
@@ -12,7 +12,7 @@ export type VoiceDownloaderProps = WithMessage & {
 
 export const VoiceDownloader = memo(({ data, _fileId }: VoiceDownloaderProps) => {
   const isMine = data.isMine
-  const { status, progress = 0, abort } = useFileState(_fileId)
+  const { status, progress = 0, abort } = useProgress(_fileId)
   const { metadata } = useMetadata(_fileId)
   const size = metadata?.size ?? 0
   const { account } = useCurrentState()
@@ -21,7 +21,7 @@ export const VoiceDownloader = memo(({ data, _fileId }: VoiceDownloaderProps) =>
 
   const onClick = () => {
     if (status === 'idle') {
-      loadFile(_fileId, account?.address ?? '')
+      downloadFromCache(_fileId, account?.address ?? '')
     } else {
       abort?.()
     }

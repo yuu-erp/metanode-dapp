@@ -1,7 +1,7 @@
 import { useOpenOverlay } from '@/hooks/use-open-overlay'
 import { MessageText } from '@/shared/components/message-render'
 import { cn } from '@/shared/lib'
-import { loadFile, useFileCache, useFileState, useMetadata } from 'file-core'
+import { useCache, useProgress, downloadFromServerEndToEnd, useMetadata } from 'file-core'
 import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
@@ -39,9 +39,9 @@ const FileItem = ({
 }) => {
   const { account } = useCurrentState()
   const { metadata } = useMetadata(id)
-  const { cache } = useFileCache(id)
+  const { cache } = useCache(id)
   const isStored = !!cache
-  const { status, progress = 0 } = useFileState(id)
+  const { status, progress = 0 } = useProgress(id)
   const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
 
   console.log('FileItem', { id, metadata })
@@ -64,7 +64,7 @@ const FileItem = ({
         onClick: (e) => {
           e.preventDefault()
           e.stopPropagation()
-          loadFile(id, account?.address ?? '')
+          downloadFromServerEndToEnd(id, account?.address ?? '')
         }
       }
 

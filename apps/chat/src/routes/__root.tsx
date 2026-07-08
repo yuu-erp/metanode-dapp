@@ -28,6 +28,7 @@ export const Route = createRootRoute({
         off()
       }
     }, [])
+    console.log('render roottttt')
 
     return (
       <>

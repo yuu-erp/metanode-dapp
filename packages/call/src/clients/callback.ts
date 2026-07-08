@@ -1,6 +1,8 @@
+import { RoomState } from '~/stores'
+
 export type Callbacks = {
   onRoomIdFetched: (roomId: string) => void
-  onEndCall: () => void
+  onEndCall: (room: RoomState) => void
   fetchNameByUser: (myAddress: string, user: string) => Promise<string>
 }
 

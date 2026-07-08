@@ -1,4 +1,4 @@
-import { useFileCache, useMetadata } from 'file-core'
+import { useCache, useMetadata } from 'file-core'
 import { Pause, Play } from 'lucide-react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
@@ -17,7 +17,7 @@ function formatAudioTime(seconds: number): string {
 }
 
 export const AudioPlayer = memo(({ id }: AudioPlayerProps) => {
-  const { cache } = useFileCache(id)
+  const { cache } = useCache(id)
   const { metadata } = useMetadata(id)
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)

@@ -111,6 +111,7 @@ export type MessageContentPart = { type: 'text'; value: string } | { type: 'ment
  * Hỗ trợ `@(id)` (mới) và `@[tên](id)` (legacy).
  */
 export function splitMessageContentWithMentions(text: string): MessageContentPart[] {
+  if (!text) return []
   const re = /@\(([^)]+)\)|@\[([^\]]*)\]\(([^)]+)\)/g
   const parts: MessageContentPart[] = []
   let last = 0

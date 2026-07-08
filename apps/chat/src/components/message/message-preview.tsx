@@ -2,7 +2,7 @@ import { useCurrentMessageById } from '@/new/message'
 import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import { memo } from 'react'
 import { TextContentWithMentions } from './content-variants'
-import { useFileCache, useMetadata } from 'file-core'
+import { useCache, useMetadata } from 'file-core'
 
 export type MessagePreviewProps = {
   id?: string
@@ -30,7 +30,7 @@ export const MessagePreview = memo(({ id }: MessagePreviewProps) => {
     case 'file': {
       const id = message.fileIds?.[0]
       const { metadata } = useMetadata(id)
-      const { cache } = useFileCache(id)
+      const { cache } = useCache(id)
 
       if (''.startsWith('image/')) {
         return (

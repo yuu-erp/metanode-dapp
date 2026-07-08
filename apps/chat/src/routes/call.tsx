@@ -51,8 +51,12 @@ function RouteComponent() {
               })
             })
           }}
-          onEndCall={() => {
-            router.history.back()
+          onEndCall={(data) => {
+            if (data.isMeet) {
+              navigate({ to: '/' })
+            } else {
+              router.history.back()
+            }
           }}
           fetchNameByUser={async (myAddress, user) =>
             (await getUserByAddress(myAddress, user)).name

@@ -15,6 +15,7 @@ function setEnding(ending: boolean) {
 
 export async function enCallAndCloseView() {
   if (!ready) return
+  const roomInfo = roomStore.getState()
   try {
     console.log('[enCallAndCloseView] 1')
     ready = false
@@ -49,7 +50,7 @@ export async function enCallAndCloseView() {
   } finally {
     if (window.fiaiSDK) {
       if (location.hash.startsWith('#/call')) {
-        getCallback('onEndCall')()
+        getCallback('onEndCall')(roomInfo)
       }
     } else {
       await endCall()

@@ -1,16 +1,14 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover'
-import { onFileInputChange, onGetNativeFile } from 'file-core'
+import { useGetFile } from 'file-core'
 import { Paperclip } from 'lucide-react'
-import { memo, useRef, useState } from 'react'
+import { memo, useState } from 'react'
 import { PopoverItem } from './popover-item'
 
 export type SelectFileButtonProps = {}
 
 export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
   const [open, setOpen] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const inputRef2 = useRef<HTMLInputElement>(null)
-
+  const { getFile, getGallery, takePicture, fileBind, galleryBind } = useGetFile()
   const close = () => setOpen(false)
 
   const onClickButton = (e: any) => {
@@ -39,24 +37,15 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
               <PopoverItem
                 onClick={() => {
                   close()
-
-                  if (window.fiaiSDK) {
-                    inputRef2.current?.click()
-                  } else {
-                    onGetNativeFile('select-image')
-                  }
+                  getGallery()
                 }}
               >
                 Chọn ảnh
               </PopoverItem>
               <PopoverItem
                 onClick={() => {
+                  getFile()
                   close()
-                  if (window.fiaiSDK) {
-                    inputRef.current?.click()
-                  } else {
-                    onGetNativeFile('get-file')
-                  }
                 }}
               >
                 Chọn file
@@ -64,8 +53,8 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
               {!window.fiaiSDK && (
                 <PopoverItem
                   onClick={() => {
+                    takePicture()
                     close()
-                    onGetNativeFile('take-picture')
                   }}
                 >
                   Mở camera / media
@@ -75,28 +64,8 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
           </div>
         </PopoverContent>
       </Popover>
-
-      <input
-        multiple
-        ref={inputRef}
-        className="hidden"
-        type="file"
-        onChange={onFileInputChange}
-        onClick={(e) => {
-          ;(e.currentTarget as HTMLInputElement).value = ''
-        }}
-      />
-      <input
-        multiple
-        ref={inputRef2}
-        className="hidden"
-        accept="image/*,video/*"
-        type="file"
-        onChange={onFileInputChange}
-        onClick={(e) => {
-          ;(e.currentTarget as HTMLInputElement).value = ''
-        }}
-      />
+      <input {...fileBind} />
+      <input {...galleryBind} />
     </>
   )
 })
