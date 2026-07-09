@@ -53,7 +53,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             <Button
               type="button"
               onClick={handleClickScanQR}
-              className="size-12 shrink-0 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-95
+              className="size-12 shrink-0 rounded-full border shadow-lg flex items-center justify-center transition active:scale-95
+              btn
               absolute right-4
               "
             >
