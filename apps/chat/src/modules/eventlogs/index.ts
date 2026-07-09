@@ -18,6 +18,7 @@ const abi: any[] = [
 
 type IEventLog<T> = {
   on: <K extends keyof T>(key: K, cb: (e: T[K]) => any) => Function
+  off: <K extends keyof T>(key: K, cb: (e: T[K]) => any) => Function
 
   onEventLog: (e: any) => any
   registerEvent: (from: string, to: string[]) => any

@@ -6,6 +6,6 @@ const obj = Object.fromEntries(
 
 export const factoryAbi = {
   ...obj
-}
+} as any
 
 export { factoryContract }

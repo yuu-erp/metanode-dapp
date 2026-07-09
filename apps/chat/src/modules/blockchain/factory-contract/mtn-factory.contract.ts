@@ -121,4 +121,35 @@ export class FactoryContract extends MtnContract {
       abiData: factoryAbi.isUserDisabled
     })
   }
+
+  getDelegateInfo(
+    payload: TransactionPayload<{ _delegate: string }>
+  ): Promise<{ owner: string; registeredAt: string }> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'getDelegateInfo',
+      feeType: 'read',
+      abiData: factoryAbi.getDelegateInfo
+    })
+  }
+
+  delegateFromOtherDevice(
+    payload: TransactionPayload<{
+      _owner: string
+      _signature: string
+      _blsPubKey: string
+      _message: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'delegateFromOtherDevice',
+      feeType: 'sc',
+      abiData: factoryAbi.delegateFromOtherDevice
+    })
+  }
 }

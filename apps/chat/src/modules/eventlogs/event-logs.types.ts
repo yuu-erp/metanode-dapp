@@ -1,4 +1,18 @@
 export type EventMap = {
+  DelegateRequestFailed: {
+    sender: string
+    owner: string
+    senderRequest: string
+    reason: string
+    timestamp: string
+  }
+
+  DelegateAddedToOwner: {
+    owner: string
+    delegate: string
+    timestamp: string
+  }
+
   FileAdded: {
     fileKey: string
     name: string
