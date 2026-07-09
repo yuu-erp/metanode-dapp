@@ -30,7 +30,7 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="border-0 text-white backdrop-blur-md-app w-[200px] bg-white text-myapp"
+          className="border-0 text-white backdrop-blur-md-app w-[200px] bg-modal text-myapp"
         >
           <div className="rounded-2xl text-sm">
             <div className="flex flex-col items-start">

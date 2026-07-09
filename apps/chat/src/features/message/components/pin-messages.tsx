@@ -34,7 +34,7 @@ function PinMessages({}: PinMessagesProps) {
     <>
       <div
         onClick={() => setOpenDrawer(true)}
-        className="h-14 flex items-center py-2 gap-3 sticky w-full z-10 px-3 text-black shadow border-app cursor-pointer  transition-colors bg-secondary"
+        className="h-14 flex items-center py-2 gap-3 sticky w-full z-10 px-3 text-black shadow border-app cursor-pointer  transition-colors bg-modal border-t border-black/20"
         style={{ top: 'var(--header-height)' }}
       >
         <span className="h-full w-[3px] rounded-md bg-black"></span>

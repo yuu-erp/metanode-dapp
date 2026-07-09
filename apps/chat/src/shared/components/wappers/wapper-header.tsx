@@ -7,6 +7,8 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
   alwaysScrolled?: boolean
   position?: 'fixed' | 'sticky'
   relativeNode?: React.ReactNode
+  setHeight?: (h: number) => void
+  setWidth?: (w: number) => void
 }
 
 export const WapperHeader = React.forwardRef<HTMLElement, Props>(
@@ -24,6 +26,9 @@ export const WapperHeader = React.forwardRef<HTMLElement, Props>(
 
       const updateHeight = () => {
         const height = localRef.current!.offsetHeight
+        props.setHeight?.(height)
+        props.setWidth?.(localRef.current!.offsetWidth)
+
         document.documentElement.style.setProperty('--header-height', `${height}px`)
       }
 
@@ -36,25 +41,25 @@ export const WapperHeader = React.forwardRef<HTMLElement, Props>(
     }, [])
 
     // --- set data-scroll attribute ---
-    React.useEffect(() => {
-      const updateScroll = () => {
-        if (alwaysScrolled) {
-          document.documentElement.setAttribute('data-scroll', '1')
-        } else {
-          document.documentElement.setAttribute('data-scroll', window.scrollY === 0 ? '0' : '1')
-        }
-      }
+    // React.useEffect(() => {
+    //   const updateScroll = () => {
+    //     if (alwaysScrolled) {
+    //       document.documentElement.setAttribute('data-scroll', '1')
+    //     } else {
+    //       document.documentElement.setAttribute('data-scroll', window.scrollY === 0 ? '0' : '1')
+    //     }
+    //   }
 
-      updateScroll()
-      window.addEventListener('scroll', updateScroll, { passive: true })
+    //   updateScroll()
+    //   window.addEventListener('scroll', updateScroll, { passive: true })
 
-      return () => window.removeEventListener('scroll', updateScroll)
-    }, [alwaysScrolled])
+    //   return () => window.removeEventListener('scroll', updateScroll)
+    // }, [alwaysScrolled])
 
     return (
       <header
         ref={localRef}
-        className={cn('w-full top-0 z-10 bg-secondary', position, className)}
+        className={cn('w-full top-0 z-10 bg-modal', position, className)}
         {...props}
       >
         <div className={cn('flex flex-col', 'pb-3 px-3', window.isHasNotch ? 'pt-14' : 'pt-10')}>

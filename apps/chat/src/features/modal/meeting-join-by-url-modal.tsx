@@ -45,7 +45,7 @@ export const MeetingJoinByUrlModal = memo(() => {
             placeholder={t('', { defaultValue: 'Enter link' })}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="bg-[#2c2c2e] border-white/10 text-white h-12 rounded-xl w-full px-3"
+            className="basic h-12 rounded-xl w-full px-3"
             onKeyDown={(e) => {
               if (e.key !== 'Enter') return
               onSubmit()

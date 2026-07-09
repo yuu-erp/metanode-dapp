@@ -82,9 +82,7 @@ function ListMessageView({
       {/* Nếu chưa có tin nhắn nào */}
       {messages.length === 0 && !isFetchingNextPage && (
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-sm text-white/60 font-medium">
-            Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!
-          </p>
+          <p className="text-sm  font-medium">Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!</p>
         </div>
       )}
     </React.Fragment>

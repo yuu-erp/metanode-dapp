@@ -53,7 +53,7 @@ const Login = memo(
                 className={cn(
                   'h-[92.5%]',
                   'relative flex aspect-[9/20] overflow-hidden rounded-2xl p-5 backdrop-blur-[80px] h-full xs:min-w-[300px] sm:min-w-[340px] lg:h-full',
-                  'bg-secondary text-black/80',
+                  'bg-modal text-black/80',
                   step === 1 && 'pt-0'
                 )}
                 onClick={(e) => e.stopPropagation()}

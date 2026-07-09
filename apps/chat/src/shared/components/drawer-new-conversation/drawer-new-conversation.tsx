@@ -110,8 +110,8 @@ function DrawerNewConversation() {
           <EditIcon className="size-7" />
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none">
-        <div className="relative h-[600px] w-full rounded-2xl backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden bg-secondary">
+      <DialogContent className="sm:max-w-[425px] p-0 border-none shadow-none bg-modal">
+        <div className="relative h-[600px] w-full rounded-2xl backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
           {renderScreen}
         </div>
       </DialogContent>

@@ -51,9 +51,7 @@ export const MessageItem = memo(({ id }: MessageItemProps) => {
           'max-w-[70%] min-w-[100px] rounded-2xl px-3 pt-2 pb-1 relative',
           'transition-all duration-300 ease-out',
           // isLongPressActive && 'scale-90',
-          isMine
-            ? 'bg-blue-600 text-white rounded-br-xs'
-            : 'bg-gray-200 text-gray-900 rounded-bl-xs',
+          isMine ? 'bg-blue-600 text-white rounded-br-xs' : 'bg-white text-gray-900 rounded-bl-xs',
           isFailed && 'bg-red-50 text-red-700 border border-red-300'
           // (isSticker || isImage || isVideo) && 'bg-transparent border-none px-0 py-0'
         )}

@@ -20,7 +20,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <div
       collapsible="icon"
-      className="h-full bg-secondary w-[24rem] hidden md:flex flex-col"
+      className="h-full bg-modal w-[24rem] hidden md:flex flex-col"
       {...props}
     >
       <SidebarHeader></SidebarHeader>
@@ -42,16 +42,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <div
-          className="h-[84px] w-full bg-black/20 border-app rounded-full"
-          style={{
-            boxShadow: '4px -4px 16px 0px #FFFFFF2E inset, 0px -2px 16px 0px #FFFFFF85 inset'
-          }}
+          className="h-[84px] w-full"
+          style={
+            {
+              // boxShadow: '4px -4px 16px 0px #FFFFFF2E inset, 0px -2px 16px 0px #FFFFFF85 inset'
+            }
+          }
         >
-          <div className="h-full w-full flex items-center justify-around px-3">
+          <div className="h-full w-full flex items-center justify-around px-3 rounded-full bg-white/30">
             <div className="flex flex-col items-center justify-center gap-1">
               <Button
                 disabled
-                className="size-14 rounded-full bg-black/40 relative flex items-center justify-center disabled:opacity-20"
+                className="size-14 rounded-full bg-black/40 border relative flex items-center justify-center disabled:opacity-20"
                 style={{
                   boxShadow: `2px 2px 6px 0px #0000004D inset`
                 }}
@@ -62,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <div className="flex flex-col items-center justify-center gap-1">
               <Button
                 disabled
-                className="size-14 rounded-full bg-black/40 relative flex items-center justify-center disabled:opacity-20"
+                className="size-14 rounded-full bg-black/40 border relative flex items-center justify-center disabled:opacity-20"
                 style={{
                   boxShadow: `2px 2px 6px 0px #0000004D inset`
                 }}
@@ -72,7 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div className="flex flex-col items-center justify-center gap-1">
               <Button
-                className="size-14 rounded-full bg-black/40 relative flex items-center justify-center"
+                className="size-14 rounded-full bg-black/40 border relative flex items-center justify-center"
                 style={{
                   boxShadow: `2px 2px 6px 0px #0000004D inset`
                 }}
@@ -84,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div className="flex flex-col items-center justify-center gap-1">
               <Button
-                className="size-14 rounded-full bg-black/40 relative flex items-center justify-center"
+                className="size-14 rounded-full bg-black/40 border relative flex items-center justify-center"
                 style={{
                   boxShadow: `2px 2px 6px 0px #0000004D inset`
                 }}

@@ -32,9 +32,9 @@ export const Modal = ({ trigger, content, open, onOpenChange }: ModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none text-white">
+      <DialogContent className="sm:max-w-[425px] p-0 border-none shadow-none bg-modal text-black">
         <DialogTitle className="hidden"></DialogTitle>
-        <div className="relative h-min w-full rounded-2xl bg-black/30 backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
+        <div className="relative h-min w-full rounded-2xl backdrop-blur-md-app border flex flex-col overflow-hidden">
           {content}
         </div>
       </DialogContent>

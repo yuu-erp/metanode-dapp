@@ -3,7 +3,6 @@ import { useCurrentState } from '@/hooks/use-current-state'
 import { getGroupName } from '@/new/conversation/group'
 import { getUserInfo } from '@/new/user/user-info'
 import AvatarUser from '@/shared/components/avatar-user'
-import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
@@ -26,6 +25,9 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
   const { base, isPrivate } = useCurrentState()
   const { type, id } = base
   const [name, setName] = React.useState('')
+  const [height, setHeight] = React.useState(0)
+  const [width, setWidth] = React.useState(0)
+
   React.useEffect(() => {
     if (!id) return
     ;(async () => {
@@ -48,51 +50,54 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
   }, [id, type, isPrivate])
 
   return (
-    <WapperHeader alwaysScrolled position="sticky" relativeNode={<SearchInChatPopover />}>
-      <div className={cn('flex items-center gap-2')}>
-        <button className="flex items-center gap-1" onClick={() => navigate({ to: '/' })}>
-          <ChevronLeft />
-          <TotalUnreadcount variant="secondary" />
-        </button>
-        <div
-          className="flex flex-1 items-center gap-1 text-left text-sm h-full"
-          onClick={() =>
-            navigate({
-              to: '/detail/$type/$id',
-              params: { id, type }
-            })
-          }
-        >
-          <AvatarUser isPrivate={isPrivate} size="md" url="" name={name} type={type} />
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <div className="text-base font-bold flex-1 line-clamp-1 break-all">{name}</div>
-            {/* {type === 'p2p' && username && (
+    <>
+      <WapperHeader setHeight={setHeight} setWidth={setWidth} alwaysScrolled position="sticky">
+        <div className={cn('flex items-center gap-2')}>
+          <button className="flex items-center gap-1" onClick={() => navigate({ to: '/' })}>
+            <ChevronLeft />
+            {/* <TotalUnreadcount variant="secondary" /> */}
+          </button>
+          <div
+            className="flex flex-1 items-center gap-1 text-left text-sm h-full"
+            onClick={() =>
+              navigate({
+                to: '/detail/$type/$id',
+                params: { id, type }
+              })
+            }
+          >
+            <AvatarUser isPrivate={isPrivate} size="md" url="" name={name} type={type} />
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <div className="text-base font-bold flex-1 line-clamp-1 break-all">{name}</div>
+              {/* {type === 'p2p' && username && (
               <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">@{username}</div>
             )} */}
-            {(type === 'group' || type === 'anonymous_group') && <GroupMembers />}
+              {(type === 'group' || type === 'anonymous_group') && <GroupMembers />}
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* <button>
+          <div className="flex items-center gap-3">
+            {/* <button>
             <PhoneIcon className="size-7 text-white/80" />
           </button> */}
-          <SearchInChatButton />
-          {['p2p', 'group'].includes(type) && !isPrivate && (
-            <button onClick={onVideoCall} disabled={isLoading}>
-              {isLoading ? (
-                <LoaderCircle className="size-6 text-white/80 animate-spin" />
-              ) : (
-                <Video className="size-7" />
-              )}
-            </button>
-          )}
-          <MoreButton />
-          {/* <button>
+            <SearchInChatButton />
+            {['p2p', 'group'].includes(type) && !isPrivate && (
+              <button onClick={onVideoCall} disabled={isLoading}>
+                {isLoading ? (
+                  <LoaderCircle className="size-6 text-white/80 animate-spin" />
+                ) : (
+                  <Video className="size-7" />
+                )}
+              </button>
+            )}
+            <MoreButton />
+            {/* <button>
             <EllipsisVertical className="size-7 text-white/80" />
           </button> */}
+          </div>
         </div>
-      </div>
-    </WapperHeader>
+      </WapperHeader>
+      <SearchInChatPopover height={height} width={width} />
+    </>
   )
 }
 
