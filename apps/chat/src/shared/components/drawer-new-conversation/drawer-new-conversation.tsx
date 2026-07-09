@@ -88,13 +88,13 @@ function DrawerNewConversation() {
       <Drawer.Root shouldScaleBackground open={open} onOpenChange={setOpen}>
         <Drawer.Trigger asChild>
           <button aria-label="New message">
-            <EditIcon className="size-7 text-white" />
+            <EditIcon className="size-7" />
           </button>
         </Drawer.Trigger>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/50" />
           <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
-            <div className="relative h-[90vh] rounded-t-[36px] bg-black/30 backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
+            <div className="relative h-[90vh] rounded-t-[36px] backdrop-blur-md-app border flex flex-col overflow-hidden">
               <div className="w-full flex flex-col overflow-hidden">{renderScreen}</div>
             </div>
           </Drawer.Content>
@@ -107,11 +107,11 @@ function DrawerNewConversation() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button aria-label="New message">
-          <EditIcon className="size-7 text-white" />
+          <EditIcon className="size-7" />
         </button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none text-white">
-        <div className="relative h-[600px] w-full rounded-2xl bg-black/30 backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
+      <DialogContent className="sm:max-w-[425px] p-0 bg-transparent border-none shadow-none">
+        <div className="relative h-[600px] w-full rounded-2xl backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden bg-secondary">
           {renderScreen}
         </div>
       </DialogContent>

@@ -32,8 +32,7 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
             placeholder={t('drawer.enterGroupName', { defaultValue: 'Enter group name' })}
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            className="bg-[#2c2c2e] border-white/10 text-white h-12 rounded-xl"
-            autoFocus
+            className="h-12 rounded-xl basic"
           />
         </div>
 

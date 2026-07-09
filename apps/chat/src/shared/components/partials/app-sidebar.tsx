@@ -20,11 +20,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <div
       collapsible="icon"
-      className="h-full bg-black/20 w-[24rem] hidden md:flex flex-col"
+      className="h-full bg-secondary w-[24rem] hidden md:flex flex-col"
       {...props}
     >
       <SidebarHeader></SidebarHeader>
-      <SidebarContent className="px-3 text-white">
+      <SidebarContent className="px-3">
         <div className="flex items-center justify-between gap-3 relative">
           <h1 className="text-xl font-bold">Chats</h1>
           <StatusSync className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />

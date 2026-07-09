@@ -60,12 +60,12 @@ const RecordingTimer = memo(
     const { main, ms } = formatRecordingDurationParts(elapsedMs)
 
     return (
-      <div className="flex-1 flex flex-col items-center justify-center gap-0.5 text-white">
+      <div className="flex-1 flex flex-col items-center justify-center gap-0.5">
         <div className="flex gap-2 items-center">
           <span className="tabular-nums text-lg font-medium leading-none">{main}</span>
-          <span className="tabular-nums text-xs text-white/70 leading-none">{ms} ms</span>
+          <span className="tabular-nums text-xs leading-none">{ms} ms</span>
         </div>
-        <span className="text-xs text-white/60 mt-0.5">Nhấn gửi để gửi tin nhắn thoại</span>
+        <span className="text-xs mt-0.5">Nhấn gửi để gửi tin nhắn thoại</span>
       </div>
     )
   })
@@ -219,18 +219,18 @@ export const VoiceRecorder = memo(({}: VoiceRecorderProp) => {
 
             <button
               type="button"
-              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80 btn"
               onClick={onCancel}
             >
-              <Trash2 className="text-white/80 size-4" fill="#fff" />
+              <Trash2 className="size-4" fill="#fff" />
             </button>
 
             <button
               type="button"
-              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+              className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80 btn"
               onClick={onSend}
             >
-              <Send className="text-white size-4" />
+              <Send className="size-4" />
             </button>
           </div>
         </div>

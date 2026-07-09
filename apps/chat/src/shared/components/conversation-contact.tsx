@@ -25,7 +25,7 @@ function ConversationContact({
     <React.Fragment>
       <div
         className={cn(
-          'flex flex-1 items-center gap-2 text-left text-sm h-full max-h-[68px] overflow-hidden',
+          'flex flex-1 items-center gap-2 text-left text-sm h-full max-h-[68px] overflow-hidden text-black/80',
           className
         )}
         {...props}
@@ -36,7 +36,7 @@ function ConversationContact({
             {isPrivate ? t(name) : name}
           </div>
           {username && (
-            <div className="flex-1 text-xs break-all text-white/60 line-clamp-1">@{username}</div>
+            <div className="flex-1 text-xs break-all text-black/50 line-clamp-1">@{username}</div>
           )}
         </div>
       </div>

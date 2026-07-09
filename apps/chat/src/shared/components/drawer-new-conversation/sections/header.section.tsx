@@ -7,7 +7,7 @@ export default function HeaderSection({ className, children, ...props }: HeaderS
   return (
     <div
       className={cn(
-        'w-full banner__overlay--up fixed left-0 right-0 top-0 pt-6 pb-3 flex flex-col gap-5 z-10',
+        'w-full fixed left-0 right-0 top-0 pt-6 pb-3 flex flex-col gap-5 z-10',
         className
       )}
       {...props}

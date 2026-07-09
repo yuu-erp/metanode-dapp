@@ -16,7 +16,7 @@ const ButtonLogin = memo((props: ButtonLoginProps) => {
     <div
       className={cn(
         className,
-        'flex h-[84px] w-full items-center justify-between rounded-3xl bg-white/20 border-app px-3 hover:cursor-pointer'
+        'flex h-[84px] w-full items-center justify-between rounded-3xl border-app px-3 hover:cursor-pointer bg-white/70 hover:bg-white'
       )}
       onClick={onClick}
     >
@@ -24,7 +24,7 @@ const ButtonLogin = memo((props: ButtonLoginProps) => {
         <Icon className="h-10 w-10 object-cover" />
         <span className="font-customBold text-[1rem]/[16.8px]">{content}</span>
       </div>
-      <ChevronRight className="text-[1.5rem] text-white" />
+      <ChevronRight className="text-[1.5rem]" />
     </div>
   )
 })

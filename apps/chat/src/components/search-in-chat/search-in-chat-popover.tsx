@@ -15,7 +15,7 @@ export const SearchInChatPopover = memo(({}: SearchInChatPopoverProps) => {
 
   if (!searchOpen) return null
   return (
-    <div className="absolute p-3 w-full bottom-0  translate-y-full bg-[#00000066] backdrop-blur-xl">
+    <div className="absolute p-3 w-full bottom-0  translate-y-full bg-secondary backdrop-blur-xl">
       <SearchInChatInput />
       <ListMessageForSearchInChat />
     </div>

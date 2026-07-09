@@ -61,7 +61,7 @@ const ImportPrivateKey = memo(({ onBack, onCloseModal, setIsLoading }: ImportPri
 
   return (
     <>
-      <Container className="wrapper-content flex flex-col gap-3 overflow-y-auto text-[1.25rem]/[1.5rem] text-white">
+      <Container className="wrapper-content flex flex-col gap-3 overflow-y-auto text-[1.25rem]/[1.5rem]">
         <span className="font-customSemiBold text-[1.25rem]/[1.5rem]">Import with Private Key</span>
         <Input
           placeholder="Enter your private key"

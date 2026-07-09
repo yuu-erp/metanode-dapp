@@ -88,7 +88,7 @@ function NewGroup({
   ])
 
   const isNext = React.useMemo(() => selectedMembers.length > 0, [selectedMembers])
-  console.log('screenType', screenType)
+
   const handleNext = React.useCallback(async () => {
     if (screenType === ScreenGroupType.SELECT_MEMBERS && isNext) {
       onChangeScreenGroupType(ScreenGroupType.GROUP_INFO)
@@ -126,13 +126,13 @@ function NewGroup({
       <HeaderSection>
         <div className="w-full h-full flex items-center justify-center">
           <button
-            className="absolute left-4 size-10 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80"
+            className="absolute left-4 size-10 rounded-full border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80 btn"
             onClick={handleBack}
           >
-            <ChevronLeftIcon className="size-5 text-gray-100" />
+            <ChevronLeftIcon className="size-5" />
           </button>
-          <div className="flex flex-col items-center">
-            <Drawer.Title className="text-gray-100 font-semibold text-lg">
+          <div className="flex flex-col items-center text-black">
+            <Drawer.Title className="font-semibold text-lg text-black/80">
               {type === 'group'
                 ? t('drawer.newGroup', { defaultValue: 'New Group' })
                 : t('drawer.newAnonymousGroup', { defaultValue: 'New Anonymous Group' })}
@@ -147,14 +147,14 @@ function NewGroup({
             </span>
           </div>
           <button
-            className="absolute right-4 size-10 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute right-4 size-10 rounded-full border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80 disabled:opacity-50 disabled:cursor-not-allowed btn"
             onClick={handleNext}
             disabled={!isNext || isCreatingGroup}
           >
             {isCreatingGroup ? (
-              <Loader2Icon className="size-5 text-gray-100 animate-spin" />
+              <Loader2Icon className="size-5 animate-spin" />
             ) : (
-              <CheckIcon className="size-5 text-gray-100" />
+              <CheckIcon className="size-5" />
             )}
           </button>
         </div>

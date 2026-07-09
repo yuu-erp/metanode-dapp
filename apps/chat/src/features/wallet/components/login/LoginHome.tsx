@@ -15,10 +15,10 @@ const LoginHome = memo(({ setStep, defaultTab = 0 }: LoginHomeProps) => {
   const [tab, setTab] = useState<number>(defaultTab)
   return (
     <>
-      <div className="relative flex w-full text-[18px]/[22px] text-white/60">
+      <div className="relative flex w-full text-[18px]/[22px] text-black/80">
         <button
           className={cn(
-            tab === 0 && 'font-customSemiBold text-white',
+            tab === 0 && 'font-customSemiBold text-black',
             'h-[68px] w-1/2 text-nowrap text-center'
           )}
           onClick={() => setTab(0)}
@@ -27,7 +27,7 @@ const LoginHome = memo(({ setStep, defaultTab = 0 }: LoginHomeProps) => {
         </button>
         <button
           className={cn(
-            tab === 1 && 'font-customSemiBold text-white',
+            tab === 1 && 'font-customSemiBold text-black',
             'h-[68px] w-1/2 text-nowrap text-center'
           )}
           onClick={() => setTab(1)}
@@ -51,7 +51,7 @@ const LoginHome = memo(({ setStep, defaultTab = 0 }: LoginHomeProps) => {
         <Anime isOpen={tab === 0} className={tab !== 0 ? 'hidden' : 'block'}>
           <div className="mt-5 w-full">
             <p className="font-customBold text-[20px]/[28px]">Welcome back,</p>
-            <div className="text-[#0D0D0D]/.[.64] mt-2 text-[14px]/[24px]">
+            <div className="mt-2 text-[14px]/[24px]">
               Import an existing wallet to quickly access and manage your funds for seamless
               shopping.
             </div>
@@ -77,7 +77,7 @@ const LoginHome = memo(({ setStep, defaultTab = 0 }: LoginHomeProps) => {
         <Anime isOpen={tab === 1} className={tab !== 1 ? 'hidden' : 'block'}>
           <div className="mt-5 w-full">
             <p className="font-customBold text-[20px]/[28px]">Welcome</p>
-            <p className="mt-2 text-[14px]/[24px] text-white/[.64]">
+            <p className="mt-2 text-[14px]/[24px]">
               Create a new wallet to start shopping and enjoy exclusive offers.
             </p>
           </div>
@@ -95,13 +95,13 @@ const LoginHome = memo(({ setStep, defaultTab = 0 }: LoginHomeProps) => {
         </Anime>
       </Container>
 
-      <div className="w-full justify-self-end text-center text-[16px]/[16px] text-white/[.64]">
+      <div className="w-full justify-self-end text-center text-[16px]/[16px]">
         {tab === 0 ? 'New User?' : 'Have an wallet?'}
         <span
           onClick={() => {
             setTab(tab === 0 ? 1 : 0)
           }}
-          className="font-customSemiBold text-white underline underline-offset-2 ml-1"
+          className="font-customSemiBold underline underline-offset-2 ml-1"
         >
           {tab === 0 ? `Create a new wallet` : 'Import an wallet'}
         </span>

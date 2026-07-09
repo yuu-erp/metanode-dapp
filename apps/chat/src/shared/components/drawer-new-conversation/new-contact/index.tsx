@@ -47,13 +47,13 @@ export const NewContact = ({ onChangeScreenType, onClose }: NewContactProps) => 
       <HeaderSection>
         <div className="w-full h-full flex items-center justify-center">
           <button
-            className="absolute left-4 size-10 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80"
+            className="absolute left-4 size-10 rounded-full border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80 btn"
             onClick={() => onChangeScreenType(ScreenType.DEFAULT)}
           >
-            <ChevronLeftIcon className="size-5 text-gray-100" />
+            <ChevronLeftIcon className="size-5 " />
           </button>
           <div className="flex flex-col items-center">
-            <Drawer.Title className="text-gray-100 font-semibold text-lg">
+            <Drawer.Title className=" font-semibold text-lg text-black">
               {t('drawer.newContact', { defaultValue: 'New Contact' })}
             </Drawer.Title>
           </div>
@@ -66,7 +66,7 @@ export const NewContact = ({ onChangeScreenType, onClose }: NewContactProps) => 
               placeholder={t('search.typeUserAddress', {
                 defaultValue: 'Type user address...'
               })}
-              className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
+              className="flex-1 h-12 rounded-full px-4 text-sm  placeholder:text-gray-300 border border-white/10 outline-none transition bg-white text-black/80"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               onKeyDown={(e) => {
@@ -74,7 +74,12 @@ export const NewContact = ({ onChangeScreenType, onClose }: NewContactProps) => 
               }}
             />
           </div>
-          <ButtonBase variant="submit" disabled={isPending} onClick={() => mutate()}>
+          <ButtonBase
+            variant="submit"
+            disabled={isPending}
+            onClick={() => mutate()}
+            className="btn"
+          >
             {isPending
               ? 'Loading...'
               : t('search.search', {

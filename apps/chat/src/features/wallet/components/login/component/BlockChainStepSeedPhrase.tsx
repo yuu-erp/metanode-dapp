@@ -15,8 +15,8 @@ import Input from './Input'
 
 const ItemSeedPhrase = memo(({ content, index }: { content: string; index: number }) => {
   return (
-    <span className="flex h-9 md:h-[42px] items-center justify-center rounded-xl bg-black/40 px-2 font-customMedium text-sm md:text-[1rem]/[1.5rem] tracking-[-1%]">
-      <span className="text-white/60 mr-1">
+    <span className="flex h-9 md:h-[42px] items-center justify-center rounded-xl px-2 font-customMedium text-sm md:text-[1rem]/[1.5rem] tracking-[-1%] bg-white">
+      <span className="text-black/80 mr-1">
         {index < 9 ? '0' : ''}
         {index}.
       </span>
@@ -114,7 +114,7 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
   return (
     <>
       <div className="wrapper-content flex h-full flex-col justify-between overflow-y-auto">
-        <div className="flex flex-col gap-2 text-white">
+        <div className="flex flex-col gap-2">
           <span className="font-customSemiBold text-[1.25rem]/[1.625rem]">
             Create with Seed Phrase!
           </span>
@@ -123,13 +123,13 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
             onInputChange={(e) => setName(e.target.value)}
             placeholder="Enter name..."
           />
-          <span className="text-[0.875rem]/[1.375rem] text-white/[.64]">
+          <span className="text-[0.875rem]/[1.375rem]">
             Please save these 24 words on a piece of paper. This seed will allow you to sign in your
             account.
           </span>
         </div>
 
-        <Container className="flex grow flex-col gap-4 py-5 text-white">
+        <Container className="flex grow flex-col gap-4 py-5">
           <div className="flex flex-wrap gap-2">
             {seedPhrase?.map((seed, i) => (
               <ItemSeedPhrase content={seed} index={i + 1} key={i} />
@@ -138,12 +138,12 @@ const BlockChainStepSeedPhrase = memo(({ onBack, onNext }: BlockChainStepSeedPhr
 
           <div className="min-h-[1.5px] w-full bg-[#0D0D0D]/[.12]" />
 
-          <p
+          {/* <p
             className="cursor-pointer text-center font-semibold underline"
             onClick={() => setScreen('custom')}
           >
             Custom your seed phrase
-          </p>
+          </p> */}
 
           {error && <div className="text-[0.8rem] text-red-500">{error}</div>}
           <button onClick={copySeed} className="underline">

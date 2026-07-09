@@ -19,7 +19,7 @@ function ButtonCreateWallet({ className, ...props }: Props) {
       disabled={isPending}
       onClick={handleCreateWallet}
       className={cn(
-        'border-app h-12 rounded-2xl font-bold uppercase bg-white/10 disabled:opacity-60 disabled:pointer-events-none',
+        'h-12 rounded-2xl font-bold uppercase disabled:opacity-60 disabled:pointer-events-none bg-white/70 hover:bg-white',
         className
       )}
       aria-busy={isPending}

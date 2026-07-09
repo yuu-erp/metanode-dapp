@@ -100,16 +100,13 @@ const ImportSeedphrase = memo(({ onBack, setIsLoading, onCloseModal }: ImportSee
 
   return (
     <>
-      <Container className="wrapper-content flex flex-col gap-3 overflow-y-auto text-[1.25rem]/[1.5rem] text-white">
+      <Container className="wrapper-content flex flex-col gap-3 overflow-y-auto text-[1.25rem]/[1.5rem]">
         <span className="mb-2 font-customSemiBold text-[1.25rem]/[27.3px]">
           Create with Seed Phrase!
         </span>
         <div className="max-h-[350px] min-h-[250px]">
           <div
-            className={cn(
-              errorInput ? 'h-[87%]' : 'h-[100%]',
-              'relative rounded-2xl bg-black/20 p-3'
-            )}
+            className={cn(errorInput ? 'h-[87%]' : 'h-[100%]', 'relative rounded-2xl bg-white p-3')}
           >
             <textarea
               className="scroll-bar-small h-full w-full text-[1rem] bg-transparent border-none outline-none"

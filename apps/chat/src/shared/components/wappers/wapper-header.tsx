@@ -54,12 +54,7 @@ export const WapperHeader = React.forwardRef<HTMLElement, Props>(
     return (
       <header
         ref={localRef}
-        className={cn(
-          'w-full top-0 z-10',
-
-          position,
-          className
-        )}
+        className={cn('w-full top-0 z-10 bg-secondary', position, className)}
         {...props}
       >
         <div className={cn('flex flex-col', 'pb-3 px-3', window.isHasNotch ? 'pt-14' : 'pt-10')}>

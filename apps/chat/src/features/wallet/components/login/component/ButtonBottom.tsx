@@ -14,13 +14,13 @@ const ButtonBottom = memo(({ title, className, onBack, onNext, isLoading }: Butt
   return (
     <div className={cn('flex w-full gap-3', className)}>
       <button
-        className="flex h-12 w-12 items-center justify-center rounded-full border-app hover:cursor-pointer"
+        className="flex h-12 w-12 items-center justify-center rounded-full hover:cursor-pointer bg-white/70 hover:bg-white"
         onClick={onBack}
       >
         <MoveLeft className="size-5" />
       </button>
       <button
-        className="flex grow items-center justify-center rounded-[26px] border-app text-[1.125rem] uppercase text-white hover:cursor-pointer"
+        className="flex grow items-center justify-center rounded-[26px] text-[1.125rem] uppercase hover:cursor-pointer bg-white/70 hover:bg-white"
         onClick={onNext}
       >
         {isLoading ? <Loader className="size-6" /> : title}

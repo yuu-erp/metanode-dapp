@@ -22,15 +22,15 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger>
           <button
-            className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+            className="size-12 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80 btn"
             onClick={onClickButton}
           >
-            <Paperclip className="text-white/80" />
+            <Paperclip />
           </button>
         </PopoverTrigger>
         <PopoverContent
           align="start"
-          className="bg-black/30 border-0 text-white backdrop-blur-md-app w-[200px]"
+          className="border-0 text-white backdrop-blur-md-app w-[200px] bg-white text-myapp"
         >
           <div className="rounded-2xl text-sm">
             <div className="flex flex-col items-start">

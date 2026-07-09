@@ -53,11 +53,7 @@ function InputMessageView(props: InputMessageViewProps) {
     <>
       {!micOpen && (
         <>
-          <div
-            ref={containerRef}
-            className="absolute bottom-0 left-0 right-0 banner__overlay--down"
-            {...propsDiv}
-          >
+          <div ref={containerRef} className="absolute bottom-0 left-0 right-0" {...propsDiv}>
             <div className="pb-5 relative">
               <MentionPopover />
               <div className="w-full min-h-[72px] h-full flex items-end gap-1 px-2">
@@ -68,7 +64,7 @@ function InputMessageView(props: InputMessageViewProps) {
                 <div className="relative flex-1 rounded-4xl overflow-hidden">
                   {/* BLUR LAYER – KHÔNG SCROLL */}
                   <div
-                    className="absolute inset-0 bg-black/40 backdrop-blur-2xl pointer-events-none"
+                    className="absolute inset-0 backdrop-blur-2xl pointer-events-none basic"
                     aria-hidden
                   />
 
@@ -128,10 +124,10 @@ function InputMessageView(props: InputMessageViewProps) {
                               }
                             }}
                             className={cn(
-                              'relative z-10 w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-white/60',
+                              'relative z-10 w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-black/50',
                               showMentionHighlight
                                 ? 'text-transparent caret-white selection:bg-sky-500/35'
-                                : 'text-white'
+                                : ''
                             )}
                           />
                         </div>
@@ -139,7 +135,7 @@ function InputMessageView(props: InputMessageViewProps) {
 
                       <div className="h-8 flex items-center gap-1">
                         <button onClick={() => modalActions.setOpen('sticker')}>
-                          <StickerIcon className="text-white/80" />
+                          <StickerIcon className="text-black/80" />
                         </button>
                         <SendButton reforcus={reforcus} />
                       </div>
@@ -150,10 +146,10 @@ function InputMessageView(props: InputMessageViewProps) {
                 {/* Mic */}
                 {!value.trim() && fileItems.length === 0 && (
                   <button
-                    className="size-12 bg-black/40 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80"
+                    className="size-12 rounded-full flex items-center justify-center backdrop-blur-2xl transition-transform duration-150 active:scale-80 btn"
                     onClick={() => uiActions.setMicOpen(true)}
                   >
-                    <Mic className="text-white/80" />
+                    <Mic className="" />
                   </button>
                 )}
               </div>

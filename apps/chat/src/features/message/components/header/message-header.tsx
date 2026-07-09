@@ -3,13 +3,12 @@ import { useCurrentState } from '@/hooks/use-current-state'
 import { getGroupName } from '@/new/conversation/group'
 import { getUserInfo } from '@/new/user/user-info'
 import AvatarUser from '@/shared/components/avatar-user'
-import { VideoIcon } from '@/shared/components/icons'
 import TotalUnreadcount from '@/shared/components/total-unreadcount'
 import { WapperHeader } from '@/shared/components/wappers/wapper-header'
 import { useI18N } from '@/shared/hooks'
 import { cn } from '@/shared/lib/utils'
 import { useNavigate } from '@tanstack/react-router'
-import { ChevronLeft, LoaderCircle } from 'lucide-react'
+import { ChevronLeft, LoaderCircle, Video } from 'lucide-react'
 import * as React from 'react'
 import { SearchInChatButton } from '../../../../components/search-in-chat/search-in-chat-button'
 import { SearchInChatPopover } from '../../../../components/search-in-chat/search-in-chat-popover'
@@ -83,7 +82,7 @@ function ChatHeader({ onVideoCall, isLoading }: ChatHeaderProps) {
               {isLoading ? (
                 <LoaderCircle className="size-6 text-white/80 animate-spin" />
               ) : (
-                <VideoIcon className="size-7 text-white/80" />
+                <Video className="size-7" />
               )}
             </button>
           )}

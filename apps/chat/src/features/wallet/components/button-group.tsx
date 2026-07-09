@@ -31,7 +31,7 @@ function ButtonGroup({
         <Button
           type="button"
           disabled={isLoading}
-          className="border-app h-12 col-span-1 rounded-2xl font-bold uppercase bg-black/20 disabled:opacity-60 disabled:pointer-events-none"
+          className="h-12 col-span-1 rounded-2xl font-bold uppercase disabled:opacity-60 disabled:pointer-events-none"
           onClick={onConnectWallet}
           // onClick={()=>{}}
           aria-busy={isLoading}

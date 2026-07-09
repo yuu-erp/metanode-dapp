@@ -20,7 +20,7 @@ export const MessageItemForSearchInChat = memo(({ message }: MessageItemForSearc
       <AvatarUser size="xs" name={name} type={'p2p'} />
       <div className="flex-1 flex flex-col">
         <p className="text-sm font-bold">{name}</p>
-        <p className="text-sm text-gray-300">
+        <p className="text-sm">
           <MessageContent message={message} />
         </p>
       </div>

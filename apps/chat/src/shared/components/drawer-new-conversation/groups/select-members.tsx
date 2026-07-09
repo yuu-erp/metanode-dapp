@@ -46,7 +46,7 @@ function SelectMembers({
           placeholder={t('search.addressOrUsername', {
             defaultValue: 'Search address or username'
           })}
-          className="flex-1 h-12 rounded-full px-4 text-sm bg-[#2c2c2e] text-gray-100 placeholder:text-gray-300 border border-white/10 outline-none transition"
+          className="flex-1 h-12 rounded-full px-4 text-sm placeholder:text-gray-300 border border-white/10 outline-none transition basic"
         />
       </div>
       <div className="flex flex-1 w-full flex-col gap-3 mt-3 overflow-y-auto">
@@ -69,7 +69,7 @@ function SelectMembers({
             >
               <Checkbox
                 checked={isSelected}
-                className="border-gray-500 checked:bg-blue-500 checked:border-blue-500 rounded-full w-5 h-5"
+                className="border-gray-500 checked:bg-myapp checked:border-myapp rounded-full w-5 h-5"
               />
               <div className="pointer-events-none flex-1">
                 <ConversationContact

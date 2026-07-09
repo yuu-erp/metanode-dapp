@@ -46,13 +46,14 @@ const Login = memo(
         >
           <div
             onClick={onClose}
-            className={`fixed inset-0 z-[1500] h-screen w-screen overflow-hidden bg-black/[.20] shadow-box-content-model backdrop-blur-md-app transition-all duration-1000 ease-in-out`}
+            className={`fixed inset-0 z-[1500] h-screen w-screen overflow-hidden shadow-box-content-model backdrop-blur-md-app transition-all duration-1000 ease-in-out`}
           >
             <div className="relative flex size-full justify-end p-5">
               <div
                 className={cn(
                   'h-[92.5%]',
-                  'relative flex aspect-[9/20] overflow-hidden rounded-2xl bg-white/10 p-5 backdrop-blur-[80px] h-full xs:min-w-[300px] sm:min-w-[340px] lg:h-full',
+                  'relative flex aspect-[9/20] overflow-hidden rounded-2xl p-5 backdrop-blur-[80px] h-full xs:min-w-[300px] sm:min-w-[340px] lg:h-full',
+                  'bg-secondary text-black/80',
                   step === 1 && 'pt-0'
                 )}
                 onClick={(e) => e.stopPropagation()}

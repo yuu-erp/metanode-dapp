@@ -24,7 +24,7 @@ export const WalletQrButton = memo(({ activeWallet }: WalletQrButtonProps) => {
       <DialogTrigger asChild>
         <Button
           type="button"
-          className="text-sm border-app h-12 col-span-1 rounded-2xl font-bold uppercase bg-black/20 disabled:opacity-60 disabled:pointer-events-none"
+          className="h-12 rounded-2xl font-bold uppercase disabled:opacity-60 disabled:pointer-events-none bg-white/70 hover:bg-white"
         >
           Show QR
         </Button>

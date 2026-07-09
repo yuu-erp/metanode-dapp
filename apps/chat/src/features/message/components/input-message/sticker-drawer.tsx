@@ -6,7 +6,6 @@ import { Dialog, DialogContent } from '@/shared/components/ui/dialog'
 import { useIsMobile } from '@/shared/hooks/use-mobile'
 import { cn } from '@/shared/lib'
 import { modalActions, useModalStore } from '@/stores/modal.store'
-import { Archive } from 'lucide-react'
 import * as React from 'react'
 import { Drawer } from 'vaul'
 
@@ -34,14 +33,14 @@ export function StickerDrawer({}: StickerDrawerProps) {
   }
 
   const renderContent = (
-    <div className="bg-black/60 backdrop-blur-md-app rounded-t-4xl md:rounded-2xl flex flex-col h-[400px] border-t md:border border-white/10 w-full overflow-hidden">
+    <div className="bg-white backdrop-blur-md-app rounded-t-4xl md:rounded-2xl flex flex-col h-[400px] border-t md:border border-white/10 w-full overflow-hidden">
       {/* Header / Tabs */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-4 overflow-x-auto no-scrollbar">
           {/* Recent / Favorites placeholder (optional) */}
-          <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+          {/* <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
             <Archive className="size-6 text-gray-400" />
-          </button>
+          </button> */}
 
           {STICKERS.map((pack) => (
             <button

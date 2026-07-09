@@ -16,12 +16,13 @@ export interface ButtonBaseProps extends Omit<
 }
 
 const variants = {
-  default: 'whitespace-nowrap w-[125px] h-10 bg-black/20 border-app rounded-full',
+  default:
+    'whitespace-nowrap w-[125px] h-10 border-app rounded-full bg-primary text-primary-foreground hover:bg-primary/90',
   constrait: 'bg-surface-constrait text-text-primary',
   primary: 'bg-surface-secondary text-text-primary',
   normal: 'px-3 h-[42px] bg-white/20 rounded-xl border-app',
   icon: 'xl:size-[3rem] hidden size-[2.6rem] flex items-center justify-center rounded-full bg-black/20 shrink-0',
-  submit: 'whitespace-nowrap w-[125px] h-10 border-app rounded-full'
+  submit: 'whitespace-nowrap w-[125px] h-10 rounded-full bg-myapp/30 hover:bg-myapp/70 text-white'
 }
 
 const ButtonBase = React.forwardRef<HTMLButtonElement, ButtonBaseProps>((props, ref) => {

@@ -80,8 +80,8 @@ function ItemConversation({
         {...handlers}
         className={cn(
           'w-full flex items-center min-h-[56px] h-full',
-          'transition-all duration-300 ease-out hover:bg-black/20 rounded-2xl',
-          isLongPressActive && 'bg-black/40',
+          'transition-all duration-300 ease-out rounded-2xl hover:bg-white',
+          // isLongPressActive && 'bg-black/40',
           className
         )}
         {...props}
@@ -112,7 +112,7 @@ function ItemConversation({
               </div>
             </div>
             <div className="w-full flex items-center justify-between gap-3">
-              <div className="flex-1 w-full line-clamp-2 text-sm break-all text-white/80 font-medium pointer-events-none">
+              <div className="flex-1 w-full line-clamp-2 text-sm break-all font-medium pointer-events-none">
                 {/* Priview message */}
                 {finalLastMessage && <MessagePreview message={finalLastMessage} />}
               </div>
@@ -120,7 +120,7 @@ function ItemConversation({
                 <>
                   {unreadCount > 0 ? (
                     <Badge
-                      className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums"
+                      className="h-5 min-w-5 rounded-full px-1 font-semibold tabular-nums bg-myapp text-white"
                       variant="secondary"
                     >
                       {unreadCount > 999 ? '999+' : unreadCount}

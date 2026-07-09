@@ -96,7 +96,7 @@ const UploadQR = memo(
           </div>
         )}
 
-        <div className="flex h-fit w-full flex-col items-center gap-3 rounded-[8.4px] border-[2px] border-dotted border-blackMain/[.22] p-3">
+        <div className="flex h-fit w-full flex-col items-center gap-3 rounded-[8.4px] border-[2px] border-dotted border-blackMain/[.22] p-3 bg-white">
           <div className="flex min-h-[280px] p-5">
             {imageToShow ? (
               <div className="size-full rounded-lg bg-white p-2">
@@ -117,11 +117,11 @@ const UploadQR = memo(
           </div>
 
           <div className="flex w-full items-center gap-1 text-[14px] tracking-[1%]">
-            <button className="h-[33px] w-full rounded-xl transition-all duration-150 ease-in-out hover:scale-[102%] border-app">
+            <button className="h-[33px] w-full rounded-xl transition-all duration-150 ease-in-out hover:scale-[102%] bg-secondary">
               Scan QR code
             </button>
             <div className="relative h-[33px] w-full transition-all duration-150 ease-in-out hover:scale-[102%]">
-              <button className="size-full rounded-xl border-app">Upload image</button>
+              <button className="size-full rounded-xl bg-secondary">Upload image</button>
               <input
                 key={imageToShow}
                 type="file"

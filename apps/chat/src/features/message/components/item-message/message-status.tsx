@@ -12,15 +12,15 @@ export function MessageStatusComp({ message }: MessageStatusProps) {
 
   switch (status) {
     case 'sent':
-      return <Check className="size-3.5 text-white" />
+      return <Check className="size-3.5" />
 
     case 'delivered':
-      return <Check className="size-3.5 text-white" />
+      return <Check className="size-3.5" />
 
     case 'failed':
       return <AlertTriangle className="size-4 text-red-500" />
 
     default:
-      return <Clock className="size-3.5 text-white opacity-70" />
+      return <Clock className="size-3.5 opacity-70" />
   }
 }

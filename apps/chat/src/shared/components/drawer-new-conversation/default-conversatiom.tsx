@@ -40,12 +40,12 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
       <HeaderSection>
         <div className="w-full h-full flex items-center justify-center">
           <Drawer.Close asChild>
-            <Button className="absolute left-4 size-10 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80">
-              <X className="size-5 text-gray-100" />
+            <Button className="absolute left-4 size-10 rounded-full bg-transparent border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80">
+              <X className="size-5 " />
             </Button>
           </Drawer.Close>
 
-          <Drawer.Title className="text-gray-100 font-semibold text-lg">
+          <Drawer.Title className="font-semibold text-lg text-black">
             {t('drawer.newMessage', { defaultValue: 'New Message' })}
           </Drawer.Title>
 
@@ -57,7 +57,7 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
               absolute right-4
               "
             >
-              <QrCode className="size-6 text-gray-100" />
+              <QrCode className="size-6 " />
             </Button>
           )}
         </div>
@@ -72,8 +72,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             className="w-full h-12 flex items-center gap-4 text-left transition "
             onClick={() => onChangeScreenType?.(ScreenType.NEW_CONTACT)}
           >
-            <UserAddIcon className="size-6 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
+            <UserAddIcon className="size-6 text-myapp" />
+            <span className="font-medium text-myapp">
               {t('drawer.newContact', { defaultValue: 'New Contact' })}
             </span>
           </button>
@@ -85,8 +85,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             onClick={() => onChangeScreenType?.(ScreenType.NEW_GROUP)}
             className="w-full h-12 flex items-center gap-4 text-left transition"
           >
-            <UserGroupIcon className="size-6 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
+            <UserGroupIcon className="size-6 text-myapp" />
+            <span className="font-medium text-myapp">
               {t('drawer.newGroup', { defaultValue: 'New Group' })}
             </span>
           </button>
@@ -97,8 +97,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             onClick={() => onChangeScreenType?.(ScreenType.NEW_ANONYMOUS_GROUP)}
             className="w-full h-12 flex items-center gap-4 text-left transition"
           >
-            <UserGroupIcon className="size-6 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
+            <UserGroupIcon className="size-6 text-myapp" />
+            <span className="font-medium text-myapp">
               {t('drawer.newAnonymousGroup', { defaultValue: 'New Anonymous Group' })}
             </span>
           </button>
@@ -109,8 +109,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             className={cn('w-full h-12 flex items-center gap-4 text-left transition ')}
             onClick={onGoMeeting}
           >
-            <Video className="size-6 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
+            <Video className="size-6 text-myapp" />
+            <span className="font-medium text-myapp">
               {t('drawer.newMeeting', { defaultValue: 'New Meeting' })}
             </span>
           </button>
@@ -121,8 +121,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             className={cn('w-full h-12 flex items-center gap-4 text-left transition ')}
             onClick={onJoinLink}
           >
-            <Video className="size-6 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
+            <Video className="size-6 text-myapp" />
+            <span className="font-medium text-myapp">
               {t('drawer.newMeetingByUrl', { defaultValue: 'New Meeting By Url' })}
             </span>
           </button>
@@ -134,8 +134,8 @@ function DefaultConversation({ account, onChangeScreenType, onClose }: DefaultCo
             className="w-full h-14 flex items-center gap-4 text-left transition disabled:opacity-50 cursor-not-allowed"
             disabled
           >
-            <Megaphone className="size-5 text-[#3b82f6]" />
-            <span className="font-medium text-[#3b82f6]">
+            <Megaphone className="size-5 text-myapp" />
+            <span className="font-medium text-myapp">
               {t('drawer.newChannel', { defaultValue: 'New Channel' })}
             </span>
           </button>

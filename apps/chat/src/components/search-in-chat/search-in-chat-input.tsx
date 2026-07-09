@@ -25,7 +25,7 @@ export const SearchInChatInput = memo(({}: SearchInChatInputProps) => {
   }, [searchOpen])
 
   return (
-    <div className="flex items-center gap-2 bg-[#ffffff1f] p-2 rounded-md">
+    <div className="flex items-center gap-2 bg-white p-2 rounded-md">
       <Search className="size-4" />
       <input
         value={value}

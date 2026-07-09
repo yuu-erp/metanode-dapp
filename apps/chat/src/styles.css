@@ -42,6 +42,7 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-myapp: var(--myapp);
 }
 
 :root {
@@ -54,7 +55,6 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -77,6 +77,8 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --secondary: oklab(99.107% 0 -0.00011 / 0.104);
+  --myapp: oklch(70.825% 0.23741 322.109);
 }
 
 .dark {
@@ -202,7 +204,7 @@
   }
 
   html:not([data-scroll='0']) header {
-    background-color: rgba(0, 0, 0, 0.4);
+    /* background-color: rgba(0, 0, 0, 0.4); */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     transform: translateZ(0);
@@ -213,6 +215,14 @@
 }
 
 @layer components {
+  .btn {
+    @apply bg-white/70! hover:bg-white! text-black/80!;
+  }
+
+  .basic {
+    @apply bg-white! text-black/80! placeholder:text-black/30!;
+  }
+
   .shadow-inset {
     box-shadow: 2px 2px 6px 0px #0000004d inset;
   }
