@@ -92,9 +92,9 @@ function DrawerNewConversation() {
           </button>
         </Drawer.Trigger>
         <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/50" />
+          <Drawer.Overlay className="fixed inset-0" />
           <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
-            <div className="relative h-[90vh] rounded-t-[36px] backdrop-blur-md-app border flex flex-col overflow-hidden">
+            <div className="relative h-[90vh] rounded-t-[36px] backdrop-blur-md-app border flex flex-col overflow-hidden bg-modal">
               <div className="w-full flex flex-col overflow-hidden">{renderScreen}</div>
             </div>
           </Drawer.Content>

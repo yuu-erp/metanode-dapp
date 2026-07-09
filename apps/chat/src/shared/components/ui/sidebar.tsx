@@ -167,7 +167,7 @@ function Sidebar({
       <div
         data-slot="sidebar"
         className={cn(
-          'bg-black/20 backdrop-blur-xl-app text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col',
+          'bg-modal backdrop-blur-xl-app text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col',
           className
         )}
         {...props}
@@ -184,7 +184,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-black/20 backdrop-blur-xl-app text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          className="bg-modal backdrop-blur-xl-app text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH_MOBILE
@@ -241,7 +241,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-black/20 backdrop-blur-xl-app flex h-full w-full flex-col"
+          className="bg-modal backdrop-blur-xl-app flex h-full w-full flex-col"
         >
           {children}
         </div>

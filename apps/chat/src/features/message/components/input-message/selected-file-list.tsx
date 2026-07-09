@@ -11,18 +11,18 @@ function FileItemUi({ id }: { id: string }) {
   const { cache } = useCache(id)
   if (!metadata || !cache) return null
   return (
-    <div className="flex items-cenPter gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 group">
+    <div className="flex items-cenPter gap-2 p-1 rounded-2xl bg-white/5 border border-black/10 group">
       <div className="flex items-center justify-center size-12 rounded-xl bg-white/10 shrink-0 overflow-hidden">
         {cache.previewType === 'image' && cache.previewPath ? (
           <img src={cache.previewPath} alt={''} className="size-full object-cover" />
         ) : (
-          <FileIcon className="size-4 text-white/80" />
+          <FileIcon className="size-4" />
         )}
       </div>
 
       <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <p className="text-sm font-medium text-white/90 truncate">{metadata.name}</p>
-        <p className="text-xs text-white/50">{formatFileSize(metadata.size)}</p>
+        <p className="text-sm font-medium truncate">{metadata.name}</p>
+        <p className="text-xs">{formatFileSize(metadata.size)}</p>
       </div>
 
       <button

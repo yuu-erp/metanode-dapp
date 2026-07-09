@@ -18,10 +18,7 @@ function RouteComponent() {
         </div>
         <ProfileInfo />
       </div>
-      <div
-        className="flex flex-col w-full relative"
-        style={{ paddingTop: isMobile ? 'var(--header-height)' : 'pt-5' }}
-      >
+      <div className="flex flex-col w-full relative" style={{ paddingTop: isMobile ? '' : 'pt-5' }}>
         <div className="flex-1 flex flex-col w-full">
           <ListSettings />
         </div>
