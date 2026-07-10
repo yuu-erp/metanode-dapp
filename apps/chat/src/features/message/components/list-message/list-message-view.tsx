@@ -75,7 +75,7 @@ function ListMessageView({
           </div>
         )}
         {!hasNextPage && messages.length > 0 && (
-          <p className="text-sm text-white/60 font-medium">Đã tải hết tin nhắn</p>
+          <p className="text-sm text-black font-medium">Đã tải hết tin nhắn</p>
         )}
       </div>
 

@@ -47,7 +47,7 @@ export const MessageList = memo(({}: MessageListProps) => {
           </div>
         )}
         {!hasNextPage && ids.length > 0 && (
-          <p className="text-sm text-white/60 font-medium">Đã tải hết tin nhắn</p>
+          <p className="text-sm font-medium text-black">Đã tải hết tin nhắn</p>
         )}
       </div>
 

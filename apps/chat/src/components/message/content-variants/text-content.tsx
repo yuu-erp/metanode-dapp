@@ -24,7 +24,7 @@ function renderUrlFragments(text: string, keyPrefix: string): React.ReactNode {
           href={part}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[#3b82f6] hover:underline break-all"
+          className="hover:underline break-all"
         >
           {part}
         </a>

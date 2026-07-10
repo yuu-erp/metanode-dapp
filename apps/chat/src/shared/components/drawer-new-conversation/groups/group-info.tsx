@@ -25,7 +25,7 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
         </div>
 
         <div className="w-full">
-          <label className="text-sm text-gray-400 mb-2 block ml-1">
+          <label className="text-sm mb-2 block ml-1 text-black">
             {t('drawer.groupName', { defaultValue: 'Group Name' })}
           </label>
           <Input
@@ -50,7 +50,9 @@ function GroupInfo({ conversations, selectedMembers, groupName, setGroupName }: 
               return (
                 <div key={mem.conversationId} className="flex flex-col items-center w-14 gap-1">
                   <AvatarUser name={member.name} size="md" />
-                  <span className="text-[10px] truncate w-full text-center">{member.name}</span>
+                  <span className="text-[10px] truncate w-full text-center text-black/80">
+                    {member.name}
+                  </span>
                 </div>
               )
             })}

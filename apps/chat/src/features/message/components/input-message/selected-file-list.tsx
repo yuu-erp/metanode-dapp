@@ -28,7 +28,7 @@ function FileItemUi({ id }: { id: string }) {
       <button
         type="button"
         onClick={() => removeSelectedId(id)}
-        className="p-1.5 rounded-full hover:bg-white/10 text-white/60 hover:text-white/90 transition-colors"
+        className="p-1.5 rounded-full hover:bg-white/10 transition-colors"
       >
         <X className="size-4" />
       </button>
