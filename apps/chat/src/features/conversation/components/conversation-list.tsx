@@ -45,7 +45,6 @@ function ConversationList({ searchKeyword }: ConversationListProps) {
     [navigate, micOpen]
   )
 
-  console.log('filteredConversations', filteredConversations)
   return (
     <div className="flex flex-col gap-3 pb-[120px] pointer-events-auto">
       {filteredConversations.map((item) => (

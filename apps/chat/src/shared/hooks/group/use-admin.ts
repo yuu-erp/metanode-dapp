@@ -16,7 +16,7 @@ export const createAdminQuery = (conversationId: string, type: ConversationType,
             to: conversationId
           })
         case 'anonymous_group':
-          return await container.anonymousGroupContract.initialAdmin({
+          return await container.anonymousGroupContract.admin({
             from: from,
             to: conversationId
           })

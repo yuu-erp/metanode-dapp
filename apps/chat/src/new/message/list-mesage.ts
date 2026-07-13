@@ -20,7 +20,6 @@ async function getMessaeges(
 ): Promise<BaseMessage[]> {
   const { id, type } = converstaion
   const account = await getCurrentAccount()
-  console.log('thanhduy -log type ', type)
   switch (type) {
     case 'p2p': {
       const rs = await container.userContract.getProcessedP2PMessages({
@@ -80,16 +79,12 @@ async function getMessaeges(
 
 export async function getListMessage(conversation: BaseConversation, options?: PageLimit) {
   try {
-    console.log('getListMessage 1')
     const raw = await getMessaeges(conversation, options)
-    console.log('getListMessage 2', raw)
 
     const messages = await fulfilledPromises(
       raw.map(async (item) => {
         const fullMessage = await baseMessageToMessage(item, conversation)
-        if (fullMessage.content === 'dd') {
-          console.log('fullMessagefullMessagefullMessage', fullMessage)
-        }
+
         setMessageInfo(fullMessage.id, fullMessage)
         return fullMessage
       })

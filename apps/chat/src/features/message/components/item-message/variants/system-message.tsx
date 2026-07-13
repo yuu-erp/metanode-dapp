@@ -15,7 +15,7 @@ export const SystemMessage = memo(({ message }: SystemMessageProps) => {
 
   if (message.type !== 'system') return null
   return (
-    <div className="px-2 py-1 bg-[#0000004d] rounded-lg mx-auto">
+    <div className="px-2 py-1 bg-[#0000004d] rounded-lg mx-auto text-white">
       <p className="text-sm">{text[message.eventName]}</p>
     </div>
   )

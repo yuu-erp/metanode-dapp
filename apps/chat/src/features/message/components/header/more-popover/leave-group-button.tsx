@@ -24,7 +24,7 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
       onClick={async () => {
         onClose?.()
         const account = await getCurrentAccount()
-        console.log('leave group 1')
+        console.log('leave group 1', isAdmin)
 
         if (isAdmin) {
           let members: any[] = []
@@ -40,10 +40,7 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
             })
           }
 
-          console.log('members', members)
-          return
-          const others = members.filter((i) => i.contractAddress !== account?.contractAddress)
-          if (!others.length) {
+          if (members.length === 1) {
             //delete group
             if (base.type === 'group') {
               const groupId = await container.groupContract.groupId({
@@ -67,17 +64,21 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
             }
           } else {
             //transfer
-            console.log('leave group 2')
 
-            const newAdmin = others[0]
+            const newAdmin = members.filter((item) => item !== account.address)[0]
+            const newAdminContractAddress = await container.factoryContract.getUserContract({
+              from: account.hiddenAddress,
+              inputData: { user: newAdmin }
+            })
+
             const pubKey = await container.userContract.publicKey({
               from: account.hiddenAddress,
-              to: newAdmin.contractAddress
+              to: newAdminContractAddress
             })
             if (base.type === 'group') {
               await container.groupContract.transferAdmin({
                 from: account.hiddenAddress,
-                inputData: { _newPublicKeyAdmin: pubKey, newAdmin: newAdmin.address },
+                inputData: { _newPublicKeyAdmin: pubKey, newAdmin: newAdmin },
                 to: base.id
               })
             } else {
@@ -87,7 +88,7 @@ export const LeaveGroupButton = memo(({ onClose }: LeaveGroupButtonProps) => {
                 to: base.id,
                 inputData: {
                   _pkAdmin: pubKey,
-                  newOwner: newAdmin.address
+                  newOwner: newAdmin
                 }
               })
             }

@@ -72,7 +72,6 @@ function ItemConversation({
     }
   })
   // Helper render content
-  console.log('is same', compareAddress(conversationId, account?.contractAddress))
 
   return (
     <ConversationContextMenu conversationId={conversationId} type={type}>

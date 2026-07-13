@@ -24,10 +24,7 @@ function PinMessages({}: PinMessagesProps) {
     .map((item) => item.data)
     .filter(Boolean)
     .sort((a, b) => a!.timestamp - b!.timestamp)
-  console.log('sorted', sorted)
   const msgData = sorted[sorted.length - 1]
-
-  console.log('pinnedMessage', pinnedMessage)
 
   if (!pinnedMessage?.length || searchOpen) return null
   return (

@@ -291,4 +291,15 @@ export class AnonymousGroupContract extends MtnContract {
       inputData: inputData
     })
   }
+
+  admin(payload: TransactionPayload) {
+    const { from, to } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'admin',
+      abiData: anonymousGroupAbi.admin as any,
+      feeType: 'read'
+    })
+  }
 }

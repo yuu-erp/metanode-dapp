@@ -38,7 +38,6 @@ function FileItemUi({ id }: { id: string }) {
 
 export function SelectedFileList({}: SelectedFileListProps) {
   const { ids } = useSelectedIds()
-  console.log('SelectedFileList', { ids })
   if (!ids.length) return null
   return (
     <div className="flex flex-col gap-1 w-full mb-2 max-h-40 overflow-y-auto no-scrollbar custom-scrollbar pt-2">

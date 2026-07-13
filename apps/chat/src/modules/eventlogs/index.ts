@@ -29,7 +29,7 @@ export class EventLogContainer {
   private readonly _eventLog: EventLog<EventMap>
   private promise: Promise<any> | null = null
   constructor() {
-    console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
+    // console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
     this._decodeAbi = new DecodeAbi()
     this._eventLog = new EventLog<EventMap>(this._decodeAbi)
   }

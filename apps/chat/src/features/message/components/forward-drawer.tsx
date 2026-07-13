@@ -29,7 +29,6 @@ function ForwardDrawer({ open, onClose, messageAction }: ForwardDrawerProps) {
   ).filter((item) =>
     item.name.trim().toLocaleLowerCase().includes(value.trim().toLocaleLowerCase())
   )
-  console.log('ssss', conversations)
 
   const renderContent = (
     <div className="relative h-[90vh] md:h-[600px] w-full rounded-t-[36px] md:rounded-2xl bg-black/30 backdrop-blur-lg border border-white/10 flex flex-col overflow-hidden">

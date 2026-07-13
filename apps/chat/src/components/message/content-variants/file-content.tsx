@@ -7,6 +7,7 @@ import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
 import { formatFileSize } from '@/new'
 import { useCurrentState } from '@/hooks/use-current-state'
+import { ViewImageModal } from './view-image-modal'
 
 const mediaStyle = 'object-cover aspect-square w-16 rounded-md'
 
@@ -44,18 +45,9 @@ const FileItem = ({
   const { status, progress = 0 } = useProgress(id)
   const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
 
-  console.log('FileItem', { id, metadata })
-
   if (!metadata) return null
   const { previewType = '', previewPath } = cache ?? {}
-  const comps = {
-    image: () => (
-      <img src={previewPath} className={mediaStyle} draggable={false} alt={metadata.name} />
-    ),
-    default: () => <File />
-  }
 
-  const Comp = cache ? (comps[previewType] ?? comps.default) : comps.default
   const uploadedSize = formatFileSize(metadata.size * (progress / 100))
 
   const finalBehavior = isStored
@@ -69,39 +61,60 @@ const FileItem = ({
       }
 
   return (
-    <div className="flex gap-3 items-center" {...finalBehavior}>
-      <div className="relative">
-        {isStored && <Comp />}
-        {!isStored && (
-          <WithWrapper
-            isWrapped={true}
-            className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
-          >
-            {status === 'idle' && <Download />}
-          </WithWrapper>
-        )}
+    <>
+      <div className="flex gap-3 items-center" {...finalBehavior}>
+        <div className="relative">
+          {isStored && (
+            <>
+              {previewType === 'image' ? (
+                <ViewImageModal fileId={id} messageId={messageId}>
+                  <img
+                    src={previewPath}
+                    className={mediaStyle}
+                    draggable={false}
+                    alt={metadata.name}
+                  />
+                </ViewImageModal>
+              ) : previewType === 'video' ? (
+                <ViewImageModal fileId={id} messageId={messageId}>
+                  <video src={previewPath} className={mediaStyle} draggable={false} />
+                </ViewImageModal>
+              ) : (
+                <File />
+              )}
+            </>
+          )}
+          {!isStored && (
+            <WithWrapper
+              isWrapped={true}
+              className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
+            >
+              {status === 'idle' && <Download />}
+            </WithWrapper>
+          )}
 
-        {status === 'pending' && (
-          <div
-            className={cn(
-              'absolute inset-0 flex items-center justify-center flex flex-col gap-1',
-              isStored && 'bg-black/20'
-            )}
-          >
-            <X />
+          {status === 'pending' && (
+            <div
+              className={cn(
+                'absolute inset-0 flex items-center justify-center flex flex-col gap-1',
+                isStored && 'bg-black/20'
+              )}
+            >
+              <X />
+            </div>
+          )}
+        </div>
+
+        <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
+          <div className="text-sm font-medium truncate">{metadata.name}</div>
+          <div className="text-xs opacity-70">
+            {status === 'pending'
+              ? `${uploadedSize} / ${formatFileSize(metadata.size)}`
+              : formatFileSize(metadata.size)}
           </div>
-        )}
-      </div>
-
-      <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
-        <div className="text-sm font-medium truncate">{metadata.name}</div>
-        <div className="text-xs opacity-70">
-          {status === 'pending'
-            ? `${uploadedSize} / ${formatFileSize(metadata.size)}`
-            : formatFileSize(metadata.size)}
         </div>
       </div>
-    </div>
+    </>
   )
 }
 

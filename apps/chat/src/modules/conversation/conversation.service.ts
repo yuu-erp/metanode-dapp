@@ -42,9 +42,7 @@ export class ConversationService {
     private readonly anonymousGroupContract: AnonymousGroupContract,
     readonly verifyContract: VerifyContract,
     readonly ekycContract: EkycContract
-  ) {
-    console.log({ verifyContract, ekycContract })
-  }
+  ) {}
   // ------------------------------------------------------------------
   // Private helpers
 
@@ -174,7 +172,6 @@ export class ConversationService {
           limit: 50
         }
       })
-      console.log('inboxsinboxsinboxs', inboxs)
 
       const conversations = await fulfilledPromises(
         inboxs.map(async (item) => {
@@ -303,7 +300,6 @@ export class ConversationService {
     useDb = true
   ): Promise<Conversation | undefined> {
     if (!account) return
-    console.log('getConversationById input', { account, conversationId, conversationType, useDb })
     const { address: accountId, hiddenAddress } = account
     if (useDb) {
       const conversationLocal = await this.repository.getById(accountId, conversationId)
@@ -538,19 +534,9 @@ export class ConversationService {
         _publicKeyAdmin: account.publicKey
       }
     }
-    console.log('create group 1', createGroupPayload)
     await this.factoryContract.createGroup(createGroupPayload)
-    console.log('create group 2')
 
     const rs = (await promise) as EventMap['GroupCreated'] & { groupKey: string }
-    console.log('create group 3', rs)
-    const rs1 = await this.anonymousGroupContract.userToPublicKeyAdmin({
-      from: account.hiddenAddress,
-      to: rs.contractAddress,
-      inputData: { '': account.address }
-    })
-
-    console.log('create group 4', rs1)
 
     return rs
   }
@@ -561,10 +547,8 @@ export class ConversationService {
     groupKey: string,
     members: PayloadAddMembers[]
   ) {
-    console.log('addMembers 1', { account, groupConversation, groupKey, members })
     const users: string[] = []
     const encryptedKeys: string[] = []
-    console.log('addMembers 2')
 
     for (const member of members) {
       const { publicKey, conversationId } = member
@@ -579,7 +563,6 @@ export class ConversationService {
       users.push(addressMember)
       encryptedKeys.push(encryptedGroupKey)
     }
-    console.log('addMembers 3', { users, encryptedKeys })
 
     await this.groupContract.addAllMember({
       to: groupConversation,
@@ -589,7 +572,6 @@ export class ConversationService {
         encryptedKeys
       }
     })
-    console.log('addMembers 4')
   }
 
   // ------------------------------------------------------------------
@@ -719,7 +701,6 @@ export class ConversationService {
         const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
           ...base
         })
-        console.log('getConversationKey 1', { add: account.address, adminPublicKey })
         const sharedKeyWithAdmin = await this.handleCreateECDHPassword(
           account.address,
           adminPublicKey
