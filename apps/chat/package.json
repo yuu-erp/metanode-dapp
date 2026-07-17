@@ -11,8 +11,8 @@
   "dependencies": {
     "@app/call": "workspace:*",
     "@headlessui/react": "^2.2.9",
-    "@metanodejs/event-log": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log",
     "@metanodejs/file-module": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/file-module",
+    "@metanodejs/event-log": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log",
     "@metanodejs/mtn-contract": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract",
     "@metanodejs/system-core": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core",
     "@mtnts/contract-client": "/Users/macbook/WorkSpace/packages/contract-client",

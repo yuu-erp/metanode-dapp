@@ -28,6 +28,7 @@ export class AccountService {
 
   async registerUser(wallet: Wallet, name?: string): Promise<Account> {
     const address = wallet.address
+    const hiddenWallet = (await getHiddenWallet()).address
 
     // const wallet2 = await getWalletByAddress(address)
 
@@ -85,8 +86,6 @@ export class AccountService {
     if (!contractAddress) {
       throw new Error('User contract not found')
     }
-
-    const hiddenWallet = (await getHiddenWallet()).address
 
     const existedDelegate = await this.userContract.getDelegates({
       from: address,
