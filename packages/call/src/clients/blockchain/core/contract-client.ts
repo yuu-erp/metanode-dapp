@@ -24,6 +24,8 @@ export class ContractClient {
           to: to || this.to,
           abi,
           inputData,
+          //@ts-ignore
+          isFreeGas: true,
           ...options
         })) as Promise<O>
         if (name === 'createRoom') {

@@ -4,7 +4,7 @@ import { anonymousGroupAbi } from './abis'
 
 export class AnonymousGroupContract extends MtnContract {
   constructor() {
-    super({ to: '' })
+    super({ to: '', isFreeGas: true })
   }
 
   sendMessage(payload: TransactionPayload<{ encryptedContent: string }>) {

@@ -23,7 +23,7 @@ import type { UserMehods } from '@/contract-types/user/user.methods'
 
 export class UserContract extends MtnContract {
   constructor() {
-    super({ to: '' })
+    super({ to: '', isFreeGas: true })
   }
 
   userProfile(payload: TransactionPayload): Promise<UserProfileOutput> {

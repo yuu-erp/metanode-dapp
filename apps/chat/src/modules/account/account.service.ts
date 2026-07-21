@@ -1,14 +1,14 @@
+import { CONTRACT_ADDRESSES } from '@/config'
 import type { FactoryContract, UserContract } from '@/modules/blockchain'
 import type { Wallet, WalletService } from '@/modules/wallet'
 import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
-import { getHiddenWallet, getPrivateKeyFromDb, sendCommand } from '@metanodejs/system-core'
+import { getHiddenWallet, sendCommand } from '@metanodejs/system-core'
+import type { EventLogContainer, EventMap } from '../eventlogs'
 import { activateAccount, createAccount } from './account.entity'
 import type { AccountRepository } from './account.repository'
 import type { Account } from './account.types'
 import { detectNameFromWalletName, generateAvailableUsername } from './utils'
-import type { EventLogContainer, EventMap } from '../eventlogs'
-import { CONTRACT_ADDRESSES } from '@/config'
 
 export class AccountService {
   constructor(
@@ -38,8 +38,6 @@ export class AccountService {
     console.log('registerUser 2')
 
     const hiddenWallet = (await getHiddenWallet()).address
-    console.log('registerUser 3', { hiddenWallet })
-    console.log('registerUser 3.1', await getPrivateKeyFromDb(hiddenWallet))
 
     // 1. Check on-chain
     const isRegistered = await this.factoryContract.checkUserContract({
@@ -48,12 +46,10 @@ export class AccountService {
         user: address
       }
     })
-    console.log('registerUser 4', { isRegistered })
 
     // 3. Get public key
     const publicKey = await this.walletService.getEncryptedPublicKey(address)
-    console.log('registerUser 5', { publicKey })
-
+    console.log('registerUser 3', publicKey)
     if (!isRegistered) {
       const username = await generateAvailableUsername(
         wallet.name,
@@ -71,6 +67,7 @@ export class AccountService {
         bio: '',
         delegateAddress: address
       }
+      console.log('registerUser 4', inputData)
 
       await this.factoryContract.registerUser({
         from: hiddenWallet,
@@ -110,12 +107,10 @@ export class AccountService {
           log.on('DelegateAddedToOwner', onDelegateAddedToOwner)
           log.on('DelegateRequestFailed', onDelegateRequestFailed)
         })
+        console.log('{sign, hashedMessage} 0')
 
-        const { sign } = await sendCommand('createSign', {
-          address: address,
-          message: hiddenWallet,
-          isHex: true
-        })
+        const sign = await signPersonal(address, hiddenWallet)
+
         console.log('{sign, hashedMessage} 1', { sign })
 
         const { hash: hashedMessage } = await sendCommand('createHash', {
@@ -130,12 +125,6 @@ export class AccountService {
             address: address
           }
         )
-        console.log('{sign, hashedMessage} 3', {
-          publicKey,
-          address,
-          hiddenWallet,
-          privateKey: await getPrivateKeyFromDb(address)
-        })
 
         const inputData = {
           _owner: address,
@@ -256,4 +245,23 @@ export class AccountService {
       console.error('[AccountService] Failed to sync meeting factory:', error)
     }
   }
+}
+
+async function signPersonal(address: string, input: string) {
+  if (window.fiaiSDK) {
+    return (
+      await sendCommand('signWithWallet', {
+        algorithm: 'secp256k1',
+        address: address,
+        payload: input
+      })
+    ).signature
+  }
+  return (
+    await sendCommand('createSign', {
+      address: address,
+      message: input,
+      isHex: true
+    })
+  ).sign
 }

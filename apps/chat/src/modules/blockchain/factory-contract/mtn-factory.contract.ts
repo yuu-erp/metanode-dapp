@@ -14,7 +14,7 @@ import { formatAddress } from '@/shared/utils'
 
 export class FactoryContract extends MtnContract {
   constructor() {
-    super({ to: formatAddress(CONTRACT_ADDRESSES.factory) })
+    super({ to: formatAddress(CONTRACT_ADDRESSES.factory), isFreeGas: true })
   }
   checkUserContract(payload: TransactionPayload<CheckUserContractInput>): Promise<boolean> {
     const { from, inputData } = payload
