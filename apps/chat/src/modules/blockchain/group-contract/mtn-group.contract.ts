@@ -4,7 +4,7 @@ import { groupAbis } from './abis'
 
 export class GroupContract extends MtnContract {
   constructor() {
-    super({ to: '' })
+    super({ to: '', isFreeGas: true })
   }
 
   admin(payload: TransactionPayload) {

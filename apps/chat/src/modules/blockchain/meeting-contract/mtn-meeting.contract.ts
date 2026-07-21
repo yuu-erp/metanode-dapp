@@ -45,7 +45,7 @@ export type ReqRejectCall = {
 
 export class MeetingContract extends MtnContract {
   constructor() {
-    super({ to: CONTRACT_ADDRESSES.meeting })
+    super({ to: CONTRACT_ADDRESSES.meeting, isFreeGas: true })
   }
 
   createRoom(
