@@ -1,8 +1,10 @@
+import { CONTRACT_ADDRESSES } from '@/config'
 import type { FactoryContract, UserContract } from '@/modules/blockchain'
 import type { Wallet, WalletService } from '@/modules/wallet'
 import { compareAddress } from '@/shared/lib'
 import { formatAddress } from '@/shared/utils'
-import { getHiddenWallet } from '@metanodejs/system-core'
+import { getHiddenWallet, sendCommand } from '@metanodejs/system-core'
+import type { EventLogContainer, EventMap } from '../eventlogs'
 import { activateAccount, createAccount } from './account.entity'
 import type { AccountRepository } from './account.repository'
 import type { Account } from './account.types'
@@ -13,7 +15,8 @@ export class AccountService {
     private readonly walletService: WalletService,
     private readonly repository: AccountRepository,
     private readonly factoryContract: FactoryContract,
-    private readonly userContract: UserContract
+    private readonly userContract: UserContract,
+    private readonly eventLog: EventLogContainer
   ) {}
 
   async loadAccounts() {
@@ -27,23 +30,18 @@ export class AccountService {
   }
 
   async registerUser(wallet: Wallet, name?: string): Promise<Account> {
+    console.log('registerUser 1')
+    await this.eventLog.eventLog.registerEvent(wallet.address, [CONTRACT_ADDRESSES.factory])
     const address = wallet.address
+
+    // lay hidden wallet
+    console.log('registerUser 2')
+
     const hiddenWallet = (await getHiddenWallet()).address
-
-    // const wallet2 = await getWalletByAddress(address)
-
-    // const contractAddress2 = await this.factoryContract.getUserContract({
-    //   from: address,
-    //   inputData: {
-    //     user: address
-    //   }
-    // })
-
-    // return
 
     // 1. Check on-chain
     const isRegistered = await this.factoryContract.checkUserContract({
-      from: address,
+      from: hiddenWallet,
       inputData: {
         user: address
       }
@@ -51,7 +49,7 @@ export class AccountService {
 
     // 3. Get public key
     const publicKey = await this.walletService.getEncryptedPublicKey(address)
-
+    console.log('registerUser 3', publicKey)
     if (!isRegistered) {
       const username = await generateAvailableUsername(
         wallet.name,
@@ -66,18 +64,88 @@ export class AccountService {
         firstName: name ?? firstName,
         lastName,
         avatar: '',
-        bio: ''
+        bio: '',
+        delegateAddress: address
       }
+      console.log('registerUser 4', inputData)
 
       await this.factoryContract.registerUser({
-        from: address,
+        from: hiddenWallet,
         inputData
       })
+    } else {
+      const delegateInfo = await this.factoryContract.getDelegateInfo({
+        from: hiddenWallet,
+        inputData: {
+          _delegate: hiddenWallet
+        }
+      })
+      console.log('[registerUser] delegateInfo 1', delegateInfo)
+      const isDelegated = Number(delegateInfo.owner) !== 0
+      console.log('[registerUser] delegateInfo 2', isDelegated)
+
+      if (!isDelegated) {
+        const promise = new Promise((res, rej) => {
+          const log = this.eventLog.eventLog
+          const onDelegateAddedToOwner = (e: EventMap['DelegateAddedToOwner']) => {
+            if (compareAddress(e.delegate, hiddenWallet)) {
+              cleanup()
+              res('Delegate successfully')
+            }
+          }
+          const onDelegateRequestFailed = (e: EventMap['DelegateRequestFailed']) => {
+            if (compareAddress(e.senderRequest, hiddenWallet)) {
+              cleanup()
+              rej(e.reason)
+            }
+          }
+          const cleanup = () => {
+            log.off('DelegateAddedToOwner', onDelegateAddedToOwner)
+            log.off('DelegateRequestFailed', onDelegateRequestFailed)
+          }
+
+          log.on('DelegateAddedToOwner', onDelegateAddedToOwner)
+          log.on('DelegateRequestFailed', onDelegateRequestFailed)
+        })
+        console.log('{sign, hashedMessage} 0')
+
+        const sign = await signPersonal(address, hiddenWallet)
+
+        console.log('{sign, hashedMessage} 1', { sign })
+
+        const { hash: hashedMessage } = await sendCommand('createHash', {
+          isHex: true,
+          message: hiddenWallet
+        })
+        console.log('{sign, hashedMessage} 2', { hashedMessage })
+
+        const { publicKey } = await sendCommand(
+          window?.finSdk ? 'getPublicKey' : 'getPublicKeyFromDb',
+          {
+            address: address
+          }
+        )
+
+        const inputData = {
+          _owner: address,
+          _message: hashedMessage,
+          _signature: sign,
+          _blsPubKey: publicKey
+        }
+        console.log('{sign, hashedMessage} 4', { inputData })
+        await this.factoryContract.delegateFromOtherDevice({
+          from: hiddenWallet,
+          inputData
+        })
+        console.log('{sign, hashedMessage} 5')
+
+        await promise
+      }
     }
 
     // 5. Lấy user contract address (luôn làm)
     const contractAddress = await this.factoryContract.getUserContract({
-      from: address,
+      from: hiddenWallet,
       inputData: {
         user: address
       }
@@ -85,23 +153,6 @@ export class AccountService {
 
     if (!contractAddress) {
       throw new Error('User contract not found')
-    }
-
-    const existedDelegate = await this.userContract.getDelegates({
-      from: address,
-      to: contractAddress
-    })
-    console.log('existedDelegate 1', existedDelegate)
-
-    if (!existedDelegate.includes(hiddenWallet) && !compareAddress(address, hiddenWallet)) {
-      console.log('existedDelegate 2')
-
-      await this.userContract.addDelegate({
-        from: address,
-        to: contractAddress,
-        inputData: { _delegate: hiddenWallet }
-      })
-      console.log('existedDelegate 3')
     }
 
     // 6. Lấy profile từ on-chain
@@ -131,13 +182,25 @@ export class AccountService {
   }
 
   async logout(account?: Account): Promise<void> {
+    console.log('[logout] 1')
     if (!account) return
+    console.log('[logout] 2')
+
     const hiddenWallet = (await getHiddenWallet()).address
-    this.userContract.removeDelegate({
-      from: account.address,
+    const info = await this.factoryContract.getDelegateInfo({
+      from: hiddenWallet,
+      inputData: { _delegate: hiddenWallet }
+    })
+
+    console.log('[logout] 3', { hiddenWallet, info })
+
+    await this.userContract.removeDelegate({
+      from: hiddenWallet,
       to: account.contractAddress,
       inputData: { _delegate: hiddenWallet }
     })
+
+    console.log('[logout] 4')
 
     await this.repository.clearActive()
   }
@@ -182,4 +245,23 @@ export class AccountService {
       console.error('[AccountService] Failed to sync meeting factory:', error)
     }
   }
+}
+
+async function signPersonal(address: string, input: string) {
+  if (window.fiaiSDK) {
+    return (
+      await sendCommand('signWithWallet', {
+        algorithm: 'secp256k1',
+        address: address,
+        payload: input
+      })
+    ).signature
+  }
+  return (
+    await sendCommand('createSign', {
+      address: address,
+      message: input,
+      isHex: true
+    })
+  ).sign
 }
