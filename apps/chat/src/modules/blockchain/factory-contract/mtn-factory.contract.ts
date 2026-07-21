@@ -14,7 +14,7 @@ import { formatAddress } from '@/shared/utils'
 
 export class FactoryContract extends MtnContract {
   constructor() {
-    super({ to: formatAddress(CONTRACT_ADDRESSES.factory) })
+    super({ to: formatAddress(CONTRACT_ADDRESSES.factory), isFreeGas: true })
   }
   checkUserContract(payload: TransactionPayload<CheckUserContractInput>): Promise<boolean> {
     const { from, inputData } = payload
@@ -119,6 +119,37 @@ export class FactoryContract extends MtnContract {
       functionName: 'isUserDisabled',
       feeType: 'read',
       abiData: factoryAbi.isUserDisabled
+    })
+  }
+
+  getDelegateInfo(
+    payload: TransactionPayload<{ _delegate: string }>
+  ): Promise<{ owner: string; registeredAt: string }> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'getDelegateInfo',
+      feeType: 'read',
+      abiData: factoryAbi.getDelegateInfo
+    })
+  }
+
+  delegateFromOtherDevice(
+    payload: TransactionPayload<{
+      _owner: string
+      _signature: string
+      _blsPubKey: string
+      _message: string
+    }>
+  ): Promise<void> {
+    const { from, inputData } = payload
+    return this.sendTransaction({
+      from,
+      inputData,
+      functionName: 'delegateFromOtherDevice',
+      feeType: 'sc',
+      abiData: factoryAbi.delegateFromOtherDevice
     })
   }
 }
