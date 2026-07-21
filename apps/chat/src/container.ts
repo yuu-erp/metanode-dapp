@@ -96,7 +96,8 @@ class AppContainer {
     this._accountService = AccountFactory.createService(
       this._walletService,
       this._factoryContract,
-      this._userContract
+      this._userContract,
+      this.eventLogContainer
     )
 
     // File Cache initialization

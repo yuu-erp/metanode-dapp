@@ -18,6 +18,7 @@ const abi: any[] = [
 
 type IEventLog<T> = {
   on: <K extends keyof T>(key: K, cb: (e: T[K]) => any) => Function
+  off: <K extends keyof T>(key: K, cb: (e: T[K]) => any) => Function
 
   onEventLog: (e: any) => any
   registerEvent: (from: string, to: string[]) => any
@@ -29,7 +30,7 @@ export class EventLogContainer {
   private readonly _eventLog: EventLog<EventMap>
   private promise: Promise<any> | null = null
   constructor() {
-    // console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
+    console.log('KHỞI TẠO EVENT LOG CONTAINER', abi)
     this._decodeAbi = new DecodeAbi()
     this._eventLog = new EventLog<EventMap>(this._decodeAbi)
   }

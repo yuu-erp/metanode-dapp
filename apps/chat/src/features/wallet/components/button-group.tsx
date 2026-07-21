@@ -25,13 +25,13 @@ function ButtonGroup({
   return (
     <React.Fragment>
       {/* Mobile */}
-      <div className="grid grid-cols-2 gap-3 pb-6 px-3 xl:grid-cols-4 w-full max-w-4xl mx-auto">
+      <div className="grid grid-cols-2 gap-3 pb-6 px-3 xl:grid-cols-3 w-full max-w-4xl mx-auto">
         <ButtonCreateWallet onClick={onCreateWallet} />
         <ButtonImportWallet onClick={onImportWallet} />
         <Button
           type="button"
           disabled={isLoading}
-          className="h-12 col-span-1 rounded-2xl font-bold uppercase disabled:opacity-60 disabled:pointer-events-none"
+          className="h-12 col-span-2 xl:col-span-1 rounded-2xl font-bold uppercase disabled:opacity-60 disabled:pointer-events-none"
           onClick={onConnectWallet}
           // onClick={()=>{}}
           aria-busy={isLoading}
@@ -39,7 +39,7 @@ function ButtonGroup({
         >
           {isLoading ? <LoaderCircle className="size-5 animate-spin" /> : t('btn.connectWallet')}
         </Button>
-        <WalletQrButton activeWallet={activeWallet} />
+        {/* <WalletQrButton activeWallet={activeWallet} /> */}
       </div>
     </React.Fragment>
   )

@@ -30,7 +30,7 @@ export class AccountService {
   }
 
   async registerUser(wallet: Wallet, name?: string): Promise<Account> {
-    console.log('registerUser 1')
+    console.log('registerUser 1', this.eventLog)
     await this.eventLog.eventLog.registerEvent(wallet.address, [CONTRACT_ADDRESSES.factory])
     const address = wallet.address
 
