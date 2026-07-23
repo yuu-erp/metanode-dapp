@@ -4,7 +4,7 @@ import { addConversation } from '@/new/conversation/list-conversation'
 import { getAlias } from '@/new/conversation/my-info'
 import { getMessageById, removeMessgeById, setMessageInfo } from '@/new/message'
 import { addIdInMessageList, removeIdInMessgeList } from '@/new/message/list-mesage'
-import { setPinnedMessageState } from '@/new/message/pin-message'
+import { setPinndedIds, setPinnedMessageState } from '@/new/message/pin-message'
 import { addReaction, removeReaction } from '@/new/message/react-message'
 import { useEventLog } from '@/shared/hooks/use-event-log'
 import { compareAddress } from '@/shared/lib'
@@ -48,13 +48,12 @@ export function useMessageEvents() {
   })
 
   useEventLog('PinnedMessagesUpdated', (e) => {
-    setPinnedMessageState(
+    setPinndedIds(
       {
         type: 'group',
         id: formatAddress(e.group)
       },
-      formatAddress(e.messageId),
-      e.isPinned
+      e.messageIds
     )
   })
 

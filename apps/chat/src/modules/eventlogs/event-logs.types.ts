@@ -56,7 +56,7 @@ export type EventMap = {
   }
 
   PinnedMessagesUpdated: {
-    messageId: string
+    messageIds: string[]
     updatedBy: string
     group: string
     isPinned: boolean

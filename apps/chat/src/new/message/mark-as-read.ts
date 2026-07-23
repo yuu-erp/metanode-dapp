@@ -28,7 +28,7 @@ export function useMarkAsReadv2() {
         switch (base.type) {
           case 'p2p': {
             await container.userContract.markMessagesAsRead({
-              from: account.address,
+              from: account.hiddenAddress,
               to: account.contractAddress,
               inputData: {
                 messageIds: unRead,
@@ -40,7 +40,7 @@ export function useMarkAsReadv2() {
           case 'group':
           case 'anonymous_group': {
             await container.groupContract.markMessagesAsRead({
-              from: account.address,
+              from: account.hiddenAddress,
               to: base.id,
               inputData: {
                 messageIds: unRead

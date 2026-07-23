@@ -41,3 +41,7 @@ export function formatAddress(address: string): string {
 export function compareAddress(add1: string, add2: string) {
   return formatAddress(add1) === formatAddress(add2)
 }
+
+export function strip0x(hex: string = '') {
+  return hex.startsWith('0x') ? hex.slice(2) : hex
+}

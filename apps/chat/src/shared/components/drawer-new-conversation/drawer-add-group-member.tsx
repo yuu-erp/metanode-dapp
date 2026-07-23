@@ -53,9 +53,9 @@ const DrawerAddGroupMember = memo(() => {
   return (
     <Drawer.Root shouldScaleBackground open={open} onOpenChange={uiActions.setAddGroupOpen}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/50" />
+        <Drawer.Overlay className="fixed inset-0 backdrop-blur-md-app" />
         <Drawer.Content className="fixed bottom-0 left-0 right-0 outline-none">
-          <div className="relative h-[90vh] rounded-t-[36px] bg-black/30 backdrop-blur-md-app border border-white/10 flex flex-col overflow-hidden">
+          <div className="relative h-[90vh] rounded-t-[36px] bg-modal border border-white/10 flex flex-col overflow-hidden">
             <div className="max-w-md mx-auto w-full flex flex-col overflow-hidden">
               <div className="flex flex-col items-center pt-5 relative">
                 <Drawer.Title className="text-gray-100 font-semibold text-lg">
@@ -69,14 +69,14 @@ const DrawerAddGroupMember = memo(() => {
                 </span>
 
                 <button
-                  className="absolute right-4 size-10 rounded-full bg-[#2c2c2e] border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="absolute right-4 size-10 rounded-full bg-white border border-white/10 shadow-lg flex items-center justify-center transition active:scale-80 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={submit}
                   disabled={isPending}
                 >
                   {isPending ? (
                     <Loader2Icon className="size-5 text-gray-100 animate-spin" />
                   ) : (
-                    <CheckIcon className="size-5 text-gray-100" />
+                    <CheckIcon className="size-5 text-black" />
                   )}
                 </button>
               </div>

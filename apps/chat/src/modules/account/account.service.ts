@@ -222,7 +222,7 @@ export class AccountService {
   async syncByRegisterMeeting(account: Account): Promise<void> {
     try {
       const currentFactory = await this.userContract.meetingFactoryAddress({
-        from: account.address,
+        from: account.hiddenAddress,
         to: account.contractAddress
       })
 
@@ -234,7 +234,7 @@ export class AccountService {
           `[AccountService] Updating meeting factory from ${currentFactory} to ${envFactory}`
         )
         await this.userContract.setMeetingFactory({
-          from: account.address,
+          from: account.hiddenAddress,
           to: account.contractAddress,
           inputData: {
             _newMeetingFactoryAddress: envFactory

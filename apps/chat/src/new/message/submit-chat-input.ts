@@ -54,7 +54,6 @@ export function useSubmitChatInput() {
       fileActions.reset()
       const { isReply, composer } = getComposer()
       if (isReply) setMessageAction(null)
-      console.log('thanhduy - submit chat input 2')
 
       let files
       console.log('fileIds 1', fileIds)

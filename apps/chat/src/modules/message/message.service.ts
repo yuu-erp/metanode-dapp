@@ -176,7 +176,7 @@ export class MessageService {
       let isMine: any = undefined
       if (conversation.conversationType === 'anonymous_group') {
         const memberAlias = await this.anonymousGroupContract.getAliasMember({
-          from: account.address,
+          from: account.hiddenAddress,
           to: conversation.conversationId
         })
         isMine = memberAlias === item?.authorAlias
@@ -710,7 +710,7 @@ export class MessageService {
 
   async getRecipientOwners(account: Account, conversation: Conversation) {
     const members = await this.groupContract.getMemberListGroup({
-      from: account.address,
+      from: account.hiddenAddress,
       to: conversation.conversationId
     })
 
@@ -755,7 +755,7 @@ export class MessageService {
     let sender = account.contractAddress
     if (conversation.conversationType === 'anonymous_group') {
       sender = await this.anonymousGroupContract.getAliasMember({
-        from: account.address,
+        from: account.hiddenAddress,
         to: conversation.conversationId
       })
     }
@@ -1143,7 +1143,7 @@ export class MessageService {
             promise = new Promise((resolve) => {
               const off = eventLog.on('AnonymousMessageStored', async (data) => {
                 const alias = await container.anonymousGroupContract.getAliasMember({
-                  from: account.address,
+                  from: account.hiddenAddress,
                   to: conversation.conversationId
                 })
 

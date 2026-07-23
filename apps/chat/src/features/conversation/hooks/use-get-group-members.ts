@@ -8,23 +8,20 @@ import { CONVERSATION_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import { useQuery } from '@tanstack/react-query'
 
 export function createGetGroupMembersQueryOptions(
-  accountId?: string,
+  from?: string,
   conversationId?: string,
   conversationType?: ConversationType
 ) {
   return {
     queryKey: CONVERSATION_QUERY_KEY.GROUP_MEMBERS(conversationId ?? ''),
     queryFn: async () => {
-      if (!accountId || !conversationId) return []
+      console.log('createGetGroupMembersQueryOptions', { from, conversationId, conversationType })
+      if (!from || !conversationId) return []
       const conversationService = container.conversationService
-      const data = await conversationService.getGroupMembers(
-        accountId,
-        conversationId,
-        conversationType
-      )
+      const data = await conversationService.getGroupMembers(from, conversationId, conversationType)
       return data
     },
-    enabled: !!accountId && !!conversationId,
+    enabled: !!from && !!conversationId,
     staleTime: 1000 * 60 * 5
   }
 }
@@ -41,7 +38,7 @@ export async function getGroupMembers(base: BaseConversation) {
   const account = await getCurrentAccount()
 
   return queryClient.ensureQueryData(
-    createGetGroupMembersQueryOptions(account.address, base.id, base.type as any)
+    createGetGroupMembersQueryOptions(account.hiddenAddress, base.id, base.type as any)
   )
 }
 

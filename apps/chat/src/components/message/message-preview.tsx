@@ -3,6 +3,8 @@ import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import { memo } from 'react'
 import { TextContentWithMentions } from './content-variants'
 import { useCache, useMetadata } from 'file-core'
+import { STICKERS } from '@/constants/stickers'
+import { useI18N } from '@/shared/hooks'
 
 export type MessagePreviewProps = {
   id?: string
@@ -10,6 +12,8 @@ export type MessagePreviewProps = {
 
 export const MessagePreview = memo(({ id }: MessagePreviewProps) => {
   const { data: message } = useCurrentMessageById(id)
+  const { t } = useI18N()
+  console.log('MessagePreview', message)
   if (!message) return null
   switch (message.type) {
     case 'text':
@@ -19,13 +23,17 @@ export const MessagePreview = memo(({ id }: MessagePreviewProps) => {
         </span>
       )
 
-    case 'sticker':
+    case 'sticker': {
+      const path = STICKERS.flatMap((item) => item.stickers).find(
+        (item) => item.id === message.stickerId
+      )?.image
       return (
         <span className="flex items-center gap-1 opacity-70 italic">
-          {/* <img src={path} alt="" className="size-6 rounded-sm" /> */}
-          {/* {t('message.type.sticker', { defaultValue: '[Sticker]' })} */}
+          <img src={path || undefined} alt="" className="size-6 rounded-sm" />
+          {t('message.type.sticker', { defaultValue: '[Sticker]' })}
         </span>
       )
+    }
 
     case 'file': {
       const id = message.fileIds?.[0]

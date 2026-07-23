@@ -59,6 +59,10 @@ const createPinnedMessagesQuery = (input: BaseConversation) =>
     }
   })
 
+export function invalidatePinned(id: string) {
+  queryClient.invalidateQueries({ queryKey: CONVERSATION_QUERY_KEY.pinned(id) })
+}
+
 export function usePinnedMessages(input: BaseConversation) {
   return useQuery(createPinnedMessagesQuery(input))
 }
@@ -74,6 +78,10 @@ export async function setPinnedMessageState(
     if (isPinned) return [...new Set([...old, messageId])]
     else return old.filter((i) => i !== messageId)
   })
+}
+
+export function setPinndedIds(input: BaseConversation, pinnedIds: string[]) {
+  queryClient.setQueryData(CONVERSATION_QUERY_KEY.pinned(input.id), pinnedIds)
 }
 
 export async function pinMessage(value: boolean, messageId: string, base: BaseConversation) {

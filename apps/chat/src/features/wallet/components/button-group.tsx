@@ -1,11 +1,10 @@
 'use client'
 import { Button } from '@/shared/components/ui/button'
 import { useI18N } from '@/shared/hooks'
-import * as React from 'react'
-import { ButtonImportWallet, ButtonCreateWallet } from './actions'
-import { LoaderCircle } from 'lucide-react'
-import { WalletQrButton } from '@/components/wallet/wallet-qr-button'
 import type { Wallet } from '@metanodejs/system-core'
+import { LoaderCircle } from 'lucide-react'
+import * as React from 'react'
+import { ButtonCreateWallet, ButtonImportWallet } from './actions'
 
 interface ButtonGroupProps {
   onConnectWallet?: () => void
@@ -18,8 +17,7 @@ function ButtonGroup({
   onConnectWallet,
   isLoading,
   onCreateWallet,
-  onImportWallet,
-  activeWallet
+  onImportWallet
 }: ButtonGroupProps) {
   const { t } = useI18N()
   return (

@@ -36,10 +36,13 @@ export function useLeaveGroup() {
         }
       })
 
+      console.log('delete conversation 1')
       await container.conversationService.deleteConversation(
         account.address,
         conversation.conversationId
       )
+      console.log('delete conversation 2')
+
       container.eventLogContainer.eventLog.offContract(conversation.conversationId)
 
       queryClient.invalidateQueries({

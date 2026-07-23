@@ -2,6 +2,7 @@ import { contractClient } from '@mtnts/contract-client'
 import { abis } from './abis'
 import type { ContractMethods, ContractEvents } from './contract-types'
 
+contractClient.setOptions({ isFreeGas: true })
 export const methods = contractClient.methods as ContractMethods
 
 export function registerAbi() {
@@ -64,3 +65,4 @@ export function waitEvent<K extends keyof ContractEvents>(
     onEvent(name, cb)
   })
 }
+export const aaa = {}

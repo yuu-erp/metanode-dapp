@@ -109,6 +109,10 @@ async function isMyMessage(message: BaseMessage, converstaion: BaseConversation)
 
     case 'anonymous_group': {
       const alias = await getAlias(converstaion.id)
+      console.log('hehe', {
+        alias,
+        sender: message.sender
+      })
       return alias === message.sender
     }
 

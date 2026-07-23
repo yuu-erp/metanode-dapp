@@ -33,7 +33,7 @@ export function useMarkAsRead(messages: Message[], conversation?: Conversation) 
     asyncPriorityQueue.add(async () => {
       if (type === 'p2p') {
         await container.userContract.markMessagesAsRead({
-          from: account.address,
+          from: account.hiddenAddress,
           to: account.contractAddress,
           inputData: {
             messageIds: unreadMessages,
@@ -44,7 +44,7 @@ export function useMarkAsRead(messages: Message[], conversation?: Conversation) 
         const contract =
           type === 'group' ? container.groupContract : container.anonymousGroupContract
         await contract.markMessagesAsRead({
-          from: account.address,
+          from: account.hiddenAddress,
           to: conversation.conversationId,
           inputData: { messageIds: unreadMessages }
         })

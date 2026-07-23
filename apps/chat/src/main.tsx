@@ -8,6 +8,7 @@ import { AppQueryProvider } from './components/provider/app-query-provider.tsx'
 import reportWebVitals from './reportWebVitals.ts'
 import { routeTree } from './routeTree.gen'
 import './styles.css'
+import { aaa } from './contract.ts'
 const router = createRouter({
   routeTree,
   context: {},
@@ -27,6 +28,7 @@ declare module '@tanstack/react-router' {
 
 // Render the app
 const rootElement = document.getElementById('app')
+console.log('aaa', aaa)
 
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)

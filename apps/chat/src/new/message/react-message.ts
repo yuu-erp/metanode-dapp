@@ -188,6 +188,7 @@ export function useReactMessage() {
         await reactMessageBc(rest, base)
       } else {
         removeReaction(rest.messageId, await getCurrentIdentity(base))
+        modalActions.close()
         await unReactMessageBc(rest.messageId, base)
       }
     }

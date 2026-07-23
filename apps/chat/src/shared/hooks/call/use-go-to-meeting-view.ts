@@ -17,6 +17,7 @@ export function useGoToMeetingView() {
 
   const mutatation = useMutation({
     mutationFn: async (input: MeetingViewInput) => {
+      input = { ...input, hiddenAddress: account?.hiddenAddress } as any
       const query = new URLSearchParams(input as any).toString()
       console.log('[DEBUG] useGoToMeetingView 1', { query, input, id, type })
       await setState({ metadata: { id, type } })

@@ -10,6 +10,8 @@ export function useInitRoomInfo(search: any = {}, to: string) {
     const init = async () => {
       console.log('[DEBUG] useInitRoomInfo 1', search)
       const address = formatAddress(search?.address)
+      const hiddenAddress = formatAddress(search?.hiddenAddress)
+
       const isMeeting = search?.callee === '0x'
       roomStore.setState({
         caller: formatAddress(search?.caller),
@@ -18,11 +20,12 @@ export function useInitRoomInfo(search: any = {}, to: string) {
         isMeet: getBooleanValue(search?.isMeet),
         isCaller: getBooleanValue(search?.isCaller),
         roomId: formatAddress(search?.roomId),
-        isMeeting
+        isMeeting,
+        hiddenAddress: hiddenAddress
       })
 
       console.log('[DEBUG] useInitRoomInfo 2', roomStore.getState())
-      blockchain.setFrom(address)
+      blockchain.setFrom(hiddenAddress)
       blockchain.setTo(to)
 
       setReady(true)

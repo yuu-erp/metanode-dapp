@@ -9,7 +9,7 @@ export const GroupMembers = memo(({}: GroupMembersProps) => {
   const { id, type } = useConversationParams()
   const { data: account } = useCurrentAccount()
 
-  const { data } = useGetGroupMembers(account?.address, id, type)
+  const { data } = useGetGroupMembers(account?.hiddenAddress, id, type)
   const count = data?.length ?? 0
 
   if (!count) return

@@ -12,7 +12,7 @@ export const createAliasQuery = (conversationId: string) =>
       const account = await getCurrentAccount()
 
       return container.anonymousGroupContract.getAliasMember({
-        from: account.address,
+        from: account.hiddenAddress,
         to: conversationId
       })
     }

@@ -84,6 +84,7 @@ export function setEventLog(_eventLog: EventBusRequest) {
 }
 
 export function getEventLog() {
+  console.log('getEventLog', eventLog)
   if (!eventLog) throw new Error('eventLog is not set')
   return {
     on: eventLog.on.bind(eventLog),

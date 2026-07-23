@@ -9,6 +9,7 @@ export type RoomState = {
   isMeet: boolean
   address: string
   isMeeting: boolean
+  hiddenAddress: string
 }
 
 export type RoomActions = {
@@ -27,7 +28,8 @@ const initialState: RoomState = {
   callee: '',
   isMeet: false,
   address: '',
-  isMeeting: false
+  isMeeting: false,
+  hiddenAddress: ''
 }
 
 export const roomStore = create<RoomStore>()((set, get) => ({
@@ -35,10 +37,12 @@ export const roomStore = create<RoomStore>()((set, get) => ({
   reset: () => {
     set({ ...initialState })
   },
-  isMyAddress: (add) => compareAddress(add, get().address),
+  isMyAddress: (add) => compareAddress(add, get().hiddenAddress),
   isEventOwnedByMe: (e, user) => {
-    const { address, roomId } = get()
-    return compareAddress(address, user) && compareAddress(roomId, e.roomId)
+    const s = get()
+    const isMine = compareAddress(s.hiddenAddress, user)
+    console.log('hehe', { s, user, isMine })
+    return isMine && compareAddress(s.roomId, e.roomId)
   },
   isMyRoom: (e) => compareAddress(get().roomId, e.roomId)
 }))

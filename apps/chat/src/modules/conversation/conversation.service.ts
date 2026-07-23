@@ -88,7 +88,7 @@ export class ConversationService {
       inputData: {}
     })
 
-    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, publicKey)
+    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(account.address, publicKey)
 
     let groupKey = ''
     groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
@@ -100,33 +100,33 @@ export class ConversationService {
     }
   }
 
-  private async getAnonymousGroupInfo(accountId: string, conversationId: string) {
+  private async getAnonymousGroupInfo(account: Account, conversationId: string) {
     const admin = await this.anonymousGroupContract.initialAdmin({
-      from: accountId,
+      from: account.hiddenAddress,
       to: conversationId
     })
 
     const userContract = await this.factoryContract.getUserContract({
-      from: accountId,
+      from: account.hiddenAddress,
       inputData: {
         user: admin
       }
     })
 
     const encryptedKey = await this.anonymousGroupContract.getMyEncryptedGroupKey({
-      from: accountId,
+      from: account.hiddenAddress,
       to: conversationId,
       inputData: {}
     })
 
     const rs = await Promise.all([
       this.userContract.publicKey({
-        from: accountId,
+        from: account.hiddenAddress,
         to: userContract
       }),
 
       this.anonymousGroupContract.groupName({
-        from: accountId,
+        from: account.hiddenAddress,
         to: conversationId
       })
     ]).catch(() => {
@@ -134,7 +134,7 @@ export class ConversationService {
     })
 
     const [publicKey, name] = rs
-    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, publicKey)
+    const sharedKeyWithAdmin = await this.handleCreateECDHPassword(account.address, publicKey)
 
     const groupKey = (await decryptAESGCM(sharedKeyWithAdmin, encryptedKey))?.result
 
@@ -188,7 +188,7 @@ export class ConversationService {
             if (item.conversationType === 'group') {
               groupInfo = await this.getGroupInfo(account, item.conversationId)
             } else {
-              groupInfo = await this.getAnonymousGroupInfo(account.address, item.conversationId)
+              groupInfo = await this.getAnonymousGroupInfo(account, item.conversationId)
             }
 
             console.log('[KHAIHOAN DEBUG CONVERSATION]----1402GROUP--- groupInfo', groupInfo)
@@ -342,7 +342,7 @@ export class ConversationService {
         break
       }
       case 'anonymous_group': {
-        const groupInfo = await this.getAnonymousGroupInfo(accountId, conversationId)
+        const groupInfo = await this.getAnonymousGroupInfo(account, conversationId)
         conversation = mapperToConversation({
           conversationId,
           accountId,
@@ -372,7 +372,7 @@ export class ConversationService {
   }
 
   async getGroupMembers(
-    accountId: string,
+    from: string,
     conversationId: string,
     conversationType: ConversationType = 'group'
   ): Promise<
@@ -384,12 +384,12 @@ export class ConversationService {
     let members: string[] = []
     if (conversationType === 'group') {
       members = await this.groupContract.getMemberListGroup({
-        from: accountId,
+        from: from,
         to: conversationId
       })
     } else if (conversationType === 'anonymous_group') {
       members = await this.anonymousGroupContract.getAllMembers({
-        from: accountId,
+        from: from,
         to: conversationId
       })
     }
@@ -398,7 +398,7 @@ export class ConversationService {
       members.map(async (mem) => ({
         address: mem,
         contractAddress: await this.factoryContract.getUserContract({
-          from: accountId,
+          from: from,
           inputData: { user: mem }
         })
       }))
@@ -605,7 +605,7 @@ export class ConversationService {
     })
 
     await this.factoryContract.createAnonymousCommunity({
-      from: account.address,
+      from: account.hiddenAddress,
       inputData: {
         _globalDefaultAvatar: '',
         avatarNormal: oldGroup?.avatar || '',

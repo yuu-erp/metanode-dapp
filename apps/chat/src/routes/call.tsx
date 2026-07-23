@@ -19,8 +19,10 @@ export const Route = createFileRoute('/call')({
   component: RouteComponent
 })
 
-//@ts-ignore
-container.eventLogContainer.eventLog.off = () => {}
+if (!container.eventLogContainer.eventLog?.off) {
+  //@ts-ignore
+  container.eventLogContainer.eventLog.off = () => {}
+}
 
 function RouteComponent() {
   const isMeet = useRoomStore((s) => s.isMeet)
