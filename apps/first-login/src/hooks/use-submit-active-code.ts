@@ -7,23 +7,30 @@ import {
   getHiddenWallet,
   insertProfile,
   loadMainWithReferralCode,
-  writeToLocalStorage
+  writeToLocalStorage,
 } from '@metanodejs/system-core'
 import { useMutation } from '@tanstack/react-query'
 
 const isStoreCode = (code: string): boolean => code === DEFAULT_CODE || code === '99999999'
 
+interface ActiveCodeData {
+  domain: string
+  refCode: string
+  installUrl: string
+  bundleId: string
+}
+
 export async function validateActiveCode({
   activeCode,
   address,
   contractAddress,
-  isStore
+  isStore,
 }: {
   activeCode: string
   address: string
   contractAddress: string
   isStore: boolean
-}) {
+}): Promise<ActiveCodeData | null> {
   if (isStore) return null
 
   const info = await activeCodeContract.getActiveCodeInfo(address, contractAddress, activeCode)
@@ -36,30 +43,30 @@ export async function validateActiveCode({
     domain: info.infoActive.IP,
     refCode: info.infoActive.refCode,
     installUrl: info.infoCode.installUrl,
-    bundleId: info.infoCode.bundleId
+    bundleId: info.infoCode.bundleId,
   }
 }
 
 export async function createProfileAndPersist({
   activeCode,
-  isStore
+  isStore,
 }: {
   activeCode: string
   isStore: boolean
 }) {
-  const profile = await insertProfile({
+  const profile = (await insertProfile({
     name: 'Guest',
     password: '',
     isHidden: 0,
     avatar: '',
     backgroundImage: '',
-    screenSize: `${screen.width}x${screen.height}`
-  })
+    screenSize: `${screen.width}x${screen.height}`,
+  })) as { id: string }
 
-  writeToLocalStorage('is-active-profile', true, '0')
-  writeToLocalStorage('refCode', activeCode)
+  void writeToLocalStorage('is-active-profile', true, '0')
+  void writeToLocalStorage('refCode', activeCode)
   if (isStore) {
-    writeToLocalStorage('isStore', true, '0')
+    void writeToLocalStorage('isStore', true, '0')
   }
 
   return profile
@@ -68,16 +75,16 @@ export async function createProfileAndPersist({
 export async function loadMain({
   dataRef,
   profileId,
-  isStore
+  isStore,
 }: {
-  dataRef: any
+  dataRef: ActiveCodeData | null
   profileId: string
   isStore: boolean
 }) {
   return loadMainWithReferralCode({
     ...dataRef,
     profileId,
-    isStore
+    isStore,
   })
 }
 
@@ -85,12 +92,12 @@ export function useSubmitActiveCode() {
   return useMutation({
     mutationFn: async ({
       activeCode,
-      contractAddress
+      contractAddress,
     }: {
       activeCode: string
       contractAddress: string
     }) => {
-      let profile: any
+      let profile: { id: string } | undefined = undefined
 
       try {
         const isStore = isStoreCode(activeCode)
@@ -101,34 +108,33 @@ export function useSubmitActiveCode() {
           activeCode,
           address,
           contractAddress,
-          isStore
+          isStore,
         })
-
         // 2. Create profile + persist local state
         profile = await createProfileAndPersist({
           activeCode,
-          isStore
+          isStore,
         })
 
         // 3. Load main app
         return await loadMain({
           dataRef: codeInfo,
           profileId: profile.id,
-          isStore
+          isStore,
         })
       } catch (error) {
         // rollback profile nếu đã tạo
         if (profile?.id) {
-          await deleteProfileById(profile.id)
+          await deleteProfileById(Number(profile.id))
         }
         throw error
       }
     },
     onSuccess: () => {
-      console.log('✅ Open dapp wallet success!')
+      // onSuccess
     },
     onError: (error) => {
       console.error('❌ Open dapp wallet fail!', error)
-    }
+    },
   })
 }

@@ -8,21 +8,19 @@ import PhoneInput, { getCountryCallingCode, isValidPhoneNumber } from 'react-pho
 import 'react-phone-number-input/style.css'
 
 export const Route = createFileRoute('/register')({
-  component: RouteComponent
+  component: RouteComponent,
 })
 
 function RouteComponent() {
   const router = useRouter()
   const { data: country } = usePhoneCountry()
-  console.log({ country })
   const [phoneNumber, setPhoneNumber] = useState<string>('')
   const [error, setError] = useState('')
 
   // set prefix khi detect xong
   useEffect(() => {
     if (!country) return
-    // @ts-ignore
-    setPhoneNumber('+' + getCountryCallingCode(country))
+    setPhoneNumber('+' + getCountryCallingCode(country as any))
   }, [country])
 
   const submit = () => {
@@ -36,7 +34,7 @@ function RouteComponent() {
     <div
       className={cn(
         'w-full h-dvh flex flex-col px-3 overflow-hidden min-h-0',
-        window.isHasNotch ? 'pt-14' : 'pt-10'
+        window.isHasNotch ? 'pt-14' : 'pt-10',
       )}
     >
       <div>
@@ -47,7 +45,7 @@ function RouteComponent() {
         <PhoneInput
           className=" bg-white px-3 rounded-lg text-black"
           numberInputProps={{
-            className: 'focus:outline-none bg-transparent py-3'
+            className: 'focus:outline-none bg-transparent py-3',
           }}
           addInternationalOption={false}
           value={phoneNumber}

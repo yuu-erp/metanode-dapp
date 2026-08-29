@@ -14,14 +14,18 @@ export interface Payload {
 export function createGetActiveCodeQueryOptions({
   contractAddress,
   ip,
-  isConnected
-}: Payload): UseQueryOptions<any, Error, any, typeof QUERY_KEY.ACTIVE_CODE> {
+  isConnected,
+}: Payload): UseQueryOptions<
+  string | undefined,
+  Error,
+  string | undefined,
+  typeof QUERY_KEY.ACTIVE_CODE
+> {
   return {
     queryKey: QUERY_KEY.ACTIVE_CODE,
-    queryFn: async (): Promise<any> => {
+    queryFn: async (): Promise<string | undefined> => {
       if (!contractAddress || !ip || !isConnected) return
       const { address } = await getHiddenWallet()
-      console.log({ address })
       const userOS = getOS()
       const screenWidth = screen.width
       const screenHeight = screen.height
@@ -32,13 +36,13 @@ export function createGetActiveCodeQueryOptions({
           _IP: ip,
           _screenSize: `${screenWidth}x${screenHeight}`,
           _os: userOS.os,
-          _versionOs: userOS.versionOs
-        }
+          _versionOs: userOS.versionOs,
+        },
       )
 
       return activeCode[activeCode.length - 1]
     },
-    enabled: !!contractAddress && !!ip && !!isConnected
+    enabled: !!contractAddress && !!ip && !!isConnected,
   }
 }
 

@@ -16,9 +16,9 @@ export interface ConnectNodeState {
 
 const ConnectNodeContext = React.createContext<ConnectNodeState | undefined>(undefined)
 
-interface ConnectNodeProviderProps extends React.PropsWithChildren {}
+type ConnectNodeProviderProps = React.PropsWithChildren
 
-export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
+export function ConnectNodeProvider({ children }: Readonly<ConnectNodeProviderProps>) {
   const { data: contractInfo } = useFetchContractInfo()
   const { data: wallets } = useGetAllWallets()
 
@@ -27,7 +27,7 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
     error: null,
     isLoading: true,
     retryCount: 0,
-    canRetry: true
+    canRetry: true,
   })
 
   const MAX_RETRIES = 5
@@ -46,7 +46,7 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
         ...s,
         error: 'Missing node information (IP/Port)',
         isLoading: false,
-        canRetry: false
+        canRetry: false,
       }))
       return
     }
@@ -59,19 +59,19 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
     setState((s) => ({ ...s, isLoading: true, error: null }))
 
     try {
-      console.log('KHAIHOAN DEBUG CONNECT NODE: ', {
+      console.warn('KHAIHOAN DEBUG CONNECT NODE: ', {
         wallets,
         node: {
           ip: contractInfo.ip,
-          port: contractInfo.port
-        }
+          port: contractInfo.port,
+        },
       })
       await connectNode({
         wallets,
         node: {
           ip: contractInfo.ip,
-          port: contractInfo.port
-        }
+          port: contractInfo.port,
+        },
       })
 
       setState({
@@ -79,7 +79,7 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
         error: null,
         isLoading: false,
         retryCount: 0,
-        canRetry: true
+        canRetry: true,
       })
     } catch (err) {
       console.error('Failed to connect to node:', err)
@@ -93,7 +93,7 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
             'Failed to connect after multiple attempts. Please check your network or node status.',
           isLoading: false,
           retryCount: newRetryCount,
-          canRetry: true // allow manual retry
+          canRetry: true, // allow manual retry
         })
         return
       }
@@ -106,12 +106,12 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
         error: `Connection failed... Retrying in ${seconds}s (attempt ${newRetryCount}/${MAX_RETRIES})`,
         isLoading: false,
         retryCount: newRetryCount,
-        canRetry: false
+        canRetry: false,
       })
 
       // Schedule automatic retry
       const timer = setTimeout(() => {
-        connect()
+        void connect()
       }, delay)
 
       // Cleanup on unmount or deps change
@@ -121,7 +121,7 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
 
   React.useEffect(() => {
     if (contractInfo && wallets && state.canRetry) {
-      connect()
+      void connect()
     }
   }, [connect, contractInfo, wallets, state.canRetry])
 
@@ -131,15 +131,13 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
 
   const value = React.useMemo(() => state, [state])
 
-  console.log({ state })
-
   return (
-    <ConnectNodeContext.Provider value={value}>
+    <ConnectNodeContext value={value}>
       {state.isLoading && (
         <div
           className={cn(
             'fixed left-1/2 -translate-x-1/2 bg-white/90 px-3 py-2 text-black rounded-full text-sm font-medium shadow-lg flex items-center gap-2 z-50 backdrop-blur-sm',
-            window.isHasNotch ? 'top-14' : 'top-10'
+            window.isHasNotch ? 'top-14' : 'top-10',
           )}
         >
           <LoaderCircle className="size-4 animate-spin" />
@@ -151,7 +149,7 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
         <div
           className={cn(
             'fixed left-1/2 -translate-x-1/2 bg-red-50 border border-red-200 px-3 py-2 rounded-xl text-sm text-red-800 flex items-center gap-2 shadow-md z-50 max-w-[360px] w-full',
-            window.isHasNotch ? 'top-14' : 'top-10'
+            window.isHasNotch ? 'top-14' : 'top-10',
           )}
         >
           <AlertCircle className="size-4" />
@@ -170,12 +168,12 @@ export function ConnectNodeProvider({ children }: ConnectNodeProviderProps) {
       )}
 
       {children}
-    </ConnectNodeContext.Provider>
+    </ConnectNodeContext>
   )
 }
 
 export function useConnectNode() {
-  const context = React.useContext(ConnectNodeContext)
+  const context = React.use(ConnectNodeContext)
   if (context === undefined) {
     throw new Error('useConnectNode must be used within a ConnectNodeProvider')
   }

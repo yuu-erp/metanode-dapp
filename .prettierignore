@@ -1,13 +1,17 @@
-node_modules
-build
-dist
-coverage
-.turbo
-.husky
-k8s
-**/*.lock
-**/*.log
-**/.env*
-**/generated/**
-**/prisma/generated/**
-**/src/routeTree.gen.ts
+# Dependencies
+**/node_modules/
+
+# Build outputs
+**/dist/
+**/.next/
+**/.output/
+**/.vinxi/
+**/build/
+
+# Generated files
+**/.content-collections/
+**/pnpm-lock.yaml
+
+# Cache
+**/.turbo/
+**/.cache/

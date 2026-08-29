@@ -7,7 +7,7 @@ function Background() {
   const orb2Ref = React.useRef<HTMLDivElement>(null)
 
   React.useEffect(() => {
-    let start = performance.now()
+    const start = performance.now()
     let rafId: number
 
     const animate = (time: number) => {
