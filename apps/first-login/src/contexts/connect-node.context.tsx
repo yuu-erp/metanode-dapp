@@ -3,7 +3,7 @@ import { useFetchContractInfo } from '@/hooks'
 import { useGetAllWallets } from '@/hooks'
 import { cn } from '@/lib/utils'
 import { connectNode } from '@metanodejs/system-core'
-import { LoaderCircle, AlertCircle, RefreshCw } from 'lucide-react'
+import { AlertCircle, RefreshCw } from 'lucide-react'
 import * as React from 'react'
 
 export interface ConnectNodeState {
@@ -15,6 +15,36 @@ export interface ConnectNodeState {
 }
 
 const ConnectNodeContext = React.createContext<ConnectNodeState | undefined>(undefined)
+
+const LOADING_TIMEOUT_MS = 5000
+
+function ConnectingOverlay({ onTimeout }: Readonly<{ onTimeout: () => void }>) {
+  React.useEffect(() => {
+    const timer = window.setTimeout(onTimeout, LOADING_TIMEOUT_MS)
+    return () => window.clearTimeout(timer)
+  }, [onTimeout])
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#060b1a]/70 backdrop-blur-xl"
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div className="flex flex-col items-center gap-6 px-6">
+        <div className="relative size-24">
+          <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.4),rgba(167,139,250,0.2),transparent_70%)] blur-md" />
+          <div className="absolute inset-0 rounded-full border border-white/10" />
+          <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-cyan-400 border-r-violet-400" />
+          <div className="absolute inset-3 animate-spin rounded-full border-2 border-transparent border-b-violet-400/80 [animation-direction:reverse] [animation-duration:1.6s]" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="size-3 animate-pulse rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.95)]" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 type ConnectNodeProviderProps = React.PropsWithChildren
 
@@ -32,6 +62,8 @@ export function ConnectNodeProvider({ children }: Readonly<ConnectNodeProviderPr
 
   const MAX_RETRIES = 5
   const BASE_DELAY = 1500 // ms
+
+  const allowLoadingRef = React.useRef(true)
 
   const getDelay = (attempt: number) => {
     // Exponential backoff + jitter (recommended by AWS/Google best practices)
@@ -56,7 +88,11 @@ export function ConnectNodeProvider({ children }: Readonly<ConnectNodeProviderPr
       return
     }
 
-    setState((s) => ({ ...s, isLoading: true, error: null }))
+    setState((s) => ({
+      ...s,
+      isLoading: allowLoadingRef.current,
+      error: null,
+    }))
 
     try {
       console.warn('KHAIHOAN DEBUG CONNECT NODE: ', {
@@ -125,25 +161,27 @@ export function ConnectNodeProvider({ children }: Readonly<ConnectNodeProviderPr
     }
   }, [connect, contractInfo, wallets, state.canRetry])
 
+  const handleLoadingTimeout = React.useCallback(() => {
+    allowLoadingRef.current = false
+    setState((s) => (s.isConnected || !s.isLoading ? s : { ...s, isLoading: false }))
+  }, [])
+
   const handleManualRetry = () => {
-    setState((s) => ({ ...s, retryCount: 0, canRetry: true, error: null }))
+    allowLoadingRef.current = true
+    setState((s) => ({
+      ...s,
+      retryCount: 0,
+      canRetry: true,
+      error: null,
+      isLoading: true,
+    }))
   }
 
   const value = React.useMemo(() => state, [state])
 
   return (
     <ConnectNodeContext value={value}>
-      {state.isLoading && (
-        <div
-          className={cn(
-            'fixed left-1/2 -translate-x-1/2 bg-white/90 px-3 py-2 text-black rounded-full text-sm font-medium shadow-lg flex items-center gap-2 z-50 backdrop-blur-sm',
-            window.isHasNotch ? 'top-14' : 'top-10',
-          )}
-        >
-          <LoaderCircle className="size-4 animate-spin" />
-          <span>Connecting to node...</span>
-        </div>
-      )}
+      {state.isLoading && <ConnectingOverlay onTimeout={handleLoadingTimeout} />}
 
       {state.error && !state.isLoading && (
         <div
