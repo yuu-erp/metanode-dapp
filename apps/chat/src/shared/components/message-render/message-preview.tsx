@@ -11,7 +11,7 @@ type Props = {
   className?: string
 }
 
-const FilePreview = ({ id }: { id: string }) => {
+const FilePreview = ({}: { id: string }) => {
   const { t } = useI18N()
   const metadata = {} as any
   console.log('metadata', metadata)

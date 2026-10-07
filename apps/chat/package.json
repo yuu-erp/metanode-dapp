@@ -11,11 +11,10 @@
   "dependencies": {
     "@app/call": "workspace:*",
     "@headlessui/react": "^2.2.9",
-    "@metanodejs/file-module": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/file-module",
-    "@metanodejs/event-log": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log",
-    "@metanodejs/mtn-contract": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/mtn-contract",
-    "@metanodejs/system-core": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/system-core",
-    "@mtnts/contract-client": "/Users/macbook/WorkSpace/packages/contract-client",
+    "@metanodejs/file-module": "/Users/lekhaihoan/Documents/CONG_TY/metanode-packages/packages/file-module",
+    "@metanodejs/event-log": "^0.2.3",
+    "@metanodejs/mtn-contract": "^1.0.8",
+    "@metanodejs/system-core": "^1.0.19",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-context-menu": "^2.2.16",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
@@ -29,8 +28,6 @@
     "@tanstack/react-router-devtools": "^1.132.0",
     "@tanstack/react-virtual": "^3.13.18",
     "@tanstack/router-plugin": "^1.132.0",
-    "call-core": "/Users/macbook/WorkSpace/packages/call-core",
-    "chat-core": "/Users/macbook/WorkSpace/packages/chat-core",
     "chat-react": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -62,7 +59,7 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
-    "@metanodejs/fiai-sdk": "/Users/macbook/Documents/iBenefit/metanode-sdk/packages/fiai-sdk",
+    "@metanodejs/fiai-sdk": "/Users/lekhaihoan/Documents/CONG_TY/metanode-finsdk/packages/fiai-sdk",
     "@tailwindcss/postcss": "^4.2.1",
     "@tanstack/devtools-vite": "^0.3.11",
     "@testing-library/dom": "^10.4.0",

@@ -4,7 +4,6 @@ import { IncomingCall } from '@/features/call'
 import { ConversationsProvider } from '@/features/conversation'
 import { useGroupEvent } from '@/hooks/group/use-group-event'
 import { useMessageEvents } from '@/hooks/mesage/use-message-events'
-import { useSyncCall } from '@/hooks/sync/use-sync-call'
 import { useMarkAsReadv2 } from '@/new/message/mark-as-read'
 import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
@@ -16,7 +15,6 @@ import { useDisabled } from '@/shared/hooks/accounts/use-disabled'
 import { useSyncContractsAddressess } from '@/shared/hooks/accounts/use-sync-contracts-addressess'
 import { queryClient } from '@/shared/lib/react-query'
 import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/react-router'
-import { getState, reset } from 'call-core'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { SystemCore } from '@metanodejs/system-core'
@@ -69,21 +67,21 @@ function RouteComponent() {
   useMarkAsReadv2()
   useGroupEvent()
   // useConversationList()
-  const syncCall = useSyncCall()
+  // const syncCall = useSyncCall()
 
-  useEffect(() => {
-    container.eventLogContainer.eventLog.onEventLog((e) => {
-      console.log('all all event', e)
-    })
-    ;(async () => {
-      const rs = await getState()
-      console.log('thanhduy test sync call', { rs })
-      if (!rs) return
-      const { metadata, duration, kind } = rs
-      reset()
-      await syncCall(metadata, { callStatus: kind, duration })
-    })()
-  }, [])
+  // useEffect(() => {
+  //   container.eventLogContainer.eventLog.onEventLog((e) => {
+  //     console.log('all all event', e)
+  //   })
+  //   ;(async () => {
+  //     const rs = await getState()
+  //     console.log('thanhduy test sync call', { rs })
+  //     if (!rs) return
+  //     const { metadata, duration, kind } = rs
+  //     reset()
+  //     await syncCall(metadata, { callStatus: kind, duration })
+  //   })()
+  // }, [])
 
   useEffect(() => {
     SystemCore.on('EventLogs', (e) => {

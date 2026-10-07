@@ -5,7 +5,6 @@ import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
 import { formatFileSize } from '@/new'
-import { useCurrentState } from '@/hooks/use-current-state'
 import { ViewImageModal } from './view-image-modal'
 
 const mediaStyle = 'object-cover aspect-square w-16 rounded-md'
@@ -37,7 +36,6 @@ const FileItem = ({
   isMine?: boolean
   messageId: string
 }) => {
-  const { account } = useCurrentState()
   // const { metadata } = useMetadata(id)
   // const { cache } = useCache(id)
   // const { status, progress = 0 } = useProgress(id)

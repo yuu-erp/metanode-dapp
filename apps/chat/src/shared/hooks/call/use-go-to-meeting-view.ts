@@ -3,7 +3,6 @@ import { handleMessageError } from '@/shared/utils/errorNative'
 import { sendCommand } from '@metanodejs/system-core'
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { getState, setState } from 'call-core'
 import { toast } from 'sonner'
 import { useConversationParams } from '../use-conversation-params'
 import { useCurrentAccount } from '../use-current-account'
@@ -19,8 +18,8 @@ export function useGoToMeetingView() {
     mutationFn: async (input: MeetingViewInput) => {
       const query = new URLSearchParams(input as any).toString()
       console.log('[DEBUG] useGoToMeetingView 1', { query, input, id, type })
-      await setState({ metadata: { id, type } })
-      console.log('thanhduy test huhu', await getState())
+      // await setState({ metadata: { id, type } })
+      // console.log('thanhduy test huhu', await getState())
       if (window?.fiaiSDK) {
         // navigate({ to: '/meeting', search: input })
         //@ts-ignore
@@ -30,7 +29,7 @@ export function useGoToMeetingView() {
         navigate({ to: '/call', search: input })
       } else {
         const payload: any = {
-          query
+          query,
         }
         if (import.meta.env.DEV) {
           payload.url = 'http://192.168.1.2:5174/'
@@ -48,7 +47,7 @@ export function useGoToMeetingView() {
         // ])
       }
     },
-    onError: (error) => toast.error(handleMessageError(error))
+    onError: (error) => toast.error(handleMessageError(error)),
   })
 
   const onVideoCall = async () => {
@@ -60,7 +59,7 @@ export function useGoToMeetingView() {
       callee: conversation.conversationId,
       isCaller: true,
       isMeet: type === 'p2p' ? false : true,
-      conversationType: conversation.conversationType
+      conversationType: conversation.conversationType,
     })
   }
 

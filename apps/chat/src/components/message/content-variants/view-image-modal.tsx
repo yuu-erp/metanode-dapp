@@ -4,7 +4,6 @@ import { useMessageById } from '@/new/message'
 import { useName } from '@/new/user/user-info'
 import { Dialog, DialogContent, DialogTrigger } from '@/shared/components/ui/dialog'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
-import { useCurrentAccount } from '@/shared/hooks'
 import { Download, Forward, Trash, X, ZoomIn, ZoomOut } from 'lucide-react'
 import { memo, useEffect, useState, type ReactNode } from 'react'
 
@@ -14,7 +13,7 @@ export type ViewImageModalProps = {
   messageId: string
 }
 
-export const ViewImageModal = memo(({ children, fileId, messageId }: ViewImageModalProps) => {
+export const ViewImageModal = memo(({ children, messageId }: ViewImageModalProps) => {
   // const { cache } = useCache(fileId)
   const cache = {} as any
   const { base } = useCurrentState()
@@ -23,7 +22,6 @@ export const ViewImageModal = memo(({ children, fileId, messageId }: ViewImageMo
   const [open, setOpen] = useState(false)
   const { mutate } = useDeleteMessage()
   const { setMessageAction } = useMessageAction()
-  const { account } = useCurrentAccount()
   const [scale, setScale] = useState(1)
 
   const btns = [

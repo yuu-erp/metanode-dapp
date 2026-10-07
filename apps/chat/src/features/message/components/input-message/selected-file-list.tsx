@@ -5,7 +5,7 @@ import { FileIcon, X } from 'lucide-react'
 
 export interface SelectedFileListProps {}
 
-function FileItemUi({ id }: { id: string }) {
+function FileItemUi({}: { id: string }) {
   // const { metadata } = useMetadata(id)
   // const { cache } = useCache(id)
   const metadata = {} as any

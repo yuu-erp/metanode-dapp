@@ -1,7 +1,13 @@
-import { start } from 'call-core'
-import { createContext, PropsWithChildren, ReactNode, useContext, useEffect, useState } from 'react'
-import { Callbacks, setCallbacks, setEventLog } from '~/clients'
-import { EventBusRequest } from '~/clients/event-log/core'
+import {
+  createContext,
+  type PropsWithChildren,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
+import { type Callbacks, setCallbacks, setEventLog } from '~/clients'
+import type { EventBusRequest } from '~/clients/event-log/core'
 import { useInitLocalMedia, useInitRoomInfo } from '~/hooks'
 import { setCallReady } from '~/services'
 import { EventLogManager } from './EventLogManager'
@@ -41,7 +47,6 @@ export const CallProvider = ({
 
   useEffect(() => {
     setCallReady(true)
-    start()
   }, [])
 
   useEffect(() => {

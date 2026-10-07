@@ -1,4 +1,3 @@
-import { setState } from 'call-core'
 import { useRef } from 'react'
 import { useEventLog } from '~/clients'
 import { enCallAndCloseView } from '~/services'
@@ -9,16 +8,14 @@ export function useHandleCallRejected() {
 
   useEventLog(
     'CallRejected',
-    (e) => {
+    () => {
       if (ref.current) return
       ref.current = true
-      setState({ kind: 'reject' })
-      console.log('[useHandleCallRejected]', e)
-      enCallAndCloseView()
+      void enCallAndCloseView()
     },
     (e) => {
       const { isMeet, roomId } = roomStore.getState()
       return !isMeet && !!roomId && roomActions.isMyRoom(e)
-    }
+    },
   )
 }

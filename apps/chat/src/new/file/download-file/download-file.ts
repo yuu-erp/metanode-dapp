@@ -34,7 +34,8 @@ async function getDownloadKey(fileId: string, downloadKey?: string) {
   // }
 }
 
-async function getDownloadKeySign(input: string) {
+//@ts-ignore
+async function getDownloadKeySign(_input: string) {
   // const { address } = await getCurrentAccount()
   // const formatedKey = `0x00${formatAddress(input)}`
   // const hash = (
@@ -65,7 +66,8 @@ async function getDownloadKeySign(input: string) {
   // }
 }
 
-async function downloadFile(fileId: string) {
+//@ts-ignore
+async function downloadFile(_fileId: string) {
   // let cached = await container.fileCacheService.getFile(fileId)
   // if (cached) {
   //   const { blob, ...meta } = cached
@@ -90,6 +92,7 @@ async function downloadFile(fileId: string) {
 }
 
 export async function handleDownloadFile(message: FulleMessage) {
+  void message
   throw new Error('handleDownloadFile not support yet')
   // const fileId = message.fileId
   // console.log('tset down file ', fileId)

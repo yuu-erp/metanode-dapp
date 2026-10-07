@@ -249,12 +249,12 @@ export type SendVoiceInput = {
 }
 
 export function useSendVoice() {
-  const { base } = useCurrentState()
   const { account } = useCurrentAccount()
 
   const mutation = useMutation({
     mutationKey: ACTIONS_QUERY_KEY.sendMessage,
-    mutationFn: async ({ file, metadata = {} }: SendVoiceInput) => {
+    mutationFn: async (input: SendVoiceInput) => {
+      void input
       if (!account) return
       // const id = prepareFile(file, metadata)
       // const { promise } = uploadFile(id, account?.address)

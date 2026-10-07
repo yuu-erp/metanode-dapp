@@ -15,7 +15,7 @@ function formatAudioTime(seconds: number): string {
   return `${secs} sec`
 }
 
-export const AudioPlayer = memo(({ id }: AudioPlayerProps) => {
+export const AudioPlayer = memo(({}: AudioPlayerProps) => {
   // const { cache } = useCache(id)
   // const { metadata } = useMetadata(id)
   const cache = {} as any
