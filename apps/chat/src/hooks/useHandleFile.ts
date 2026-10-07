@@ -15,13 +15,13 @@ export const useHandleFile = () => {
         from,
         filesCount: files.length,
         files: files.map((f) => ({ name: f.name, size: f.size })),
-        options
+        options,
       })
       try {
         console.log('[useHandleFile] 1')
         const fileModule = createFileModule(undefined, {
           userAddress: from,
-          contractAddress: FILE_CONTRACT_ADDRESS
+          contractAddress: FILE_CONTRACT_ADDRESS,
         })
 
         await fileModule.initialize(from, FILE_CONTRACT_ADDRESS)
@@ -35,13 +35,13 @@ export const useHandleFile = () => {
         for (let i = 0; i < files.length; i++) {
           const file = files[i]
           console.log(
-            `[useHandleFile] starting upload for file: ${file.name} (${i + 1}/${files.length})`
+            `[useHandleFile] starting upload for file: ${file.name} (${i + 1}/${files.length})`,
           )
 
           const result = await uploadUseCase.execute({
             file: file as File,
             from: from,
-            chunkSize: 1024 * 250
+            chunkSize: 1024 * 250,
           })
 
           if (!result || !result.fileKey) {
@@ -60,7 +60,7 @@ export const useHandleFile = () => {
         throw error
       }
     },
-    []
+    [],
   )
 
   const handleGetFiles = useCallback(async (from: string, fileKeys: string[]) => {
@@ -68,7 +68,7 @@ export const useHandleFile = () => {
       console.log('handleGetFiles 1', { from, fileKeys })
       const fileModule = createFileModule(undefined, {
         userAddress: from,
-        contractAddress: FILE_CONTRACT_ADDRESS
+        contractAddress: FILE_CONTRACT_ADDRESS,
       })
       await fileModule.initialize(from, FILE_CONTRACT_ADDRESS)
       console.log('handleGetFiles 2')
@@ -98,7 +98,7 @@ export const useHandleFile = () => {
             const result = await downloadUseCase.execute({
               fileKey,
               from,
-              downloadTimes: 1
+              downloadTimes: 1,
             })
 
             const ext = result.fileExt?.toLowerCase() || ''
@@ -114,19 +114,21 @@ export const useHandleFile = () => {
             else if (ext === 'doc' || ext === 'docx')
               mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
+            //@ts-ignore
             const blob = new Blob([result.fileData], { type: mimeType })
 
             // Trả về object URL để dùng trong <img src> hoặc download
             const objectUrl = URL.createObjectURL(blob)
             console.log(
-              `[useHandleFile] Download OK: ${fileKey} -> ${result.fileData.byteLength} bytes`
+              //@ts-ignore
+              `[useHandleFile] Download OK: ${fileKey} -> ${result.fileData.byteLength} bytes`,
             )
             return { url: objectUrl, ext, blob }
           } catch (err) {
             console.error(`[useHandleFile] Error downloading file ${fileKey}:`, err)
             return { url: fileKey, ext: '' }
           }
-        })
+        }),
       )
       console.log('handleGetFiles 4')
 
@@ -139,6 +141,6 @@ export const useHandleFile = () => {
 
   return {
     handlePushFiles,
-    handleGetFiles
+    handleGetFiles,
   }
 }

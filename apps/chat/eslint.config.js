@@ -15,22 +15,22 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.json'
-      }
+        projectService: true,
+      },
     },
 
     plugins: {
       boundaries,
       import: importPlugin,
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': tseslint,
     },
 
     // ⚠️ BẮT BUỘC – boundaries đọc từ đây
     settings: {
       'import/resolver': {
         typescript: {
-          project: './tsconfig.json'
-        }
+          project: './tsconfig.json',
+        },
       },
 
       'boundaries/elements': [
@@ -66,14 +66,14 @@ export default [
         // -----------------------------
         // Routes
         // -----------------------------
-        { type: 'routes', pattern: 'src/routes/**', mode: 'folder' }
-      ]
+        { type: 'routes', pattern: 'src/routes/**', mode: 'folder' },
+      ],
     },
 
     rules: {
       'boundaries/no-unknown': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
-      'import/no-cycle': ['error', { maxDepth: 1 }]
-    }
-  }
+      'import/no-cycle': ['error', { maxDepth: 1 }],
+    },
+  },
 ]
