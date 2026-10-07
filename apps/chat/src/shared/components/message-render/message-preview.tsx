@@ -2,7 +2,6 @@
 import { STICKERS } from '@/constants/stickers'
 import type { Message } from '@/modules/message'
 import { useI18N } from '@/shared/hooks'
-import { useMetadata } from 'file-core'
 import { FileIcon, MapPinIcon, MicIcon } from 'lucide-react'
 import * as React from 'react'
 import { TextContentWithMentions } from './message-text'
@@ -14,7 +13,7 @@ type Props = {
 
 const FilePreview = ({ id }: { id: string }) => {
   const { t } = useI18N()
-  const { metadata } = useMetadata(id)
+  const metadata = {} as any
   console.log('metadata', metadata)
   return (
     <span className="flex items-center gap-1 opacity-70 italic">
@@ -27,7 +26,7 @@ const FilePreview = ({ id }: { id: string }) => {
 function MessagePreview({ message, className }: Props) {
   const { t } = useI18N()
   const path = STICKERS.flatMap((i) => i.stickers).find(
-    (i) => message.type === 'sticker' && i.id === message.stickerId
+    (i) => message.type === 'sticker' && i.id === message.stickerId,
   )?.image
   console.log('MessagePreview', { message })
 

@@ -3,7 +3,6 @@ import { createMessageInfoQuery } from '@/new/message'
 import { useMessaeges } from '@/new/message/list-mesage'
 import { useUiStore } from '@/stores/ui.store'
 import { useQueries } from '@tanstack/react-query'
-import { getMetadata } from 'file-core'
 import { memo } from 'react'
 import { MessageItemForSearchInChat } from '../../features/message/components/header/message-item-for-search-in-chat'
 
@@ -14,7 +13,7 @@ export const ListMessageForSearchInChat = memo(({}: ListMessageForSearchInChatPr
   const { base } = useCurrentState()
   const { ids } = useMessaeges()
   const queries = useQueries({
-    queries: ids.map((item) => createMessageInfoQuery(item, base))
+    queries: ids.map((item) => createMessageInfoQuery(item, base)),
   })
   const messages = queries.map((item) => item.data).filter(Boolean) as FulleMessage[]
 
@@ -24,8 +23,8 @@ export const ListMessageForSearchInChat = memo(({}: ListMessageForSearchInChatPr
       input.toLowerCase().includes(value.toLocaleLowerCase())
 
     return (
-      (msg.type === 'text' && isInclude(msg.content ?? '')) ||
-      (msg.type === 'file' && isInclude(getMetadata(msg.fileIds?.[0])?.name))
+      msg.type === 'text' && isInclude(msg.content ?? '')
+      //  ||(msg.type === 'file' && isInclude(getMetadata(msg.fileIds?.[0])?.name))
     )
   })
 

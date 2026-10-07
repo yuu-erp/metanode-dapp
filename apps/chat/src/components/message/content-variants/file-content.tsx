@@ -1,7 +1,6 @@
 import { useOpenOverlay } from '@/hooks/use-open-overlay'
 import { MessageText } from '@/shared/components/message-render'
 import { cn } from '@/shared/lib'
-import { useCache, useProgress, downloadFromServerEndToEnd, useMetadata } from 'file-core'
 import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
@@ -14,14 +13,14 @@ const mediaStyle = 'object-cover aspect-square w-16 rounded-md'
 const WithWrapper = ({
   children,
   isWrapped,
-  className
+  className,
 }: { isWrapped?: boolean; className?: string } & PropsWithChildren) => {
   if (!isWrapped) return children
   return (
     <div
       className={cn(
         'w-12 h-12 flex items-center justify-center rounded-full shrink-0 relative',
-        className
+        className,
       )}
     >
       {children}
@@ -32,17 +31,21 @@ const WithWrapper = ({
 const FileItem = ({
   id,
   isMine,
-  messageId
+  messageId,
 }: {
   id: string
   isMine?: boolean
   messageId: string
 }) => {
   const { account } = useCurrentState()
-  const { metadata } = useMetadata(id)
-  const { cache } = useCache(id)
+  // const { metadata } = useMetadata(id)
+  // const { cache } = useCache(id)
+  // const { status, progress = 0 } = useProgress(id)
+  const metadata = {} as any
+  const cache = {} as any
+  const status = 'idle' as any
+  const progress = 0
   const isStored = !!cache
-  const { status, progress = 0 } = useProgress(id)
   const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
 
   if (!metadata) return null
@@ -56,8 +59,8 @@ const FileItem = ({
         onClick: (e) => {
           e.preventDefault()
           e.stopPropagation()
-          downloadFromServerEndToEnd(id, account?.address ?? '')
-        }
+          // downloadFromServerEndToEnd(id, account?.address ?? '')
+        },
       }
 
   return (
@@ -97,7 +100,7 @@ const FileItem = ({
             <div
               className={cn(
                 'absolute inset-0 flex items-center justify-center flex flex-col gap-1',
-                isStored && 'bg-black/20'
+                isStored && 'bg-black/20',
               )}
             >
               <X />

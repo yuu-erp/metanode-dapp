@@ -7,7 +7,6 @@ import { compareAddress, formatAddress } from '@/shared/lib'
 import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { type FileItem } from '@/stores/file.store'
 import { useMutation } from '@tanstack/react-query'
-import { prepareFile, uploadFile, type FileMetadata } from 'file-core'
 import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
@@ -19,7 +18,6 @@ import { encryptMessage } from './crypto-message'
 import { addIdInMessageList, replaceIdInMessageList } from './list-mesage'
 import { getMessageById, removeMessgeById, setMessageInfo } from './message-info'
 import { fullMessageToData } from './message.utils'
-import { contractClient } from '@mtnts/contract-client'
 import { addConversation } from '../conversation/list-conversation'
 
 export type SendMessageInput = { type: string; [key: string]: any }
@@ -37,8 +35,8 @@ async function sendMessageBC(input: any, base: BaseConversation) {
         inputData: {
           _recipientContractAddress: base.id,
           _encryptedContentForRecipient: encryptedMessage,
-          _encryptedContentForSelf: encryptedMessage
-        }
+          _encryptedContentForSelf: encryptedMessage,
+        },
       })
     }
     case 'group': {
@@ -48,11 +46,11 @@ async function sendMessageBC(input: any, base: BaseConversation) {
           const contractAddress = await getUserContractAddress(mem)
           const settings = await container.userContract.detailedSettings({
             from: account.hiddenAddress,
-            to: contractAddress
+            to: contractAddress,
           })
 
           return { ...settings, contractAddress, address: mem }
-        })
+        }),
       )
 
       const enabledUsers = data.filter((i) => i.p2pChatEnabled)
@@ -63,8 +61,8 @@ async function sendMessageBC(input: any, base: BaseConversation) {
         inputData: {
           encryptedContent: encryptedMessage,
           recipientContracts: enabledUsers.map((i) => i.contractAddress),
-          recipientOwners: enabledUsers.map((i) => i.address)
-        }
+          recipientOwners: enabledUsers.map((i) => i.address),
+        },
       })
     }
 
@@ -72,7 +70,7 @@ async function sendMessageBC(input: any, base: BaseConversation) {
       return container.anonymousGroupContract.sendMessage({
         from: account.hiddenAddress,
         to: base.id,
-        inputData: { encryptedContent: encryptedMessage }
+        inputData: { encryptedContent: encryptedMessage },
       })
     }
     default:
@@ -85,13 +83,13 @@ const waitSendMessageEvent = async (base: BaseConversation) => {
   const names = {
     p2p: 'MessageSent',
     group: 'MessageSentGroup',
-    anonymous_group: 'AnonymousMessageStored'
+    anonymous_group: 'AnonymousMessageStored',
   }
 
   const filters = {
     p2p: (e) => compareAddress(e.sender, account.contractAddress),
     group: (e) => compareAddress(e.sender, account.address),
-    anonymous_group: async (e) => compareAddress(e.sender, await getAlias(base.id))
+    anonymous_group: async (e) => compareAddress(e.sender, await getAlias(base.id)),
   }
   const name = names[base.type]
   const filter = filters[base.type]
@@ -108,7 +106,7 @@ const waitSendMessageEvent = async (base: BaseConversation) => {
 async function createOptimisticMessage(
   input: SendMessageInput,
   base: BaseConversation,
-  fileIds?: string[]
+  fileIds?: string[],
 ) {
   const id = v4()
 
@@ -119,7 +117,7 @@ async function createOptimisticMessage(
     timestamp: Date.now(),
     status: 'sending',
     isMine: true,
-    reactions: []
+    reactions: [],
   }
 
   if (fileIds) {
@@ -139,13 +137,8 @@ export async function handleSendMessage(
   files?: {
     ids: string[]
     readlIds: Promise<string[]>
-  }
+  },
 ) {
-  console.log('handleSendMessage 0', {
-    ids: files?.ids,
-    test: contractClient.froms
-  })
-
   const fullMessage = await createOptimisticMessage(input, base, files?.ids)
   console.log('handleSendMessage 1', fullMessage)
   try {
@@ -161,7 +154,7 @@ export async function handleSendMessage(
     return asyncPriorityQueue.add(async () => {
       const [messageId] = await Promise.all([
         waitSendMessageEvent(base),
-        sendMessageBC(input, base)
+        sendMessageBC(input, base),
       ])
       console.log('thanhduy - handleSendMessage 2')
 
@@ -177,7 +170,7 @@ export async function handleSendMessage(
   } catch (error: any) {
     setMessageInfo(fullMessage.id, {
       status: 'failed',
-      errorMessage: error?.message || 'unknown error'
+      errorMessage: error?.message || 'unknown error',
       // isFailed: true
     })
   } finally {
@@ -193,10 +186,10 @@ export function useSendSticker() {
       handleSendMessage(
         {
           type: 'sticker',
-          stickerId
+          stickerId,
         },
-        base
-      )
+        base,
+      ),
   })
   return { ...mutation, sendSticker: mutation.mutateAsync }
 }
@@ -211,18 +204,18 @@ export function useForwardMessage() {
         {
           ...fullMessageToData(message),
           forwardFrom: message.sender,
-          forwardFromType: state.base.type
+          forwardFromType: state.base.type,
         },
-        base
+        base,
       )
-    }
+    },
   })
   const state = useCurrentState()
   const { setMessageAction } = useMessageAction()
 
   return {
     ...mutation,
-    forwardMessage: mutation.mutateAsync
+    forwardMessage: mutation.mutateAsync,
   }
 }
 
@@ -252,7 +245,7 @@ export function processFileV2(items: FileItem[]) {
 
 export type SendVoiceInput = {
   file: File
-  metadata: Partial<FileMetadata>
+  metadata: Partial<any>
 }
 
 export function useSendVoice() {
@@ -263,16 +256,16 @@ export function useSendVoice() {
     mutationKey: ACTIONS_QUERY_KEY.sendMessage,
     mutationFn: async ({ file, metadata = {} }: SendVoiceInput) => {
       if (!account) return
-      const id = prepareFile(file, metadata)
-      const { promise } = uploadFile(id, account?.address)
-      handleSendMessage(
-        {
-          type: 'voice'
-        },
-        base,
-        { ids: [id], readlIds: promise }
-      )
-    }
+      // const id = prepareFile(file, metadata)
+      // const { promise } = uploadFile(id, account?.address)
+      // handleSendMessage(
+      //   {
+      //     type: 'voice'
+      //   },
+      //   base,
+      //   { ids: [id], readlIds: promise }
+      // )
+    },
   })
 
   return { ...mutation, sendVoice: mutation.mutateAsync }

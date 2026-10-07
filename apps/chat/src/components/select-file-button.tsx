@@ -1,5 +1,4 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/components/ui/popover'
-import { useGetFile } from 'file-core'
 import { Paperclip } from 'lucide-react'
 import { memo, useState } from 'react'
 import { PopoverItem } from './popover-item'
@@ -8,7 +7,7 @@ export type SelectFileButtonProps = {}
 
 export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
   const [open, setOpen] = useState(false)
-  const { getFile, getGallery, takePicture, fileBind, galleryBind } = useGetFile()
+  // const { getFile, getGallery, takePicture, fileBind, galleryBind } = useGetFile()
   const close = () => setOpen(false)
 
   const onClickButton = (e: any) => {
@@ -37,14 +36,14 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
               <PopoverItem
                 onClick={() => {
                   close()
-                  getGallery()
+                  // getGallery()
                 }}
               >
                 Chọn ảnh
               </PopoverItem>
               <PopoverItem
                 onClick={() => {
-                  getFile()
+                  // getFile()
                   close()
                 }}
               >
@@ -53,7 +52,7 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
               {!window.fiaiSDK && (
                 <PopoverItem
                   onClick={() => {
-                    takePicture()
+                    // takePicture()
                     close()
                   }}
                 >
@@ -64,8 +63,8 @@ export const SelectFileButton = memo(({}: SelectFileButtonProps) => {
           </div>
         </PopoverContent>
       </Popover>
-      <input {...fileBind} />
-      <input {...galleryBind} />
+      {/* <input {...fileBind} /> */}
+      {/* <input {...galleryBind} /> */}
     </>
   )
 })

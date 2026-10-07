@@ -10,11 +10,7 @@ import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar'
-import {
-  createCurrentAccountQueryOptions,
-  getCurrentAccount,
-  useTitleNotification
-} from '@/shared/hooks'
+import { createCurrentAccountQueryOptions, useTitleNotification } from '@/shared/hooks'
 import { useForcedLogout, useRegisterEventLog, useReloadOnNative } from '@/shared/hooks/accounts'
 import { useDisabled } from '@/shared/hooks/accounts/use-disabled'
 import { useSyncContractsAddressess } from '@/shared/hooks/accounts/use-sync-contracts-addressess'
@@ -23,21 +19,11 @@ import { Outlet, createFileRoute, redirect, useRouterState } from '@tanstack/rea
 import { getState, reset } from 'call-core'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { contractClient } from '@mtnts/contract-client'
 import { SystemCore } from '@metanodejs/system-core'
 
 export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async () => {
     try {
-      const account = await getCurrentAccount()
-      console.log('setfrommmsetfrommm =======> 1', account.hiddenAddress)
-      console.log('setfrommmsetfrommm =======> 2', {
-        froms: contractClient.froms,
-        me: contractClient.methods
-      })
-
-      contractClient.setFrom(account.hiddenAddress)
-      console.log('setfrommmsetfrommm =======> 3', contractClient.froms)
     } catch (error) {}
   },
   loader: async () => {
@@ -49,7 +35,7 @@ export const Route = createFileRoute('/_authenticated')({
       }
       const isUserDisabled = await container.factoryContract.isUserDisabled({
         from: currentAccount.address,
-        inputData: { user: currentAccount?.address }
+        inputData: { user: currentAccount?.address },
       })
 
       if (isUserDisabled) {
@@ -64,7 +50,7 @@ export const Route = createFileRoute('/_authenticated')({
       throw redirect({ to: '/wallets' })
     }
   },
-  component: RouteComponent
+  component: RouteComponent,
 })
 
 const noNavbarRoutes = [/^\/p2p\/[^/]+$/, /^\/group\/[^/]+$/, /^\/anonymous_group\/[^/]+$/]
@@ -114,7 +100,7 @@ function RouteComponent() {
             style={
               {
                 '--sidebar-width': '24rem',
-                '--sidebar-background': 'transparent'
+                '--sidebar-background': 'transparent',
               } as React.CSSProperties
             }
           >

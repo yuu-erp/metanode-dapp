@@ -4,7 +4,6 @@ import { CONTRACT_ADDRESSES } from '@/config'
 import { container } from '@/container'
 import { useCurrentAccount } from '@/shared/hooks'
 import { formatAddress } from '@/shared/utils'
-import { contractClient } from '@mtnts/contract-client'
 import * as React from 'react'
 import { createContext, useContext } from 'react'
 
@@ -28,18 +27,17 @@ export function EventLogProvider({ children }: React.PropsWithChildren) {
       formatAddress(account.contractAddress),
       formatAddress(meetingAddress),
       formatAddress(factoryAddress),
-      formatAddress(CONTRACT_ADDRESSES.file)
+      formatAddress(CONTRACT_ADDRESSES.file),
     ]
     console.log('arrayarrayarrayarray', array)
 
     eventLog.registerEvent(formatAddress(account.hiddenAddress), array)
-    contractClient.onContract(CONTRACT_ADDRESSES.file, account.hiddenAddress)
   }, [account?.address, account?.contractAddress])
 
   React.useEffect(() => {
     Promise.race([
       container.eventLogContainer.registerAbi().catch(),
-      new Promise((res) => setTimeout(() => res(true), 2000))
+      new Promise((res) => setTimeout(() => res(true), 2000)),
     ]).then(() => setLoad(true))
   }, [])
 

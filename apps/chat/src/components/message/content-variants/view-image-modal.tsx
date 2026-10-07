@@ -5,7 +5,6 @@ import { useName } from '@/new/user/user-info'
 import { Dialog, DialogContent, DialogTrigger } from '@/shared/components/ui/dialog'
 import { formatMessageTime } from '@/shared/helpers/date-fns'
 import { useCurrentAccount } from '@/shared/hooks'
-import { downloadFromServerEndToEnd, useCache } from 'file-core'
 import { Download, Forward, Trash, X, ZoomIn, ZoomOut } from 'lucide-react'
 import { memo, useEffect, useState, type ReactNode } from 'react'
 
@@ -16,7 +15,8 @@ export type ViewImageModalProps = {
 }
 
 export const ViewImageModal = memo(({ children, fileId, messageId }: ViewImageModalProps) => {
-  const { cache } = useCache(fileId)
+  // const { cache } = useCache(fileId)
+  const cache = {} as any
   const { base } = useCurrentState()
   const { data } = useMessageById(messageId, base)
   const { name } = useName(data?.sender)
@@ -33,7 +33,7 @@ export const ViewImageModal = memo(({ children, fileId, messageId }: ViewImageMo
         mutate(data)
         setOpen(false)
       },
-      isHidden: !data?.isMine
+      isHidden: !data?.isMine,
     },
     {
       Icon: Forward,
@@ -42,32 +42,32 @@ export const ViewImageModal = memo(({ children, fileId, messageId }: ViewImageMo
         setOpen(false)
         setMessageAction({
           messageId: data.id,
-          type: 'FORWARD'
+          type: 'FORWARD',
         })
-      }
+      },
     },
     {
       Icon: Download,
       onClick: () => {
-        downloadFromServerEndToEnd(fileId, account?.address ?? '')
-      }
+        // downloadFromServerEndToEnd(fileId, account?.address ?? '')
+      },
     },
     {
       Icon: ZoomOut,
       onClick: () => setScale((s) => Math.max(s - 0.2, 0.4)),
-      isHidden: cache?.previewType === 'video'
+      isHidden: cache?.previewType === 'video',
     },
     {
       Icon: ZoomIn,
       onClick: () => setScale((s) => Math.min(s + 0.2, 2)),
-      isHidden: cache?.previewType === 'video'
+      isHidden: cache?.previewType === 'video',
     },
     {
       Icon: X,
       onClick: () => {
         setOpen(false)
-      }
-    }
+      },
+    },
   ]
 
   useEffect(() => {
@@ -89,14 +89,14 @@ export const ViewImageModal = memo(({ children, fileId, messageId }: ViewImageMo
               <button key={i} onClick={() => btn.onClick?.()}>
                 <btn.Icon />
               </button>
-            )
+            ),
           )}
         </div>
 
         {cache?.previewType === 'image' && (
           <img
             style={{
-              scale
+              scale,
             }}
             src={cache?.previewPath || undefined}
           />

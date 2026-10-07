@@ -1,4 +1,3 @@
-import { useCache, useMetadata } from 'file-core'
 import { Pause, Play } from 'lucide-react'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
@@ -17,8 +16,11 @@ function formatAudioTime(seconds: number): string {
 }
 
 export const AudioPlayer = memo(({ id }: AudioPlayerProps) => {
-  const { cache } = useCache(id)
-  const { metadata } = useMetadata(id)
+  // const { cache } = useCache(id)
+  // const { metadata } = useMetadata(id)
+  const cache = {} as any
+  const metadata = {} as any
+
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const displayDuration = (metadata?.duration ?? 0) / 1000
@@ -56,7 +58,7 @@ export const AudioPlayer = memo(({ id }: AudioPlayerProps) => {
       audio.currentTime = time
       setCurrentTime(time)
     },
-    [displayDuration]
+    [displayDuration],
   )
 
   const handleProgressPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {

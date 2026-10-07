@@ -4,7 +4,6 @@ import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
 import { fileActions } from '@/stores/file.store'
 import { resetValue, useInputStore } from '@/stores/input.store'
 import { useMutation } from '@tanstack/react-query'
-import { uploadFile, useSelectedIds } from 'file-core'
 import { setConveration } from '../conversation'
 import { useEditMessage } from './edit-message'
 import { handleSendMessage } from './send-message-v4'
@@ -13,17 +12,17 @@ export function useSubmitChatInput() {
   const { messageAction, setMessageAction } = useMessageAction()
   const { base: _base, account } = useCurrentState()
   const edit = useEditMessage()
-  const { ids: fileIds } = useSelectedIds()
-
+  // const { ids: fileIds } = useSelectedIds()
+  const fileIds = []
   function getComposer() {
     const isReply = messageAction?.type === 'REPLY'
     return {
       isReply,
       composer: isReply
         ? {
-            replyTo: messageAction.messageId
+            replyTo: messageAction.messageId,
           }
-        : {}
+        : {},
     }
   }
 
@@ -47,7 +46,7 @@ export function useSubmitChatInput() {
 
         return edit.mutate({
           messageId: messageAction!.messageId,
-          newContent: value
+          newContent: value,
         })
       }
       const type = !fileIds.length ? 'text' : 'file'
@@ -58,31 +57,31 @@ export function useSubmitChatInput() {
 
       let files
       console.log('fileIds 1', fileIds)
-      const { promise } = uploadFile(fileIds, account?.address)
-      if (!!fileIds.length) {
-        files = {
-          ids: fileIds,
-          readlIds: promise
-        }
-      }
+      // const { promise } = uploadFile(fileIds, account?.address)
+      // if (!!fileIds.length) {
+      //   files = {
+      //     ids: fileIds,
+      //     readlIds: promise
+      //   }
+      // }
       console.log('fileIds 2', files)
 
       const messageId = await handleSendMessage(
         {
           type,
           content: value,
-          ...composer
+          ...composer,
         },
         base,
-        files
+        files,
       )
 
       if (messageId) setConveration(base.id, { lastMessageId: messageId })
-    }
+    },
   })
 
   return {
     ...mutation,
-    submit: mutation.mutate as any
+    submit: mutation.mutate as any,
   }
 }

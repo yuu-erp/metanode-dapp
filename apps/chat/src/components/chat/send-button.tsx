@@ -1,6 +1,5 @@
 import { useSubmitChatInput } from '@/new/message/submit-chat-input'
 import { useInputStore } from '@/stores/input.store'
-import { useSelectedIds } from 'file-core'
 import { Send } from 'lucide-react'
 import { memo } from 'react'
 
@@ -10,7 +9,7 @@ export type SendButtonProps = {
 
 export const SendButton = memo(({ reforcus }: SendButtonProps) => {
   const value = useInputStore((s) => s.chatValue)
-  const { ids } = useSelectedIds()
+  const ids = []
   const { submit } = useSubmitChatInput()
 
   if (!value.trim() && ids.length === 0) return null
