@@ -219,27 +219,13 @@ export function useForwardMessage() {
   }
 }
 
+/** @deprecated Dùng `prepareFilesForSend` + `handleSendMessage(..., files)`. */
 export function processFileV2(items: FileItem[]) {
   return async (msg: FulleMessage) => {
-    try {
-      const item = items[0]
-      if (!item) return
-
-      setFileMetadata(msg.id, item.meta)
-      const file = item.file
-      if (!file) return
-      console.log('fileId 1')
-      const fileId = ''
-      // const fileId = await uploadFileV2(file, (v) =>
-      //   uiActions.setUpFileProgress(msg.id, +(v * 0.9).toFixed(2))
-      // )
-      console.log('fileId 2')
-
-      return { fileId }
-    } catch (error) {
-      console.error('upfile error', error)
-      throw error
-    }
+    const item = items[0]
+    if (!item) return
+    setFileMetadata(msg.id, item.meta)
+    throw new Error('File upload not implemented')
   }
 }
 

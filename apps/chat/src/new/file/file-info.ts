@@ -23,8 +23,8 @@ export const createFileMetaQuery = (fileId?: string) =>
       const { infos } = await container.fileCotract.getFilesInfo({
         from: account.hiddenAddress,
         inputData: {
-          fileKeys: [fileId!]
-        }
+          fileKeys: [fileId!],
+        },
       })
 
       const meta = infos?.[0]
@@ -45,13 +45,47 @@ export const createFileMetaQuery = (fileId?: string) =>
         size,
         displaySize: formatFileSize(size),
         fileName: fileName,
-        path
+        path,
       } as FileMeta
-    }
+    },
   })
 
 export function useFileMetaById(fileId?: string) {
   return useQuery(createFileMetaQuery(fileId))
+}
+
+function isOnChainFileKey(fileId: string) {
+  return /^[0-9a-f]{64}$/i.test(fileId)
+}
+
+/** Ưu tiên meta optimistic trong cache; chỉ fetch on-chain với fileKey 64 hex. */
+export function useFileMetaDisplay(fileId?: string) {
+  const cacheKey = fileId ? FILE_QUERY_KEY.info(fileId) : undefined
+
+  return useQuery({
+    queryKey: cacheKey!,
+    enabled: !!fileId,
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: false,
+    initialData: () =>
+      fileId ? queryClient.getQueryData<FileMeta>(FILE_QUERY_KEY.info(fileId)) : undefined,
+    placeholderData: () =>
+      fileId ? queryClient.getQueryData<FileMeta>(FILE_QUERY_KEY.info(fileId)) : undefined,
+    queryFn: async () => {
+      const cached = queryClient.getQueryData<FileMeta>(FILE_QUERY_KEY.info(fileId!))
+      if (cached) return cached
+      if (!isOnChainFileKey(fileId!)) {
+        throw new Error('[useFileMetaDisplay] Missing local file meta')
+      }
+      return queryClient.fetchQuery(createFileMetaQuery(fileId))
+    },
+  })
+}
+
+export function getFileMetaFromCache(fileId: string) {
+  return queryClient.getQueryData<FileMeta>(FILE_QUERY_KEY.info(fileId))
 }
 
 export function setFilePath(fileId: string, path: string) {
@@ -62,6 +96,7 @@ export function setFilePath(fileId: string, path: string) {
 
 export function setFileMetadata(id: string, input: Partial<FileMeta>) {
   queryClient.setQueryData(FILE_QUERY_KEY.info(id), (old) => {
-    return old ? { ...old, ...input } : input
+    const merged = old ? { ...old, ...input } : { ...input }
+    return merged as FileMeta
   })
 }

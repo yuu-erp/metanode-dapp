@@ -1,19 +1,20 @@
 import { useMessageAction } from '@/features/message'
 import { useCurrentState } from '@/hooks/use-current-state'
 import { ACTIONS_QUERY_KEY } from '@/shared/lib/react-query'
-import { fileActions } from '@/stores/file.store'
+import { fileActions, useFileStore } from '@/stores/file.store'
 import { resetValue, useInputStore } from '@/stores/input.store'
 import { useMutation } from '@tanstack/react-query'
 import { setConveration } from '../conversation'
 import { useEditMessage } from './edit-message'
 import { handleSendMessage } from './send-message-v4'
+import { prepareFilesForSend } from './upload-files-for-send'
 
 export function useSubmitChatInput() {
   const { messageAction, setMessageAction } = useMessageAction()
   const { base: _base, account } = useCurrentState()
   const edit = useEditMessage()
-  // const { ids: fileIds } = useSelectedIds()
-  const fileIds = []
+  const fileItems = useFileStore((s) => s.items)
+
   function getComposer() {
     const isReply = messageAction?.type === 'REPLY'
     return {
@@ -38,7 +39,7 @@ export function useSubmitChatInput() {
         base = _base
       }
 
-      if (!value && !fileIds.length) return
+      if (!value?.trim() && fileItems.length === 0) return
       resetValue('chatValue')
 
       if (messageAction?.type === 'EDIT') {
@@ -49,27 +50,22 @@ export function useSubmitChatInput() {
           newContent: value,
         })
       }
-      const type = !fileIds.length ? 'text' : 'file'
-      fileActions.reset()
+      const hasFiles = fileItems.length > 0
+      const type = hasFiles ? 'file' : 'text'
+      const itemsSnapshot = [...fileItems]
       const { isReply, composer } = getComposer()
       if (isReply) setMessageAction(null)
-      console.log('thanhduy - submit chat input 2')
 
-      let files
-      console.log('fileIds 1', fileIds)
-      // const { promise } = uploadFile(fileIds, account?.address)
-      // if (!!fileIds.length) {
-      //   files = {
-      //     ids: fileIds,
-      //     readlIds: promise
-      //   }
-      // }
-      console.log('fileIds 2', files)
+      const files = hasFiles ? prepareFilesForSend(itemsSnapshot) : undefined
+      if (hasFiles) {
+        fileActions.reset()
+      }
 
       const messageId = await handleSendMessage(
         {
           type,
           content: value,
+          ...(hasFiles ? { fileIds: files!.ids } : {}),
           ...composer,
         },
         base,

@@ -29,15 +29,12 @@ export const ShareMeetingModal = memo(({ children, url }: ShareMeetingModalProps
                 type={item.conversationType}
                 onClick={() => {
                   setOpen(false)
-                  handleSendMessage(
-                    {
-                      type: 'text',
-                      content: url
-                    },
+                  void handleSendMessage(
+                    { type: 'text', content: url ?? '' },
                     {
                       id: item.conversationId,
-                      type: item.conversationType
-                    }
+                      type: item.conversationType,
+                    },
                   )
 
                   // submit({

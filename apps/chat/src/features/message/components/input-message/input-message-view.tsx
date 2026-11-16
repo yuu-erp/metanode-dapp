@@ -5,7 +5,7 @@ import { SelectFileButton } from '@/components/select-file-button'
 import type { MessageAction } from '@/modules/message'
 import { StickerIcon } from '@/shared/components/icons'
 import { cn, getMentionHighlightSegments, type Mention } from '@/shared/lib'
-import { useFileStore } from '@/stores/file.store'
+import { fileActions, useFileStore } from '@/stores/file.store'
 import { setValue, useInputStore } from '@/stores/input.store'
 import { modalActions } from '@/stores/modal.store'
 import { uiActions, useUiStore } from '@/stores/ui.store'
@@ -15,6 +15,7 @@ import { SelectedFileList } from './selected-file-list'
 import { StickerDrawer } from './sticker-drawer'
 import { MentionPopover } from '@/components/mention-popover'
 import { useSubmitChatInput } from '@/new/message/submit-chat-input'
+import { filesToFileItems } from './files-to-file-items'
 import { useChatInputLayout } from './use-chat-input-layout'
 
 export interface InputMessageViewProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -36,12 +37,17 @@ function InputMessageView(props: InputMessageViewProps) {
 
   const highlightSegments = React.useMemo(
     () => (showMentionHighlight ? getMentionHighlightSegments(value, mentionHighlights!) : null),
-    [value, mentionHighlights, showMentionHighlight]
+    [value, mentionHighlights, showMentionHighlight],
   )
 
   React.useEffect(() => {
     if (!showMentionHighlight) setMentionScrollTop(0)
   }, [showMentionHighlight, value])
+
+  const handleSelectFiles = React.useCallback((files: File[]) => {
+    if (!files.length) return
+    fileActions.addItem(filesToFileItems(files))
+  }, [])
 
   function reforcus() {
     const el = textareaRef.current
@@ -58,7 +64,10 @@ function InputMessageView(props: InputMessageViewProps) {
               <MentionPopover />
               <div className="w-full min-h-[72px] h-full flex items-end gap-1 px-2">
                 {/* Attach */}
-                <SelectFileButton />
+                <SelectFileButton
+                  onSelectFiles={handleSelectFiles}
+                  onSelectImages={handleSelectFiles}
+                />
 
                 {/* Input */}
                 <div className="relative flex-1 rounded-4xl overflow-hidden">
@@ -73,7 +82,7 @@ function InputMessageView(props: InputMessageViewProps) {
                     className={cn(
                       'relative h-full pb-2 flex flex-col gap-1',
                       !value.trim() ? 'px-2' : 'px-1',
-                      fileItems.length > 0 ? 'pt-0' : 'pt-2'
+                      fileItems.length > 0 ? 'pt-0' : 'pt-2',
                     )}
                   >
                     <MessageComposer />
@@ -100,7 +109,7 @@ function InputMessageView(props: InputMessageViewProps) {
                                     </mark>
                                   ) : (
                                     <span key={i}>{seg.text}</span>
-                                  )
+                                  ),
                                 )}
                               </div>
                             </div>
@@ -127,7 +136,7 @@ function InputMessageView(props: InputMessageViewProps) {
                               'relative z-10 w-full h-full resize-none bg-transparent outline-none border-none placeholder:text-black/50',
                               showMentionHighlight
                                 ? 'text-transparent caret-white selection:bg-sky-500/35'
-                                : ''
+                                : '',
                             )}
                           />
                         </div>

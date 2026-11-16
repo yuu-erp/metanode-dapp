@@ -3,7 +3,7 @@ import type {
   FactoryContract,
   FileContract,
   GroupContract,
-  UserContract
+  UserContract,
 } from '@/modules/blockchain'
 import type { Conversation, ConversationType } from '@/modules/conversation'
 import type { EventBusPort } from '@/modules/event'
@@ -26,7 +26,7 @@ import type {
   OnChainReplyReference,
   PersistedMessage,
   ReplyReference,
-  SendPayload
+  SendPayload,
 } from '.'
 import type { AnonymousGroupContract } from '../blockchain/anonymous-group-contract'
 import type { EventLogContainer } from '../eventlogs'
@@ -46,7 +46,7 @@ export class MessageService {
     private readonly eventBus: EventBusPort<AppEvents>,
     private readonly fileCacheService: FileCacheService,
     private readonly anonymousGroupContract: AnonymousGroupContract,
-    private readonly eventLogContainer: EventLogContainer
+    private readonly eventLogContainer: EventLogContainer,
   ) {
     this.messageExtend = new MessageExtend(eventBus)
   }
@@ -56,7 +56,7 @@ export class MessageService {
   async getProcessedP2PMessages(
     account: Account,
     conversation: Conversation,
-    options?: { limit?: number; page?: number }
+    options?: { limit?: number; page?: number },
   ): Promise<Message[]> {
     const { limit = 50, page = 1 } = options ?? {}
     const rawMessages = await this.userContract.getProcessedP2PMessages({
@@ -65,19 +65,19 @@ export class MessageService {
       inputData: {
         partnerContractAddress: conversation.conversationId,
         limit,
-        page
-      }
+        page,
+      },
     })
     const messages = (
       await fulfilledPromises(
-        rawMessages.map((item) => this._processP2PMessage(item, account, conversation))
+        rawMessages.map((item) => this._processP2PMessage(item, account, conversation)),
       )
     ).filter(Boolean)
 
     messages.forEach((m) =>
       messageActions.setMessage(m.id, {
-        id: m.id
-      })
+        id: m.id,
+      }),
     )
 
     const filteredMessages = messages.filter(Boolean) as Message[]
@@ -92,7 +92,7 @@ export class MessageService {
   private async _processP2PMessage(
     item: any,
     account: Account,
-    conversation: Conversation
+    conversation: Conversation,
   ): Promise<Message | undefined> {
     try {
       const decryptionKey = conversation.conversationKey
@@ -100,7 +100,7 @@ export class MessageService {
       let decrypted = await this.walletService.decryptMessage<OnChainMessagePayload>(
         decryptionKey,
         account.address,
-        item.finalContent
+        item.finalContent,
       )
 
       let replyTo: any = undefined
@@ -122,7 +122,7 @@ export class MessageService {
         ...item,
         ...decrypted,
         replyTo,
-        isMine: account.contractAddress === item.sender
+        isMine: account.contractAddress === item.sender,
       })
 
       return rs
@@ -144,12 +144,12 @@ export class MessageService {
   private async _processGroupMessage(
     item: any,
     account: Account,
-    conversation: Conversation
+    conversation: Conversation,
   ): Promise<Message | undefined> {
     try {
       const decrypted = await this.decryptGroupMessage(
         conversation.conversationKey,
-        item.finalContent
+        item.finalContent,
       )
 
       let replyTo: any = undefined
@@ -177,7 +177,7 @@ export class MessageService {
       if (conversation.conversationType === 'anonymous_group') {
         const memberAlias = await this.anonymousGroupContract.getAliasMember({
           from: account.address,
-          to: conversation.conversationId
+          to: conversation.conversationId,
         })
         isMine = memberAlias === item?.authorAlias
       } else if (conversation.conversationType === 'group') {
@@ -197,7 +197,7 @@ export class MessageService {
         conversationType: conversation.conversationType,
         reactionSummary: item.reactions,
         isRead: isRead,
-        account
+        account,
       })
 
       return rs
@@ -210,7 +210,7 @@ export class MessageService {
   async _inflateReplyTo(
     replyTo: OnChainReplyReference,
     account: Account,
-    conversation: Conversation
+    conversation: Conversation,
   ): Promise<ReplyReference | OnChainReplyReference> {
     try {
       const { messageId, sender } = replyTo
@@ -221,7 +221,7 @@ export class MessageService {
         const replyMessage = await this.userContract.getMessageById({
           from: account.address,
           to: account.contractAddress,
-          inputData: { _messageId: messageId }
+          inputData: { _messageId: messageId },
         })
 
         const decryptionKey = await this._getDecryptionKey(sender, account, conversation)
@@ -230,7 +230,7 @@ export class MessageService {
           await this.walletService.decryptMessage<OnChainMessagePayload>(
             decryptionKey,
             account.address,
-            replyMessage.encryptedContent
+            replyMessage.encryptedContent,
           )
 
         decrypted = decryptedData
@@ -241,7 +241,7 @@ export class MessageService {
         const payload = {
           from: account.address,
           to: conversation.conversationId,
-          inputData: { _messageId: messageId }
+          inputData: { _messageId: messageId },
         }
 
         const replyMessage =
@@ -251,7 +251,7 @@ export class MessageService {
 
         const { replyTo, ...decryptedData } = await this.decryptGroupMessage(
           conversation.conversationKey,
-          replyMessage.finalContent
+          replyMessage.finalContent,
         )
 
         decrypted = decryptedData
@@ -259,7 +259,7 @@ export class MessageService {
       return {
         messageId,
         sender,
-        ...decrypted
+        ...decrypted,
       }
     } catch (error) {
       console.error('[MessageService] Failed to inflate replyTo:', error)
@@ -270,21 +270,21 @@ export class MessageService {
   private async _getDecryptionKey(
     sender: string,
     account: Account,
-    conversation: Conversation
+    conversation: Conversation,
   ): Promise<string> {
     if (sender === account.contractAddress) return account.publicKey
     if (sender === conversation.conversationId) return conversation.conversationKey
 
     return await this.userContract.publicKey({
       from: account.address,
-      to: sender
+      to: sender,
     })
   }
 
   async sendMessage(
     account: Account,
     conversation: Conversation,
-    payload: SendPayload
+    payload: SendPayload,
   ): Promise<string> {
     const clientId = uuidv4()
     const optimisticMessage = createOptimisticMessage(
@@ -296,9 +296,9 @@ export class MessageService {
         recipient: account.contractAddress,
         timestamp: Date.now(),
         ...(payload.replyTo && { replyTo: payload.replyTo }),
-        ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
+        ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom }),
       },
-      payload
+      payload,
     )
 
     // optimistic update
@@ -306,7 +306,7 @@ export class MessageService {
       conversationId: conversation.conversationId,
       message: optimisticMessage,
       isMine: true,
-      conversationType: 'p2p'
+      conversationType: 'p2p',
     })
 
     // 🔗 map sang payload ON-CHAIN (type, value, replyTo)
@@ -327,17 +327,17 @@ export class MessageService {
       messageId: string
       recipient: string
       isMine?: boolean
-    }
+    },
   ) {
     const { encryptedContent, sender, messageId, recipient } = data
     const publicKey = await this.userContract.publicKey({
       from: account.address,
-      to: sender
+      to: sender,
     })
     const decryptMessage = await this.walletService.decryptMessage<OnChainMessagePayload>(
       publicKey,
       account.address,
-      encryptedContent
+      encryptedContent,
     )
 
     let replyTo: any = undefined
@@ -348,7 +348,7 @@ export class MessageService {
       const mockConversation = {
         conversationId: sender,
         conversationKey: publicKey, // Use the fetched public key of the sender
-        conversationType: 'p2p'
+        conversationType: 'p2p',
       } as Conversation
 
       replyTo = await this._inflateReplyTo(decryptMessage.replyTo, account, mockConversation)
@@ -367,7 +367,7 @@ export class MessageService {
       sender,
       recipient,
       replyTo,
-      isMine: data.isMine
+      isMine: data.isMine,
     })
   }
 
@@ -377,7 +377,7 @@ export class MessageService {
     payload: {
       emoji: string
       messageId: string
-    }
+    },
   ): Promise<void> {
     const { emoji, messageId } = payload
 
@@ -391,7 +391,7 @@ export class MessageService {
       reactor: account.contractAddress,
       accountId: account.address,
       emoji: encryptEmoji,
-      isMine: true
+      isMine: true,
     })
 
     await this.userContract.reactToMessage({
@@ -401,8 +401,8 @@ export class MessageService {
         partnerContract: conversation.conversationId,
         _messageId: messageId,
         _reaction: encryptEmoji,
-        _reactionToPartner: encryptEmoji
-      }
+        _reactionToPartner: encryptEmoji,
+      },
     })
   }
 
@@ -410,7 +410,7 @@ export class MessageService {
     account: Account,
     conversation: Conversation,
     messageOld: PersistedMessage,
-    payload: EditTextPayload
+    payload: EditTextPayload,
   ): Promise<void> {
     // 🚫 chỉ cho phép edit text
     if (messageOld.type !== 'text') {
@@ -425,7 +425,7 @@ export class MessageService {
       status: 'sending',
       timestamp: Date.now(),
       ...(payload.replyTo && { replyTo: payload.replyTo }),
-      ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
+      ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom }),
     }
 
     // 🔥 Optimistic UI update
@@ -433,7 +433,7 @@ export class MessageService {
       accountId: account.address,
       conversationId: conversation.conversationId,
       messageId: messageOld.id,
-      message: optimisticMessage
+      message: optimisticMessage,
     })
 
     // 🔗 map sang payload on-chain
@@ -444,9 +444,9 @@ export class MessageService {
       this.walletService.encryptMessage(
         conversation.conversationKey,
         account.address,
-        stringifyMessage
+        stringifyMessage,
       ),
-      this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage)
+      this.walletService.encryptMessage(account.publicKey, account.address, stringifyMessage),
     ])
 
     try {
@@ -458,8 +458,8 @@ export class MessageService {
           partnerContract: conversation.conversationId,
           _messageId: messageOld.id,
           newEncryptedContent: encryptedForSelf,
-          newEncryptedContentForPartner: encryptedForRecipient
-        }
+          newEncryptedContentForPartner: encryptedForRecipient,
+        },
       })
 
       // ✅ update status sent
@@ -468,7 +468,7 @@ export class MessageService {
         conversationId: conversation.conversationId,
         clientId: messageOld.id,
         messageId: messageOld.id,
-        status: messageOld.status
+        status: messageOld.status,
       })
     } catch (error) {
       // ❌ rollback / failed
@@ -477,7 +477,7 @@ export class MessageService {
         conversationId: conversation.conversationId,
         clientId: messageOld.id,
         messageId: messageOld.id,
-        status: 'failed'
+        status: 'failed',
       })
       throw error
     }
@@ -486,19 +486,19 @@ export class MessageService {
   async deleteMessage(
     account: Account,
     conversation: Conversation,
-    message: PersistedMessage
+    message: PersistedMessage,
   ): Promise<void> {
     this.eventBus.emit('message.delete', {
       messageId: message.id,
-      conversationId: conversation.conversationId
+      conversationId: conversation.conversationId,
     })
     await this.userContract.deleteMessageV2({
       from: account.hiddenAddress,
       to: account.contractAddress,
       inputData: {
         _messageId: message.id,
-        partnerContract: conversation.conversationId
-      }
+        partnerContract: conversation.conversationId,
+      },
     })
   }
 
@@ -507,7 +507,7 @@ export class MessageService {
     conversation: Conversation,
     files: FileItem[],
     type = 'file',
-    content: string
+    content: string,
   ): Promise<void> {
     console.log({ account, conversation, files, type, content })
   }
@@ -521,7 +521,7 @@ export class MessageService {
     mimeType: string,
     onProgress?: (percent: number) => void,
     chunkLimit = 50,
-    concurrency = 4
+    concurrency = 4,
   ): Promise<string> {
     try {
       // 0. Check cache
@@ -536,12 +536,12 @@ export class MessageService {
             cachedFile.blob,
             cachedFile.mimeType,
             fileName,
-            path
+            path,
           )
 
           this.eventBus.emit('file.cached', {
             fileKey,
-            filePath: URL.createObjectURL(cachedFile.blob)
+            filePath: URL.createObjectURL(cachedFile.blob),
           })
         }
 
@@ -557,7 +557,7 @@ export class MessageService {
       //@ts-ignore
       const { infos } = await this.fileContract.getFilesInfo({
         from: account.address,
-        inputData: { fileKeys: [fileKey] }
+        inputData: { fileKeys: [fileKey] },
       })
 
       if (!infos) throw new Error('File not found on chain')
@@ -580,8 +580,8 @@ export class MessageService {
             inputData: {
               fileKey,
               start: i,
-              limit: currentLimit
-            }
+              limit: currentLimit,
+            },
           })
 
           const hexArray = Array.isArray(result) ? result : [result]
@@ -590,7 +590,7 @@ export class MessageService {
             const rawHex = hexString.startsWith('0x') ? hexString.slice(2) : hexString
 
             const bytes = new Uint8Array(
-              (rawHex.match(/[\da-f]{2}/gi) || []).map((h: string) => parseInt(h, 16))
+              (rawHex.match(/[\da-f]{2}/gi) || []).map((h: string) => parseInt(h, 16)),
             )
 
             chunks[i + idx] = bytes
@@ -641,7 +641,7 @@ export class MessageService {
 
         this.eventBus.emit('file.cached', {
           fileKey,
-          filePath
+          filePath,
         })
       } catch (err) {
         console.error('[cache failed]', err)
@@ -662,7 +662,7 @@ export class MessageService {
   async getGroupMessages(
     account: Account,
     conversation: Conversation,
-    options?: { limit?: number; page?: number }
+    options?: { limit?: number; page?: number },
   ): Promise<Message[]> {
     const { limit = 50, page = 1 } = options ?? {}
     let rawMessages: any[] = []
@@ -672,8 +672,8 @@ export class MessageService {
         to: conversation.conversationId,
         inputData: {
           limit,
-          page
-        }
+          page,
+        },
       })
     } else if (conversation.conversationType === 'anonymous_group') {
       try {
@@ -683,8 +683,8 @@ export class MessageService {
           inputData: {
             limit,
             page,
-            sender: `0x${account.address}`
-          }
+            sender: `0x${account.address}`,
+          },
         })
       } catch (error) {
         rawMessages = []
@@ -695,7 +695,7 @@ export class MessageService {
 
     const messages = (
       await fulfilledPromises(
-        rawMessages.map((item) => this._processGroupMessage(item, account, conversation))
+        rawMessages.map((item) => this._processGroupMessage(item, account, conversation)),
       )
     ).filter(Boolean)
 
@@ -711,7 +711,7 @@ export class MessageService {
   async getRecipientOwners(account: Account, conversation: Conversation) {
     const members = await this.groupContract.getMemberListGroup({
       from: account.address,
-      to: conversation.conversationId
+      to: conversation.conversationId,
     })
 
     const contractAddresses = await Promise.all(
@@ -719,22 +719,22 @@ export class MessageService {
         const contractAddress = await this.factoryContract.getUserContract({
           from: account.address,
           inputData: {
-            user: mem
-          }
+            user: mem,
+          },
         })
         return { contractAddress, address: mem }
-      })
+      }),
     )
 
     const userSettings = await Promise.all(
       contractAddresses.map(async (c) => {
         const settings = await this.userContract.detailedSettings({
           from: account.address,
-          to: c.contractAddress
+          to: c.contractAddress,
         })
 
         return { ...c, ...settings }
-      })
+      }),
     )
 
     const enabledUsers = userSettings.filter((i) => i.p2pChatEnabled)
@@ -749,14 +749,14 @@ export class MessageService {
   async sendGroupMessae(
     account: Account,
     conversation: Conversation,
-    payload: SendPayload
+    payload: SendPayload,
   ): Promise<string> {
     const clientId = uuidv4()
     let sender = account.contractAddress
     if (conversation.conversationType === 'anonymous_group') {
       sender = await this.anonymousGroupContract.getAliasMember({
         from: account.address,
-        to: conversation.conversationId
+        to: conversation.conversationId,
       })
     }
 
@@ -770,9 +770,9 @@ export class MessageService {
         timestamp: Date.now(),
         ...(payload.replyTo && { replyTo: payload.replyTo }),
         ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom }),
-        isMine: true
+        isMine: true,
       },
-      payload
+      payload,
     )
 
     // optimistic update
@@ -780,7 +780,7 @@ export class MessageService {
       conversationId: conversation.conversationId,
       message: optimisticMessage,
       isMine: true,
-      conversationType: conversation.conversationType
+      conversationType: conversation.conversationType,
     }
 
     this.eventBus.emit('message.add', messageAdd)
@@ -796,7 +796,7 @@ export class MessageService {
     account: Account,
     conversation: Conversation,
     messageOld: PersistedMessage,
-    payload: EditTextPayload
+    payload: EditTextPayload,
   ): Promise<void> {
     // 🚫 chỉ cho phép edit text
     if (messageOld.type !== 'text') {
@@ -810,14 +810,14 @@ export class MessageService {
       status: 'sending',
       timestamp: Date.now(),
       ...(payload.replyTo && { replyTo: payload.replyTo }),
-      ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom })
+      ...(payload.forwardFrom && { forwardFrom: payload.forwardFrom }),
     }
 
     // 🔥 Optimistic UI update
     this.eventBus.emit('message.updateGroup', {
       conversationId: conversation.conversationId,
       messageId: messageOld.id,
-      message: optimisticMessage
+      message: optimisticMessage,
     })
 
     // 🔗 map sang payload on-chain
@@ -835,8 +835,8 @@ export class MessageService {
         to: conversation.conversationId,
         inputData: {
           messageId: messageOld.id,
-          newEncryptedContent: encryptMessage
-        }
+          newEncryptedContent: encryptMessage,
+        },
       }
 
       if (conversation.conversationType === 'group') {
@@ -860,7 +860,7 @@ export class MessageService {
         conversationId: conversation.conversationId,
         clientId: messageOld.id,
         messageId: messageOld.id,
-        status: 'failed'
+        status: 'failed',
       })
       throw error
     }
@@ -871,13 +871,13 @@ export class MessageService {
     if (window.fiaiSDK) {
       pass = await sendCommand('createECDHPassword', {
         address: address,
-        publicKey: publicKey
+        publicKey: publicKey,
       })
     } else {
       const privateKey = await getPrivateKeyFromDb(address)
       pass = await sendCommand('createECDHPassword', {
         privateKey,
-        publicKey: publicKey
+        publicKey: publicKey,
       })
     }
     return pass.password
@@ -892,7 +892,7 @@ export class MessageService {
       type: ConversationType
       isMine?: boolean
       sender?: string
-    }
+    },
   ) {
     const { encryptedContent, messageId, groupAddress, type } = data
     //chỗ này trùng với bên conversation services
@@ -907,7 +907,7 @@ export class MessageService {
     const encryptedKey = await this.groupContract.getMyEncryptedGroupKey({
       from: accountId,
       to: conversationId,
-      inputData: {}
+      inputData: {},
     })
 
     const adminPublicKey =
@@ -916,15 +916,15 @@ export class MessageService {
             from: accountId,
             to: conversationId,
             inputData: {
-              '': accountId
-            }
+              '': accountId,
+            },
           })
         : await this.anonymousGroupContract.userToPublicKeyAdmin({
             from: accountId,
             to: conversationId,
             inputData: {
-              '': accountId
-            }
+              '': accountId,
+            },
           })
 
     const sharedKeyWithAdmin = await this.handleCreateECDHPassword(accountId, adminPublicKey)
@@ -943,7 +943,7 @@ export class MessageService {
       const mockConversation = {
         conversationId: groupAddress,
         conversationKey: groupKey, // Use the fetched public key of the sender
-        conversationType: data.type
+        conversationType: data.type,
       } as Conversation
 
       replyTo = await this._inflateReplyTo(decryptMessage.replyTo, account, mockConversation)
@@ -965,7 +965,7 @@ export class MessageService {
       replyTo,
       isMine: data.isMine,
       sender,
-      account
+      account,
     })
 
     return decryptedMessage
@@ -974,27 +974,27 @@ export class MessageService {
   async deleteGroupMessage(
     account: Account,
     conversation: Conversation,
-    message: PersistedMessage
+    message: PersistedMessage,
   ): Promise<void> {
     this.eventBus.emit('message.delete', {
       messageId: message.id,
-      conversationId: conversation.conversationId
+      conversationId: conversation.conversationId,
     })
     if (conversation.conversationType === 'group') {
       await this.groupContract.deleteMessage({
         from: account.hiddenAddress,
         to: conversation.conversationId,
         inputData: {
-          messageId: message.id
-        }
+          messageId: message.id,
+        },
       })
     } else {
       await this.anonymousGroupContract.deleteMessage({
         from: account.hiddenAddress,
         to: conversation.conversationId,
         inputData: {
-          messageId: message.id
-        }
+          messageId: message.id,
+        },
       })
     }
   }
@@ -1005,7 +1005,7 @@ export class MessageService {
     payload: {
       emoji: string
       messageId: string
-    }
+    },
   ): Promise<void> {
     const { emoji, messageId } = payload
 
@@ -1025,8 +1025,8 @@ export class MessageService {
       to: conversation.conversationId,
       inputData: {
         messageId: messageId,
-        reaction: encryptEmoji
-      }
+        reaction: encryptEmoji,
+      },
     }
 
     if (conversation.conversationType === 'group') {
@@ -1040,7 +1040,7 @@ export class MessageService {
     const payload = {
       from: account.hiddenAddress,
       to: conversation.conversationId,
-      inputData: { messageId }
+      inputData: { messageId },
     }
 
     if (conversation.conversationType === 'anonymous_group') {
@@ -1053,8 +1053,8 @@ export class MessageService {
         to: account.contractAddress,
         inputData: {
           messageId,
-          partnerContract: conversation.conversationId
-        }
+          partnerContract: conversation.conversationId,
+        },
       })
     } else throw new Error('[UnreactToMessage] Invalid conversation type')
   }
@@ -1064,7 +1064,7 @@ export class MessageService {
     conversation: Conversation,
     stringifyMessage: string,
     clientId: string,
-    fileKey?: string
+    fileKey?: string,
   ) {
     return asyncPriorityQueue.add(async () => {
       this.messageExtend.unsubscribe()
@@ -1078,7 +1078,7 @@ export class MessageService {
           messageId,
           clientId,
           conversationId: conversation.conversationId,
-          fileId: fileKey
+          fileId: fileKey,
         })
       }
 
@@ -1098,7 +1098,7 @@ export class MessageService {
           const encryptedForRecipient = await this.walletService.encryptMessage(
             conversation.conversationKey,
             account.address,
-            stringifyMessage
+            stringifyMessage,
           )
 
           await this.userContract.sendMessage({
@@ -1107,8 +1107,8 @@ export class MessageService {
             inputData: {
               _recipientContractAddress: conversation.conversationId,
               _encryptedContentForSelf: encryptedForRecipient,
-              _encryptedContentForRecipient: encryptedForRecipient
-            }
+              _encryptedContentForRecipient: encryptedForRecipient,
+            },
           })
         } else {
           const encryptMessage = (
@@ -1127,7 +1127,7 @@ export class MessageService {
 
             const { recipientContracts, recipientOwners } = await this.getRecipientOwners(
               account,
-              conversation
+              conversation,
             )
 
             await this.groupContract.sendMessage({
@@ -1136,15 +1136,15 @@ export class MessageService {
               inputData: {
                 encryptedContent: encryptMessage,
                 recipientOwners,
-                recipientContracts
-              }
+                recipientContracts,
+              },
             })
           } else if (conversationType === 'anonymous_group') {
             promise = new Promise((resolve) => {
               const off = eventLog.on('AnonymousMessageStored', async (data) => {
                 const alias = await container.anonymousGroupContract.getAliasMember({
                   from: account.address,
-                  to: conversation.conversationId
+                  to: conversation.conversationId,
                 })
 
                 if (data.sender !== alias) return
@@ -1157,8 +1157,8 @@ export class MessageService {
               from: account.hiddenAddress,
               to: conversation.conversationId,
               inputData: {
-                encryptedContent: encryptMessage
-              }
+                encryptedContent: encryptMessage,
+              },
             })
             await updateMessageId()
           } else {
@@ -1166,14 +1166,15 @@ export class MessageService {
           }
         }
 
+        const messageId = await promise
         this.messageExtend.subscribe()
-        return ''
+        return messageId
       } catch (error) {
         this.eventBus.emit('message.status', {
           accountId: account.address,
           conversationId: conversation.conversationId,
           clientId,
-          status: 'failed'
+          status: 'failed',
         })
         throw error
       }

@@ -53,12 +53,12 @@ function ItemConversation({
 
   const base = {
     type: conversation?.conversationType,
-    id: conversation?.conversationId
+    id: conversation?.conversationId,
   }
 
-  const { data: lastMesasgeV2 } = useMessageById(inbox?.messageId, base)
+  const { data: lastMessageFromInbox } = useMessageById(inbox?.messageId, base)
 
-  const finalLastMessage = lastMesasgeV2 || lastMessage
+  const finalLastMessage = lastMessageFromInbox || lastMessage
 
   const { handlers, isLongPressActive } = useLongPress({
     threshold: 300,
@@ -69,7 +69,7 @@ function ItemConversation({
     },
     onLongPressEnd: () => {
       sendCommand('vibrate')
-    }
+    },
   })
   // Helper render content
 
@@ -81,7 +81,7 @@ function ItemConversation({
           'w-full flex items-center min-h-[56px] h-full',
           'transition-all duration-300 ease-out rounded-2xl hover:bg-white',
           // isLongPressActive && 'bg-black/40',
-          className
+          className,
         )}
         {...props}
       >
@@ -89,7 +89,7 @@ function ItemConversation({
           className={cn(
             'flex items-center gap-2 px-2 py-1.5 text-left text-sm h-full w-full',
             'transition-all duration-300 ease-out',
-            isLongPressActive && 'scale-95'
+            isLongPressActive && 'scale-95',
           )}
         >
           <AvatarUser

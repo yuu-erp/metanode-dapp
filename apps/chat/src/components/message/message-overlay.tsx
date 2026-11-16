@@ -16,7 +16,7 @@ import { SaveOverlay } from './overlay-items/save.overlay'
 import { ReactionItem } from './reaction/reaction-item'
 import type { WithMessage } from './types'
 
-export type MessageOverlayV2Props = {}
+export type MessageOverlayProps = {}
 
 const quickReactions = ['❤️', '😢', '😂', '👍', '👎', '🔥', '🥰']
 
@@ -27,24 +27,24 @@ const Comps = [
   EditOverlay,
   PinOverlay,
   ForwardOverlay,
-  DeleteOverlay
+  DeleteOverlay,
 ] as FC<WithMessage>[]
 
-export const MessageOverlayV2 = memo(() => {
+export const MessageOverlay = memo(() => {
   const backdropRef = React.useRef<HTMLDivElement>(null)
 
   const { open, meta } = useModalStore(
     useShallow((s) => ({
       open: s.open && s.kind === 'overlay',
-      meta: s.meta
-    }))
+      meta: s.meta,
+    })),
   )
 
   const { x, y, id } = meta ?? {}
 
   const { contentRef, position } = useOverlayPosition({
     x,
-    y
+    y,
   })
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -69,7 +69,7 @@ export const MessageOverlayV2 = memo(() => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{
-            duration: 0.18
+            duration: 0.18,
           }}
         >
           <motion.div
@@ -79,26 +79,26 @@ export const MessageOverlayV2 = memo(() => {
             style={position}
             initial={{
               opacity: 0,
-              scale: 0.9
+              scale: 0.9,
             }}
             animate={{
               opacity: 1,
-              scale: 1
+              scale: 1,
             }}
             exit={{
               opacity: 0,
-              scale: 0.9
+              scale: 0.9,
             }}
             transition={{
               type: 'spring',
               damping: 28,
-              stiffness: 320
+              stiffness: 320,
             }}
           >
             <div
               className={cn(
                 'mb-3 w-fit rounded-full bg-white/80 px-2 py-1',
-                'flex gap-3 shadow-xl backdrop-blur-md-app'
+                'flex gap-3 shadow-xl backdrop-blur-md-app',
               )}
             >
               {quickReactions.map((emoji) => (
@@ -122,4 +122,4 @@ export const MessageOverlayV2 = memo(() => {
   )
 })
 
-MessageOverlayV2.displayName = 'MessageOverlayV2'
+MessageOverlay.displayName = 'MessageOverlay'

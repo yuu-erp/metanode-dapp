@@ -5,7 +5,7 @@ import { ConversationsProvider } from '@/features/conversation'
 import { useGroupEvent } from '@/hooks/group/use-group-event'
 import { useMessageEvents } from '@/hooks/mesage/use-message-events'
 import { useSyncCall } from '@/hooks/sync/use-sync-call'
-import { useMarkAsReadv2 } from '@/new/message/mark-as-read'
+import { useMarkAsReadForMessageList } from '@/new/message/mark-as-read'
 import { BackgroundSyncProvider } from '@/shared/background-sync'
 import { AppSidebar } from '@/shared/components/partials/app-sidebar'
 import NavbarMenu from '@/shared/components/partials/navbar-menu'
@@ -66,7 +66,7 @@ function RouteComponent() {
   useSyncContractsAddressess()
   useDisabled()
   useMessageEvents()
-  useMarkAsReadv2()
+  useMarkAsReadForMessageList()
   useGroupEvent()
   // useConversationList()
   const syncCall = useSyncCall()

@@ -5,7 +5,7 @@ import { Download, File, X } from 'lucide-react'
 import { memo, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
 import { formatFileSize } from '@/new'
-import { useCurrentState } from '@/hooks/use-current-state'
+import { getFileMetaFromCache, useFileMetaDisplay } from '@/new/file/file-info'
 import { ViewImageModal } from './view-image-modal'
 
 const mediaStyle = 'object-cover aspect-square w-16 rounded-md'
@@ -37,29 +37,29 @@ const FileItem = ({
   isMine?: boolean
   messageId: string
 }) => {
-  const { account } = useCurrentState()
-  // const { metadata } = useMetadata(id)
-  // const { cache } = useCache(id)
-  // const { status, progress = 0 } = useProgress(id)
-  const metadata = {} as any
-  const cache = {} as any
-  const status = 'idle' as any
+  const { data: metadataFromQuery } = useFileMetaDisplay(id)
+  const metadata = metadataFromQuery ?? getFileMetaFromCache(id)
+  const status = 'idle' as const
   const progress = 0
-  const isStored = !!cache
+  const previewPath = metadata?.path
+  const previewType = metadata?.mimeType?.startsWith('image/')
+    ? 'image'
+    : metadata?.mimeType?.startsWith('video/')
+      ? 'video'
+      : ''
+  const hasLocalPreview = Boolean(previewPath && previewType)
   const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
 
-  if (!metadata) return null
-  const { previewType = '', previewPath } = cache ?? {}
+  if (!metadata?.fileName) return null
 
   const uploadedSize = formatFileSize(metadata.size * (progress / 100))
 
-  const finalBehavior = isStored
+  const finalBehavior = hasLocalPreview
     ? behavior
     : {
         onClick: (e) => {
           e.preventDefault()
           e.stopPropagation()
-          // downloadFromServerEndToEnd(id, account?.address ?? '')
         },
       }
 
@@ -67,32 +67,27 @@ const FileItem = ({
     <>
       <div className="flex gap-3 items-center" {...finalBehavior}>
         <div className="relative">
-          {isStored && (
-            <>
-              {previewType === 'image' ? (
-                <ViewImageModal fileId={id} messageId={messageId}>
-                  <img
-                    src={previewPath}
-                    className={mediaStyle}
-                    draggable={false}
-                    alt={metadata.name}
-                  />
-                </ViewImageModal>
-              ) : previewType === 'video' ? (
-                <ViewImageModal fileId={id} messageId={messageId}>
-                  <video src={previewPath} className={mediaStyle} draggable={false} />
-                </ViewImageModal>
-              ) : (
-                <File />
-              )}
-            </>
+          {hasLocalPreview && previewType === 'image' && (
+            <ViewImageModal fileId={id} messageId={messageId}>
+              <img
+                src={previewPath}
+                className={mediaStyle}
+                draggable={false}
+                alt={metadata.fileName}
+              />
+            </ViewImageModal>
           )}
-          {!isStored && (
+          {hasLocalPreview && previewType === 'video' && (
+            <ViewImageModal fileId={id} messageId={messageId}>
+              <video src={previewPath} className={mediaStyle} draggable={false} />
+            </ViewImageModal>
+          )}
+          {!hasLocalPreview && (
             <WithWrapper
               isWrapped={true}
               className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
             >
-              {status === 'idle' && <Download />}
+              {previewType === '' && status === 'idle' ? <File className="size-5" /> : <Download />}
             </WithWrapper>
           )}
 
@@ -100,7 +95,7 @@ const FileItem = ({
             <div
               className={cn(
                 'absolute inset-0 flex items-center justify-center flex flex-col gap-1',
-                isStored && 'bg-black/20',
+                hasLocalPreview && 'bg-black/20',
               )}
             >
               <X />
@@ -109,7 +104,7 @@ const FileItem = ({
         </div>
 
         <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
-          <div className="text-sm font-medium truncate">{metadata.name}</div>
+          <div className="text-sm font-medium truncate">{metadata.fileName}</div>
           <div className="text-xs opacity-70">
             {status === 'pending'
               ? `${uploadedSize} / ${formatFileSize(metadata.size)}`

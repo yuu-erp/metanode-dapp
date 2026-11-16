@@ -1,12 +1,12 @@
 import MessageInput from '@/components/message-input'
 import { MessageList } from '@/components/message/message-list'
-import { MessageOverlayV2 } from '@/components/message/message-overlay-v2'
+import { MessageOverlay } from '@/components/message/message-overlay'
 import { container } from '@/container'
 import {
   ChatHeader,
   CopyMessageActionProvider,
   MessageActionProvider,
-  PinMessages
+  PinMessages,
 } from '@/features/message'
 import { useVisualViewport } from '@/shared/hooks'
 import { useGoToMeetingView } from '@/shared/hooks/call/use-go-to-meeting-view'
@@ -27,18 +27,18 @@ export const Route = createFileRoute('/_authenticated/$type/$id')({
         to: '/$type/$id',
         params: {
           id: formatAddress(id),
-          type
-        }
+          type,
+        },
       })
     }
 
     const account = await container.accountService.getCurrentAccount()
     if (account) {
       queryClient.invalidateQueries({
-        queryKey: MESSAGE_QUERY_KEY.MESSAGES(account?.address, id)
+        queryKey: MESSAGE_QUERY_KEY.MESSAGES(account?.address, id),
       })
     }
-  }
+  },
 })
 
 function RouteComponent() {
@@ -59,7 +59,7 @@ function RouteComponent() {
             className={cn(
               isMobile
                 ? 'fixed bottom-0 left-0 right-0 w-full flex flex-col supports-[height:100dvh]:h-[100dvh]'
-                : 'relative w-full flex flex-col h-full'
+                : 'relative w-full flex flex-col h-full',
             )}
             style={containerStyle}
           >
@@ -68,7 +68,7 @@ function RouteComponent() {
             <MessageList />
             <MessageInput />
           </div>
-          <MessageOverlayV2 />
+          <MessageOverlay />
         </CopyMessageActionProvider>
       </MessageActionProvider>
     </>

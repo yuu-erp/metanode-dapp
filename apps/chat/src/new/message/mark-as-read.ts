@@ -5,7 +5,8 @@ import { useCurrentState } from '@/hooks/use-current-state'
 import { container } from '@/container'
 import { asyncPriorityQueue } from '@/modules/realtime'
 
-export function useMarkAsReadv2() {
+/** Đánh dấu đã đọc theo danh sách id từ `useMessaeges` (khác `shared/hooks/use-mark-as-read`). */
+export function useMarkAsReadForMessageList() {
   const { ids } = useMessaeges()
   const { base, account } = useCurrentState()
   const readSet = useRef(new Set<string>())
@@ -21,7 +22,7 @@ export function useMarkAsReadv2() {
           if (message.isMine) return
           set.add(id)
           unRead.push(id)
-        })
+        }),
       )
       if (!unRead.length) return
       asyncPriorityQueue.add(async () => {
@@ -32,8 +33,8 @@ export function useMarkAsReadv2() {
               to: account.contractAddress,
               inputData: {
                 messageIds: unRead,
-                partnerContract: base.id
-              }
+                partnerContract: base.id,
+              },
             })
             break
           }
@@ -43,8 +44,8 @@ export function useMarkAsReadv2() {
               from: account.address,
               to: base.id,
               inputData: {
-                messageIds: unRead
-              }
+                messageIds: unRead,
+              },
             })
             break
           }

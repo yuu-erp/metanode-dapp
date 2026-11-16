@@ -1,8 +1,9 @@
+import type { ConversationType } from '@/modules/conversation'
 import { useStatusStore } from '@app/call'
-import { useSendMessageV2 } from '../mesage/use-send-message-v2'
+import { useSendMessage } from '../mesage/use-send-message'
 
 export function useSyncCall() {
-  const sendMessage = useSendMessageV2()
+  const sendMessage = useSendMessage()
 
   return async ({ id, type }: BaseConversation, payload: any) => {
     if (!id || !type) return
@@ -12,15 +13,15 @@ export function useSyncCall() {
     console.log('thanhduy - useSyncCall', {
       id,
       type,
-      payload
+      payload,
     })
     return sendMessage.mutateAsync({
       id: id,
-      type: type,
+      type: type as ConversationType,
       payload: {
         ...payload,
-        type: 'call_status'
-      }
+        type: 'call_status',
+      },
     })
   }
 }

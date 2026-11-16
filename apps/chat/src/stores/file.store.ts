@@ -17,6 +17,13 @@ export type FileItem = {
   path?: string
 }
 
+function revokePreviewUrl(item: FileItem) {
+  const url = item.path ?? item.meta.path
+  if (url?.startsWith('blob:')) {
+    URL.revokeObjectURL(url)
+  }
+}
+
 export type FileStore = {
   files: Record<string, Blob>
   map: Record<string, FileItem>
@@ -42,13 +49,24 @@ export const useFileStore = create<FileStore>()(
       set((s) => {
         s.map[id] = { ...s.map[id], ...data }
       }),
-    reset: () => set({ items: [] }),
+    reset: () =>
+      set((s) => {
+        s.items.forEach(revokePreviewUrl)
+        s.items = []
+      }),
     addItem: (item) => {
       const input = Array.isArray(item) ? item : [item]
-      set({ items: input })
+      set((s) => {
+        s.items.push(...input)
+      })
     },
-    removeItem: (idx) => set({ items: get().items.filter((_, i) => i !== idx) })
-  }))
+    removeItem: (idx) =>
+      set((s) => {
+        const item = s.items[idx]
+        if (item) revokePreviewUrl(item)
+        s.items.splice(idx, 1)
+      }),
+  })),
 )
 
 export const fileActions = useFileStore.getState()

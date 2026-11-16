@@ -13,11 +13,11 @@ export const WalletQrButton = memo(({ activeWallet }: WalletQrButtonProps) => {
   const { data: hiddenAddress } = useQuery({
     queryKey: ['hiddenAddress'],
     staleTime: 1000 * 15 * 60,
-    queryFn: async () => (await getHiddenWallet()).address
+    queryFn: async () => (await getHiddenWallet()).address,
   })
 
   const v1 = JSON.stringify({ address: activeWallet?.address })
-  const v2 = JSON.stringify({ address: hiddenAddress })
+  const qrPayload = JSON.stringify({ address: hiddenAddress })
 
   return (
     <Dialog>
@@ -36,7 +36,7 @@ export const WalletQrButton = memo(({ activeWallet }: WalletQrButtonProps) => {
         </div>
         <div className="flex flex-col gap-3 items-center">
           <p>Hidden address</p>
-          <QRCode value={v2} />
+          <QRCode value={qrPayload} />
         </div>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,5 @@
 import { useSubmitChatInput } from '@/new/message/submit-chat-input'
+import { useFileStore } from '@/stores/file.store'
 import { useInputStore } from '@/stores/input.store'
 import { Send } from 'lucide-react'
 import { memo } from 'react'
@@ -9,10 +10,10 @@ export type SendButtonProps = {
 
 export const SendButton = memo(({ reforcus }: SendButtonProps) => {
   const value = useInputStore((s) => s.chatValue)
-  const ids = []
+  const fileCount = useFileStore((s) => s.items.length)
   const { submit } = useSubmitChatInput()
 
-  if (!value.trim() && ids.length === 0) return null
+  if (!value.trim() && fileCount === 0) return null
   return (
     <button
       onClick={() => {

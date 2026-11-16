@@ -4,19 +4,20 @@ import type {
   Message,
   MessageAction,
   PersistedMessage,
-  SendPayload
+  ReplyReference,
+  SendPayload,
 } from '.'
 
 export function createOptimisticMessage(
   base: Omit<BaseMessage, 'type' | 'status'>,
-  payload: SendPayload
+  payload: SendPayload,
 ): Message {
   // Tạo base chung, KHÔNG gán type BaseMessage ở đây
   const common: Omit<BaseMessage, 'type'> = {
     ...base,
     status: 'sending',
     reactions: base.reactions ?? [], // phòng trường hợp base.reactions undefined
-    isMine: true
+    isMine: true,
   }
 
   switch (payload.type) {
@@ -24,14 +25,14 @@ export function createOptimisticMessage(
       return {
         ...common,
         type: 'text',
-        content: payload.content
+        content: payload.content,
       } satisfies Message // hoặc bỏ satisfies nếu TS version cũ
 
     case 'sticker':
       return {
         ...common,
         type: 'sticker',
-        stickerId: payload.stickerId
+        stickerId: payload.stickerId,
       } satisfies Message
 
     case 'file':
@@ -43,7 +44,7 @@ export function createOptimisticMessage(
         mimeType: payload.mimeType,
         size: payload.size,
         filePath: payload.filePath,
-        file: payload.file
+        file: payload.file,
       } satisfies Message
 
     case 'voice':
@@ -52,7 +53,7 @@ export function createOptimisticMessage(
         type: 'voice',
         fileId: payload.fileId,
         duration: payload.duration,
-        mimeType: payload.mimeType
+        mimeType: payload.mimeType,
       } satisfies Message
 
     case 'location':
@@ -61,21 +62,21 @@ export function createOptimisticMessage(
         type: 'location',
         latitude: payload.latitude,
         longitude: payload.longitude,
-        ...(payload.address !== undefined && { address: payload.address })
+        ...(payload.address !== undefined && { address: payload.address }),
       } satisfies Message
 
     case 'system':
       return {
         ...common,
         type: 'system',
-        eventName: payload.eventName
+        eventName: payload.eventName,
       } satisfies Message
 
     case 'call_status': {
       return {
         ...payload,
         ...common,
-        type: 'call_status'
+        type: 'call_status',
       }
     }
   }
@@ -90,7 +91,7 @@ export function createReplyReference(message: PersistedMessage): any {
   const common = {
     messageId: message.id,
     sender: message.sender,
-    type: message.type
+    type: message.type,
   }
 
   switch (message.type) {
@@ -111,7 +112,7 @@ export function createReplyReference(message: PersistedMessage): any {
         mimeType: message.mimeType,
         size: message.size,
         filePath: message.filePath,
-        file: message.file
+        file: message.file,
       }
 
     case 'voice':
@@ -119,7 +120,7 @@ export function createReplyReference(message: PersistedMessage): any {
         ...common,
         fileId: message.fileId,
         duration: message.duration,
-        mimeType: message.mimeType
+        mimeType: message.mimeType,
       }
 
     case 'location':
@@ -127,14 +128,14 @@ export function createReplyReference(message: PersistedMessage): any {
         ...common,
         latitude: message.latitude,
         longitude: message.longitude,
-        address: message.address
+        address: message.address,
       }
 
     case 'system':
       return {
         ...common,
         type: 'system',
-        eventName: message.eventName
+        eventName: message.eventName,
       }
   }
 }
@@ -144,28 +145,28 @@ export function createForwardPayload(message: PersistedMessage) {
     throw new Error('Cannot forward message without id')
   }
   const common = {
-    forwardFrom: message.sender
+    forwardFrom: message.sender,
   }
 
   switch (message.type) {
     case 'call_status':
       return {
         ...common,
-        type: 'call_status'
+        type: 'call_status',
       }
 
     case 'text':
       return {
         ...common,
         type: 'text',
-        content: message.content
+        content: message.content,
       }
 
     case 'sticker':
       return {
         ...common,
         type: 'sticker',
-        stickerId: message.stickerId
+        stickerId: message.stickerId,
       }
 
     case 'file':
@@ -175,7 +176,7 @@ export function createForwardPayload(message: PersistedMessage) {
         fileId: message.fileId,
         fileName: message.fileName,
         mimeType: message.mimeType,
-        size: message.size
+        size: message.size,
       }
 
     case 'voice':
@@ -184,7 +185,7 @@ export function createForwardPayload(message: PersistedMessage) {
         type: 'voice',
         fileId: message.fileId,
         duration: message.duration,
-        mimeType: message.mimeType
+        mimeType: message.mimeType,
       }
 
     case 'location':
@@ -193,14 +194,14 @@ export function createForwardPayload(message: PersistedMessage) {
         type: 'location',
         latitude: message.latitude,
         longitude: message.longitude,
-        address: message.address
+        address: message.address,
       }
 
     case 'system':
       return {
         ...common,
         type: 'system',
-        eventName: message.eventName
+        eventName: message.eventName,
       }
 
     default: {
@@ -213,9 +214,60 @@ export function createForwardPayload(message: PersistedMessage) {
 
 export function createSendPayload(
   draft: ComposerDraft,
-  messageAction: MessageAction | undefined = undefined
+  messageAction: MessageAction | undefined = undefined,
 ): SendPayload {
-  console.log({ draft, messageAction })
+  const payload = { ...draft } as SendPayload
+
+  if (messageAction?.type === 'REPLY') {
+    const replyBase = {
+      messageId: messageAction.messageId,
+      sender: '',
+      type: draft.type,
+    }
+
+    switch (draft.type) {
+      case 'text':
+        payload.replyTo = { ...replyBase, type: 'text', content: '' }
+        break
+      case 'sticker':
+        payload.replyTo = { ...replyBase, type: 'sticker', stickerId: draft.stickerId }
+        break
+      case 'file':
+        payload.replyTo = {
+          ...replyBase,
+          type: 'file',
+          fileId: draft.fileId,
+          fileName: draft.fileName,
+          mimeType: draft.mimeType,
+          size: draft.size,
+          filePath: draft.filePath,
+          file: draft.file,
+        }
+        break
+      case 'voice':
+        payload.replyTo = {
+          ...replyBase,
+          type: 'voice',
+          fileId: draft.fileId,
+          duration: draft.duration,
+          mimeType: draft.mimeType,
+        }
+        break
+      case 'location':
+        payload.replyTo = {
+          ...replyBase,
+          type: 'location',
+          latitude: draft.latitude,
+          longitude: draft.longitude,
+          address: draft.address,
+        }
+        break
+      default:
+        payload.replyTo = replyBase as ReplyReference
+    }
+  }
+
+  return payload
 }
 
 // ============================================================================

@@ -20,10 +20,11 @@ export function useSendFile(messageType: string = 'file') {
     mutationFn: async ({ files, content = '' }: { files: FileItem[]; content?: string }) => {
       if (!account || !id || !type) return
       const conversation = await queryClient.ensureQueryData(
-        createGetConversationIdQueryOptions(id, type, false)
+        createGetConversationIdQueryOptions(id, type, false),
       )
       if (!conversation) return
       const messageService = container.messageService
+      console.log('useSendFile 1', files)
       return messageService.sendFile(account, conversation, files, messageType, content)
     },
 
@@ -37,6 +38,6 @@ export function useSendFile(messageType: string = 'file') {
 
     onError: (error) => {
       console.error('[useSendFile] Send file error ❌', error)
-    }
+    },
   })
 }
