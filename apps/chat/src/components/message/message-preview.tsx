@@ -27,12 +27,11 @@ export const MessagePreview = memo(({ id }: MessagePreviewProps) => {
       )
 
     case 'file': {
-      const id = message.fileIds?.[0]
-      // const { metadata } = useMetadata(id)
+      // const { metadata } = useMetadata(message.fileIds?.[0])
       // const { cache } = useCache(id)
 
       const cache = {} as any
-      const metadata = {}
+      const metadata = {} as { name?: string }
 
       if (''.startsWith('image/')) {
         return (

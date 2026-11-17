@@ -1,4 +1,3 @@
-import { useCurrentAccount } from '@/shared/hooks'
 import { useModalStore } from '@/stores/modal.store'
 import { DownloadIcon } from 'lucide-react'
 import { memo } from 'react'
@@ -8,7 +7,6 @@ import { BaseOverlayItem } from './base-overlay-item'
 
 export const SaveOverlay = memo(({ data }: WithMessage) => {
   const meta = useModalStore(useShallow((s) => s.meta))
-  const { account } = useCurrentAccount()
 
   if (!['file', 'voice'].includes(data.type) || !meta?.fileId) return null
   return (

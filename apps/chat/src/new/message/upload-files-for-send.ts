@@ -49,10 +49,9 @@ export function prepareFilesForSend(items: FileItem[]) {
   const readlIds = (async (): Promise<string[]> => {
     const modules = createFileModule()
     const account = await getCurrentAccount()
-    console.log('account', account)
-
     await modules.initialize(account.hiddenAddress, appConfig.file)
     const uploadUseCase = modules.getUploadFileUseCase()
+    const setPublicStatusUseCase = modules.getSetPublicStatusUseCase()
 
     const keys: string[] = []
 
@@ -61,6 +60,11 @@ export function prepareFilesForSend(items: FileItem[]) {
         file: item.file as File,
         from: account.hiddenAddress,
         chunkSize: 1024 * 1024,
+      })
+      await setPublicStatusUseCase.execute({
+        fileKey: results.fileKey,
+        from: account.hiddenAddress,
+        status: true,
       })
       keys.push(results.fileKey)
     }

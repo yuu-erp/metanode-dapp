@@ -1,4 +1,4 @@
-import { useToggleSourceEnabled } from '@app/call'
+import { useToggleSourceEnabled } from '@/call'
 import { Mic, MicOff } from 'lucide-react'
 import { memo } from 'react'
 import { Button } from '../ui'

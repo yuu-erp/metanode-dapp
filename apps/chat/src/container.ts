@@ -5,12 +5,12 @@ import {
   FileContract,
   GroupContract,
   UserContract,
-  VerifyContract
+  VerifyContract,
 } from '@/modules/blockchain'
 import {
   ConversationFactory,
   ConversationService,
-  ConversationSyncStrategy
+  ConversationSyncStrategy,
 } from '@/modules/conversation'
 import { MittEventBus, type EventBusPort } from '@/modules/event'
 import { FileCacheFactory, FileCacheService } from '@/modules/file-cache'
@@ -20,7 +20,7 @@ import { MessagePinFactory, MessagePinService } from '@/modules/message-pin'
 import type { SessionManager, TransportService } from '@/modules/realtime-transport'
 import {
   getRealtimeTransportFactory,
-  type RealtimeTransportFactory
+  type RealtimeTransportFactory,
 } from '@/modules/realtime-transport/realtime-transport.factory'
 import { SyncFactory, SyncManager } from '@/modules/sync'
 import { NativeWalletAdapter, WalletService } from '@/modules/wallet'
@@ -30,7 +30,7 @@ import { MeetingFactory } from './modules/meeting/meeting.factory'
 import type { MeetingService } from './modules/meeting/meeting.service'
 import type { AppEvents } from './types/app-events'
 import { MeetingContract } from './modules/blockchain/meeting-contract'
-import { contracts, type ContractsType } from 'chat-react'
+import { contracts, type ContractsType } from '@/lib/chat-contracts'
 import { userContract } from './modules/blockchain/user-contract/abis'
 import { factoryContract } from './modules/blockchain/factory-contract/abis'
 import { Contracts } from './modules/blockchain/contracts'
@@ -89,14 +89,14 @@ class AppContainer {
     this.contracts = new Contracts(
       this._userContract,
       this._groupContract,
-      this._anonymousGroupContract
+      this._anonymousGroupContract,
     )
 
     // 5️⃣ Application Service (AccountService)
     this._accountService = AccountFactory.createService(
       this._walletService,
       this._factoryContract,
-      this._userContract
+      this._userContract,
     )
 
     // File Cache initialization
@@ -112,7 +112,7 @@ class AppContainer {
       this._eventLogContainer,
       this._anonymousGroupContract,
       this._verifyContract,
-      this._ekycContract
+      this._ekycContract,
     )
 
     this._messageService = MessageFactory.createService(
@@ -124,7 +124,7 @@ class AppContainer {
       this._eventBus,
       this._fileCacheService,
       this._anonymousGroupContract,
-      this._eventLogContainer
+      this._eventLogContainer,
     )
 
     this._fileTransferService = new FileTransferService()
@@ -227,10 +227,10 @@ class AppContainer {
         (account) => {
           import('@/shared/lib/react-query').then(({ queryClient, CONVERSATION_QUERY_KEY }) => {
             queryClient.invalidateQueries({
-              queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address)
+              queryKey: CONVERSATION_QUERY_KEY.CONVERSATIONS(account.address),
             })
           })
-        }
+        },
       )
 
       this._syncManager.registerStrategy(conversationSync)
@@ -250,7 +250,7 @@ class AppContainer {
 export const container = new AppContainer()
 contracts.init({
   user: userContract,
-  factory: factoryContract
+  factory: factoryContract,
 })
 
 export const chatContracts = contracts as ContractsType<{

@@ -1,3 +1,5 @@
 export * from './download-file/download-file'
+export * from './download-file-by-key'
 export * from './file-info'
 export * from './file.utils'
+export * from './use-file-preview'

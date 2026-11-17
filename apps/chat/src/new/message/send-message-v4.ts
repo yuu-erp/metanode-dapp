@@ -11,7 +11,7 @@ import { v4 } from 'uuid'
 import { getConversationKey } from '../conversation'
 import { getGroupMemberList } from '../conversation/group'
 import { getAlias } from '../conversation/my-info'
-import { setFileMetadata } from '../file/file-info'
+import { migrateOptimisticFileMeta, setFileMetadata } from '../file/file-info'
 import { getCurrentIdentity } from '../me'
 import { getUserContractAddress } from '../user/user-info'
 import { encryptMessage } from './crypto-message'
@@ -145,6 +145,13 @@ export async function handleSendMessage(
     if (files) {
       const fileIds = await files.readlIds
 
+      files.ids.forEach((localId, index) => {
+        const onChainKey = fileIds[index]
+        if (localId && onChainKey) {
+          migrateOptimisticFileMeta(localId, onChainKey)
+        }
+      })
+
       input.fileIds = fileIds
       fullMessage.fileIds = fileIds
       console.log('set optimistic file', fileIds)
@@ -156,7 +163,6 @@ export async function handleSendMessage(
         waitSendMessageEvent(base),
         sendMessageBC(input, base),
       ])
-      console.log('thanhduy - handleSendMessage 2')
 
       removeMessgeById(fullMessage.id)
       replaceIdInMessageList(fullMessage.id, messageId, base)
@@ -235,22 +241,12 @@ export type SendVoiceInput = {
 }
 
 export function useSendVoice() {
-  const { base } = useCurrentState()
   const { account } = useCurrentAccount()
 
   const mutation = useMutation({
     mutationKey: ACTIONS_QUERY_KEY.sendMessage,
-    mutationFn: async ({ file, metadata = {} }: SendVoiceInput) => {
+    mutationFn: async (_input: SendVoiceInput) => {
       if (!account) return
-      // const id = prepareFile(file, metadata)
-      // const { promise } = uploadFile(id, account?.address)
-      // handleSendMessage(
-      //   {
-      //     type: 'voice'
-      //   },
-      //   base,
-      //   { ids: [id], readlIds: promise }
-      // )
     },
   })
 

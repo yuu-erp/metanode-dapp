@@ -10,11 +10,7 @@ export function useSyncCall() {
     const pedning = useStatusStore.getState().syncing
     if (pedning) return
     useStatusStore.setState({ syncing: true })
-    console.log('thanhduy - useSyncCall', {
-      id,
-      type,
-      payload,
-    })
+
     return sendMessage.mutateAsync({
       id: id,
       type: type as ConversationType,

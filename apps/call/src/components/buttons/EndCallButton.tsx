@@ -1,4 +1,4 @@
-import { useEndCallAndCloseView, useUserStore } from '@app/call'
+import { useEndCallAndCloseView, useUserStore } from '@/call'
 import { PhoneOff } from 'lucide-react'
 import { memo } from 'react'
 import { Button } from '../ui'

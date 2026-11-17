@@ -27,17 +27,24 @@ export function p2pReactionToReactionItems({ value, me, partner }: Params): Reac
 
     const reactors = grouped.get(reaction)
 
-    if (reactors) {
-      reactors.push(address)
-    } else {
+    if (!reactors) {
       grouped.set(reaction, [address])
+      continue
     }
+    if (!reactors.includes(address)) reactors.push(address)
   }
 
   return Array.from(grouped, ([reaction, reactor]) => ({
     reaction,
-    reactor
+    reactor: [...new Set(reactor)],
   }))
+}
+
+export function isSavedMessagesConversation(
+  partnerContractId: string,
+  accountContractAddress: string,
+) {
+  return compareAddress(partnerContractId, accountContractAddress)
 }
 
 export async function p2pMessageToBaseMessage(input: BCP2pMessage): Promise<BaseMessage> {
@@ -56,8 +63,8 @@ export async function p2pMessageToBaseMessage(input: BCP2pMessage): Promise<Base
     reactions: p2pReactionToReactionItems({
       value: input.reactionSummary ?? '',
       me: account.contractAddress,
-      partner: isMine ? input.recipient : input.sender
-    })
+      partner: isMine ? input.recipient : input.sender,
+    }),
   }
 }
 
@@ -70,21 +77,21 @@ function groupReactionToReactionItems(value: Params2): ReactionItemData[] {
     reaction = decodeBase64(reaction)
     const reactors = grouped.get(reaction)
 
-    if (reactors) {
-      reactors.push(reactor)
-    } else {
+    if (!reactors) {
       grouped.set(reaction, [reactor])
+      continue
     }
+    if (!reactors.includes(reactor)) reactors.push(reactor)
   }
 
   return Array.from(grouped, ([reaction, reactor]) => ({
     reaction,
-    reactor
+    reactor: [...new Set(reactor)],
   }))
 }
 export async function groupMessageToBaseMessage(
   input: BCGroupMessage,
-  isAnonymous?: boolean
+  isAnonymous?: boolean,
 ): Promise<BaseMessage> {
   const account = await getCurrentAccount()
   return {
@@ -94,7 +101,7 @@ export async function groupMessageToBaseMessage(
     timestamp: +input.timestamp * 1000,
     isRead: input.readBy.some((i) => !compareAddress(i, account.address)),
     reactions: groupReactionToReactionItems(input.reactions),
-    isEdited: input.isEdited
+    isEdited: input.isEdited,
   }
 }
 
@@ -124,7 +131,7 @@ function baseMessageToStatus(input: BaseMessage) {
 
 export async function baseMessageToMessage(
   base: BaseMessage,
-  conversation: BaseConversation
+  conversation: BaseConversation,
 ): Promise<FulleMessage> {
   try {
     const account = await getCurrentAccount()
@@ -138,7 +145,7 @@ export async function baseMessageToMessage(
       ...rest,
       ...decrypted,
       isMine: await isMyMessage(base, conversation),
-      status: baseMessageToStatus(base)
+      status: baseMessageToStatus(base),
     }
 
     return finalRs
@@ -150,7 +157,7 @@ export async function baseMessageToMessage(
 
 export function fullMessageToData(input: FulleMessage) {
   const newData = {
-    type: input.type
+    type: input.type,
   }
   ;['content', 'fileId', 'stickerId', 'type', 'fileIds'].forEach((key) => {
     const value = input[key]

@@ -71,15 +71,12 @@ export const useHandleFile = () => {
         contractAddress: FILE_CONTRACT_ADDRESS,
       })
       await fileModule.initialize(from, FILE_CONTRACT_ADDRESS)
-      console.log('handleGetFiles 2')
 
       const downloadUseCase = fileModule.getDownloadFileUseCase()
-      console.log('handleGetFiles 3')
 
       const finalResults = await Promise.all(
         fileKeys.map(async (fileKey) => {
           // Bỏ qua các URL thông thường
-          console.log('thanhduy - test down load file 1', { fileKey })
           if (fileKey.startsWith('http://') || fileKey.startsWith('https://')) {
             return { url: fileKey, ext: '' }
           }
@@ -87,7 +84,6 @@ export const useHandleFile = () => {
           // Chỉ xử lý hex 64 ký tự (fileKey hợp lệ)
           const isHex = /^[0-9a-fA-F]+$/.test(fileKey)
           const isCorrectLength = fileKey.length === 64
-          console.log('thanhduy - test down load file 2', { isHex, isCorrectLength, fileKey })
 
           if (!isHex || !isCorrectLength) {
             return { url: fileKey, ext: '' }

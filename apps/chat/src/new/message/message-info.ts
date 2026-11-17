@@ -5,42 +5,45 @@ import { queryOptions, useQuery } from '@tanstack/react-query'
 import {
   baseMessageToMessage,
   groupMessageToBaseMessage,
-  p2pMessageToBaseMessage
+  isSavedMessagesConversation,
+  p2pMessageToBaseMessage,
 } from './message.utils'
 import { useCurrentState } from '@/hooks/use-current-state'
 
 export async function getRawMessageById(
   id: string,
-  conversation: BaseConversation
+  conversation: BaseConversation,
 ): Promise<BaseMessage> {
   const account = await getCurrentAccount()
 
   switch (conversation.type) {
-    case 'p2p': {
+    case 'p2p':
+    case 'private': {
+      const isSaved = isSavedMessagesConversation(conversation.id, account.contractAddress)
       const rs = await container.userContract.getMessageById({
         from: account.hiddenAddress,
         to: account.contractAddress,
-        inputData: { _messageId: id }
+        inputData: { _messageId: id },
       })
-      const [myReact, urReact] = await Promise.all([
-        container.userContract.getReaction({
-          from: account.hiddenAddress,
-          to: account.contractAddress,
-          inputData: { _messageId: id, _reactor: account.contractAddress }
-        }),
-        container.userContract.getReaction({
-          from: account.hiddenAddress,
-          to: account.contractAddress,
-          inputData: { _messageId: id, _reactor: conversation.id }
-        })
-      ])
+      const myReact = await container.userContract.getReaction({
+        from: account.hiddenAddress,
+        to: account.contractAddress,
+        inputData: { _messageId: id, _reactor: account.contractAddress },
+      })
       let reactionString = ''
       if (myReact) {
         reactionString += 'me:' + myReact
       }
-      if (urReact) {
-        if (!!reactionString) reactionString += ','
-        reactionString += 'partner:' + urReact
+      if (!isSaved) {
+        const urReact = await container.userContract.getReaction({
+          from: account.hiddenAddress,
+          to: account.contractAddress,
+          inputData: { _messageId: id, _reactor: conversation.id },
+        })
+        if (urReact) {
+          if (reactionString) reactionString += ','
+          reactionString += 'partner:' + urReact
+        }
       }
       //@ts-ignore
       rs.reactionSummary = reactionString
@@ -52,7 +55,7 @@ export async function getRawMessageById(
         .getMessageById({
           from: account.hiddenAddress,
           to: conversation.id,
-          inputData: { _messageId: id }
+          inputData: { _messageId: id },
         })
         .then(groupMessageToBaseMessage)
     }
@@ -61,7 +64,7 @@ export async function getRawMessageById(
         .getMessageById({
           from: account.hiddenAddress,
           to: conversation.id,
-          inputData: { _messageId: id }
+          inputData: { _messageId: id },
         })
         .then((message) => groupMessageToBaseMessage(message, true))
     }
@@ -84,7 +87,7 @@ export const createMessageInfoQuery = (id: string = '', input: BaseConversation)
     enabled: !!id && !!input.id && id.length === 64 && !!input?.id && !!input?.type && +id !== 0,
     staleTime: Infinity,
     retry: 0,
-    queryFn: async () => getMessageInfoById(id, input)
+    queryFn: async () => getMessageInfoById(id, input),
   })
 
 export function useMessageById(id: string = '', base: BaseConversation) {
@@ -105,7 +108,7 @@ export function setMessageInfo(id: string, value: Partial<FulleMessage>) {
     if (!old) {
       return {
         id,
-        ...value
+        ...value,
       }
     }
     return { ...old, ...value, isRead: old?.isRead || value?.isRead }

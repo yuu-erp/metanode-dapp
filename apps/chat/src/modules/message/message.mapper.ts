@@ -9,7 +9,7 @@ import type {
   MessageType,
   OnChainMessagePayload,
   OnChainReplyReference,
-  ReplyReference
+  ReplyReference,
 } from './message.type'
 import { decodeBase64 } from './utils'
 import type { Account } from '../account'
@@ -58,7 +58,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
     'voice',
     'location',
     'system',
-    'call_status'
+    'call_status',
   ].includes(rawType)
     ? (rawType as MessageType)
     : 'text'
@@ -83,7 +83,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
     reactions,
     replyTo: raw.replyTo ? mapReplyReference(raw.replyTo) : undefined,
     forwardFrom: raw.forwardFrom ? String(raw.forwardFrom) : undefined,
-    isMine: raw.isMine
+    isMine: raw.isMine,
   }
 
   switch (messageType) {
@@ -93,12 +93,12 @@ export function mapperToMessage(raw: RawMessageSource): Message {
         ...raw,
         ...base,
         type: 'call_status',
-        duration: Number(raw.duration)
+        duration: Number(raw.duration),
       } as Message
 
     case 'text': {
       const content = String(
-        raw.value ?? raw.text ?? raw.content ?? '[Tin nhắn không hỗ trợ]'
+        raw.value ?? raw.text ?? raw.content ?? '[Tin nhắn không hỗ trợ]',
       ).trim()
       return { ...base, type: 'text', content }
     }
@@ -110,7 +110,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
 
     case 'file': {
       const fileId = String(
-        raw.fileId ?? (typeof raw.value === 'object' && raw.value ? (raw.value as any).fileId : '')
+        raw.fileId ?? (typeof raw.value === 'object' && raw.value ? (raw.value as any).fileId : ''),
       )
       if (!fileId) {
         throw new Error('File message missing fileId')
@@ -121,16 +121,16 @@ export function mapperToMessage(raw: RawMessageSource): Message {
         fileId,
         fileName: String(raw.fileName ?? (raw.value as any)?.fileName ?? 'unnamed'),
         mimeType: String(
-          raw.mimeType ?? (raw.value as any)?.mimeType ?? 'application/octet-stream'
+          raw.mimeType ?? (raw.value as any)?.mimeType ?? 'application/octet-stream',
         ),
         filePath: String(raw.filePath ?? (raw.value as any)?.filePath ?? ''),
-        size: Number(raw.size ?? (raw.value as any)?.size ?? 0)
+        size: Number(raw.size ?? (raw.value as any)?.size ?? 0),
       }
     }
 
     case 'voice': {
       const fileId = String(
-        raw.fileId ?? (typeof raw.value === 'object' && raw.value ? (raw.value as any).fileId : '')
+        raw.fileId ?? (typeof raw.value === 'object' && raw.value ? (raw.value as any).fileId : ''),
       )
       console.log('[voice] fileId', { fileId })
       if (!fileId) {
@@ -141,18 +141,18 @@ export function mapperToMessage(raw: RawMessageSource): Message {
         type: 'voice',
         fileId,
         duration: Number(raw.duration ?? (raw.value as any)?.duration ?? 0),
-        mimeType: String(raw.mimeType ?? (raw.value as any)?.mimeType ?? 'audio/*')
+        mimeType: String(raw.mimeType ?? (raw.value as any)?.mimeType ?? 'audio/*'),
       }
     }
 
     case 'location': {
       const latitude = Number(
         raw.latitude ??
-          (typeof raw.value === 'object' && raw.value ? (raw.value as any).latitude : NaN)
+          (typeof raw.value === 'object' && raw.value ? (raw.value as any).latitude : NaN),
       )
       const longitude = Number(
         raw.longitude ??
-          (typeof raw.value === 'object' && raw.value ? (raw.value as any).longitude : NaN)
+          (typeof raw.value === 'object' && raw.value ? (raw.value as any).longitude : NaN),
       )
 
       if (isNaN(latitude) || isNaN(longitude)) {
@@ -166,7 +166,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
         longitude,
         address:
           raw.address ??
-          (typeof raw.value === 'object' && raw.value ? (raw.value as any).address : undefined)
+          (typeof raw.value === 'object' && raw.value ? (raw.value as any).address : undefined),
       }
     }
     case 'system': {
@@ -176,7 +176,7 @@ export function mapperToMessage(raw: RawMessageSource): Message {
     // @ts-ignore // BACKUP CHO CHAT CỦ
     case 'TEXT': {
       const content = String(
-        raw.value ?? raw.text ?? raw.content ?? '[Tin nhắn không hỗ trợ]'
+        raw.value ?? raw.text ?? raw.content ?? '[Tin nhắn không hỗ trợ]',
       ).trim()
       return { ...base, type: 'text', content }
     }
@@ -204,17 +204,17 @@ function mapStatus(raw: unknown): MessageStatus | undefined {
  */
 export function mapperMessageToOnChain(message: Message): OnChainMessagePayload {
   console.log('[mapperMessageToOnChain] 1', {
-    message
+    message,
   })
   // Các field chung
   const base: BaseOnChainPayload = {
     ...(message.replyTo && {
       replyTo: {
         messageId: message.replyTo.messageId,
-        sender: message.replyTo.sender
-      }
+        sender: message.replyTo.sender,
+      },
     }),
-    ...(message.forwardFrom && { forwardFrom: message.forwardFrom })
+    ...(message.forwardFrom && { forwardFrom: message.forwardFrom }),
   }
 
   switch (message.type) {
@@ -222,14 +222,14 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
       return {
         ...base,
         type: 'text',
-        content: message.content.trim()
+        content: message.content.trim(),
       } as OnChainMessagePayload
 
     case 'sticker':
       return {
         ...base,
         type: 'sticker',
-        stickerId: message.stickerId
+        stickerId: message.stickerId,
       } as OnChainMessagePayload
 
     case 'file':
@@ -239,7 +239,7 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
         fileId: message.fileId,
         fileName: message.fileName,
         mimeType: message.mimeType,
-        size: message.size
+        size: message.size,
       } as OnChainMessagePayload
 
     case 'voice':
@@ -248,7 +248,7 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
         type: 'voice',
         fileId: message.fileId,
         duration: message.duration,
-        mimeType: message.mimeType
+        mimeType: message.mimeType,
       } as OnChainMessagePayload
 
     case 'location':
@@ -257,25 +257,25 @@ export function mapperMessageToOnChain(message: Message): OnChainMessagePayload 
         type: 'location',
         latitude: message.latitude,
         longitude: message.longitude,
-        ...(message.address !== undefined && { address: message.address })
+        ...(message.address !== undefined && { address: message.address }),
       } as OnChainMessagePayload
     case 'system':
       return {
         ...base,
         type: 'system',
-        eventName: message.eventName
+        eventName: message.eventName,
       } as OnChainMessagePayload
     case 'call_status':
       return {
         ...base,
         type: 'call_status',
-        callStatus: message.callStatus
+        callStatus: message.callStatus,
       }
   }
 }
 
 export function parseReactionForGroup(
-  reactions: { reaction: string; reactor: string }[]
+  reactions: { reaction: string; reactor: string }[],
 ): MessageReaction[] {
   const reactionMap: Record<string, MessageReaction> = {}
 
@@ -283,12 +283,12 @@ export function parseReactionForGroup(
     if (!reactionMap[reaction]) {
       reactionMap[reaction] = {
         emoji: decodeBase64(reaction),
-        users: [reactor]
+        users: [reactor],
       }
-    } else {
-      const obj = reactionMap[reaction]
-      obj.users.push(reactor)
+      return
     }
+    const obj = reactionMap[reaction]
+    if (!obj.users.includes(reactor)) obj.users.push(reactor)
   })
 
   return Object.values(reactionMap)
@@ -300,7 +300,7 @@ export function parseReactionForGroup(
 export function parseReactionSummary(
   summary: string = '',
   account: Account,
-  conversationId = ''
+  conversationId = '',
 ): MessageReaction[] {
   if (!summary || typeof summary !== 'string') return []
   const map = new Map<string, MessageReaction>()
@@ -316,19 +316,20 @@ export function parseReactionSummary(
 
     const isMe = who.trim().toLowerCase() === 'me'
 
-    let entry = map.get(emoji)
     const newReactor = isMe ? account.contractAddress : conversationId
+    const entry = map.get(emoji)
     if (!entry) {
-      entry = { emoji, users: [newReactor] }
-    } else {
-      entry.users = [...entry.users]
+      map.set(emoji, { emoji, users: [newReactor] })
+      return
     }
-    map.set(emoji, entry)
+    if (entry.users.includes(newReactor)) return
+    map.set(emoji, { emoji, users: [...entry.users, newReactor] })
   })
 
-  const rs = [...map.values()]
-
-  return rs
+  return [...map.values()].map((item) => ({
+    ...item,
+    users: [...new Set(item.users)],
+  }))
 }
 
 /**
@@ -349,6 +350,6 @@ function mapReplyReference(raw: unknown): ReplyReference | OnChainReplyReference
 
   return {
     messageId,
-    sender
+    sender,
   }
 }

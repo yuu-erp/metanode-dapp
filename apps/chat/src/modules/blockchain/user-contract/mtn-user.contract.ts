@@ -17,7 +17,7 @@ import type {
   SetMeetingFactoryInput,
   SetP2PChatEnabledInput,
   SetReactionsEnabledInput,
-  UserProfileOutput
+  UserProfileOutput,
 } from './types'
 import type { UserMehods } from '@/contract-types/user/user.methods'
 
@@ -33,7 +33,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'userProfile',
       abiData: userAbi.userProfile as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -44,12 +44,12 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'getFullInbox',
       abiData: userAbi.getFullInbox as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
   getFullInboxPaginatedOptimized(
-    payload: TransactionPayload<{ limit: number; offset: number }>
+    payload: TransactionPayload<{ limit: number; offset: number }>,
   ): Promise<any[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -58,7 +58,7 @@ export class UserContract extends MtnContract {
       functionName: 'getFullInboxPaginatedOptimized',
       abiData: userAbi.getFullInboxPaginatedOptimized as any,
       feeType: 'read',
-      inputData: inputData
+      inputData: inputData,
     })
   }
 
@@ -69,12 +69,12 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'publicKey',
       abiData: userAbi.publicKey as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
   getProcessedP2PMessages(
-    payload: TransactionPayload<GetProcessedP2PMessagesInput>
+    payload: TransactionPayload<GetProcessedP2PMessagesInput>,
   ): Promise<GetProcessedP2PMessagesOutput[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -83,7 +83,7 @@ export class UserContract extends MtnContract {
       functionName: 'getProcessedP2PMessages',
       abiData: userAbi.getProcessedP2PMessages as any,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -96,7 +96,7 @@ export class UserContract extends MtnContract {
       abiData: userAbi.sendMessage as any,
       inputData,
       feeType: 'sc',
-      gas: 2_000_000
+      gas: 5_000_000,
     })
   }
 
@@ -108,7 +108,7 @@ export class UserContract extends MtnContract {
       functionName: 'reactToMessage',
       abiData: userAbi.reactToMessage as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -120,7 +120,7 @@ export class UserContract extends MtnContract {
       functionName: 'editMessage',
       abiData: userAbi.editMessage as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -132,7 +132,7 @@ export class UserContract extends MtnContract {
       functionName: 'deleteMessageV2',
       abiData: userAbi.deleteMessageV2 as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -144,7 +144,7 @@ export class UserContract extends MtnContract {
       functionName: 'sendDataChannel',
       abiData: userAbi.sendDataChannel as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -156,12 +156,12 @@ export class UserContract extends MtnContract {
       functionName: 'getMessageById',
       abiData: userAbi.getMessageById as any,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
   getReaction(
-    payload: TransactionPayload<{ _messageId: string; _reactor: string }>
+    payload: TransactionPayload<{ _messageId: string; _reactor: string }>,
   ): Promise<string> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -170,7 +170,7 @@ export class UserContract extends MtnContract {
       functionName: 'getReaction',
       abiData: userAbi.getReaction as any,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -182,7 +182,7 @@ export class UserContract extends MtnContract {
       functionName: 'setMeetingFactory',
       abiData: userAbi.setMeetingFactory as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -193,7 +193,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'meetingFactoryAddress',
       abiData: userAbi.meetingFactoryAddress as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -204,7 +204,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'owner',
       abiData: userAbi.owner as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -219,7 +219,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'detailedSettings',
       abiData: userAbi.detailedSettings as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -230,7 +230,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'getDetailedSettings',
       abiData: userAbi.getDetailedSettings as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -242,7 +242,7 @@ export class UserContract extends MtnContract {
       functionName: 'setP2PChatEnabled',
       abiData: userAbi.setP2PChatEnabled as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -254,7 +254,7 @@ export class UserContract extends MtnContract {
       functionName: 'setReactionsEnabled',
       abiData: userAbi.setReactionsEnabled as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -266,7 +266,7 @@ export class UserContract extends MtnContract {
       functionName: 'addDelegate',
       abiData: userAbi.addDelegate as any,
       inputData,
-      feeType: 'sc'
+      feeType: 'sc',
     })
   }
 
@@ -277,7 +277,7 @@ export class UserContract extends MtnContract {
       to,
       functionName: 'getDelegates',
       abiData: userAbi.getDelegates as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -289,12 +289,12 @@ export class UserContract extends MtnContract {
       functionName: 'removeDelegate',
       abiData: userAbi.removeDelegate as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
   unReactToMessage(
-    payload: TransactionPayload<{ partnerContract: string; messageId: string }>
+    payload: TransactionPayload<{ partnerContract: string; messageId: string }>,
   ): Promise<string[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -303,12 +303,12 @@ export class UserContract extends MtnContract {
       functionName: 'unReactToMessage',
       abiData: userAbi.unReactToMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
   markMessagesAsRead(
-    payload: TransactionPayload<{ partnerContract: string; messageIds: string[] }>
+    payload: TransactionPayload<{ partnerContract: string; messageIds: string[] }>,
   ): Promise<string[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -317,7 +317,7 @@ export class UserContract extends MtnContract {
       functionName: 'markMessagesAsRead',
       abiData: userAbi.markMessagesAsRead as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -329,12 +329,12 @@ export class UserContract extends MtnContract {
       functionName: 'RemoveContact',
       abiData: userAbi.RemoveContact as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
   pinMessage(
-    payload: TransactionPayload<{ partner: string; messageId: string }>
+    payload: TransactionPayload<{ partner: string; messageId: string }>,
   ): Promise<string[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -343,12 +343,12 @@ export class UserContract extends MtnContract {
       functionName: 'pinMessage',
       abiData: userAbi.pinMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
   unpinMessage(
-    payload: TransactionPayload<{ partner: string; messageId: string }>
+    payload: TransactionPayload<{ partner: string; messageId: string }>,
   ): Promise<string[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -357,7 +357,7 @@ export class UserContract extends MtnContract {
       functionName: 'unpinMessage',
       abiData: userAbi.unpinMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -369,14 +369,14 @@ export class UserContract extends MtnContract {
       functionName: 'getPinnedMessages',
       abiData: userAbi.getPinnedMessages as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
 
     return rs
   }
 
   async getPartnerPinnedMessages(
-    payload: TransactionPayload<{ partner: string }>
+    payload: TransactionPayload<{ partner: string }>,
   ): Promise<string[]> {
     const { from, to, inputData } = payload
     const rs = await this.sendTransaction({
@@ -385,14 +385,14 @@ export class UserContract extends MtnContract {
       functionName: 'getPartnerPinnedMessages',
       abiData: userAbi.getPartnerPinnedMessages as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
 
     return rs
   }
 
   setComposingStatus(
-    payload: TransactionPayload<{ recipient: string; status: string; content: string }>
+    payload: TransactionPayload<{ recipient: string; status: string; content: string }>,
   ): Promise<string[]> {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -401,12 +401,12 @@ export class UserContract extends MtnContract {
       functionName: 'setComposingStatus',
       abiData: userAbi.setComposingStatus as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
   async conversationCache(
-    payload: TransactionPayload<{ '': string }>
+    payload: TransactionPayload<{ '': string }>,
   ): Promise<UserMehods['conversationCache'][1]> {
     const { from, to, inputData } = payload
     const rs = await this.sendTransaction({
@@ -415,7 +415,7 @@ export class UserContract extends MtnContract {
       functionName: 'conversationCache',
       abiData: userAbi.conversationCache as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
 
     return rs

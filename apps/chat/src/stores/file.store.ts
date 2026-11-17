@@ -36,7 +36,7 @@ export type FileStore = {
 }
 
 export const useFileStore = create<FileStore>()(
-  immer((set, get) => ({
+  immer((set) => ({
     map: {},
     files: {},
     items: [],

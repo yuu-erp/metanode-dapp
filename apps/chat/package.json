@@ -9,7 +9,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@app/call": "workspace:*",
     "@headlessui/react": "^2.2.9",
     "@metanodejs/file-module": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/file-module",
     "@metanodejs/event-log": "/Users/macbook/Documents/iBenefit/metanode-packages/packages/event-log",
@@ -29,7 +28,6 @@
     "@tanstack/react-virtual": "^3.13.18",
     "@tanstack/router-plugin": "^1.132.0",
     "call-core": "/Users/macbook/WorkSpace/packages/call-core",
-    "chat-react": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.19",

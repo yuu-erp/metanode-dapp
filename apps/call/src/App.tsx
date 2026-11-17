@@ -1,4 +1,4 @@
-import { CallProvider } from '@app/call'
+import { CallProvider } from '@/call'
 import { DecodeAbi, EventLog } from '@metanodejs/event-log'
 import { endCall } from '@metanodejs/system-core'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -46,9 +46,9 @@ function App() {
               navigate(
                 {
                   pathname: '/call',
-                  search: params.toString()
+                  search: params.toString(),
                 },
-                { replace: true }
+                { replace: true },
               )
             }}
             onEndCall={endCall}

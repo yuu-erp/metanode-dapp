@@ -3,7 +3,8 @@ import { getCurrentAccount } from '@/shared/hooks'
 import { FILE_QUERY_KEY, queryClient } from '@/shared/lib/react-query'
 import type { FileMeta } from '@/stores/file.store'
 import { queryOptions, useQuery } from '@tanstack/react-query'
-import { formatFileSize } from './file.utils'
+import type { BCInfo } from '@/contract-types/structs'
+import { formatFileSize, resolveContentMimeType } from './file.utils'
 
 function removeTimestamp(filename: string) {
   return filename.replace(/_\d+$/, '')
@@ -11,6 +12,30 @@ function removeTimestamp(filename: string) {
 
 function getExt(filename: string) {
   return filename.split('.').pop() ?? ''
+}
+
+export function isOnChainFileKey(fileId: string) {
+  return /^[0-9a-f]{64}$/i.test(fileId)
+}
+
+export async function mapBcInfoToFileMeta(fileId: string, info: BCInfo): Promise<FileMeta> {
+  const fileName = removeTimestamp(info.name)
+  const size = +info.contentLen
+  let path = ''
+  const cache = await container.fileCacheService.getFile(fileId)
+  if (cache?.blob) {
+    path = URL.createObjectURL(cache.blob)
+  }
+
+  return {
+    mimeType: resolveContentMimeType(info.ext || getExt(fileName), fileName),
+    extension: getExt(fileName),
+    size,
+    displaySize: formatFileSize(size),
+    fileName,
+    path,
+    createdAt: 0,
+  }
 }
 
 export const createFileMetaQuery = (fileId?: string) =>
@@ -31,22 +56,7 @@ export const createFileMetaQuery = (fileId?: string) =>
       if (!meta) {
         throw new Error('[createFileInfoQuery] File not found')
       }
-      const fileName = removeTimestamp(meta.name)
-      const size = +meta.contentLen
-      let path = ''
-      const cache = await container.fileCacheService.getFile(fileId!)
-      if (cache?.blob) {
-        path = URL.createObjectURL(cache.blob)
-      }
-
-      return {
-        mimeType: meta?.ext || '',
-        extension: getExt(fileName),
-        size,
-        displaySize: formatFileSize(size),
-        fileName: fileName,
-        path,
-      } as FileMeta
+      return mapBcInfoToFileMeta(fileId!, meta)
     },
   })
 
@@ -54,17 +64,19 @@ export function useFileMetaById(fileId?: string) {
   return useQuery(createFileMetaQuery(fileId))
 }
 
-function isOnChainFileKey(fileId: string) {
-  return /^[0-9a-f]{64}$/i.test(fileId)
+type UseFileMetaDisplayOptions = {
+  /** false: chỉ đọc optimistic cache, không gọi contract (dùng khi hook tự fetch). */
+  fetchOnChain?: boolean
 }
 
 /** Ưu tiên meta optimistic trong cache; chỉ fetch on-chain với fileKey 64 hex. */
-export function useFileMetaDisplay(fileId?: string) {
+export function useFileMetaDisplay(fileId?: string, options?: UseFileMetaDisplayOptions) {
+  const fetchOnChain = options?.fetchOnChain !== false
   const cacheKey = fileId ? FILE_QUERY_KEY.info(fileId) : undefined
 
   return useQuery({
     queryKey: cacheKey!,
-    enabled: !!fileId,
+    enabled: !!fileId && fetchOnChain,
     staleTime: Infinity,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -76,6 +88,9 @@ export function useFileMetaDisplay(fileId?: string) {
     queryFn: async () => {
       const cached = queryClient.getQueryData<FileMeta>(FILE_QUERY_KEY.info(fileId!))
       if (cached) return cached
+      if (!fetchOnChain) {
+        throw new Error('[useFileMetaDisplay] Missing cached file meta')
+      }
       if (!isOnChainFileKey(fileId!)) {
         throw new Error('[useFileMetaDisplay] Missing local file meta')
       }
@@ -99,4 +114,12 @@ export function setFileMetadata(id: string, input: Partial<FileMeta>) {
     const merged = old ? { ...old, ...input } : { ...input }
     return merged as FileMeta
   })
+}
+
+/** Sau upload: copy preview/meta từ id tạm sang fileKey on-chain để không mất optimistic. */
+export function migrateOptimisticFileMeta(localFileKey: string, onChainFileKey: string) {
+  if (localFileKey === onChainFileKey) return
+  const meta = getFileMetaFromCache(localFileKey)
+  if (!meta) return
+  setFileMetadata(onChainFileKey, { ...meta })
 }

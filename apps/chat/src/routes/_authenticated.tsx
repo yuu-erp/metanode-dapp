@@ -77,7 +77,6 @@ function RouteComponent() {
     })
     ;(async () => {
       const rs = await getState()
-      console.log('thanhduy test sync call', { rs })
       if (!rs) return
       const { metadata, duration, kind } = rs
       reset()

@@ -1,4 +1,3 @@
-import { useCurrentState } from '@/hooks/use-current-state'
 import { formatFileSize } from '@/new'
 import { cn } from '@/shared/lib'
 import { Download, X } from 'lucide-react'
@@ -14,9 +13,9 @@ export const VoiceDownloader = memo(({ data, _fileId }: VoiceDownloaderProps) =>
   // const { status, progress = 0, abort } = useProgress(_fileId)
   // const { metadata } = useMetadata(_fileId)
   const progress = 0
+  const status = 'idle'
   const metadata = {} as any
   const size = metadata?.size ?? 0
-  const { account } = useCurrentState()
 
   const uploadedSize = formatFileSize(size * (progress / 100))
 

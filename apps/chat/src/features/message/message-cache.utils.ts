@@ -3,7 +3,7 @@ import {
   type Message,
   type MessageReaction,
   type MessageStatus,
-  type PersistedMessage
+  type PersistedMessage,
 } from '@/modules/message'
 import { decodeBase64 } from '@/modules/message/utils'
 
@@ -34,12 +34,12 @@ interface ApplyMessageSentParams {
 
 export function insertMessage(
   oldData: InfiniteData<Message[]> | undefined,
-  message: Message
+  message: Message,
 ): InfiniteData<Message[]> {
   if (!oldData || !oldData.pages || oldData.pages.length === 0) {
     return {
       pageParams: [],
-      pages: []
+      pages: [],
     }
   }
 
@@ -52,14 +52,14 @@ export function insertMessage(
 
   return {
     ...oldData,
-    pages: [[message, ...firstPage], ...oldData.pages.slice(1)]
+    pages: [[message, ...firstPage], ...oldData.pages.slice(1)],
   }
 }
 
 export function applyMessageUpsert(
   oldData: InfiniteData<Message[]> | undefined,
   message: Partial<Message>,
-  clientId?: string
+  clientId?: string,
 ) {
   return updatePages(oldData, (msg: any) => {
     if (!matchMessage(msg, { clientId, messageId: message.id })) return msg
@@ -73,7 +73,7 @@ export function applyUpdateMessageId(
   oldData: InfiniteData<Message[]> | undefined,
   messageId: string,
   clientId: string,
-  fileId?: string
+  fileId?: string,
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { clientId: clientId })) return msg
@@ -89,7 +89,7 @@ export function applyUpdateMessageId(
 // Helpers
 function updatePages(
   oldData: InfiniteData<Message[]> | undefined,
-  updater: (msg: Message) => Message | null // null để delete
+  updater: (msg: Message) => Message | null, // null để delete
 ): InfiniteData<Message[]> | undefined {
   if (!oldData) return oldData
 
@@ -106,7 +106,7 @@ function updatePages(
 
 function matchMessage(
   msg: Message,
-  { messageId, clientId }: { messageId?: string; clientId?: string }
+  { messageId, clientId }: { messageId?: string; clientId?: string },
 ) {
   return (messageId && msg.id === messageId) || (clientId && msg.clientId === clientId)
 }
@@ -114,7 +114,7 @@ function matchMessage(
 // Refactored functions using helpers
 export function updateMessageStatus(
   oldData: InfiniteData<Message[]> | undefined,
-  params: UpdateMessageStatusParams
+  params: UpdateMessageStatusParams,
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, params)) return msg
@@ -124,7 +124,7 @@ export function updateMessageStatus(
 
 export function applyMessageSent(
   oldData: InfiniteData<Message[]> | undefined,
-  params: ApplyMessageSentParams & { fileId?: string }
+  params: ApplyMessageSentParams & { fileId?: string },
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { clientId: params.clientId })) return msg
@@ -138,7 +138,7 @@ export function applyMessageSent(
 
 export function applyMessageUpdate(
   old: InfiniteData<Message[]> | undefined,
-  params: { messageId: string; message: PersistedMessage }
+  params: { messageId: string; message: PersistedMessage },
 ): InfiniteData<Message[]> | undefined {
   return updatePages(old, (msg) => {
     // 1. Update chính message đó
@@ -159,8 +159,8 @@ export function applyMessageUpdate(
           ...msg,
           replyTo: {
             ...msg.replyTo,
-            content: params.message.content
-          } as any
+            content: params.message.content,
+          } as any,
         }
       }
     }
@@ -171,7 +171,7 @@ export function applyMessageUpdate(
 
 export function applyMessageDelete(
   old: InfiniteData<Message[]> | undefined,
-  params: { messageId?: string; clientId?: string }
+  params: { messageId?: string; clientId?: string },
 ): InfiniteData<Message[]> | undefined {
   return updatePages(old, (msg) => {
     if (matchMessage(msg, { messageId: params?.messageId, clientId: params?.clientId })) return null
@@ -181,7 +181,7 @@ export function applyMessageDelete(
 
 function handleRemoveReaction(
   reactions: MessageReaction[] | undefined,
-  reactor: string
+  reactor: string,
 ): MessageReaction[] {
   if (!reactions) return []
 
@@ -205,7 +205,7 @@ function handleRemoveReaction(
 
     next.push({
       ...r,
-      users: newUsers
+      users: newUsers,
     })
   }
 
@@ -218,7 +218,7 @@ export function applyReactionRemoved(
     messageId: string
     conversationId: string
     reactor: string
-  }
+  },
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { messageId: params.messageId })) return msg
@@ -238,7 +238,7 @@ export function applyReactionUpsert(
     reactor: string
     emoji: string
     isMine: boolean
-  }
+  },
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (!matchMessage(msg, { messageId: params.messageId })) return msg
@@ -270,7 +270,7 @@ export function applyReactionUpsert(
       if (newUsers.length > 0) {
         next.push({
           ...r,
-          users: newUsers
+          users: newUsers,
         })
       }
 
@@ -282,17 +282,18 @@ export function applyReactionUpsert(
 
     if (existingIndex !== -1) {
       const existing = next[existingIndex]
+      if (existing.users.includes(reactor)) return msg
 
       next[existingIndex] = {
         ...existing,
-        users: [...existing.users, reactor]
+        users: [...existing.users, reactor],
       }
 
       changed = true
     } else {
       next.push({
         emoji,
-        users: [reactor]
+        users: [reactor],
       })
 
       changed = true
@@ -302,7 +303,7 @@ export function applyReactionUpsert(
 
     return {
       ...msg,
-      reactions: next
+      reactions: next,
     }
   })
 }
@@ -312,7 +313,7 @@ export function updateMessageFilePath(
   params: {
     fileKey: string
     filePath: string
-  }
+  },
 ): InfiniteData<Message[]> | undefined {
   return updatePages(oldData, (msg) => {
     if (msg.type === 'file' && msg.fileId === params.fileKey) {

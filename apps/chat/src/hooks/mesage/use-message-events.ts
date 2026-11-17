@@ -12,7 +12,7 @@ import {
   ACTIONS_QUERY_KEY,
   CONVERSATION_QUERY_KEY,
   MESSAGE_QUERY_KEY,
-  queryClient
+  queryClient,
 } from '@/shared/lib/react-query'
 import { formatAddress } from '@/shared/utils'
 import { useIsMutating } from '@tanstack/react-query'
@@ -29,10 +29,10 @@ export function useMessageEvents() {
     setPinnedMessageState(
       {
         type: 'p2p',
-        id: formatAddress(e.partner)
+        id: formatAddress(e.partner),
       },
       formatAddress(e.messageId),
-      e.isPinned
+      e.isPinned,
     )
   })
 
@@ -40,10 +40,10 @@ export function useMessageEvents() {
     setPinnedMessageState(
       {
         type: 'p2p',
-        id: formatAddress(e.pinnedBy)
+        id: formatAddress(e.pinnedBy),
       },
       formatAddress(e.messageId),
-      e.isPinned
+      e.isPinned,
     )
   })
 
@@ -51,10 +51,10 @@ export function useMessageEvents() {
     setPinnedMessageState(
       {
         type: 'group',
-        id: formatAddress(e.group)
+        id: formatAddress(e.group),
       },
       formatAddress(e.messageId),
-      e.isPinned
+      e.isPinned,
     )
   })
 
@@ -62,10 +62,10 @@ export function useMessageEvents() {
     setPinnedMessageState(
       {
         type: 'anonymous_group',
-        id: formatAddress(e.group)
+        id: formatAddress(e.group),
       },
       formatAddress(e.messageId),
-      e.isPinned
+      e.isPinned,
     )
   })
 
@@ -83,20 +83,20 @@ export function useMessageEvents() {
     addConversation(
       {
         type: 'p2p',
-        id: e.recipient
+        id: e.recipient,
       },
-      { messageId: e.messageId }
+      { messageId: e.messageId },
     )
     if (sendMessagePendding && compareAddress(e.sender, account?.contractAddress)) return
     addIdInMessageList(e.messageId, {
       type: 'p2p',
-      id: e.recipient
+      id: e.recipient,
     })
   })
 
   function refetchInbox(id: string) {
     queryClient.invalidateQueries({
-      queryKey: CONVERSATION_QUERY_KEY.inbox(id)
+      queryKey: CONVERSATION_QUERY_KEY.inbox(id),
     })
   }
 
@@ -106,13 +106,13 @@ export function useMessageEvents() {
     addConversation(
       {
         type: 'p2p',
-        id: e.sender
+        id: e.sender,
       },
-      { messageId: e.messageId }
+      { messageId: e.messageId },
     )
     addIdInMessageList(e.messageId, {
       type: 'p2p',
-      id: e.sender
+      id: e.sender,
     })
   })
 
@@ -124,7 +124,7 @@ export function useMessageEvents() {
     if (sendMessagePendding && isMine) return
     const base = {
       type: 'group',
-      id: e.groupAddress
+      id: e.groupAddress,
     }
     addConversation(base, { messageId: e.messageId })
     addIdInMessageList(e.messageId, base)
@@ -141,7 +141,7 @@ export function useMessageEvents() {
     eventBus.emit('noti:add', { type: 'message' })
     const base = {
       type: 'anonymous_group',
-      id: e.group
+      id: e.group,
     }
     addConversation(base, { messageId: e.messageId })
     addIdInMessageList(e.messageId, base)
@@ -152,7 +152,7 @@ export function useMessageEvents() {
   useEventLog('MessageReacted', async (e) => {
     addReaction(e.messageId, {
       reaction: decodeBase64(e.reaction),
-      reactor: e.reactor
+      reactor: e.reactor,
     })
   })
 
@@ -161,20 +161,23 @@ export function useMessageEvents() {
   })
 
   useEventLog('PartnerMessageReacted', async (e) => {
+    // Saved Messages: me/partner cùng contract → không duplicate với MessageReacted
+    if (compareAddress(e.sender, e.recipient)) return
     addReaction(e.messageId, {
       reaction: decodeBase64(e.reaction),
-      reactor: e.reactor
+      reactor: e.reactor,
     })
   })
 
   useEventLog('PartnerMessageUnReacted', (e) => {
+    if (compareAddress(e.sender, e.recipient)) return
     removeReaction(e.messageId, e.reactor)
   })
 
   useEventLog('MessageReactedGroup', async (e) => {
     addReaction(e.messageId, {
       reaction: decodeBase64(e.reaction),
-      reactor: e.reactor
+      reactor: e.reactor,
     })
   })
 
@@ -185,7 +188,7 @@ export function useMessageEvents() {
   useEventLog('MessageReactedAnonymous', async (e) => {
     addReaction(e.messageId, {
       reaction: decodeBase64(e.reaction),
-      reactor: e.reactor
+      reactor: e.reactor,
     })
   })
 
@@ -244,19 +247,19 @@ export function useMessageEvents() {
   // message read
   useEventLog('MessageReadByPartner', (e) => {
     setMessageInfo(e.messageId, {
-      isRead: true
+      isRead: true,
     })
   })
 
   useEventLog('MessageRead', (e) => {
     setMessageInfo(e.messageId, {
-      isRead: true
+      isRead: true,
     })
   })
 
   useEventLog('MessageReadAnonymous', (e) => {
     setMessageInfo(e.messageId, {
-      isRead: true
+      isRead: true,
     })
   })
 }

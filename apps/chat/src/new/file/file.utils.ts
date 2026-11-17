@@ -15,3 +15,40 @@ export function getFileExt(fileName: string): string {
 
   return fileName.slice(lastDot + 1)
 }
+
+const EXT_TO_MIME: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  bmp: 'image/bmp',
+  svg: 'image/svg+xml',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  mkv: 'video/x-matroska',
+}
+
+/** Contract thường trả ext; optimistic có mime đầy đủ. */
+export function resolveContentMimeType(mimeOrExt: string, fileName?: string): string {
+  const raw = mimeOrExt?.trim() ?? ''
+  if (raw.includes('/')) return raw
+
+  const fromField = EXT_TO_MIME[raw.toLowerCase()]
+  if (fromField) return fromField
+
+  const fromName = fileName ? getFileExt(fileName).toLowerCase() : ''
+  return EXT_TO_MIME[fromName] ?? (raw ? `application/${raw}` : 'application/octet-stream')
+}
+
+export function resolvePreviewType(meta?: {
+  mimeType?: string
+  extension?: string
+  fileName?: string
+}): 'image' | 'video' | '' {
+  const mime = resolveContentMimeType(meta?.mimeType ?? meta?.extension ?? '', meta?.fileName)
+  if (mime.startsWith('image/')) return 'image'
+  if (mime.startsWith('video/')) return 'video'
+  return ''
+}

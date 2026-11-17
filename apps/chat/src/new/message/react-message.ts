@@ -15,20 +15,20 @@ export type ReactionItem = {
 
 export function setReaction(id: string, reactions: ReactionItemData[]) {
   setMessageInfo(id, {
-    reactions
+    reactions,
   })
 }
 
 function updateMessageReaction(
   id: string,
-  updater: (reactions: ReactionItemData[]) => ReactionItemData[]
+  updater: (reactions: ReactionItemData[]) => ReactionItemData[],
 ) {
   queryClient.setQueryData<FulleMessage>(MESSAGE_QUERY_KEY.info(id), (old) => {
     if (!old) return old
 
     return {
       ...old,
-      reactions: updater(old.reactions ?? [])
+      reactions: updater(old.reactions ?? []),
     }
   })
 }
@@ -38,14 +38,14 @@ export function addReaction(
   input: {
     reaction: string
     reactor: string
-  }
+  },
 ) {
   updateMessageReaction(id, (old) => {
     // Xóa reactor khỏi tất cả reaction hiện tại
     const cleaned = old
       .map((item) => ({
         ...item,
-        reactor: item.reactor.filter((reactor) => reactor !== input.reactor)
+        reactor: item.reactor.filter((reactor) => reactor !== input.reactor),
       }))
       .filter((item) => item.reactor.length > 0)
 
@@ -57,20 +57,20 @@ export function addReaction(
         ...cleaned,
         {
           reaction: input.reaction,
-          reactor: [input.reactor]
-        }
+          reactor: [input.reactor],
+        },
       ]
     }
 
     // Đã có reaction này rồi
-    return cleaned.map((item, i) =>
-      i === index
-        ? {
-            ...item,
-            reactor: [...item.reactor, input.reactor]
-          }
-        : item
-    )
+    return cleaned.map((item, i) => {
+      if (i !== index) return item
+      if (item.reactor.includes(input.reactor)) return item
+      return {
+        ...item,
+        reactor: [...item.reactor, input.reactor],
+      }
+    })
   })
 }
 
@@ -79,7 +79,7 @@ export function removeReaction(id: string, reactor: string) {
     return old
       .map((item) => ({
         ...item,
-        reactor: item.reactor.filter((current) => current !== reactor)
+        reactor: item.reactor.filter((current) => current !== reactor),
       }))
       .filter((item) => item.reactor.length > 0)
   })
@@ -87,7 +87,7 @@ export function removeReaction(id: string, reactor: string) {
 
 async function reactMessageBc(
   input: { messageId: string; reaction: string },
-  base: BaseConversation
+  base: BaseConversation,
 ) {
   const account = await getCurrentAccount()
   const { messageId } = input
@@ -101,8 +101,8 @@ async function reactMessageBc(
           _messageId: messageId,
           _reaction: reaction,
           _reactionToPartner: reaction,
-          partnerContract: base.id
-        }
+          partnerContract: base.id,
+        },
       })
     }
     case 'group': {
@@ -111,8 +111,8 @@ async function reactMessageBc(
         to: base.id,
         inputData: {
           messageId: messageId,
-          reaction: reaction
-        }
+          reaction: reaction,
+        },
       })
     }
     case 'anonymous_group': {
@@ -121,8 +121,8 @@ async function reactMessageBc(
         to: base.id,
         inputData: {
           messageId: messageId,
-          reaction: reaction
-        }
+          reaction: reaction,
+        },
       })
     }
 
@@ -140,8 +140,8 @@ async function unReactMessageBc(messageId: string, base: BaseConversation) {
         to: account.contractAddress,
         inputData: {
           messageId: messageId,
-          partnerContract: base.id
-        }
+          partnerContract: base.id,
+        },
       })
     }
     case 'group': {
@@ -149,8 +149,8 @@ async function unReactMessageBc(messageId: string, base: BaseConversation) {
         from: account.hiddenAddress,
         to: base.id,
         inputData: {
-          messageId: messageId
-        }
+          messageId: messageId,
+        },
       })
     }
     case 'anonymous_group': {
@@ -158,8 +158,8 @@ async function unReactMessageBc(messageId: string, base: BaseConversation) {
         from: account.hiddenAddress,
         to: base.id,
         inputData: {
-          messageId: messageId
-        }
+          messageId: messageId,
+        },
       })
     }
 
@@ -182,7 +182,7 @@ export function useReactMessage() {
       if (value) {
         addReaction(rest.messageId, {
           reaction: rest.reaction,
-          reactor: await getCurrentIdentity(base)
+          reactor: await getCurrentIdentity(base),
         })
         modalActions.close()
         await reactMessageBc(rest, base)
@@ -190,7 +190,7 @@ export function useReactMessage() {
         removeReaction(rest.messageId, await getCurrentIdentity(base))
         await unReactMessageBc(rest.messageId, base)
       }
-    }
+    },
   })
 }
 
@@ -200,6 +200,6 @@ export function useSelectedReaction(reaction: string, messageId: string) {
 
   const { data } = useMessageById(messageId, base)
   return data?.reactions.some(
-    (item) => item.reaction === reaction && item.reactor.includes(identity)
+    (item) => item.reaction === reaction && item.reactor.includes(identity),
   )
 }

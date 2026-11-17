@@ -1,11 +1,11 @@
 import { useOpenOverlay } from '@/hooks/use-open-overlay'
 import { MessageText } from '@/shared/components/message-render'
 import { cn } from '@/shared/lib'
-import { Download, File, X } from 'lucide-react'
-import { memo, type PropsWithChildren } from 'react'
+import { Download, File, LoaderCircle } from 'lucide-react'
+import { memo, type MouseEvent, type PropsWithChildren } from 'react'
 import type { WithMessage } from '../types'
 import { formatFileSize } from '@/new'
-import { getFileMetaFromCache, useFileMetaDisplay } from '@/new/file/file-info'
+import { useFilePreview } from '@/new/file/use-file-preview'
 import { ViewImageModal } from './view-image-modal'
 
 const mediaStyle = 'object-cover aspect-square w-16 rounded-md'
@@ -37,88 +37,94 @@ const FileItem = ({
   isMine?: boolean
   messageId: string
 }) => {
-  const { data: metadataFromQuery } = useFileMetaDisplay(id)
-  const metadata = metadataFromQuery ?? getFileMetaFromCache(id)
-  const status = 'idle' as const
-  const progress = 0
-  const previewPath = metadata?.path
-  const previewType = metadata?.mimeType?.startsWith('image/')
-    ? 'image'
-    : metadata?.mimeType?.startsWith('video/')
-      ? 'video'
-      : ''
-  const hasLocalPreview = Boolean(previewPath && previewType)
+  const { metadata, previewUrl, previewType, loadState, hasPreview, isMetaLoading } =
+    useFilePreview(id)
   const { behavior } = useOpenOverlay({ id: messageId, fileId: id })
+
+  if (isMetaLoading) {
+    return (
+      <div className="flex items-center gap-2 py-1">
+        <LoaderCircle className="size-5 animate-spin opacity-70" />
+      </div>
+    )
+  }
 
   if (!metadata?.fileName) return null
 
-  const uploadedSize = formatFileSize(metadata.size * (progress / 100))
-
-  const finalBehavior = hasLocalPreview
+  const finalBehavior = hasPreview
     ? behavior
     : {
-        onClick: (e) => {
+        onClick: (e: MouseEvent) => {
           e.preventDefault()
           e.stopPropagation()
         },
       }
 
+  const showDownloading = loadState === 'downloading'
+  const showDownloadIdle =
+    !hasPreview &&
+    (loadState === 'error' ||
+      loadState === 'unsupported' ||
+      loadState === 'idle' ||
+      loadState === 'ready')
+
   return (
-    <>
-      <div className="flex gap-3 items-center" {...finalBehavior}>
-        <div className="relative">
-          {hasLocalPreview && previewType === 'image' && (
-            <ViewImageModal fileId={id} messageId={messageId}>
-              <img
-                src={previewPath}
-                className={mediaStyle}
-                draggable={false}
-                alt={metadata.fileName}
-              />
-            </ViewImageModal>
-          )}
-          {hasLocalPreview && previewType === 'video' && (
-            <ViewImageModal fileId={id} messageId={messageId}>
-              <video src={previewPath} className={mediaStyle} draggable={false} />
-            </ViewImageModal>
-          )}
-          {!hasLocalPreview && (
-            <WithWrapper
-              isWrapped={true}
-              className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
-            >
-              {previewType === '' && status === 'idle' ? <File className="size-5" /> : <Download />}
-            </WithWrapper>
-          )}
+    <div className="flex gap-3 items-center" {...finalBehavior}>
+      <div className="relative">
+        {hasPreview && previewType === 'image' && (
+          <ViewImageModal fileId={id} messageId={messageId}>
+            <img
+              src={previewUrl}
+              className={mediaStyle}
+              draggable={false}
+              alt={metadata.fileName}
+            />
+          </ViewImageModal>
+        )}
+        {hasPreview && previewType === 'video' && (
+          <ViewImageModal fileId={id} messageId={messageId}>
+            <video src={previewUrl} className={mediaStyle} draggable={false} />
+          </ViewImageModal>
+        )}
 
-          {status === 'pending' && (
-            <div
-              className={cn(
-                'absolute inset-0 flex items-center justify-center flex flex-col gap-1',
-                hasLocalPreview && 'bg-black/20',
-              )}
-            >
-              <X />
-            </div>
-          )}
-        </div>
+        {!hasPreview && (
+          <WithWrapper
+            isWrapped
+            className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
+          >
+            {showDownloading ? (
+              <LoaderCircle className="size-5 animate-spin" />
+            ) : showDownloadIdle ? (
+              loadState === 'unsupported' ? (
+                <File className="size-5" />
+              ) : (
+                <Download className="size-5" />
+              )
+            ) : (
+              <File className="size-5" />
+            )}
+          </WithWrapper>
+        )}
 
-        <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
-          <div className="text-sm font-medium truncate">{metadata.fileName}</div>
-          <div className="text-xs opacity-70">
-            {status === 'pending'
-              ? `${uploadedSize} / ${formatFileSize(metadata.size)}`
-              : formatFileSize(metadata.size)}
+        {hasPreview && showDownloading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-md">
+            <LoaderCircle className="size-5 text-white animate-spin" />
           </div>
+        )}
+      </div>
+
+      <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
+        <div className="text-sm font-medium truncate">{metadata.fileName}</div>
+        <div className="text-xs opacity-70">
+          {showDownloading ? 'Đang tải…' : formatFileSize(metadata.size)}
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
 export const FileContent = memo(({ data }: WithMessage) => {
   const fileIds = data.fileIds ?? []
-
   const { isMine } = data
 
   return (
@@ -128,27 +134,6 @@ export const FileContent = memo(({ data }: WithMessage) => {
           <FileItem key={id} id={id} isMine={isMine} messageId={data.id} />
         ))}
       </div>
-      {/* <div className="flex gap-3 items-center">
-        <div onClick={upProgress != null ? cancel : !path ? download : undefined}>
-          <WithWrapper
-            isWrapped={isDefault}
-            className={isMine ? 'bg-blue-500 text-blue-200' : 'bg-blue-200 text-[#3b82f6]'}
-          >
-            {upProgress != null ? <X /> : !!path ? fileDisplay : <Download />}
-          </WithWrapper>
-        </div>
-
-        {meta && (
-          <>
-            <div className={cn('flex-1 min-w-0', isMine ? 'text-white' : 'text-black')}>
-              <div className="text-sm font-medium truncate">{meta.fileName}</div>
-              <div className="text-xs opacity-70">
-                {upProgress != null ? `${uploadedSize} / ${meta.displaySize}` : meta.displaySize}
-              </div>
-            </div>
-          </>
-        )}
-      </div> */}
       {!!data?.content && <MessageText className="mt-3" message={data} />}
     </>
   )
