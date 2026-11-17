@@ -2,6 +2,7 @@ import { CONTRACT_ADDRESSES } from '@/config'
 import { MtnContract } from '@metanodejs/mtn-contract'
 import { meetingAbi } from './abis'
 import type { TransactionPayload } from '../types'
+import { CHAT_SC_GAS } from '../gas'
 import { asyncPriorityQueue } from '@/modules/realtime'
 
 export type ReqTrack = {
@@ -55,7 +56,7 @@ export class MeetingContract extends MtnContract {
       meet: boolean
       isLockRoom: boolean
       owner: string
-    }>
+    }>,
   ): Promise<{}> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -65,9 +66,10 @@ export class MeetingContract extends MtnContract {
           functionName: 'createRoom',
           abiData: meetingAbi.createRoom as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
+          gas: CHAT_SC_GAS,
         }),
-      'high'
+      'high',
     )
   }
 
@@ -80,9 +82,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'joinRoom',
           abiData: meetingAbi.joinRoom as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'high'
+      'high',
     )
   }
 
@@ -95,9 +97,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'emitEventToBackend',
           abiData: meetingAbi.emitEventToBackend as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'low'
+      'low',
     )
   }
 
@@ -110,9 +112,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'leaveRoom',
           abiData: meetingAbi.leaveRoom as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'medium'
+      'medium',
     )
   }
 
@@ -125,16 +127,16 @@ export class MeetingContract extends MtnContract {
           functionName: 'rejectCall',
           abiData: meetingAbi.rejectCall as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'high'
+      'high',
     )
   }
 
   getRoomParticipants(
     payload: TransactionPayload<{
       roomId: string
-    }>
+    }>,
   ): Promise<string[]> {
     const { from, inputData } = payload
     return this.sendTransaction({
@@ -142,14 +144,14 @@ export class MeetingContract extends MtnContract {
       functionName: 'getRoomParticipants',
       abiData: meetingAbi.getRoomParticipants as any,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
   rooms(
     payload: TransactionPayload<{
       '': string
-    }>
+    }>,
   ): Promise<{
     exists: boolean
     active: boolean
@@ -163,7 +165,7 @@ export class MeetingContract extends MtnContract {
       functionName: 'rooms',
       abiData: meetingAbi.rooms as any,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -172,7 +174,7 @@ export class MeetingContract extends MtnContract {
       roomId: string
       _tracks: ReqTrack[]
       _sdpOffer: string
-    }>
+    }>,
   ): Promise<void> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -182,9 +184,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'addTrack',
           abiData: meetingAbi.addTrack as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'medium'
+      'medium',
     )
   }
 
@@ -193,7 +195,7 @@ export class MeetingContract extends MtnContract {
       roomId: string
       _reaction: string
       owner: string
-    }>
+    }>,
   ): Promise<void> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -203,9 +205,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'sendCallReaction',
           abiData: meetingAbi.sendCallReaction as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'low'
+      'low',
     )
   }
 
@@ -213,7 +215,7 @@ export class MeetingContract extends MtnContract {
     payload: TransactionPayload<{
       roomId: string
       _participant: string
-    }>
+    }>,
   ): Promise<void> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -223,9 +225,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'approveParticipant',
           abiData: meetingAbi.approveParticipant as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'low'
+      'low',
     )
   }
 
@@ -233,7 +235,7 @@ export class MeetingContract extends MtnContract {
     payload: TransactionPayload<{
       roomId: string
       _participant: string
-    }>
+    }>,
   ): Promise<void> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -243,9 +245,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'rejectParticipant',
           abiData: meetingAbi.rejectParticipant as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'low'
+      'low',
     )
   }
 
@@ -254,7 +256,7 @@ export class MeetingContract extends MtnContract {
       roomId: string
       _isRaiseHand: boolean
       owner: string
-    }>
+    }>,
   ): Promise<void> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -264,16 +266,16 @@ export class MeetingContract extends MtnContract {
           functionName: 'handleRaiseHand',
           abiData: meetingAbi.handleRaiseHand as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'low'
+      'low',
     )
   }
 
   getRoomParticipantOwner(
     payload: TransactionPayload<{
       roomId: string
-    }>
+    }>,
   ): Promise<string> {
     const { from, inputData } = payload
     return this.sendTransaction({
@@ -281,7 +283,7 @@ export class MeetingContract extends MtnContract {
       functionName: 'getRoomParticipantOwner',
       abiData: meetingAbi.getRoomParticipantOwner as any,
       inputData,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -289,7 +291,7 @@ export class MeetingContract extends MtnContract {
     payload: TransactionPayload<{
       roomId: string
       _isOn: boolean
-    }>
+    }>,
   ): Promise<void> {
     const { from, inputData } = payload
     return asyncPriorityQueue.add(
@@ -299,9 +301,9 @@ export class MeetingContract extends MtnContract {
           functionName: 'toggleCamera',
           abiData: meetingAbi.toggleCamera as any,
           inputData,
-          feeType: 'sc'
+          feeType: 'sc',
         }),
-      'low'
+      'low',
     )
   }
 }

@@ -1,5 +1,6 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
 import type { TransactionPayload } from '../types'
+import { CHAT_SC_GAS, SEND_MESSAGE_GAS } from '../gas'
 import { groupAbis } from './abis'
 
 export class GroupContract extends MtnContract {
@@ -14,7 +15,7 @@ export class GroupContract extends MtnContract {
       to,
       functionName: 'admin',
       abiData: groupAbis.admin as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -25,7 +26,7 @@ export class GroupContract extends MtnContract {
       to,
       functionName: 'getMyEncryptedGroupKey',
       abiData: groupAbis.getMyEncryptedGroupKey as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -37,7 +38,7 @@ export class GroupContract extends MtnContract {
       functionName: 'addMember',
       abiData: groupAbis.addMember as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -49,7 +50,20 @@ export class GroupContract extends MtnContract {
       functionName: 'addAllMember',
       abiData: groupAbis.addAllMember as any,
       feeType: 'sc',
-      inputData
+      inputData,
+      gas: CHAT_SC_GAS,
+    })
+  }
+
+  removeMember(payload: TransactionPayload<{ user: string }>) {
+    const { from, to, inputData } = payload
+    return this.sendTransaction({
+      from,
+      to,
+      functionName: 'removeMember',
+      abiData: groupAbis.removeMember as any,
+      feeType: 'sc',
+      inputData,
     })
   }
 
@@ -58,7 +72,7 @@ export class GroupContract extends MtnContract {
       encryptedContent: string
       recipientOwners: string[]
       recipientContracts: string[]
-    }>
+    }>,
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -67,7 +81,8 @@ export class GroupContract extends MtnContract {
       functionName: 'sendMessage',
       abiData: groupAbis.sendMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
+      gas: SEND_MESSAGE_GAS,
     })
   }
 
@@ -79,7 +94,7 @@ export class GroupContract extends MtnContract {
       functionName: 'getMemberListGroup',
       abiData: groupAbis.getMemberListGroup as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -91,7 +106,7 @@ export class GroupContract extends MtnContract {
       functionName: 'getProcessedGroupMessages',
       abiData: groupAbis.getProcessedGroupMessages as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -103,7 +118,7 @@ export class GroupContract extends MtnContract {
       functionName: 'editMessage',
       abiData: groupAbis.editMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -115,7 +130,7 @@ export class GroupContract extends MtnContract {
       functionName: 'deleteMessage',
       abiData: groupAbis.deleteMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -127,7 +142,7 @@ export class GroupContract extends MtnContract {
       functionName: 'reactToMessage',
       abiData: groupAbis.reactToMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -138,7 +153,7 @@ export class GroupContract extends MtnContract {
       to,
       functionName: 'groupName',
       abiData: groupAbis.groupName as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -150,7 +165,7 @@ export class GroupContract extends MtnContract {
       functionName: 'unReactToMessage',
       abiData: groupAbis.unReactToMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -162,7 +177,7 @@ export class GroupContract extends MtnContract {
       functionName: 'getMessageById',
       abiData: groupAbis.getMessageById as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -174,7 +189,7 @@ export class GroupContract extends MtnContract {
       functionName: 'markMessagesAsRead',
       abiData: groupAbis.markMessagesAsRead as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -186,7 +201,7 @@ export class GroupContract extends MtnContract {
       functionName: 'transferAdmin',
       abiData: groupAbis.transferAdmin as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
   groupId(payload: TransactionPayload<{}>) {
@@ -197,7 +212,7 @@ export class GroupContract extends MtnContract {
       functionName: 'groupId',
       abiData: groupAbis.groupId as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -209,12 +224,12 @@ export class GroupContract extends MtnContract {
       functionName: 'userToPublicKeyAdmin',
       abiData: groupAbis.userToPublicKeyAdmin as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
   updateGroupInfo(
-    payload: TransactionPayload<{ _newName: string; _newAvatar: string; _newDescription: string }>
+    payload: TransactionPayload<{ _newName: string; _newAvatar: string; _newDescription: string }>,
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -223,7 +238,7 @@ export class GroupContract extends MtnContract {
       functionName: 'updateGroupInfo',
       abiData: groupAbis.updateGroupInfo as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -242,7 +257,7 @@ export class GroupContract extends MtnContract {
       functionName: 'getGroupInfo',
       abiData: groupAbis.getGroupInfo as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -254,7 +269,7 @@ export class GroupContract extends MtnContract {
       functionName: 'getListPinnedMessagesGroup',
       abiData: groupAbis.getListPinnedMessagesGroup as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -266,7 +281,7 @@ export class GroupContract extends MtnContract {
       functionName: 'pinMessage',
       abiData: groupAbis.pinMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -278,7 +293,7 @@ export class GroupContract extends MtnContract {
       functionName: 'pinMessageForAllMembers',
       abiData: groupAbis.pinMessageForAllMembers as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -290,7 +305,7 @@ export class GroupContract extends MtnContract {
       functionName: 'leaveGroup',
       abiData: groupAbis.leaveGroup as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -302,7 +317,7 @@ export class GroupContract extends MtnContract {
       functionName: 'setComposingStatusGroup',
       abiData: groupAbis.setComposingStatusGroup as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 }

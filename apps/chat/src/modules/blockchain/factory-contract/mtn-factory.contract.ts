@@ -7,10 +7,11 @@ import type {
   CreateGroupInput,
   GetUserContractInput,
   IsUsernameTakenInput,
-  RegisterUserInput
+  RegisterUserInput,
 } from './types'
 import { CONTRACT_ADDRESSES } from '@/config'
 import { formatAddress } from '@/shared/utils'
+import { CHAT_SC_GAS } from '../gas'
 
 export class FactoryContract extends MtnContract {
   constructor() {
@@ -23,7 +24,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'checkUserContract',
       feeType: 'read',
-      abiData: factoryAbi.checkUserContract
+      abiData: factoryAbi.checkUserContract,
     })
   }
 
@@ -35,7 +36,7 @@ export class FactoryContract extends MtnContract {
       functionName: 'registerUser',
       feeType: 'sc',
       abiData: factoryAbi.registerUser,
-      gas: 2_000_000
+      gas: CHAT_SC_GAS,
     })
   }
 
@@ -46,7 +47,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'isUsernameTaken',
       feeType: 'read',
-      abiData: factoryAbi.isUsernameTaken
+      abiData: factoryAbi.isUsernameTaken,
     })
   }
 
@@ -57,7 +58,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'getUserContract',
       feeType: 'read',
-      abiData: factoryAbi.getUserContract
+      abiData: factoryAbi.getUserContract,
     })
   }
 
@@ -69,12 +70,13 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'createGroup',
       feeType: 'sc',
-      abiData: factoryAbi.createGroup
+      abiData: factoryAbi.createGroup,
+      gas: CHAT_SC_GAS,
     })
   }
 
   async createAnonymousCommunity(
-    payload: TransactionPayload<CreateAnonymousCommunityInput>
+    payload: TransactionPayload<CreateAnonymousCommunityInput>,
   ): Promise<void> {
     const { from, inputData } = payload
     console.log('createAnonymousCommunity 1')
@@ -83,7 +85,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'createAnonymousCommunity',
       feeType: 'sc',
-      abiData: factoryAbi.createAnonymousCommunity
+      abiData: factoryAbi.createAnonymousCommunity,
     })
     console.log('createAnonymousCommunity 2')
 
@@ -96,7 +98,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'deleteGroup',
       feeType: 'sc',
-      abiData: factoryAbi.deleteGroup
+      abiData: factoryAbi.deleteGroup,
     })
   }
 
@@ -107,7 +109,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'deleteAnonymousCommunity',
       feeType: 'sc',
-      abiData: factoryAbi.deleteAnonymousCommunity
+      abiData: factoryAbi.deleteAnonymousCommunity,
     })
   }
 
@@ -118,7 +120,7 @@ export class FactoryContract extends MtnContract {
       inputData,
       functionName: 'isUserDisabled',
       feeType: 'read',
-      abiData: factoryAbi.isUserDisabled
+      abiData: factoryAbi.isUserDisabled,
     })
   }
 }

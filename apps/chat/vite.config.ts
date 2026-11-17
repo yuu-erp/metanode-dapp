@@ -3,14 +3,36 @@ import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import { fileURLToPath, URL } from 'node:url'
 import path from 'path'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vite'
 
 const callEngineRoot = path.resolve(__dirname, '../call/src/call')
+const pureRoot = path.resolve(__dirname, 'pure')
+
+/** Dev-only manual test — production build must never load files under `pure/`. */
+function excludePureFromProductionBuild(): Plugin {
+  return {
+    name: 'exclude-pure-from-production-build',
+    apply: 'build',
+    load(id) {
+      const normalized = path.normalize(id)
+      if (normalized === pureRoot || normalized.startsWith(`${pureRoot}${path.sep}`)) {
+        throw new Error(`[vite build] \`pure/\` is dev-only and must not be bundled: ${normalized}`)
+      }
+    },
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
+  build: {
+    rollupOptions: {
+      input: path.resolve(__dirname, 'index.html'),
+    },
+  },
   plugins: [
+    excludePureFromProductionBuild(),
     // devtools(),
     tanstackRouter({
       target: 'react',

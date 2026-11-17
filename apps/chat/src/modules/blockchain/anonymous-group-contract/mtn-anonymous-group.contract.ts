@@ -1,5 +1,6 @@
 import { MtnContract } from '@metanodejs/mtn-contract'
 import type { TransactionPayload } from '../types'
+import { SEND_MESSAGE_GAS } from '../gas'
 import { anonymousGroupAbi } from './abis'
 
 export class AnonymousGroupContract extends MtnContract {
@@ -15,7 +16,8 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'sendMessage',
       abiData: anonymousGroupAbi.sendMessage,
       feeType: 'sc',
-      inputData
+      inputData,
+      gas: SEND_MESSAGE_GAS,
     })
   }
 
@@ -27,7 +29,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'editMessage',
       abiData: anonymousGroupAbi.editMessage,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -39,7 +41,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'deleteMessage',
       abiData: anonymousGroupAbi.deleteMessage,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -50,7 +52,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'getMyEncryptedGroupKey',
       abiData: anonymousGroupAbi.getMyEncryptedGroupKey,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -61,7 +63,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'groupAvatar',
       abiData: anonymousGroupAbi.groupAvatar,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -70,7 +72,7 @@ export class AnonymousGroupContract extends MtnContract {
       page: number
       limit: number
       sender: string
-    }>
+    }>,
   ) {
     const { from, to, inputData } = payload
 
@@ -80,7 +82,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'getProcessedGroupMessagesWithReactions',
       abiData: anonymousGroupAbi.getProcessedGroupMessagesWithReactions,
       feeType: 'read',
-      inputData
+      inputData,
     })
     return rs
   }
@@ -93,7 +95,7 @@ export class AnonymousGroupContract extends MtnContract {
       _alias: string
       avatarUser: string
       encryptedKeyForNewMember: string
-    }>
+    }>,
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -102,7 +104,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'addMember',
       abiData: anonymousGroupAbi.addMember,
       feeType: 'sc',
-      inputData: inputData
+      inputData: inputData,
     })
   }
 
@@ -113,7 +115,7 @@ export class AnonymousGroupContract extends MtnContract {
       teamId: string
       avatarUser: string
       encryptedKeys: string[]
-    }>
+    }>,
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -122,7 +124,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'addManyMember',
       abiData: anonymousGroupAbi.addManyMember,
       feeType: 'sc',
-      inputData: inputData
+      inputData: inputData,
     })
   }
 
@@ -130,7 +132,7 @@ export class AnonymousGroupContract extends MtnContract {
     payload: TransactionPayload<{
       messageId: string
       reaction: string
-    }>
+    }>,
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -139,7 +141,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'reactToMessage',
       abiData: anonymousGroupAbi.reactToMessage,
       feeType: 'sc',
-      inputData: inputData
+      inputData: inputData,
     })
   }
 
@@ -150,7 +152,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'initialAdmin',
       abiData: anonymousGroupAbi.initialAdmin,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -161,7 +163,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'groupName',
       abiData: anonymousGroupAbi.groupName,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -172,7 +174,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'getAllMembers',
       abiData: anonymousGroupAbi.getAllMembers,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -183,7 +185,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'getAliasMember',
       abiData: anonymousGroupAbi.getAliasMember,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 
@@ -199,7 +201,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'unReactToMessage',
       abiData: anonymousGroupAbi.unReactToMessage,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -211,7 +213,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'getMessageById',
       abiData: anonymousGroupAbi.getMessageById,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -223,7 +225,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'markMessagesAsRead',
       abiData: anonymousGroupAbi.markMessagesAsRead,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -235,7 +237,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'pinMessage',
       abiData: anonymousGroupAbi.pinMessage as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -247,7 +249,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'userToPublicKeyAdmin',
       abiData: anonymousGroupAbi.userToPublicKeyAdmin as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -259,7 +261,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'setComposingStatusCommunity',
       abiData: anonymousGroupAbi.setComposingStatusCommunity as any,
       feeType: 'sc',
-      inputData
+      inputData,
     })
   }
 
@@ -271,7 +273,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'getListPinnedMessagesCommunity',
       abiData: anonymousGroupAbi.getListPinnedMessagesCommunity as any,
       feeType: 'read',
-      inputData
+      inputData,
     })
   }
 
@@ -279,7 +281,7 @@ export class AnonymousGroupContract extends MtnContract {
     payload: TransactionPayload<{
       newOwner: string
       _pkAdmin: string
-    }>
+    }>,
   ) {
     const { from, to, inputData } = payload
     return this.sendTransaction({
@@ -288,7 +290,7 @@ export class AnonymousGroupContract extends MtnContract {
       functionName: 'transferOwnership',
       abiData: anonymousGroupAbi.transferOwnership,
       feeType: 'sc',
-      inputData: inputData
+      inputData: inputData,
     })
   }
 
@@ -299,7 +301,7 @@ export class AnonymousGroupContract extends MtnContract {
       to,
       functionName: 'admin',
       abiData: anonymousGroupAbi.admin as any,
-      feeType: 'read'
+      feeType: 'read',
     })
   }
 }

@@ -20,6 +20,7 @@ import type {
   UserProfileOutput,
 } from './types'
 import type { UserMehods } from '@/contract-types/user/user.methods'
+import { CHAT_SC_GAS, SEND_MESSAGE_GAS } from '../gas'
 
 export class UserContract extends MtnContract {
   constructor() {
@@ -96,7 +97,7 @@ export class UserContract extends MtnContract {
       abiData: userAbi.sendMessage as any,
       inputData,
       feeType: 'sc',
-      gas: 5_000_000,
+      gas: SEND_MESSAGE_GAS,
     })
   }
 
@@ -243,6 +244,7 @@ export class UserContract extends MtnContract {
       abiData: userAbi.setP2PChatEnabled as any,
       inputData,
       feeType: 'sc',
+      gas: CHAT_SC_GAS,
     })
   }
 

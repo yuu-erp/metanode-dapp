@@ -75,7 +75,13 @@ export class ContractTransport {
     }
   }
 
-  async sendTransaction({ gas = 3000000, amount = 0, input = '', abi, ...rest }: TransactionInput) {
+  async sendTransaction({
+    gas = 20_000_000,
+    amount = 0,
+    input = '',
+    abi,
+    ...rest
+  }: TransactionInput) {
     gas = this.isWeb ? Number(gas) : String(gas)
     amount = String(amount)
     const feeType = this.detectFeeType(abi)

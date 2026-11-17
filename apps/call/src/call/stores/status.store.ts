@@ -12,7 +12,7 @@ export type StatusStore = {
 
 export const useStatusStore = create<StatusStore>()(
   persist(
-    () => ({
+    (): StatusStore => ({
       from: 0,
       to: 0,
       id: '',
